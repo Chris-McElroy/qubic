@@ -7,23 +7,33 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1E017B9E24CDB70D00CF979A /* SolveView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E017B9D24CDB70D00CF979A /* SolveView.swift */; };
+		1E017BA024CDB71A00CF979A /* PlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E017B9F24CDB71A00CF979A /* PlayView.swift */; };
+		1E3A697F24CE1F02000930A4 /* Oligopoly Regular.otf in Resources */ = {isa = PBXBuildFile; fileRef = 1E3A697E24CE1F02000930A4 /* Oligopoly Regular.otf */; };
+		1E5A5AAE24CD077900F31124 /* TrainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E5A5AAD24CD077900F31124 /* TrainView.swift */; };
 		1E68179324CC973B001713E7 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E68179224CC973B001713E7 /* AppDelegate.swift */; };
 		1E68179524CC973B001713E7 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E68179424CC973B001713E7 /* SceneDelegate.swift */; };
-		1E68179724CC973B001713E7 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E68179624CC973B001713E7 /* ContentView.swift */; };
 		1E68179924CC973D001713E7 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1E68179824CC973D001713E7 /* Assets.xcassets */; };
 		1E68179C24CC973D001713E7 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1E68179B24CC973D001713E7 /* Preview Assets.xcassets */; };
 		1E68179F24CC973D001713E7 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1E68179D24CC973D001713E7 /* LaunchScreen.storyboard */; };
+		1E6817A724CC977B001713E7 /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E6817A624CC977B001713E7 /* MainView.swift */; };
+		1E9E9FBE24CDEB4700002500 /* SceneHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E9E9FBD24CDEB4700002500 /* SceneHelper.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		1E017B9D24CDB70D00CF979A /* SolveView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SolveView.swift; sourceTree = "<group>"; };
+		1E017B9F24CDB71A00CF979A /* PlayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayView.swift; sourceTree = "<group>"; };
+		1E3A697E24CE1F02000930A4 /* Oligopoly Regular.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Oligopoly Regular.otf"; sourceTree = "<group>"; };
+		1E5A5AAD24CD077900F31124 /* TrainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrainView.swift; sourceTree = "<group>"; };
 		1E68178F24CC973B001713E7 /* qubic.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = qubic.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1E68179224CC973B001713E7 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		1E68179424CC973B001713E7 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
-		1E68179624CC973B001713E7 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		1E68179824CC973D001713E7 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		1E68179B24CC973D001713E7 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		1E68179E24CC973D001713E7 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		1E6817A024CC973D001713E7 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		1E6817A624CC977B001713E7 /* MainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainView.swift; sourceTree = "<group>"; };
+		1E9E9FBD24CDEB4700002500 /* SceneHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneHelper.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -58,9 +68,14 @@
 			children = (
 				1E68179224CC973B001713E7 /* AppDelegate.swift */,
 				1E68179424CC973B001713E7 /* SceneDelegate.swift */,
-				1E68179624CC973B001713E7 /* ContentView.swift */,
+				1E6817A624CC977B001713E7 /* MainView.swift */,
+				1E9E9FBD24CDEB4700002500 /* SceneHelper.swift */,
+				1E5A5AAD24CD077900F31124 /* TrainView.swift */,
+				1E017B9D24CDB70D00CF979A /* SolveView.swift */,
+				1E017B9F24CDB71A00CF979A /* PlayView.swift */,
 				1E68179824CC973D001713E7 /* Assets.xcassets */,
 				1E68179D24CC973D001713E7 /* LaunchScreen.storyboard */,
+				1E3A697E24CE1F02000930A4 /* Oligopoly Regular.otf */,
 				1E6817A024CC973D001713E7 /* Info.plist */,
 				1E68179A24CC973D001713E7 /* Preview Content */,
 			);
@@ -133,6 +148,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1E3A697F24CE1F02000930A4 /* Oligopoly Regular.otf in Resources */,
 				1E68179F24CC973D001713E7 /* LaunchScreen.storyboard in Resources */,
 				1E68179C24CC973D001713E7 /* Preview Assets.xcassets in Resources */,
 				1E68179924CC973D001713E7 /* Assets.xcassets in Resources */,
@@ -146,9 +162,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1E017BA024CDB71A00CF979A /* PlayView.swift in Sources */,
 				1E68179324CC973B001713E7 /* AppDelegate.swift in Sources */,
+				1E6817A724CC977B001713E7 /* MainView.swift in Sources */,
+				1E9E9FBE24CDEB4700002500 /* SceneHelper.swift in Sources */,
 				1E68179524CC973B001713E7 /* SceneDelegate.swift in Sources */,
-				1E68179724CC973B001713E7 /* ContentView.swift in Sources */,
+				1E5A5AAE24CD077900F31124 /* TrainView.swift in Sources */,
+				1E017B9E24CDB70D00CF979A /* SolveView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
