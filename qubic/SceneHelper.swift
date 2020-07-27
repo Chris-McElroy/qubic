@@ -6,7 +6,6 @@
 //  Copyright © 2020 XNO LLC. All rights reserved.
 //
 
-import Foundation
 import SceneKit
 
 struct SceneHelper {
@@ -16,9 +15,9 @@ struct SceneHelper {
         cameraNode.camera = SCNCamera()
         cameraNode.camera?.usesOrthographicProjection = true
         cameraNode.position = pos
-        cameraNode.eulerAngles.x = GLKMathDegreesToRadians(rot.x)
-        cameraNode.eulerAngles.y = GLKMathDegreesToRadians(rot.y)
-        cameraNode.eulerAngles.z = GLKMathDegreesToRadians(rot.z)
+        cameraNode.eulerAngles.x = dToR(rot.x)
+        cameraNode.eulerAngles.y = dToR(rot.y)
+        cameraNode.eulerAngles.z = dToR(rot.z)
         return cameraNode
     }
     
@@ -56,5 +55,24 @@ struct SceneHelper {
         scnView.showsStatistics = false
         scnView.backgroundColor = UIColor.systemBackground
         return scnView
+    }
+    
+    func makeQuaternion(_ x: Double, _ y: Double, _ z: Double, _ d: Float) -> SCNQuaternion {
+        let glkq = makeGLKQuaternion(x, y, z, d)
+        return SCNQuaternion(x: glkq.x, y: glkq.y, z: glkq.z, w: glkq.w)
+    }
+    
+    func makeGLKQuaternion(_ x: Double, _ y: Double, _ z: Double, _ d: Float) -> GLKQuaternion {
+        let l: Double = sqrt(pow(x,2) + pow(y,2) + pow(z,2))
+        let normAxis = GLKVector3(v:(Float(x/l),Float(y/l),Float(z/l)))
+        return GLKQuaternionMakeWithAngleAndVector3Axis(dToR(d), normAxis)
+    }
+    
+    func dToR(_ degrees: Float) -> CGFloat {
+        return CGFloat(GLKMathDegreesToRadians(degrees))
+    }
+    
+    func dToR(_ degrees: Float) -> Float {
+        return GLKMathDegreesToRadians(degrees)
     }
 }

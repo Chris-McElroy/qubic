@@ -13,7 +13,9 @@ struct TrainView: View {
     
     var body: some View {
         VStack {
-            primaryButton(name: "train", action: mainButtonAction)
+            Button(action: mainButtonAction) {
+                primaryLabel(name: "train")
+            }
         }
     }
 }
