@@ -1,36 +1,34 @@
 //
-//  AboutView.swift
+//  SettingsView.swift
 //  qubic
 //
-//  Created by 4 on 7/26/20.
+//  Created by 4 on 7/30/20.
 //  Copyright © 2020 XNO LLC. All rights reserved.
 //
 
 import SwiftUI
 
-struct AboutView: View {
+struct SettingsView: View {
     @State var mainButtonAction: () -> Void
+    @State var sup: Bool = false
     
     var body: some View {
         VStack {
             Button(action: mainButtonAction) {
-                Text("about")
+                Text("settings")
             }
             .buttonStyle(MoreStyle())
-            Fill().frame(height: 10)
-            Text("about qubic")
-            Text("about me")
-            Text("contact me")
-            Text("privacy policy")
-            Text("©2020 XNO LLC")
+            Spacer()
+            Toggle("this", isOn: $sup)
+                .padding()
             Spacer()
         }
         .background(Fill())
     }
 }
 
-struct AboutView_Previews: PreviewProvider {
+struct SettingsView_Previews: PreviewProvider {
     static var previews: some View {
-        AboutView() {}
+        SettingsView() {}
     }
 }

@@ -9,15 +9,14 @@
 import SceneKit
 
 struct SceneHelper {
-    func makeCamera(pos: SCNVector3, rot: SCNVector3) -> SCNNode {
+    func makeCamera(pos: SCNVector3, rot: SCNVector3, scale: Double) -> SCNNode {
         // create and add a camera to the scene
         let cameraNode = SCNNode()
         cameraNode.camera = SCNCamera()
-        cameraNode.camera?.usesOrthographicProjection = true
         cameraNode.position = pos
-        cameraNode.eulerAngles.x = dToR(rot.x)
-        cameraNode.eulerAngles.y = dToR(rot.y)
-        cameraNode.eulerAngles.z = dToR(rot.z)
+        cameraNode.eulerAngles = rot
+        cameraNode.camera?.usesOrthographicProjection = true
+        cameraNode.camera?.orthographicScale = scale
         return cameraNode
     }
     
@@ -25,9 +24,9 @@ struct SceneHelper {
         let omniLightNode = SCNNode()
         omniLightNode.light = SCNLight()
         omniLightNode.light?.type = SCNLight.LightType.omni
-        omniLightNode.light?.color = UIColor(white: 0.85, alpha: 1.0)
-        omniLightNode.position = SCNVector3(x: 100, y: 250, z: -25)
-        omniLightNode.light?.attenuationStartDistance = 1000
+        omniLightNode.light?.color = UIColor(white: 1.0, alpha: 1.0)
+        omniLightNode.light?.attenuationStartDistance = 2000
+        omniLightNode.position = SCNVector3(x: -25, y: 250, z: 100)
         return omniLightNode
     }
     
@@ -35,12 +34,19 @@ struct SceneHelper {
         let ambiLightNode = SCNNode()
         ambiLightNode.light = SCNLight()
         ambiLightNode.light?.type = SCNLight.LightType.ambient
-        ambiLightNode.light?.color = UIColor(white: 0.5, alpha: 1.0)
+        ambiLightNode.light?.color = UIColor(white: 0.4, alpha: 1.0)
         return ambiLightNode
     }
     
-    func makeBox(name: String, pos: SCNVector3, color: UIColor) -> SCNNode {
-        let box = SCNBox(width: 1, height: 1, length: 1, chamferRadius: 0)
+    func makeBox(color: UIColor = UIColor.null, size: CGFloat = 1.0) -> SCNNode {
+        let box = SCNBox(width: size, height: size, length: size, chamferRadius: 0)
+        let boxNode = SCNNode(geometry: box)
+        boxNode.geometry?.firstMaterial?.diffuse.contents = color
+        return boxNode
+    }
+    
+    func makeBox(name: String, pos: SCNVector3, color: UIColor = UIColor.null, size: CGFloat = 1.0) -> SCNNode {
+        let box = SCNBox(width: size, height: size, length: size, chamferRadius: 0)
         let boxNode = SCNNode(geometry: box)
         boxNode.name = name
         boxNode.geometry?.firstMaterial?.diffuse.contents = color
@@ -65,14 +71,10 @@ struct SceneHelper {
     func makeGLKQuaternion(_ x: Double, _ y: Double, _ z: Double, _ d: Float) -> GLKQuaternion {
         let l: Double = sqrt(pow(x,2) + pow(y,2) + pow(z,2))
         let normAxis = GLKVector3(v:(Float(x/l),Float(y/l),Float(z/l)))
-        return GLKQuaternionMakeWithAngleAndVector3Axis(dToR(d), normAxis)
+        return GLKQuaternionMakeWithAngleAndVector3Axis(Float(dToR(d)), normAxis)
     }
     
     func dToR(_ degrees: Float) -> CGFloat {
         return CGFloat(GLKMathDegreesToRadians(degrees))
-    }
-    
-    func dToR(_ degrees: Float) -> Float {
-        return GLKMathDegreesToRadians(degrees)
     }
 }

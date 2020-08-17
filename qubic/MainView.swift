@@ -9,80 +9,88 @@
 import SwiftUI
 
 struct MainView: View {
-    @State var expanded: Bool = false
-    
+    // passed in
+    @EnvironmentObject var updater: UpdateClass
+    let window: UIWindow
+    // defined here
+    @State var heights = Heights()
     let cube = CubeView()
     
     var body: some View {
-        addBackground(height: nil, insert:
-            AnyView(
-                VStack {
-                    upperStack
-                        .offset(y: expanded ? -400 : 250)
-                    lowerStack
-                        .offset(y: expanded ? -335 : 400)
-                    Spacer(minLength: 100)
-                        .offset(y: expanded ? 0 : 400)
-                    moreButton
-                    Spacer(minLength: 270)
-                        .offset(y: expanded ? 0 : 400)
-                }
-                    .frame(height: 1200)
-            )
-        )
-            .gesture(scrollGestures)
+        VStack(alignment: .center) {
+            Spacer().frame(height: heights.topSpacer)
+            displayStack.frame(height: heights.displayStack)
+            mainStack.frame(height: heights.mainStack)
+            moreStack.frame(height: heights.moreStack)
+            Spacer()
+            Fill().frame(height: heights.fill)
+                .offset(y: heights.fillOffset)
+            moreButton.frame(height: heights.moreButton)
+                .offset(y: heights.moreButtonOffset)
+        }
+        .onAppear { self.heights.window = self.window }
+        .onAppear { self.heights.view = .main }
+        .frame(height: heights.total)
+        .background(Fill())
+        .gesture(self.scrollGestures)
     }
     
-    var upperStack: some View {
+    var displayStack: some View {
         VStack {
-            Spacer()
-                .frame(height: 20)
             Text("qubic")
                 .font(.custom("Oligopoly Regular", size: 24))
-                .padding(.top, 10)
+                .padding(.top, 70)
             cube
-                .onTapGesture(count: 2) {
-                    self.cube.resetCube()
-                }
-                .padding(.horizontal, 80)
-                .padding(.vertical, 10)
+                .onTapGesture(count: 2) { self.cube.resetCube() }
+                .frame(height: heights.cube)
             Spacer()
-                .frame(height: 29)
-            TrainView() {print("train")}
-            SolveView() {print("solve")}
-            PlayView() {print("play")}
         }
     }
     
-    var lowerStack: some View {
+    var mainStack: some View {
         VStack {
-            AboutView() {}
-            AboutView() {}
-            AboutView() {}
+            TrainView() { self.switchView(to: .train) }
+                .frame(height: heights.train, alignment: .bottom)
+            SolveView() { self.switchView(to: .solve) }
+                .frame(height: heights.solve, alignment: .bottom)
+            PlayView() { self.switchView(to: .play) }
+                .frame(height: heights.play, alignment: .bottom)
+        }
+    }
+    
+    var moreStack: some View {
+        VStack {
+            Spacer().frame(height: heights.moreSpacer)
+            AboutView() { self.switchView(to: .about) }
+                .frame(height: heights.about, alignment: .top)
+            SettingsView() { self.switchView(to: .settings) }
+                .frame(height: heights.settings, alignment: .top)
+            ReplaysView() { self.switchView(to: .replays) }
+                .frame(height: heights.replays, alignment: .top)
+            FriendsView() { self.switchView(to: .friends) }
+                .frame(height: heights.friends, alignment: .top)
+            Fill()
+                .frame(height: heights.moreFill, alignment: .top)
         }
     }
     
     var moreButton: some View {
-        addBackground(height: 50, insert:
-            AnyView(
-                Button(action: {
-                    withAnimation(.easeInOut(duration: 0.4)) {
-                        self.expanded.toggle()
-                    }
-                }) {
-                    VStack {
-                        Text(expanded ? "back" : "more")
-                            .font(.custom("Oligopoly Regular", size: 16))
-                            .animation(nil)
-                        Text("↓")
-                            .rotationEffect(Angle(degrees: expanded ? 180 : 0))
-                    }
-                }
-                    .buttonStyle(PlainButtonStyle())
-                    .padding(.top, 5)
-                    .padding(.bottom,10)
-            )
-        )
+        Button(action: {
+            self.switchView(to: .main, if: self.heights.backMain, else: .more)
+        }) {
+            VStack {
+                Text(heights.view == .main ? "more" : "back")
+                    .font(.custom("Oligopoly Regular", size: 16))
+                    .animation(nil)
+                Text("↓")
+                    .rotationEffect(Angle(degrees: heights.view == .main ? 0 : 180))
+            }
+            .padding(.bottom,30)
+            .padding(.horizontal, 150)
+            .background(Fill())
+            .padding(.top, 5)
+        }
+        .buttonStyle(Solid())
     }
     
     var scrollGestures: some Gesture {
@@ -91,66 +99,162 @@ struct MainView: View {
                 let h = drag.predictedEndTranslation.height
                 let w = drag.predictedEndTranslation.width
                 if abs(h)/abs(w) > 1 {
-                    if self.expanded == (h > 0) {
-                        withAnimation(.easeInOut(duration: 0.4)) {
-                            self.expanded.toggle()
+                    if self.heights.view == .main {
+                        if h > 0 {
+                            self.cube.flipCube()
+                        } else {
+                            self.switchView(to: .more)
                         }
                     } else if h > 0 {
-                        self.cube.flipCube()
+                        self.switchView(to: .main, if: self.heights.backMain, else: .more)
                     }
                 } else {
                     self.cube.spinCube(dir: w > 0 ? 1 : -1)
                 }
             }
     }
-}
-
-struct addBackground : View {
-    let height: CGFloat?
-    let insert: AnyView
     
-    var body: some View {
-        ZStack {
-            Rectangle()
-                .foregroundColor(Color(UIColor.systemBackground))
-                .frame(height: height)
-            insert
+    func switchView(to newView: ViewStates, if switchViews: [ViewStates] = [], else otherView: ViewStates? = nil) {
+        if switchViews.contains(heights.view) || switchViews == [] {
+            withAnimation(.easeInOut(duration: 0.4)) {
+                self.heights.view = newView
+            }
+        } else if otherView != nil {
+            withAnimation(.easeInOut(duration: 0.4)) {
+                self.heights.view = otherView ?? .main
+            }
         }
     }
-}
-
-struct primaryLabel: View {
-    let name: String
     
-    var body: some View {
-        Text(name)
-            .font(.custom("Oligopoly Regular", size: 24))
-            .foregroundColor(.white)
-            .frame(minWidth: 100, idealWidth: 200, maxWidth: 200, minHeight: 40, idealHeight: 50, maxHeight: 60, alignment: .center)
-            .background(LinearGradient(gradient: Gradient(colors: [.init(red: 0.1, green: 0.3, blue: 1), .blue]), startPoint: .leading, endPoint: .trailing))
-            .cornerRadius(100)
-            .shadow(radius: 4, x: 0, y: 5)
-            .padding()
+    enum ViewStates {
+        case main
+        case more
+        case train
+        case solve
+        case play
+        case about
+        case settings
+        case replays
+        case friends
+    }
+    
+    struct Heights {
+        var window: UIWindow = UIWindow()
+        var view: ViewStates = .main
+        var showDisplay: [ViewStates] { large ? [] : [.main] }
+        var backMain: [ViewStates] = [.more,.train,.solve,.play]
+        var longMore: [ViewStates] = [.about, .settings, .replays, .friends]
+        var screen: CGFloat { window.frame.height }
+        var large: Bool { screen > 1000 }
+        var small: Bool { screen < 700 }
+        var displayStack: CGFloat {
+            large ? 400 : screen-3*shortMain-bottomGap
+        }
+        var cube: CGFloat {
+            small ? 200 : 280
+        }
+        var displaySpacer: CGFloat {
+            showDisplay.contains(view) ? displayStack : 0
+        }
+        var mainSpacing: CGFloat { 22 }
+        var shortMain: CGFloat { MainStyle().height + mainSpacing }
+        var bottomGap: CGFloat { 88 }
+        var mainSpacer: CGFloat {
+            switch view {
+            case .more:
+                return 3*shortMain+(small ? 0 : mainSpacing)
+            case .main:
+                return 3*shortMain
+            case .train:
+                return 3*shortMain
+            case .solve:
+                return 2*shortMain
+            case .play:
+                return 1*shortMain
+            default:
+                return 0
+            }
+        }
+        var mainStack: CGFloat {
+            switch view {
+            case .train:
+                return screen + 2*shortMain - bottomGap
+            case .solve:
+                return screen + 2*shortMain - bottomGap
+            case .play:
+                return screen + 2*shortMain - bottomGap
+            default:
+                return shortMain*3
+            }
+        }
+        var train: CGFloat { view == .train ? screen - bottomGap : shortMain }
+        var solve: CGFloat { view == .solve ? screen - bottomGap : shortMain }
+        var play:  CGFloat { view == .play  ? screen - bottomGap : shortMain }
+        var extra: CGFloat { large ? 0 : (displayStack + 3*shortMain)*2 }
+        var total: CGFloat { extra + screen }
+        var topSpacer: CGFloat { displaySpacer + mainSpacer }
+        var moreStack: CGFloat {
+            moreSpacer+about+settings+replays+friends+moreFill
+        }
+        var moreSpacer: CGFloat { (longMore.contains(view) && !small) ? 30 : 15 }
+        var about:    CGFloat { view == .about    ? screen-225-moreSpacer : 50 }
+        var settings: CGFloat { view == .settings ? screen-225-moreSpacer : 50 }
+        var replays:  CGFloat { view == .replays  ? screen-225-moreSpacer : 50 }
+        var friends:  CGFloat { view == .friends  ? screen-225-moreSpacer : 50 }
+        var moreFill: CGFloat { 50 }
+        var fill: CGFloat { 40 }
+        var fillOffset: CGFloat { -extra/2-screen+83 }
+        var moreButton: CGFloat { 60 }
+        var moreButtonOffset: CGFloat { -extra/2-10 }
     }
 }
 
-struct secondaryLabel: View {
-    let name: String
-    
+struct Fill: View {
     var body: some View {
-        Text(name)
+        Rectangle()
+            .foregroundColor(.systemBackground)
+    }
+}
+
+struct MainStyle: ButtonStyle {
+    let height: CGFloat = 62
+    
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(.custom("Oligopoly Regular", size: 24))
+            .foregroundColor(.white)
+            .frame(width: 200, height: height, alignment: .center)
+            .background(LinearGradient(gradient: Gradient(colors: [.init(red: 0.1, green: 0.3, blue: 1), .blue]), startPoint: .leading, endPoint: .trailing))
+            .cornerRadius(100)
+            .shadow(radius: 4, x: 0, y: 3)
+            .opacity(configuration.isPressed ? 0.5 : 1.0)
+    }
+}
+
+struct MoreStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
             .font(.custom("Oligopoly Regular", size: 20))
             .foregroundColor(.primary)
             .padding(8)
+            .opacity(configuration.isPressed ? 0.25 : 1.0)
+    }
+}
+
+struct Solid: ButtonStyle {
+    func makeBody(configuration: Self.Configuration) -> some View {
+        configuration.label
+            .opacity(1.0)
     }
 }
 
 struct MainView_Previews: PreviewProvider {
     static var previews: some View {
-        MainView()
+        MainView(window: UIWindow())
 //            .previewDevice("iPad Pro (12.9-inch) (4th generation)")
-//            .previewDevice(PreviewDevice(rawValue: "iPhone 8"))
-//        MainView()
+//            .previewDevice(PreviewDevice(rawValue: "iPhone SE (2nd generation)"))
+//            .previewDevice("iPhone 11 Pro")
+//        MainView(window: UIWindow())
 //            .previewDevice("iPad Pro (12.9-inch) (4th generation)")
 //            .preferredColorScheme(.dark)
     }

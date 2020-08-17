@@ -14,8 +14,9 @@ struct PlayView: View {
     var body: some View {
         VStack {
             Button(action: mainButtonAction) {
-                primaryLabel(name: "play")
+                Text("play")
             }
+            .buttonStyle(MainStyle())
         }
     }
 }

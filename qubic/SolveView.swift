@@ -14,8 +14,9 @@ struct SolveView: View {
     var body: some View {
         VStack {
             Button(action: mainButtonAction) {
-                primaryLabel(name: "solve")
+                Text("solve")
             }
+            .buttonStyle(MainStyle())
         }
     }
 }

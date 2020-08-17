@@ -15,10 +15,12 @@ struct CubeView : UIViewRepresentable {
     let name = "cube"
 
     func makeUIView(context: Context) -> SCNView {
-        scene.rootNode.addChildNode(help.makeCamera(pos: SCNVector3(3,3.1,3), rot: SCNVector3(-36,45,0)))
+        let pos = SCNVector3(2.0,2.0,2.0)
+        let rot = SCNVector3(help.dToR(-36),help.dToR(45),0.0)
+        scene.rootNode.addChildNode(help.makeCamera(pos: pos, rot: rot, scale: 1))
         scene.rootNode.addChildNode(help.makeOmniLight())
         scene.rootNode.addChildNode(help.makeAmbiLight())
-        scene.rootNode.addChildNode(help.makeBox(name: name, pos: SCNVector3(0,0,0), color: UIColor(red: 0.15, green: 0.5, blue: 1.0, alpha: 1.0)))
+        scene.rootNode.addChildNode(help.makeBox(name: name, pos: SCNVector3(0,0,0), color: getUIColor(1)))
         return help.prepSCNView(scene: scene)
     }
 
