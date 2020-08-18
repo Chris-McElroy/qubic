@@ -25,6 +25,7 @@
 		1E9E9FBE24CDEB4700002500 /* SceneHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E9E9FBD24CDEB4700002500 /* SceneHelper.swift */; };
 		1EAEE3BB24D9DA1400490530 /* FriendsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EAEE3BA24D9DA1400490530 /* FriendsView.swift */; };
 		1EAEE3BD24D9DCBA00490530 /* ReplaysView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EAEE3BC24D9DCBA00490530 /* ReplaysView.swift */; };
+		1EE4C75C24EB7ADC0038C1E2 /* UIHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EE4C75B24EB7ADC0038C1E2 /* UIHelper.swift */; };
 		1EEB0D4E24CF3780008F5B4B /* Colors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EEB0D4D24CF3780008F5B4B /* Colors.swift */; };
 /* End PBXBuildFile section */
 
@@ -49,6 +50,7 @@
 		1E9E9FBD24CDEB4700002500 /* SceneHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneHelper.swift; sourceTree = "<group>"; };
 		1EAEE3BA24D9DA1400490530 /* FriendsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendsView.swift; sourceTree = "<group>"; };
 		1EAEE3BC24D9DCBA00490530 /* ReplaysView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReplaysView.swift; sourceTree = "<group>"; };
+		1EE4C75B24EB7ADC0038C1E2 /* UIHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIHelper.swift; sourceTree = "<group>"; };
 		1EEB0D4D24CF3780008F5B4B /* Colors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Colors.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -87,9 +89,6 @@
 				1E6817A624CC977B001713E7 /* MainView.swift */,
 				1E2E74BB24E86AA600218E55 /* GameView.swift */,
 				1E2E74BD24E86B6500218E55 /* BoardView.swift */,
-				1E6D2E4A24CE9729001EFE85 /* CubeView.swift */,
-				1E9E9FBD24CDEB4700002500 /* SceneHelper.swift */,
-				1EEB0D4D24CF3780008F5B4B /* Colors.swift */,
 				1E5A5AAD24CD077900F31124 /* TrainView.swift */,
 				1E017B9D24CDB70D00CF979A /* SolveView.swift */,
 				1E017B9F24CDB71A00CF979A /* PlayView.swift */,
@@ -97,6 +96,10 @@
 				1E7B959124D34015004B3C80 /* SettingsView.swift */,
 				1EAEE3BC24D9DCBA00490530 /* ReplaysView.swift */,
 				1EAEE3BA24D9DA1400490530 /* FriendsView.swift */,
+				1E6D2E4A24CE9729001EFE85 /* CubeView.swift */,
+				1E9E9FBD24CDEB4700002500 /* SceneHelper.swift */,
+				1EE4C75B24EB7ADC0038C1E2 /* UIHelper.swift */,
+				1EEB0D4D24CF3780008F5B4B /* Colors.swift */,
 				1E68179824CC973D001713E7 /* Assets.xcassets */,
 				1E68179D24CC973D001713E7 /* LaunchScreen.storyboard */,
 				1E3A697E24CE1F02000930A4 /* Oligopoly Regular.otf */,
@@ -193,6 +196,7 @@
 				1E68179324CC973B001713E7 /* AppDelegate.swift in Sources */,
 				1E6817A724CC977B001713E7 /* MainView.swift in Sources */,
 				1E2E74BC24E86AA600218E55 /* GameView.swift in Sources */,
+				1EE4C75C24EB7ADC0038C1E2 /* UIHelper.swift in Sources */,
 				1E9E9FBE24CDEB4700002500 /* SceneHelper.swift in Sources */,
 				1EAEE3BB24D9DA1400490530 /* FriendsView.swift in Sources */,
 				1E68179524CC973B001713E7 /* SceneDelegate.swift in Sources */,

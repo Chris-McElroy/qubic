@@ -54,13 +54,11 @@ struct SceneHelper {
         return boxNode
     }
     
-    func prepSCNView(scene: SCNScene) -> SCNView {
-        let scnView = SCNView()
-        scnView.scene = scene
-        scnView.allowsCameraControl = false
-        scnView.showsStatistics = false
-        scnView.backgroundColor = UIColor.systemBackground
-        return scnView
+    func prepSCNView(view: SCNView, scene: SCNScene) {
+        view.scene = scene
+        view.allowsCameraControl = false
+        view.showsStatistics = false
+        view.backgroundColor = UIColor.systemBackground
     }
     
     func makeQuaternion(_ x: Double, _ y: Double, _ z: Double, _ d: Float) -> SCNQuaternion {

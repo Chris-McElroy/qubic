@@ -12,7 +12,6 @@ import SceneKit
 struct GameView: View {
     let board = BoardView()
     var body: some View {
-        
         board
             .frame(height: 800)
             .gesture(DragGesture()

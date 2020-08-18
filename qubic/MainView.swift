@@ -13,7 +13,7 @@ struct MainView: View {
     @EnvironmentObject var updater: UpdateClass
     let window: UIWindow
     // defined here
-    @State var heights = Heights()
+    @State private var heights = Heights()
     let cube = CubeView()
     
     var body: some View {
@@ -35,7 +35,7 @@ struct MainView: View {
         .gesture(self.scrollGestures)
     }
     
-    var displayStack: some View {
+    private var displayStack: some View {
         VStack {
             Text("qubic")
                 .font(.custom("Oligopoly Regular", size: 24))
@@ -47,7 +47,7 @@ struct MainView: View {
         }
     }
     
-    var mainStack: some View {
+    private var mainStack: some View {
         VStack {
             TrainView() { self.switchView(to: .train) }
                 .frame(height: heights.train, alignment: .bottom)
@@ -58,7 +58,7 @@ struct MainView: View {
         }
     }
     
-    var moreStack: some View {
+    private var moreStack: some View {
         VStack {
             Spacer().frame(height: heights.moreSpacer)
             AboutView() { self.switchView(to: .about) }
@@ -74,7 +74,7 @@ struct MainView: View {
         }
     }
     
-    var moreButton: some View {
+    private var moreButton: some View {
         Button(action: {
             self.switchView(to: .main, if: self.heights.backMain, else: .more)
         }) {
@@ -93,7 +93,7 @@ struct MainView: View {
         .buttonStyle(Solid())
     }
     
-    var scrollGestures: some Gesture {
+    private var scrollGestures: some Gesture {
         DragGesture()
             .onEnded { drag in
                 let h = drag.predictedEndTranslation.height
@@ -114,7 +114,7 @@ struct MainView: View {
             }
     }
     
-    func switchView(to newView: ViewStates, if switchViews: [ViewStates] = [], else otherView: ViewStates? = nil) {
+    private func switchView(to newView: ViewStates, if switchViews: [ViewStates] = [], else otherView: ViewStates? = nil) {
         if switchViews.contains(heights.view) || switchViews == [] {
             withAnimation(.easeInOut(duration: 0.4)) {
                 self.heights.view = newView
@@ -126,7 +126,7 @@ struct MainView: View {
         }
     }
     
-    enum ViewStates {
+    private enum ViewStates {
         case main
         case more
         case train
@@ -138,7 +138,7 @@ struct MainView: View {
         case friends
     }
     
-    struct Heights {
+    private struct Heights {
         var window: UIWindow = UIWindow()
         var view: ViewStates = .main
         var showDisplay: [ViewStates] { large ? [] : [.main] }
@@ -206,45 +206,6 @@ struct MainView: View {
         var fillOffset: CGFloat { -extra/2-screen+83 }
         var moreButton: CGFloat { 60 }
         var moreButtonOffset: CGFloat { -extra/2-10 }
-    }
-}
-
-struct Fill: View {
-    var body: some View {
-        Rectangle()
-            .foregroundColor(.systemBackground)
-    }
-}
-
-struct MainStyle: ButtonStyle {
-    let height: CGFloat = 62
-    
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .font(.custom("Oligopoly Regular", size: 24))
-            .foregroundColor(.white)
-            .frame(width: 200, height: height, alignment: .center)
-            .background(LinearGradient(gradient: Gradient(colors: [.init(red: 0.1, green: 0.3, blue: 1), .blue]), startPoint: .leading, endPoint: .trailing))
-            .cornerRadius(100)
-            .shadow(radius: 4, x: 0, y: 3)
-            .opacity(configuration.isPressed ? 0.5 : 1.0)
-    }
-}
-
-struct MoreStyle: ButtonStyle {
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .font(.custom("Oligopoly Regular", size: 20))
-            .foregroundColor(.primary)
-            .padding(8)
-            .opacity(configuration.isPressed ? 0.25 : 1.0)
-    }
-}
-
-struct Solid: ButtonStyle {
-    func makeBody(configuration: Self.Configuration) -> some View {
-        configuration.label
-            .opacity(1.0)
     }
 }
 
