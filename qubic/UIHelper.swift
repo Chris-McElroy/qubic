@@ -16,11 +16,11 @@ struct Fill: View {
 }
 
 struct MainStyle: ButtonStyle {
-    let height: CGFloat = 62
+    let height: CGFloat = 70
     
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .font(.custom("Oligopoly Regular", size: 24))
+            .font(.custom("Oligopoly Regular", size: 26))
             .foregroundColor(.white)
             .frame(width: 200, height: height, alignment: .center)
             .background(LinearGradient(gradient: Gradient(colors: [.init(red: 0.1, green: 0.3, blue: 1), .blue]), startPoint: .leading, endPoint: .trailing))

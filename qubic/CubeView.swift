@@ -17,7 +17,7 @@ struct CubeView : UIViewRepresentable {
 
     func makeUIView(context: Context) -> SCNView {
         let pos = SCNVector3(2.0,2.0,2.0)
-        let rot = SCNVector3(help.dToR(-36),help.dToR(45),0.0)
+        let rot = SCNVector3(-0.615479709,help.dToR(45),0.0) // magic number is -atan(1/sqrt(2))
         scene.rootNode.addChildNode(help.makeCamera(pos: pos, rot: rot, scale: 1))
         scene.rootNode.addChildNode(help.makeOmniLight())
         scene.rootNode.addChildNode(help.makeAmbiLight())
@@ -29,8 +29,9 @@ struct CubeView : UIViewRepresentable {
     func updateUIView(_ scnView: SCNView, context: Context) {
     }
     
-    func spinCube(dir: Float) {
-        let rotateAction = SCNAction.rotate(by: help.dToR(90*dir), around: SCNVector3(0,1,0), duration: 0.4)
+    func rotate(right: Bool) {
+        let angle = help.dToR(90*(right ? 1 : -1))
+        let rotateAction = SCNAction.rotate(by: angle, around: SCNVector3(0,1,0), duration: 0.4)
         rotateAction.timingMode = .easeInEaseOut
         cube.runAction(rotateAction)
     }

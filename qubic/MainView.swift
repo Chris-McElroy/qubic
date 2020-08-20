@@ -57,7 +57,9 @@ struct MainView: View {
                 .frame(height: heights.solve, alignment: .bottom)
             VStack {
                 if self.heights.view == .play {
-                    GameView().frame(height: 600)
+                    Spacer()
+                    GameView().frame(height: 700)
+                    Spacer()
                 }
                 PlayView() { self.switchView(to: .main, if: [.play], else: .play) }
                     
@@ -107,16 +109,13 @@ struct MainView: View {
                 let w = drag.predictedEndTranslation.width
                 if abs(h)/abs(w) > 1 {
                     if self.heights.view == .main {
-                        if h > 0 {
-                            self.cube.flipCube()
-                        } else {
-                            self.switchView(to: .more)
-                        }
+                        if h > 0 { self.cube.flipCube() }
+                        else { self.switchView(to: .more) }
                     } else if h > 0 {
                         self.switchView(to: .main, if: self.heights.backMain, else: .more)
                     }
                 } else {
-                    self.cube.spinCube(dir: w > 0 ? 1 : -1)
+                    self.cube.rotate(right: w > 0)
                 }
             }
     }
@@ -137,7 +136,9 @@ struct MainView: View {
         case main
         case more
         case train
+        case trainGame
         case solve
+        case solveGame
         case play
         case about
         case settings
@@ -148,71 +149,73 @@ struct MainView: View {
     private struct Heights {
         var window: UIWindow = UIWindow()
         var view: ViewStates = .main
-        var showDisplay: [ViewStates] { large ? [] : [.main] }
+        var showDisplay: [ViewStates] { large ? [] : [.main, .train, .solve] }
         var backMain: [ViewStates] = [.more,.train,.solve,.play]
         var longMore: [ViewStates] = [.about, .settings, .replays, .friends]
         var screen: CGFloat { window.frame.height }
+        var total: CGFloat { 3*screen }
         var large: Bool { screen > 1000 }
         var small: Bool { screen < 700 }
-        var displayStack: CGFloat {
-            large ? 400 : screen-3*shortMain-bottomGap
-        }
-        var cube: CGFloat {
-            small ? 200 : 280
-        }
-        var displaySpacer: CGFloat {
-            showDisplay.contains(view) ? displayStack : 0
-        }
-        var mainSpacing: CGFloat { 22 }
-        var shortMain: CGFloat { MainStyle().height + mainSpacing }
+        var topSpacer: CGFloat { screen - displayHider - mainHider }
         var bottomGap: CGFloat { 88 }
-        var mainSpacer: CGFloat {
+        var displayStack: CGFloat {
+            large ? 400 : screen - 3*shortMain - bottomGap
+        }
+        var cube: CGFloat { small ? 200 : 280 }
+        var displayHider: CGFloat {
+            showDisplay.contains(view) ? 0 : displayStack
+        }
+        var mainSpacing: CGFloat = 22
+        var shortMain: CGFloat { MainStyle().height + mainSpacing }
+        var mainHider: CGFloat {
             switch view {
             case .more:
-                return 3*shortMain+(small ? 0 : mainSpacing)
-            case .main:
-                return 3*shortMain
-            case .train:
-                return 3*shortMain
-            case .solve:
-                return 2*shortMain
-            case .play:
-                return 1*shortMain
-            default:
+                return -(small ? 0 : mainSpacing)
+            case .main, .train, .solve:
                 return 0
+            case .play:
+                return 2*shortMain
+            default:
+                return 3*shortMain
             }
         }
-        var mainStack: CGFloat {
+        var mainStack: CGFloat { train + solve + play }
+        var train: CGFloat {
             switch view {
             case .train:
-                return screen + 2*shortMain - bottomGap
-            case .solve:
-                return screen + 2*shortMain - bottomGap
-            case .play:
-                return screen + 2*shortMain - bottomGap
+                return 3*shortMain
+            case .trainGame:
+                return screen
             default:
-                return shortMain*3
+                return shortMain
             }
         }
-        var train: CGFloat { view == .train ? screen - bottomGap : shortMain }
-        var solve: CGFloat { view == .solve ? screen - bottomGap : shortMain }
-        var play:  CGFloat { view == .play  ? screen - bottomGap : shortMain }
-        var extra: CGFloat { large ? 0 : (displayStack + 3*shortMain)*2 }
-        var total: CGFloat { extra + screen }
-        var topSpacer: CGFloat { displaySpacer + mainSpacer }
+        var solve: CGFloat {
+            switch view {
+            case .solve:
+                return 2*shortMain
+            case .solveGame:
+                return screen
+            default:
+                return shortMain
+            }
+        }
+        var play:  CGFloat { view == .play ? screen : shortMain }
         var moreStack: CGFloat {
-            moreSpacer+about+settings+replays+friends+moreFill
+            moreSpacer + about + settings + replays + friends + moreFill
         }
         var moreSpacer: CGFloat { (longMore.contains(view) && !small) ? 30 : 15 }
-        var about:    CGFloat { view == .about    ? screen-225-moreSpacer : 50 }
-        var settings: CGFloat { view == .settings ? screen-225-moreSpacer : 50 }
-        var replays:  CGFloat { view == .replays  ? screen-225-moreSpacer : 50 }
-        var friends:  CGFloat { view == .friends  ? screen-225-moreSpacer : 50 }
-        var moreFill: CGFloat { 50 }
-        var fill: CGFloat { 40 }
-        var fillOffset: CGFloat { -extra/2-screen+83 }
-        var moreButton: CGFloat { 60 }
-        var moreButtonOffset: CGFloat { -extra/2-10 }
+        var largeMore: CGFloat { screen - 225 - moreSpacer }
+        var smallMore: CGFloat = 50
+        var about:    CGFloat { view == .about    ? largeMore : smallMore }
+        var settings: CGFloat { view == .settings ? largeMore : smallMore }
+        var replays:  CGFloat { view == .replays  ? largeMore : smallMore }
+        var friends:  CGFloat { view == .friends  ? largeMore : smallMore }
+        var moreFill: CGFloat { smallMore }
+        var fill: CGFloat = 40
+        var fillOffset: CGFloat { -2*screen + 83 }
+        var moreButton: CGFloat = 60
+        var moreButtonOffset: CGFloat { -screen - 10 }
     }
     
     struct ShowGame<SomeView: View>: ViewModifier {

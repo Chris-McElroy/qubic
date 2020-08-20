@@ -17,6 +17,7 @@ struct ReplaysView: View {
                 Text("replays")
             }
             .buttonStyle(MoreStyle())
+            Spacer()
             List {
                 Section(header: HStack {
                     Spacer()
@@ -26,7 +27,7 @@ struct ReplaysView: View {
                         .padding(.all, 5)
                     Spacer()
                 }
-                    .background(Color.white)
+                    .background(Color.systemBackground)
                     .listRowInsets(EdgeInsets(
                         top: 0,
                         leading: 0,
@@ -111,7 +112,7 @@ struct ReplaysView: View {
                         .padding(.all, 5)
                     Spacer()
                 }
-                    .background(Color.white)
+                    .background(Color.systemBackground)
                     .listRowInsets(EdgeInsets(
                         top: 0,
                         leading: 0,

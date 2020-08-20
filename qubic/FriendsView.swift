@@ -17,8 +17,8 @@ struct FriendsView: View {
                 Text("friends")
             }
             .buttonStyle(MoreStyle())
-            Fill().frame(height: 10)
             Spacer()
+            Fill().frame(height: 10)
             List {
                 Text("< a list of my friends >")
                 HStack {
