@@ -46,3 +46,9 @@ struct Solid: ButtonStyle {
             .opacity(1.0)
     }
 }
+
+//extension View {
+//    func navigate<SomeView: View>(to view: SomeView, when binding: Binding<Bool>) -> some View {
+//        modifier(NavigateModifier(destination: view, binding: binding))
+//    }
+//}

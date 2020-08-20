@@ -32,7 +32,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             // Create the SwiftUI view that provides the window contents.
             let mainView = MainView(window: window)
                 .environmentObject(updater)
-            window.rootViewController = UIHostingController(rootView: GameView())// mainView)
+            window.rootViewController = UIHostingController(rootView: mainView)
             self.window = window
             window.makeKeyAndVisible()
         }

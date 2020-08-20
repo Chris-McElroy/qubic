@@ -14,6 +14,7 @@ struct MainView: View {
     let window: UIWindow
     // defined here
     @State private var heights = Heights()
+    @State private var showGame: Bool = false
     let cube = CubeView()
     
     var body: some View {
@@ -33,6 +34,7 @@ struct MainView: View {
         .frame(height: heights.total)
         .background(Fill())
         .gesture(self.scrollGestures)
+//        .modifier(ShowGame<GameView>(binding: $showGame))
     }
     
     private var displayStack: some View {
@@ -53,8 +55,13 @@ struct MainView: View {
                 .frame(height: heights.train, alignment: .bottom)
             SolveView() { self.switchView(to: .solve) }
                 .frame(height: heights.solve, alignment: .bottom)
-            PlayView() { self.switchView(to: .play) }
-                .frame(height: heights.play, alignment: .bottom)
+            VStack {
+                if self.heights.view == .play {
+                    GameView().frame(height: 600)
+                }
+                PlayView() { self.switchView(to: .main, if: [.play], else: .play) }
+                    
+            }.frame(height: heights.play, alignment: .bottom)
         }
     }
     
@@ -206,6 +213,25 @@ struct MainView: View {
         var fillOffset: CGFloat { -extra/2-screen+83 }
         var moreButton: CGFloat { 60 }
         var moreButtonOffset: CGFloat { -extra/2-10 }
+    }
+    
+    struct ShowGame<SomeView: View>: ViewModifier {
+        @Binding var binding: Bool
+
+        func body(content: Content) -> some View {
+            NavigationView {
+                ZStack {
+                    content
+                        .navigationBarTitle("")
+                        .navigationBarHidden(true)
+                    NavigationLink(
+                        destination: GameView()
+                            .navigationBarTitle("")
+                            .navigationBarHidden(true),
+                        isActive: $binding) { EmptyView() }
+                }
+            }
+        }
     }
 }
 
