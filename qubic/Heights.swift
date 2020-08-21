@@ -30,29 +30,29 @@ extension MainView {
             case .solve:        return Show(top: 3, focus: 3,  bottom: 3,  gap: false)
             case .play:         return Show(top: 4, focus: 4,  bottom: 4,  gap: false)
             case .more:         return Show(top: 1, focus: 10, bottom: 10, gap: true)
-            case .about:        return Show(top: 5, focus: 6,  bottom: 9, gap: true)
-            case .settings:     return Show(top: 5, focus: 7,  bottom: 9, gap: true)
-            case .replays:      return Show(top: 5, focus: 8,  bottom: 9, gap: true)
-            case .friends:      return Show(top: 5, focus: 9,  bottom: 9, gap: true)
+            case .about:        return Show(top: 5, focus: 6,  bottom: 9,  gap: true)
+            case .settings:     return Show(top: 5, focus: 7,  bottom: 9,  gap: true)
+            case .replays:      return Show(top: 5, focus: 8,  bottom: 9,  gap: true)
+            case .friends:      return Show(top: 5, focus: 9,  bottom: 9,  gap: true)
             }
         }
         
         private var viewList: [CGFloat] {
-            [large ? 400 : screen - totalMain,
-             standardGap,
-             shortMain,
-             shortMain,
-             shortMain,
-             standardGap, // was (longMore.contains(view) && !small) ? 30 : 15
-             shortMore,
-             shortMore,
-             shortMore,
-             shortMore,
-             shortMore]
+            [large ? 400 : screen - totalMain,      // 0
+             standardGap,                           // 1
+             shortMain,                             // 2
+             shortMain,                             // 3
+             shortMain,                             // 4
+             standardGap,                           // 5
+             shortMore,                             // 6
+             shortMore,                             // 7
+             shortMore,                             // 8
+             shortMore,                             // 9
+             shortMore]                             // 10
         }
         
         var total: CGFloat { 3*screen }
-        var topSpacer: CGFloat { viewList[0..<onScreen.top].reduce(screen,-) }
+        var topSpacer: CGFloat { screen - viewList[0..<onScreen.top].sum() }
         var cube: CGFloat { small ? 200 : 280 }
         let fill: CGFloat = 40
         var fillOffset: CGFloat { -2*screen + 83 }
@@ -63,7 +63,7 @@ extension MainView {
             if onScreen.focus != id { return viewList[id] }
             else {
                 let space = screen - (onScreen.gap ? bottomGap : 0) + viewList[onScreen.focus]
-                return viewList[onScreen.top...onScreen.bottom].reduce(space,-)
+                return space - viewList[onScreen.top...onScreen.bottom].sum()
             }
         }
         
