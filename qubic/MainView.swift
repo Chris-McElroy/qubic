@@ -13,16 +13,15 @@ struct MainView: View {
     @EnvironmentObject var updater: UpdateClass
     let window: UIWindow
     // defined here
-    @State private var heights = Heights()
-    @State private var showGame: Bool = false
-    let cube = CubeView()
+    @State var heights: Heights = Heights()
+    @State var showGame: Bool = false
     
     var body: some View {
         VStack(alignment: .center) {
             Spacer().frame(height: heights.topSpacer)
-            displayStack.frame(height: heights.displayStack)
-            mainStack.frame(height: heights.mainStack)
-            moreStack.frame(height: heights.moreStack)
+            displayStack
+            mainStack
+            moreStack
             Spacer()
             Fill().frame(height: heights.fill)
                 .offset(y: heights.fillOffset)
@@ -34,8 +33,9 @@ struct MainView: View {
         .frame(height: heights.total)
         .background(Fill())
         .gesture(self.scrollGestures)
-//        .modifier(ShowGame<GameView>(binding: $showGame))
     }
+    
+    let cube = CubeView()
     
     private var displayStack: some View {
         VStack {
@@ -46,46 +46,48 @@ struct MainView: View {
                 .onTapGesture(count: 2) { self.cube.resetCube() }
                 .frame(height: heights.cube)
             Spacer()
-        }
+        }.frame(height: heights.get(0))
     }
     
     private var mainStack: some View {
         VStack {
-            TrainView() { self.switchView(to: .train) }
-                .frame(height: heights.train, alignment: .bottom)
-            SolveView() { self.switchView(to: .solve) }
-                .frame(height: heights.solve, alignment: .bottom)
+            Spacer()
+                .frame(height: heights.get(1))
+            TrainView() { self.switchView(to: .trainMenu) }
+                .frame(height: heights.get(2), alignment: .bottom)
+            SolveView() { self.switchView(to: .solveMenu) }
+                .frame(height: heights.get(3), alignment: .bottom)
             VStack {
                 if self.heights.view == .play {
                     Spacer()
                     GameView().frame(height: 700)
                     Spacer()
                 }
-                PlayView() { self.switchView(to: .main, if: [.play], else: .play) }
+                PlayView() { self.switchView(to: .play, if: [.play], else: .play) }
                     
-            }.frame(height: heights.play, alignment: .bottom)
+            }.frame(height: heights.get(4), alignment: .bottom)
         }
     }
     
     private var moreStack: some View {
         VStack {
-            Spacer().frame(height: heights.moreSpacer)
+            Spacer().frame(height: heights.get(5))
             AboutView() { self.switchView(to: .about) }
-                .frame(height: heights.about, alignment: .top)
+                .frame(height: heights.get(6), alignment: .top)
             SettingsView() { self.switchView(to: .settings) }
-                .frame(height: heights.settings, alignment: .top)
+                .frame(height: heights.get(7), alignment: .top)
             ReplaysView() { self.switchView(to: .replays) }
-                .frame(height: heights.replays, alignment: .top)
+                .frame(height: heights.get(8), alignment: .top)
             FriendsView() { self.switchView(to: .friends) }
-                .frame(height: heights.friends, alignment: .top)
+                .frame(height: heights.get(9), alignment: .top)
             Fill()
-                .frame(height: heights.moreFill, alignment: .top)
+                .frame(height: heights.get(10), alignment: .top)
         }
     }
     
     private var moreButton: some View {
         Button(action: {
-            self.switchView(to: .main, if: self.heights.backMain, else: .more)
+            self.switchView(to: .main, if: self.backMain, else: .more)
         }) {
             VStack {
                 Text(heights.view == .main ? "more" : "back")
@@ -102,7 +104,7 @@ struct MainView: View {
         .buttonStyle(Solid())
     }
     
-    private var scrollGestures: some Gesture {
+    var scrollGestures: some Gesture {
         DragGesture()
             .onEnded { drag in
                 let h = drag.predictedEndTranslation.height
@@ -112,7 +114,7 @@ struct MainView: View {
                         if h > 0 { self.cube.flipCube() }
                         else { self.switchView(to: .more) }
                     } else if h > 0 {
-                        self.switchView(to: .main, if: self.heights.backMain, else: .more)
+                        self.switchView(to: .main, if: self.backMain, else: .more)
                     }
                 } else {
                     self.cube.rotate(right: w > 0)
@@ -120,7 +122,7 @@ struct MainView: View {
             }
     }
     
-    private func switchView(to newView: ViewStates, if switchViews: [ViewStates] = [], else otherView: ViewStates? = nil) {
+    func switchView(to newView: ViewStates, if switchViews: [ViewStates] = [], else otherView: ViewStates? = nil) {
         if switchViews.contains(heights.view) || switchViews == [] {
             withAnimation(.easeInOut(duration: 0.4)) {
                 self.heights.view = newView
@@ -132,13 +134,13 @@ struct MainView: View {
         }
     }
     
-    private enum ViewStates {
+    enum ViewStates {
         case main
         case more
+        case trainMenu
         case train
-        case trainGame
+        case solveMenu
         case solve
-        case solveGame
         case play
         case about
         case settings
@@ -146,97 +148,27 @@ struct MainView: View {
         case friends
     }
     
-    private struct Heights {
-        var window: UIWindow = UIWindow()
-        var view: ViewStates = .main
-        var showDisplay: [ViewStates] { large ? [] : [.main, .train, .solve] }
-        var backMain: [ViewStates] = [.more,.train,.solve,.play]
-        var longMore: [ViewStates] = [.about, .settings, .replays, .friends]
-        var screen: CGFloat { window.frame.height }
-        var total: CGFloat { 3*screen }
-        var large: Bool { screen > 1000 }
-        var small: Bool { screen < 700 }
-        var topSpacer: CGFloat { screen - displayHider - mainHider }
-        var bottomGap: CGFloat { 88 }
-        var displayStack: CGFloat {
-            large ? 400 : screen - 3*shortMain - bottomGap
-        }
-        var cube: CGFloat { small ? 200 : 280 }
-        var displayHider: CGFloat {
-            showDisplay.contains(view) ? 0 : displayStack
-        }
-        var mainSpacing: CGFloat = 22
-        var shortMain: CGFloat { MainStyle().height + mainSpacing }
-        var mainHider: CGFloat {
-            switch view {
-            case .more:
-                return -(small ? 0 : mainSpacing)
-            case .main, .train, .solve:
-                return 0
-            case .play:
-                return 2*shortMain
-            default:
-                return 3*shortMain
-            }
-        }
-        var mainStack: CGFloat { train + solve + play }
-        var train: CGFloat {
-            switch view {
-            case .train:
-                return 3*shortMain
-            case .trainGame:
-                return screen
-            default:
-                return shortMain
-            }
-        }
-        var solve: CGFloat {
-            switch view {
-            case .solve:
-                return 2*shortMain
-            case .solveGame:
-                return screen
-            default:
-                return shortMain
-            }
-        }
-        var play:  CGFloat { view == .play ? screen : shortMain }
-        var moreStack: CGFloat {
-            moreSpacer + about + settings + replays + friends + moreFill
-        }
-        var moreSpacer: CGFloat { (longMore.contains(view) && !small) ? 30 : 15 }
-        var largeMore: CGFloat { screen - 225 - moreSpacer }
-        var smallMore: CGFloat = 50
-        var about:    CGFloat { view == .about    ? largeMore : smallMore }
-        var settings: CGFloat { view == .settings ? largeMore : smallMore }
-        var replays:  CGFloat { view == .replays  ? largeMore : smallMore }
-        var friends:  CGFloat { view == .friends  ? largeMore : smallMore }
-        var moreFill: CGFloat { smallMore }
-        var fill: CGFloat = 40
-        var fillOffset: CGFloat { -2*screen + 83 }
-        var moreButton: CGFloat = 60
-        var moreButtonOffset: CGFloat { -screen - 10 }
-    }
-    
-    struct ShowGame<SomeView: View>: ViewModifier {
-        @Binding var binding: Bool
-
-        func body(content: Content) -> some View {
-            NavigationView {
-                ZStack {
-                    content
-                        .navigationBarTitle("")
-                        .navigationBarHidden(true)
-                    NavigationLink(
-                        destination: GameView()
-                            .navigationBarTitle("")
-                            .navigationBarHidden(true),
-                        isActive: $binding) { EmptyView() }
-                }
-            }
-        }
-    }
+    var backMain: [ViewStates] = [.more,.trainMenu,.train,.solveMenu,.solve,.play]
 }
+    
+//    struct ShowGame<SomeView: View>: ViewModifier {
+//        @Binding var binding: Bool
+//
+//        func body(content: Content) -> some View {
+//            NavigationView {
+//                ZStack {
+//                    content
+//                        .navigationBarTitle("")
+//                        .navigationBarHidden(true)
+//                    NavigationLink(
+//                        destination: GameView()
+//                            .navigationBarTitle("")
+//                            .navigationBarHidden(true),
+//                        isActive: $binding) { EmptyView() }
+//                }
+//            }
+//        }
+//    }
 
 struct MainView_Previews: PreviewProvider {
     static var previews: some View {
