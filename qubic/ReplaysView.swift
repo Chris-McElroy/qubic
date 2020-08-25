@@ -55,7 +55,7 @@ struct ReplaysView: View {
                         .scaleEffect(1.3)
                             .padding(.trailing, 5)
                             .frame(width: 60, alignment: .trailing)
-                        
+
                     }.frame(height: 40)
                     HStack {
                         HStack {
@@ -78,7 +78,7 @@ struct ReplaysView: View {
                             .scaleEffect(1.3)
                             .padding(.trailing, 5)
                             .frame(width: 60, alignment: .trailing)
-                        
+
                     }.frame(height: 40)
                     HStack {
                         HStack {
@@ -101,7 +101,7 @@ struct ReplaysView: View {
                             .scaleEffect(1.3)
                             .padding(.trailing, 5)
                             .frame(width: 60, alignment: .trailing)
-                        
+
                     }.frame(height: 40)
                 }
                 Section(header: HStack {
@@ -140,7 +140,7 @@ struct ReplaysView: View {
                         .scaleEffect(1.3)
                             .padding(.trailing, 5)
                             .frame(width: 60, alignment: .trailing)
-                        
+
                     }.frame(height: 40)
                     HStack {
                         HStack {
@@ -163,7 +163,7 @@ struct ReplaysView: View {
                             .scaleEffect(1.3)
                             .padding(.trailing, 5)
                             .frame(width: 60, alignment: .trailing)
-                        
+
                     }.frame(height: 40)
                     HStack {
                         HStack {
@@ -186,7 +186,7 @@ struct ReplaysView: View {
                             .scaleEffect(1.3)
                             .padding(.trailing, 5)
                             .frame(width: 60, alignment: .trailing)
-                        
+
                     }.frame(height: 40)
                 }
             }

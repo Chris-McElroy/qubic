@@ -19,13 +19,13 @@ struct MainView: View {
     var body: some View {
         VStack(alignment: .center) {
             Spacer().frame(height: heights.topSpacer)
-            displayStack
-            mainStack
-            moreStack
-            Spacer()
-            Fill().frame(height: heights.fill)
+            displayStack.frame(height: heights.get(0))
+            mainStack.frame(height: heights.get(1...4))
+            moreStack.frame(height: heights.get(5...10))
+            Spacer()//.frame(height: heights.bottomSpacer)
+            Fill().frame(height: heights.get(11))
                 .offset(y: heights.fillOffset)
-            moreButton.frame(height: heights.moreButton)
+            moreButton.frame(height: heights.get(12))
                 .offset(y: heights.moreButtonOffset)
         }
         .onAppear { self.heights.window = self.window }
@@ -46,31 +46,33 @@ struct MainView: View {
                 .onTapGesture(count: 2) { self.cube.resetCube() }
                 .frame(height: heights.cube)
             Spacer()
-        }.frame(height: heights.get(0))
+        }
     }
     
     private var mainStack: some View {
-        VStack {
-            Spacer()
+        VStack(spacing: 0) {
+            Fill()
                 .frame(height: heights.get(1))
             TrainView() { self.switchView(to: .trainMenu) }
                 .frame(height: heights.get(2), alignment: .bottom)
-            SolveView() { self.switchView(to: .solveMenu) }
+                .zIndex(2)
+            SolveView(view: $heights.view)
                 .frame(height: heights.get(3), alignment: .bottom)
+                .zIndex(1)
             VStack {
                 if self.heights.view == .play {
                     Spacer()
                     GameView().frame(height: 700)
                     Spacer()
                 }
-                PlayView() { self.switchView(to: .play, if: [.play], else: .play) }
+                PlayView() { self.switchView(to: .play) }
                     
             }.frame(height: heights.get(4), alignment: .bottom)
         }
     }
     
     private var moreStack: some View {
-        VStack {
+        VStack(spacing: 0) {
             Spacer().frame(height: heights.get(5))
             AboutView() { self.switchView(to: .about) }
                 .frame(height: heights.get(6), alignment: .top)
@@ -134,41 +136,8 @@ struct MainView: View {
         }
     }
     
-    enum ViewStates {
-        case main
-        case more
-        case trainMenu
-        case train
-        case solveMenu
-        case solve
-        case play
-        case about
-        case settings
-        case replays
-        case friends
-    }
-    
     var backMain: [ViewStates] = [.more,.trainMenu,.train,.solveMenu,.solve,.play]
 }
-    
-//    struct ShowGame<SomeView: View>: ViewModifier {
-//        @Binding var binding: Bool
-//
-//        func body(content: Content) -> some View {
-//            NavigationView {
-//                ZStack {
-//                    content
-//                        .navigationBarTitle("")
-//                        .navigationBarHidden(true)
-//                    NavigationLink(
-//                        destination: GameView()
-//                            .navigationBarTitle("")
-//                            .navigationBarHidden(true),
-//                        isActive: $binding) { EmptyView() }
-//                }
-//            }
-//        }
-//    }
 
 struct MainView_Previews: PreviewProvider {
     static var previews: some View {

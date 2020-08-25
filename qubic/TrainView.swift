@@ -13,11 +13,13 @@ struct TrainView: View {
     
     var body: some View {
         VStack {
+            Spacer().frame(height: 30)
             Button(action: mainButtonAction) {
                 Text("train")
             }
             .buttonStyle(MainStyle())
         }
+        .background(Fill())
     }
 }
 
