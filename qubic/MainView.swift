@@ -19,13 +19,13 @@ struct MainView: View {
     var body: some View {
         VStack(alignment: .center) {
             Spacer().frame(height: heights.topSpacer)
-            displayStack.frame(height: heights.get(0))
-            mainStack.frame(height: heights.get(1...4))
-            moreStack.frame(height: heights.get(5...10))
+            displayStack.frame(height: heights.get(heights.top))
+            mainStack
+            moreStack
             Spacer()//.frame(height: heights.bottomSpacer)
-            Fill().frame(height: heights.get(11))
+            Fill().frame(height: heights.get(heights.topFill))
                 .offset(y: heights.fillOffset)
-            moreButton.frame(height: heights.get(12))
+            back.frame(height: heights.get(heights.back))
                 .offset(y: heights.moreButtonOffset)
         }
         .onAppear { self.heights.window = self.window }
@@ -52,12 +52,12 @@ struct MainView: View {
     private var mainStack: some View {
         VStack(spacing: 0) {
             Fill()
-                .frame(height: heights.get(1))
+                .frame(height: heights.get(heights.mainGap))
             TrainView() { self.switchView(to: .trainMenu) }
-                .frame(height: heights.get(2), alignment: .bottom)
+                .frame(height: heights.get(heights.train), alignment: .bottom)
                 .zIndex(2)
             SolveView(view: $heights.view)
-                .frame(height: heights.get(3), alignment: .bottom)
+                .frame(height: heights.get(heights.solve), alignment: .bottom)
                 .zIndex(1)
             VStack {
                 if self.heights.view == .play {
@@ -67,27 +67,27 @@ struct MainView: View {
                 }
                 PlayView() { self.switchView(to: .play) }
                     
-            }.frame(height: heights.get(4), alignment: .bottom)
+            }.frame(height: heights.get(heights.play), alignment: .bottom)
         }
     }
     
     private var moreStack: some View {
         VStack(spacing: 0) {
-            Spacer().frame(height: heights.get(5))
+            Spacer().frame(height: heights.get(heights.moreGap))
             AboutView() { self.switchView(to: .about) }
-                .frame(height: heights.get(6), alignment: .top)
+                .frame(height: heights.get(heights.about), alignment: .top)
             SettingsView() { self.switchView(to: .settings) }
-                .frame(height: heights.get(7), alignment: .top)
+                .frame(height: heights.get(heights.settings), alignment: .top)
             ReplaysView() { self.switchView(to: .replays) }
-                .frame(height: heights.get(8), alignment: .top)
+                .frame(height: heights.get(heights.replays), alignment: .top)
             FriendsView() { self.switchView(to: .friends) }
-                .frame(height: heights.get(9), alignment: .top)
+                .frame(height: heights.get(heights.friends), alignment: .top)
             Fill()
-                .frame(height: heights.get(10), alignment: .top)
+                .frame(height: heights.get(heights.moreFill), alignment: .top)
         }
     }
     
-    private var moreButton: some View {
+    private var back: some View {
         Button(action: {
             self.switchView(to: .main, if: self.backMain, else: .more)
         }) {

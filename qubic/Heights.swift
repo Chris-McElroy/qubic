@@ -31,79 +31,73 @@ extension MainView {
         private var small: Bool { screen < 700 }
         private let standardGap: CGFloat = 22
         private var shortMain: CGFloat { MainStyle().height + standardGap }
-        private var totalMain: CGFloat { 3*shortMain + standardGap + bottomGap }
+        private var defaultTop: CGFloat { screen - (3*shortMain + standardGap + bottomGap) }
         private var longMore: [ViewStates] = [.about, .settings, .replays, .friends]
-        private var moreGap: CGFloat {
+        private var defaultMoreGap: CGFloat {
             standardGap + ((longMore.contains(view) && !small) ? 20 : 0)
         }
         private let shortMore: CGFloat = 50
         private let bottomGap: CGFloat = 88 // was 88
+        private let fill: CGFloat = 40
+        private let defaultBack: CGFloat = 60
         
-        private var onScreen: Show {
+        private var display: Display {
             switch view {
-            case .main:         return Show(0,  1,  4, large: large)
-            case .trainMenu:    return Show(0,  2,  2, large: large)
-            case .train:        return Show(2,  2,  2, large: large)
-            case .solveMenu:    return Show(0,  3,  3, large: large)
-            case .solve:        return Show(3,  3,  3, large: large)
-            case .play:         return Show(4,  4,  4, large: large)
-            case .more:         return Show(1, 10, 10, large: large)
-            case .about:        return Show(5,  6,  9, large: large)
-            case .settings:     return Show(5,  7,  9, large: large)
-            case .replays:      return Show(5,  8,  9, large: large)
-            case .friends:      return Show(5,  9,  9, large: large)
+            case .main:      return Display(top: top,     focus: mainGap,  bottom: play)
+            case .trainMenu: return Display(top: top,     focus: train,    bottom: train)
+            case .train:     return Display(top: train,   focus: train,    bottom: train)
+            case .solveMenu: return Display(top: top,     focus: solve,    bottom: solve)
+            case .solve:     return Display(top: solve,   focus: solve,    bottom: solve)
+            case .play:      return Display(top: play,    focus: play,     bottom: play)
+            case .more:      return Display(top: mainGap, focus: moreFill, bottom: moreFill)
+            case .about:     return Display(top: moreGap, focus: about,    bottom: friends)
+            case .settings:  return Display(top: moreGap, focus: settings, bottom: friends)
+            case .replays:   return Display(top: moreGap, focus: replays,  bottom: friends)
+            case .friends:   return Display(top: moreGap, focus: friends,  bottom: friends)
             }
         }
         
-        private var viewList: [CGFloat] {
-            [large ? 400 : screen - totalMain,      // 0
-             standardGap,                           // 1
-             shortMain,                             // 2
-             shortMain,                             // 3
-             shortMain,                             // 4
-             moreGap,                               // 5
-             shortMore,                             // 6
-             shortMore,                             // 7
-             shortMore,                             // 8
-             shortMore,                             // 9
-             shortMore,                             // 10
-             fill,                                  // 11
-             moreButton]                            // 12
+        var top:        SubView { SubView(df: defaultTop,     id: 0) }
+        var mainGap:    SubView { SubView(df: standardGap,    id: 1) }
+        var train:      SubView { SubView(df: shortMain,      id: 2) }
+        var solve:      SubView { SubView(df: shortMain,      id: 3) }
+        var play:       SubView { SubView(df: shortMain,      id: 4) }
+        var moreGap:    SubView { SubView(df: defaultMoreGap, id: 5) }
+        var about:      SubView { SubView(df: shortMore,      id: 6) }
+        var settings:   SubView { SubView(df: shortMore,      id: 7) }
+        var replays:    SubView { SubView(df: shortMore,      id: 8) }
+        var friends:    SubView { SubView(df: shortMore,      id: 9) }
+        var moreFill:   SubView { SubView(df: shortMore,      id: 10) }
+        var topFill:    SubView { SubView(df: fill,           id: 11) }
+        var back:       SubView { SubView(df: defaultBack,    id: 12) }
+        
+        private var subViews: [CGFloat] {
+            [top.df, mainGap.df, train.df, solve.df, play.df, moreGap.df, about.df, settings.df, replays.df, friends.df, moreFill.df, topFill.df, back.df]
         }
         
         var total: CGFloat { 3*screen }
-        var topSpacer: CGFloat { screen - viewList[0..<onScreen.top].sum() }
-        var bottomSpacer: CGFloat { total - topSpacer - get(0...12) }
+        var topSpacer: CGFloat { screen - subViews[0..<display.top.id].sum() }
         var cube: CGFloat { small ? 200 : 280 }
-        let fill: CGFloat = 40
         var fillOffset: CGFloat { -2*screen + 83 }
-        let moreButton: CGFloat = 60
         var moreButtonOffset: CGFloat { -screen - 10 }
         
-        func get(_ id: Int) -> CGFloat {
-            if onScreen.focus != id { return viewList[id] }
+        func get(_ subView: SubView) -> CGFloat {
+            if display.focus.id != subView.id { return subView.df }
             else {
-                let space = screen - (onScreen.gap ? bottomGap : 0) + viewList[onScreen.focus]
-                return space - viewList[onScreen.top...onScreen.bottom].sum()
+                let space = screen - bottomGap + subView.df
+                return space - subViews[display.top.id...display.bottom.id].sum()
             }
         }
         
-        func get(_ ids: ClosedRange<Int>) -> CGFloat {
-            return ids.map({ id in get(id) }).sum()
+        private struct Display {
+            let top: SubView
+            let focus: SubView
+            let bottom: SubView
         }
         
-        private struct Show {
-            let top: Int
-            let focus: Int
-            let bottom: Int
-            let gap: Bool
-            
-            init(_ top: Int, _ focus: Int, _ bottom: Int, large: Bool) {
-                self.top = large ? 0 : top
-                self.focus = focus
-                self.bottom = large ? 10 : bottom
-                self.gap = top != bottom
-            }
+        struct SubView {
+            let df: CGFloat
+            let id: Int
         }
     }
 }
