@@ -9,15 +9,17 @@
 import SwiftUI
 import Combine
 
-final class UpdateClass: ObservableObject {
+final class ScreenObserver: ObservableObject {
+    var window: UIWindow?
+    var height: CGFloat { window?.frame.height ?? 800 }
+    var width: CGFloat  { window?.frame.width  ?? 400 }
     let objectWillChange = ObservableObjectPublisher()
 
     var changed: Bool = false { willSet { objectWillChange.send() } }
 }
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
-    var window: UIWindow?
-    var updater = UpdateClass()
+    var screen = ScreenObserver()
 
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         // Use this method to optionally configure and attach the UIWindow `window` to the provided UIWindowScene `scene`.
@@ -27,19 +29,17 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
         // Use a UIHostingController as window root view controller.
         if let windowScene = scene as? UIWindowScene {
-            let window = UIWindow(windowScene: windowScene)
-            
+            screen.window = UIWindow(windowScene: windowScene)
             // Create the SwiftUI view that provides the window contents.
-            let mainView = MainView(window: window)
-                .environmentObject(updater)
-            window.rootViewController = UIHostingController(rootView: mainView)
-            self.window = window
-            window.makeKeyAndVisible()
+            let mainView = MainView()
+                .environmentObject(screen)
+            screen.window?.rootViewController = UIHostingController(rootView: mainView)
+            screen.window?.makeKeyAndVisible()
         }
     }
     
     func windowScene(_ windowScene: UIWindowScene, didUpdate previousCoordinateSpace: UICoordinateSpace, interfaceOrientation previousInterfaceOrientation: UIInterfaceOrientation, traitCollection previousTraitCollection: UITraitCollection) {
-        updater.changed.toggle()
+        screen.changed.toggle()
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {

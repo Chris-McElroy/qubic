@@ -9,12 +9,8 @@
 import SwiftUI
 
 struct MainView: View {
-    // passed in
-    @EnvironmentObject var updater: UpdateClass
-    let window: UIWindow
-    // defined here
+    @EnvironmentObject var screen: ScreenObserver
     @State var heights: Heights = Heights()
-    @State var showGame: Bool = false
     
     var body: some View {
         VStack(alignment: .center, spacing: 0) {
@@ -28,7 +24,7 @@ struct MainView: View {
             backButton.frame(height: heights.backButton)
                 .offset(y: heights.backButtonOffset)
         }
-        .onAppear { self.heights.window = self.window }
+        .onAppear { self.heights.screen = self.screen }
         .onAppear { self.heights.view = .main  }
         .frame(height: heights.total)
         .background(Fill())
@@ -48,7 +44,6 @@ struct MainView: View {
             Spacer()
         }
     }
-    
     
     var align: Alignment { .center }
     
@@ -159,7 +154,7 @@ struct MainView: View {
 
 struct MainView_Previews: PreviewProvider {
     static var previews: some View {
-        MainView(window: UIWindow())
+        MainView()
 //            .previewDevice("iPad Pro (12.9-inch) (4th generation)")
 //            .previewDevice(PreviewDevice(rawValue: "iPhone SE (2nd generation)"))
 //            .previewDevice("iPhone 11 Pro")

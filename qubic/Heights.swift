@@ -24,12 +24,14 @@ enum ViewStates {
 
 extension MainView {
     struct Heights {
-        var window: UIWindow = UIWindow()
+//        @EnvironmentObject var screen: ScreenObserver
+        var screen: ScreenObserver?
+        var screenHeight: CGFloat { screen?.height ?? 800 }
         var view: ViewStates = .main
-        private var screen: CGFloat { window.frame.height }
-        private var large: Bool { screen > 1000 }
-        private var small: Bool { screen < 700 }
-        private var defaultTop: CGFloat { screen - (3*mainButtonHeight + mainGaps + bottomGap) }
+//        private var screen: CGFloat { window.frame.height }
+        private var large: Bool { screenHeight > 1000 }
+        private var small: Bool { screenHeight < 700 }
+        private var defaultTop: CGFloat { screenHeight - (3*mainButtonHeight + mainGaps + bottomGap) }
         private var longMore: [ViewStates] = [.about, .settings, .replays, .friends]
         private var defaultMoreGap: CGFloat {
             mainGaps + ((longMore.contains(view) && !small) ? 20 : 0)
@@ -70,18 +72,18 @@ extension MainView {
         
         private var subViews: [CGFloat] { [top.df, mainGap.df, trainView.df, train.df, solveView.df, solve.df, playView.df, play.df, moreGap.df, about.df, settings.df, replays.df, friends.df, moreFill.df] }
         
-        var total: CGFloat { 3*screen }
-        var topSpacer: CGFloat { screen - subViews[0..<display.top.id].sum() }
+        var total: CGFloat { 3*screenHeight }
+        var topSpacer: CGFloat { screenHeight - subViews[0..<display.top.id].sum() }
         var cube: CGFloat { small ? 200 : 280 }
         let fill: CGFloat = 40
-        var fillOffset: CGFloat { -2*screen + 83 }
+        var fillOffset: CGFloat { -2*screenHeight + 83 }
         let backButton: CGFloat = 60
-        var backButtonOffset: CGFloat { -screen - 10 }
+        var backButtonOffset: CGFloat { -screenHeight - 10 }
         
         func get(_ subView: SubView) -> CGFloat {
             if display.focus.id != subView.id { return subView.df }
             else {
-                let space = screen - bottomGap + subView.df
+                let space = screenHeight - bottomGap + subView.df
                 return space - subViews[display.top.id...display.bottom.id].sum()
             }
         }
