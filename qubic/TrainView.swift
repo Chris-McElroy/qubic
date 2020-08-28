@@ -9,15 +9,10 @@
 import SwiftUI
 
 struct TrainView: View {
-    @State var mainButtonAction: () -> Void
     
     var body: some View {
         VStack {
-            Spacer().frame(height: 30)
-            Button(action: mainButtonAction) {
-                Text("train")
-            }
-            .buttonStyle(MainStyle())
+            Fill()
         }
         .background(Fill())
     }
@@ -25,6 +20,6 @@ struct TrainView: View {
 
 struct TrainView_Previews: PreviewProvider {
     static var previews: some View {
-        TrainView() {}
+        TrainView()
     }
 }

@@ -17,19 +17,19 @@ struct MainView: View {
     @State var showGame: Bool = false
     
     var body: some View {
-        VStack(alignment: .center) {
+        VStack(alignment: .center, spacing: 0) {
             Spacer().frame(height: heights.topSpacer)
-            displayStack.frame(height: heights.get(heights.top))
+            top.frame(height: heights.get(heights.top))
             mainStack
             moreStack
-            Spacer()//.frame(height: heights.bottomSpacer)
-            Fill().frame(height: heights.get(heights.topFill))
+            Spacer()
+            Fill().frame(height: heights.fill)
                 .offset(y: heights.fillOffset)
-            back.frame(height: heights.get(heights.back))
-                .offset(y: heights.moreButtonOffset)
+            backButton.frame(height: heights.backButton)
+                .offset(y: heights.backButtonOffset)
         }
         .onAppear { self.heights.window = self.window }
-        .onAppear { self.heights.view = .main }
+        .onAppear { self.heights.view = .main  }
         .frame(height: heights.total)
         .background(Fill())
         .gesture(self.scrollGestures)
@@ -37,7 +37,7 @@ struct MainView: View {
     
     let cube = CubeView()
     
-    private var displayStack: some View {
+    private var top: some View {
         VStack {
             Text("qubic")
                 .font(.custom("Oligopoly Regular", size: 24))
@@ -49,26 +49,44 @@ struct MainView: View {
         }
     }
     
+    
+    var align: Alignment { .center }
+    
     private var mainStack: some View {
         VStack(spacing: 0) {
             Fill()
                 .frame(height: heights.get(heights.mainGap))
-            TrainView() { self.switchView(to: .trainMenu) }
-                .frame(height: heights.get(heights.train), alignment: .bottom)
                 .zIndex(2)
+            TrainView()
+                .frame(height: heights.get(heights.trainView))
+                .zIndex(2)
+            trainButton.zIndex(2)
             SolveView(view: $heights.view)
-                .frame(height: heights.get(heights.solve), alignment: .bottom)
+                .frame(height: heights.get(heights.solveView))
                 .zIndex(1)
-            VStack {
-                if self.heights.view == .play {
-                    Spacer()
-                    GameView().frame(height: 700)
-                    Spacer()
-                }
-                PlayView() { self.switchView(to: .play) }
-                    
-            }.frame(height: heights.get(heights.play), alignment: .bottom)
+            solveButton.zIndex(1)
+            PlayView(view: $heights.view)
+                .frame(height: heights.get(heights.playView))
+            playButton
         }
+    }
+    
+    private var trainButton: some View {
+        Button(action: { self.switchView(to: .trainMenu, or: .train) }) {
+            Text("train")
+        }.buttonStyle(MainStyle())
+    }
+    
+    private var solveButton: some View {
+        Button(action: { self.switchView(to: .solveMenu, or: .solve) }) {
+            Text("solve")
+        }.buttonStyle(MainStyle())
+    }
+    
+    private var playButton: some View {
+        Button(action: { self.switchView(to: .play) }) {
+            Text("play")
+        }.buttonStyle(MainStyle())
     }
     
     private var moreStack: some View {
@@ -87,9 +105,9 @@ struct MainView: View {
         }
     }
     
-    private var back: some View {
+    private var backButton: some View {
         Button(action: {
-            self.switchView(to: .main, if: self.backMain, else: .more)
+            self.switchBack()
         }) {
             VStack {
                 Text(heights.view == .main ? "more" : "back")
@@ -98,10 +116,10 @@ struct MainView: View {
                 Text("↓")
                     .rotationEffect(Angle(degrees: heights.view == .main ? 0 : 180))
             }
-            .padding(.bottom,30)
+            .padding(.bottom, 35)
             .padding(.horizontal, 150)
-            .background(Fill())
             .padding(.top, 5)
+            .background(Fill())
         }
         .buttonStyle(Solid())
     }
@@ -112,11 +130,10 @@ struct MainView: View {
                 let h = drag.predictedEndTranslation.height
                 let w = drag.predictedEndTranslation.width
                 if abs(h)/abs(w) > 1 {
-                    if self.heights.view == .main {
-                        if h > 0 { self.cube.flipCube() }
-                        else { self.switchView(to: .more) }
-                    } else if h > 0 {
-                        self.switchView(to: .main, if: self.backMain, else: .more)
+                    if self.heights.view == .main && h > 0 {
+                        self.cube.flipCube()
+                    } else {
+                        self.switchBack()
                     }
                 } else {
                     self.cube.rotate(right: w > 0)
@@ -124,19 +141,20 @@ struct MainView: View {
             }
     }
     
-    func switchView(to newView: ViewStates, if switchViews: [ViewStates] = [], else otherView: ViewStates? = nil) {
-        if switchViews.contains(heights.view) || switchViews == [] {
+    func switchView(to newView: ViewStates, or otherView: ViewStates? = nil) {
+        if let nextView = (heights.view != newView) ? newView : otherView {
             withAnimation(.easeInOut(duration: 0.4)) {
-                self.heights.view = newView
-            }
-        } else if otherView != nil {
-            withAnimation(.easeInOut(duration: 0.4)) {
-                self.heights.view = otherView ?? .main
+                self.heights.view = nextView
             }
         }
     }
     
-    var backMain: [ViewStates] = [.more,.trainMenu,.train,.solveMenu,.solve,.play]
+    func switchBack() {
+        let backMain: [ViewStates] = [.more,.trainMenu,.train,.solveMenu,.solve,.play]
+        withAnimation(.easeInOut(duration: 0.4)) {
+            self.heights.view = backMain.contains(heights.view) ? .main : .more
+        }
+    }
 }
 
 struct MainView_Previews: PreviewProvider {

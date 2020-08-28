@@ -9,20 +9,22 @@
 import SwiftUI
 
 struct PlayView: View {
-    @State var mainButtonAction: () -> Void
+    @Binding var view: ViewStates
     
     var body: some View {
         VStack {
-            Button(action: mainButtonAction) {
-                Text("play")
+            if view == .play {
+                Spacer()
+                GameView().frame(height: 700)
+                Spacer()
             }
-            .buttonStyle(MainStyle())
+            Spacer()
         }
     }
 }
 
 struct PlayView_Previews: PreviewProvider {
     static var previews: some View {
-        PlayView() {}
+        PlayView(view: .constant(.main))
     }
 }

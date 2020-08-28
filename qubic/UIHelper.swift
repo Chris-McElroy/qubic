@@ -19,18 +19,22 @@ struct Fill: View {
     }
 }
 
+
+let mainButtonHeight: CGFloat = 92
+let mainGaps: CGFloat = 22
+
 struct MainStyle: ButtonStyle {
-    let height: CGFloat = 70
-    
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .font(.custom("Oligopoly Regular", size: 26))
             .foregroundColor(.white)
-            .frame(width: 200, height: height, alignment: .center)
+            .frame(width: 200, height: mainButtonHeight-mainGaps)
             .background(LinearGradient(gradient: Gradient(colors: [.init(red: 0.1, green: 0.3, blue: 1), .blue]), startPoint: .leading, endPoint: .trailing))
             .cornerRadius(100)
-            .shadow(radius: 4, x: 0, y: 3)
             .opacity(configuration.isPressed ? 0.5 : 1.0)
+            .shadow(radius: 4, x: 0, y: 3)
+            .frame(width: 200, height: mainButtonHeight)
+            .background(Fill())
     }
 }
 

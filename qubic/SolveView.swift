@@ -12,16 +12,14 @@ struct SolveView: View {
     @Binding var view: ViewStates
     
     var body: some View {
-        VStack {
+        VStack(spacing: 0) {
             difficultyPicker //.animation(.none)
+            Spacer().frame(height: 5)
             boardPicker // .animation(.none)
+            Spacer().frame(height: view == .solveMenu ? 0 : 100)
             if view == .solve {
                 GameView().animation(.linear)
             }
-            Button(action: solveAction) {
-                Text("solve")
-            }
-            .buttonStyle(MainStyle())
         }
     }
     
@@ -38,7 +36,7 @@ struct SolveView: View {
             .frame(width: 160, height: 40)
             .background(Rectangle().foregroundColor(.purple))
             .cornerRadius(100)
-            .padding(.bottom, view == .solveMenu ? 15 : 23)
+//            .padding(.bottom, view == .solveMenu ? 15 : 23)
     }
     
     func solveAction() {
