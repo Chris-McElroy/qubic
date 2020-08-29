@@ -24,80 +24,79 @@ enum ViewStates {
 
 extension MainView {
     struct Heights {
-//        @EnvironmentObject var screen: ScreenObserver
-        var screen: ScreenObserver?
-        var screenHeight: CGFloat { screen?.height ?? 800 }
+        var top       = SubView(id: 0,  df: 0)
+        let trainView = SubView(id: 1,  df: 0)
+        let train     = SubView(id: 2,  df: mainButtonHeight)
+        let solveView = SubView(id: 3,  df: 0)
+        let solve     = SubView(id: 4,  df: mainButtonHeight)
+        let playView  = SubView(id: 5,  df: 0)
+        let play      = SubView(id: 6,  df: mainButtonHeight)
+        let about     = SubView(id: 7,  df: moreButtonHeight)
+        let settings  = SubView(id: 8,  df: moreButtonHeight)
+        let replays   = SubView(id: 9,  df: moreButtonHeight)
+        let friends   = SubView(id: 10, df: moreButtonHeight)
+        let moreFill  = SubView(id: 11, df: moreButtonHeight)
+        
         var view: ViewStates = .main
-//        private var screen: CGFloat { window.frame.height }
-        private var large: Bool { screenHeight > 1000 }
-        private var small: Bool { screenHeight < 700 }
-        private var defaultTop: CGFloat { screenHeight - (3*mainButtonHeight + mainGaps + bottomGap) }
-        private var longMore: [ViewStates] = [.about, .settings, .replays, .friends]
-        private var defaultMoreGap: CGFloat {
-            mainGaps + ((longMore.contains(view) && !small) ? 20 : 0)
+        var total: CGFloat
+        var topSpacer: CGFloat { screen - subViews[0..<display.top.id].sum() }
+        var cube: CGFloat
+        let fill: CGFloat = 40
+        var fillOffset: CGFloat
+        let backButton: CGFloat = 60
+        var backButtonOffset: CGFloat
+        private var subViews: [CGFloat]
+        private var screen: CGFloat
+        private var bottomGap: CGFloat
+        
+        init(newScreen: ScreenObserver? = nil) {
+            let screenHeight = newScreen?.height ?? 800
+            let small = screenHeight < 700
+            let topGap: CGFloat = small ? 10 : 30
+            bottomGap = 80 - topGap
+            screen = screenHeight - 2*topGap
+            top.df = screen - 3*mainButtonHeight - bottomGap
+            total = 3*screen
+            cube = small ? 200 : 280
+            fillOffset = -2*screen + 83 - 2*topGap
+            backButtonOffset = -screen - 10 + topGap
+            subViews = [top.df, trainView.df, train.df, solveView.df, solve.df, playView.df, play.df, about.df, settings.df, replays.df, friends.df, moreFill.df]
         }
-        private let shortMore: CGFloat = 50
-        private let bottomGap: CGFloat = 80 // was 88
         
         private var display: Display {
             switch view {
-            case .main:      return Display(top: top,       focus: mainGap,   bottom: play)
+            case .main:      return Display(top: top,       focus: top,       bottom: play)
             case .trainMenu: return Display(top: top,       focus: trainView, bottom: train)
             case .train:     return Display(top: trainView, focus: trainView, bottom: trainView)
             case .solveMenu: return Display(top: top,       focus: solveView, bottom: solve)
             case .solve:     return Display(top: solveView, focus: solveView, bottom: solveView)
             case .play:      return Display(top: playView,  focus: playView,  bottom: playView)
-            case .more:      return Display(top: mainGap,   focus: moreFill,  bottom: moreFill)
-            case .about:     return Display(top: moreGap,   focus: about,     bottom: friends)
-            case .settings:  return Display(top: moreGap,   focus: settings,  bottom: friends)
-            case .replays:   return Display(top: moreGap,   focus: replays,   bottom: friends)
-            case .friends:   return Display(top: moreGap,   focus: friends,   bottom: friends)
+            case .more:      return Display(top: train,     focus: moreFill,  bottom: moreFill)
+            case .about:     return Display(top: about,     focus: about,     bottom: friends)
+            case .settings:  return Display(top: about,     focus: settings,  bottom: friends)
+            case .replays:   return Display(top: about,     focus: replays,   bottom: friends)
+            case .friends:   return Display(top: about,     focus: friends,   bottom: friends)
             }
         }
-        
-        var top:        SubView { SubView(id: 0,  df: defaultTop) }
-        var mainGap:    SubView { SubView(id: 1,  df: mainGaps) }
-        var trainView:  SubView { SubView(id: 2,  df: 0) }
-        var train:      SubView { SubView(id: 3,  df: mainButtonHeight) }
-        var solveView:  SubView { SubView(id: 4,  df: 0) }
-        var solve:      SubView { SubView(id: 5,  df: mainButtonHeight) }
-        var playView:   SubView { SubView(id: 6,  df: 0) }
-        var play:       SubView { SubView(id: 7,  df: mainButtonHeight) }
-        var moreGap:    SubView { SubView(id: 8,  df: defaultMoreGap) }
-        var about:      SubView { SubView(id: 9,  df: shortMore) }
-        var settings:   SubView { SubView(id: 10, df: shortMore) }
-        var replays:    SubView { SubView(id: 11, df: shortMore) }
-        var friends:    SubView { SubView(id: 12, df: shortMore) }
-        var moreFill:   SubView { SubView(id: 13, df: shortMore) }
-        
-        private var subViews: [CGFloat] { [top.df, mainGap.df, trainView.df, train.df, solveView.df, solve.df, playView.df, play.df, moreGap.df, about.df, settings.df, replays.df, friends.df, moreFill.df] }
-        
-        var total: CGFloat { 3*screenHeight }
-        var topSpacer: CGFloat { screenHeight - subViews[0..<display.top.id].sum() }
-        var cube: CGFloat { small ? 200 : 280 }
-        let fill: CGFloat = 40
-        var fillOffset: CGFloat { -2*screenHeight + 83 }
-        let backButton: CGFloat = 60
-        var backButtonOffset: CGFloat { -screenHeight - 10 }
         
         func get(_ subView: SubView) -> CGFloat {
             if display.focus.id != subView.id { return subView.df }
             else {
-                let space = screenHeight - bottomGap + subView.df
+                let space = screen - bottomGap + subView.df
                 return space - subViews[display.top.id...display.bottom.id].sum()
             }
+        }
+        
+        struct SubView {
+            let id: Int
+            var df: CGFloat
         }
         
         private struct Display {
             let top: SubView
             let focus: SubView
             let bottom: SubView
-        }
-        
-        struct SubView {
-            let id: Int
-            let df: CGFloat
-        }
+        }        
     }
 }
 

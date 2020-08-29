@@ -14,17 +14,17 @@ struct MainView: View {
     
     var body: some View {
         VStack(alignment: .center, spacing: 0) {
-            Spacer().frame(height: heights.topSpacer)
-            top.frame(height: heights.get(heights.top))
+            Fill(heights.topSpacer)
+            top
             mainStack
             moreStack
             Spacer()
-            Fill().frame(height: heights.fill)
+            Fill(heights.fill)
                 .offset(y: heights.fillOffset)
             backButton.frame(height: heights.backButton)
                 .offset(y: heights.backButtonOffset)
         }
-        .onAppear { self.heights.screen = self.screen }
+        .onAppear { self.heights = Heights(newScreen: self.screen) }
         .onAppear { self.heights.view = .main  }
         .frame(height: heights.total)
         .background(Fill())
@@ -37,31 +37,26 @@ struct MainView: View {
         VStack {
             Text("qubic")
                 .font(.custom("Oligopoly Regular", size: 24))
-                .padding(.top, 70)
+                .padding(.top, 20)
             cube
                 .onTapGesture(count: 2) { self.cube.resetCube() }
                 .frame(height: heights.cube)
             Spacer()
         }
+        .frame(height: heights.get(heights.top))
+        .background(Fill())
     }
-    
-    var align: Alignment { .center }
     
     private var mainStack: some View {
         VStack(spacing: 0) {
-            Fill()
-                .frame(height: heights.get(heights.mainGap))
-                .zIndex(2)
             TrainView()
-                .frame(height: heights.get(heights.trainView))
-                .zIndex(2)
-            trainButton.zIndex(2)
-            SolveView(view: $heights.view)
-                .frame(height: heights.get(heights.solveView))
-                .zIndex(1)
-            solveButton.zIndex(1)
-            PlayView(view: $heights.view)
-                .frame(height: heights.get(heights.playView))
+                .frame(height: heights.get(heights.trainView), alignment: .bottom)
+            trainButton
+            SolveView(view: $heights.view) { switchBack() }
+                .frame(height: heights.get(heights.solveView), alignment: .bottom)
+            solveButton
+            PlayView(view: $heights.view) { switchBack() }
+                .frame(height: heights.get(heights.playView), alignment: .bottom)
             playButton
         }
     }
@@ -86,7 +81,6 @@ struct MainView: View {
     
     private var moreStack: some View {
         VStack(spacing: 0) {
-            Spacer().frame(height: heights.get(heights.moreGap))
             AboutView() { self.switchView(to: .about) }
                 .frame(height: heights.get(heights.about), alignment: .top)
             SettingsView() { self.switchView(to: .settings) }
@@ -95,8 +89,7 @@ struct MainView: View {
                 .frame(height: heights.get(heights.replays), alignment: .top)
             FriendsView() { self.switchView(to: .friends) }
                 .frame(height: heights.get(heights.friends), alignment: .top)
-            Fill()
-                .frame(height: heights.get(heights.moreFill), alignment: .top)
+            Fill(heights.get(heights.moreFill))
         }
     }
     
@@ -125,9 +118,10 @@ struct MainView: View {
                 let h = drag.predictedEndTranslation.height
                 let w = drag.predictedEndTranslation.width
                 if abs(h)/abs(w) > 1 {
-                    if self.heights.view == .main && h > 0 {
-                        self.cube.flipCube()
-                    } else {
+                    if self.heights.view == .main {
+                        if h < 0 { self.switchView(to: .more) }
+                        else { self.cube.flipCube() }
+                    } else if h > 0 {
                         self.switchBack()
                     }
                 } else {

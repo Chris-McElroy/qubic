@@ -10,12 +10,13 @@ import SwiftUI
 
 struct PlayView: View {
     @Binding var view: ViewStates
+    var switchBack: () -> Void
     
     var body: some View {
         VStack {
             if view == .play {
                 Spacer()
-                GameView().frame(height: 700)
+                GameView() { switchBack() }.frame(height: 700)
                 Spacer()
             }
             Spacer()
@@ -25,6 +26,6 @@ struct PlayView: View {
 
 struct PlayView_Previews: PreviewProvider {
     static var previews: some View {
-        PlayView(view: .constant(.main))
+        PlayView(view: .constant(.main)) {}
     }
 }

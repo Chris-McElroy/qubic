@@ -9,7 +9,7 @@
 import SwiftUI
 
 struct AboutView: View {
-    @State var mainButtonAction: () -> Void
+    var mainButtonAction: () -> Void
     
     var body: some View {
         VStack {

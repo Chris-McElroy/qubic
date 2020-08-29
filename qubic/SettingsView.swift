@@ -9,7 +9,7 @@
 import SwiftUI
 
 struct SettingsView: View {
-    @State var mainButtonAction: () -> Void
+    var mainButtonAction: () -> Void
     @State var sup: Bool = false
     
     var body: some View {

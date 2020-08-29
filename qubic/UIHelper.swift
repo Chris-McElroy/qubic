@@ -13,28 +13,35 @@ extension Sequence where Element: AdditiveArithmetic {
 }
 
 struct Fill: View {
+    let height: CGFloat?
+    
+    init(_ height: CGFloat? = nil) {
+        self.height = height
+    }
+    
     var body: some View {
         Rectangle()
             .foregroundColor(.systemBackground)
+            .frame(height: height)
     }
 }
 
-
 let mainButtonHeight: CGFloat = 92
-let mainGaps: CGFloat = 22
+let moreButtonHeight: CGFloat = 50
 
 struct MainStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .font(.custom("Oligopoly Regular", size: 26))
             .foregroundColor(.white)
-            .frame(width: 200, height: mainButtonHeight-mainGaps)
+            .frame(width: 200, height: mainButtonHeight-22)
             .background(LinearGradient(gradient: Gradient(colors: [.init(red: 0.1, green: 0.3, blue: 1), .blue]), startPoint: .leading, endPoint: .trailing))
             .cornerRadius(100)
             .opacity(configuration.isPressed ? 0.5 : 1.0)
             .shadow(radius: 4, x: 0, y: 3)
             .frame(width: 200, height: mainButtonHeight)
             .background(Fill())
+            .zIndex(1)
     }
 }
 
