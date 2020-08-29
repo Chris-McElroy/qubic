@@ -19,7 +19,7 @@ struct SolveView: View {
             Fill(5)
             boardPicker
             if view == .solve {
-                GameView() { switchBack() }
+                GameView() { self.switchBack() }
             }
             Fill(5)
         }

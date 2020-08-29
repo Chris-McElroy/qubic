@@ -16,7 +16,7 @@ struct PlayView: View {
         VStack {
             if view == .play {
                 Spacer()
-                GameView() { switchBack() }.frame(height: 700)
+                GameView() { self.switchBack() }.frame(height: 700)
                 Spacer()
             }
             Spacer()

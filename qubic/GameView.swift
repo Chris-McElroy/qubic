@@ -23,7 +23,7 @@ struct GameView: View {
                     if abs(w)/abs(h) > 1 {
                         self.board.rotate(right: w > 0)
                     } else {
-                        switchBack()
+                        self.switchBack()
                     }
                 }
             )

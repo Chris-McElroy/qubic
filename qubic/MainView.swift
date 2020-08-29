@@ -28,7 +28,7 @@ struct MainView: View {
         .onAppear { self.heights.view = .main  }
         .frame(height: heights.total)
         .background(Fill())
-        .gesture(self.scrollGestures)
+        .gesture(scrollGestures)
     }
     
     let cube = CubeView()
@@ -52,10 +52,10 @@ struct MainView: View {
             TrainView()
                 .frame(height: heights.get(heights.trainView), alignment: .bottom)
             trainButton
-            SolveView(view: $heights.view) { switchBack() }
+            SolveView(view: $heights.view) { self.switchBack() }
                 .frame(height: heights.get(heights.solveView), alignment: .bottom)
             solveButton
-            PlayView(view: $heights.view) { switchBack() }
+            PlayView(view: $heights.view) { self.switchBack() }
                 .frame(height: heights.get(heights.playView), alignment: .bottom)
             playButton
         }
@@ -133,7 +133,7 @@ struct MainView: View {
     func switchView(to newView: ViewStates, or otherView: ViewStates? = nil) {
         if let nextView = (heights.view != newView) ? newView : otherView {
             withAnimation(.easeInOut(duration: 0.4)) {
-                self.heights.view = nextView
+                heights.view = nextView
             }
         }
     }
@@ -141,7 +141,7 @@ struct MainView: View {
     func switchBack() {
         let backMain: [ViewStates] = [.more,.trainMenu,.train,.solveMenu,.solve,.play]
         withAnimation(.easeInOut(duration: 0.4)) {
-            self.heights.view = backMain.contains(heights.view) ? .main : .more
+            heights.view = backMain.contains(heights.view) ? .main : .more
         }
     }
 }
