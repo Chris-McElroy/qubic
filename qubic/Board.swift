@@ -181,8 +181,8 @@ class Board {
     func has1stOrderCheckmate(n: Int) -> Bool {
         // returns true if player n will have a win
         // available no matter what the opponent does
-        var points: Set<Int> = []
         if lines[n][3].count < 2 { return false }
+        var points: Set<Int> = []
         for p in pointsInLines(n: n, k: 3) {
             if point[p] == 0 {
                 points.insert(p)
