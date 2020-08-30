@@ -22,7 +22,7 @@ struct GameView: View {
                     let w = drag.predictedEndTranslation.width
                     if abs(w)/abs(h) > 1 {
                         self.board.rotate(right: w > 0)
-                    } else {
+                    } else if h > 0 {
                         self.switchBack()
                     }
                 }

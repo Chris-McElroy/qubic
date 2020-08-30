@@ -51,32 +51,23 @@ struct MainView: View {
         VStack(spacing: 0) {
             TrainView()
                 .frame(height: heights.get(heights.trainView), alignment: .bottom)
-            trainButton
+            mainButton(text: "train") { self.switchView(to: .trainMenu, or: .train) }
             SolveView(view: $heights.view) { self.switchBack() }
                 .frame(height: heights.get(heights.solveView), alignment: .bottom)
-            solveButton
+            mainButton(text: "solve") { self.switchView(to: .solveMenu, or: .solve) }
             PlayView(view: $heights.view) { self.switchBack() }
                 .frame(height: heights.get(heights.playView), alignment: .bottom)
-            playButton
+            mainButton(text: "play") { self.switchView(to: .play) }
         }
     }
     
-    private var trainButton: some View {
-        Button(action: { self.switchView(to: .trainMenu, or: .train) }) {
-            Text("train")
-        }.buttonStyle(MainStyle())
-    }
-    
-    private var solveButton: some View {
-        Button(action: { self.switchView(to: .solveMenu, or: .solve) }) {
-            Text("solve")
-        }.buttonStyle(MainStyle())
-    }
-    
-    private var playButton: some View {
-        Button(action: { self.switchView(to: .play) }) {
-            Text("play")
-        }.buttonStyle(MainStyle())
+    private struct mainButton: View {
+        let text: String
+        let action: () -> Void
+        
+        var body: some View {
+            Button(action: action, label: { Text(text) }).buttonStyle(MainStyle())
+        }
     }
     
     private var moreStack: some View {
@@ -94,9 +85,7 @@ struct MainView: View {
     }
     
     private var backButton: some View {
-        Button(action: {
-            self.switchBack()
-        }) {
+        Button(action: { self.switchBack() }) {
             VStack {
                 Text(heights.view == .main ? "more" : "back")
                     .font(.custom("Oligopoly Regular", size: 16))
