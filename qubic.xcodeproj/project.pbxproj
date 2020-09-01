@@ -20,6 +20,7 @@
 		1E68179C24CC973D001713E7 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1E68179B24CC973D001713E7 /* Preview Assets.xcassets */; };
 		1E68179F24CC973D001713E7 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1E68179D24CC973D001713E7 /* LaunchScreen.storyboard */; };
 		1E6817A724CC977B001713E7 /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E6817A624CC977B001713E7 /* MainView.swift */; };
+		1E6C429024FCE1F20065BDF5 /* BoardHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E6C428F24FCE1F20065BDF5 /* BoardHelper.swift */; };
 		1E6D2E4B24CE9729001EFE85 /* CubeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E6D2E4A24CE9729001EFE85 /* CubeView.swift */; };
 		1E7B959224D34015004B3C80 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E7B959124D34015004B3C80 /* SettingsView.swift */; };
 		1E883EFB24EE3B14002686C8 /* Heights.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E883EFA24EE3B14002686C8 /* Heights.swift */; };
@@ -47,6 +48,7 @@
 		1E68179E24CC973D001713E7 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		1E6817A024CC973D001713E7 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		1E6817A624CC977B001713E7 /* MainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainView.swift; sourceTree = "<group>"; };
+		1E6C428F24FCE1F20065BDF5 /* BoardHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardHelper.swift; sourceTree = "<group>"; };
 		1E6D2E4A24CE9729001EFE85 /* CubeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CubeView.swift; sourceTree = "<group>"; };
 		1E7B959124D34015004B3C80 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		1E883EFA24EE3B14002686C8 /* Heights.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Heights.swift; sourceTree = "<group>"; };
@@ -98,6 +100,7 @@
 				1E017B9D24CDB70D00CF979A /* SolveView.swift */,
 				1E017B9F24CDB71A00CF979A /* PlayView.swift */,
 				1EDDE18F24FAC70800B7742C /* Board.swift */,
+				1E6C428F24FCE1F20065BDF5 /* BoardHelper.swift */,
 				1E02D59A24CE5696001BF62B /* AboutView.swift */,
 				1E7B959124D34015004B3C80 /* SettingsView.swift */,
 				1EAEE3BC24D9DCBA00490530 /* ReplaysView.swift */,
@@ -197,6 +200,7 @@
 			files = (
 				1EAEE3BD24D9DCBA00490530 /* ReplaysView.swift in Sources */,
 				1E02D59B24CE5696001BF62B /* AboutView.swift in Sources */,
+				1E6C429024FCE1F20065BDF5 /* BoardHelper.swift in Sources */,
 				1EEB0D4E24CF3780008F5B4B /* Colors.swift in Sources */,
 				1E017BA024CDB71A00CF979A /* PlayView.swift in Sources */,
 				1E68179324CC973B001713E7 /* AppDelegate.swift in Sources */,
