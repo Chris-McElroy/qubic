@@ -9,6 +9,10 @@
 import SwiftUI
 import SceneKit
 
+protocol AI {
+    func getMove(for board: Board) -> Int
+}
+
 struct BoardView: UIViewRepresentable {
     let boardViewClass: BoardViewClass
     let help = SceneHelper()
@@ -25,7 +29,7 @@ struct BoardView: UIViewRepresentable {
     }
     
     func rotate(right: Bool) {
-        let angle = help.dToR(90*(right ? 1 : -1))
+        let angle = help.dToR(right ? 90 : -90)
         let rotateAction = SCNAction.rotate(by: angle, around: help.yAxis, duration: 0.4)
         rotateAction.timingMode = .easeInEaseOut
         boardViewClass.base.runAction(rotateAction)
@@ -37,6 +41,7 @@ class BoardViewClass {
     let preset: [Int]
     let myTurn: Int
     var winner: Int? = nil
+    let op: AI = Master()
     
     let board = Board()
     let help = SceneHelper()
@@ -44,7 +49,7 @@ class BoardViewClass {
     let scene = SCNScene()
     let base = SCNNode()
     let cube: [SCNNode] = (0..<64).map { _ in SceneHelper().makeBox(size: 0.86) }
-    var currentLines: Dictionary<Int, SCNNode> = [:]
+    var currentLines: [SCNNode?] = Array(repeating: nil, count: 76)
     var selection: SCNNode? = nil
     let normalScale = SCNVector3(1,1,1)
     let selectedScale = SCNVector3(1.3,1.3,1.3)
@@ -57,7 +62,6 @@ class BoardViewClass {
         addPreset()
         help.prepSCNView(view: view, scene: scene)
         view.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleTap(_:))))
-//        print("a", preset)
     }
     
     private func addLightsNCamera() {
@@ -128,8 +132,7 @@ class BoardViewClass {
                 if board.status[n][l] == 4 && currentLines[l] == nil {
                     let start = SIMD3<Float>(cube[pointsInLine[l][0]].position)
                     let end = SIMD3<Float>(cube[pointsInLine[l][3]].position)
-                    let lineNode = help.makeLine(from: start, to: end)
-                    lineNode.geometry?.firstMaterial?.diffuse.contents = playerColor[n]
+                    let lineNode = help.makeLine(from: start, to: end, color: playerColor[n])
                     base.addChildNode(lineNode)
                     currentLines[l] = lineNode
                 }
@@ -141,20 +144,11 @@ class BoardViewClass {
     }
 
     private func queueOpMove() {
-       let opMove = getOpMove()
-       let pause = Double.random(in: board.has1stOrderCheck(myTurn) ? 0.6..<1.0 : 2.0..<3.0)
-       Timer.scheduledTimer(withTimeInterval: pause, repeats: false, block: { _ in
-           self.processMove(opMove)
-       })
-    }
-    
-    private func getOpMove() -> Int {
-        var options = board.get1stOrderWinsFor(myTurn)
-        if options.isEmpty {
-            options = Array(0..<64)
-            options.removeAll { board.pointFull($0) }
+        let opMove = op.getMove(for: board)
+        let pause = Double.random(in: board.has1stOrderCheck(myTurn) ? 0.6..<1.0 : 2.0..<3.0)
+        Timer.scheduledTimer(withTimeInterval: pause, repeats: false) { _ in
+            self.processMove(opMove)
         }
-        return options.randomElement() ?? 0
     }
     
     private func getTurn() -> Int {

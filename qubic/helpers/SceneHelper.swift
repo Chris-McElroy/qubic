@@ -123,7 +123,7 @@ struct SceneHelper {
 //        return node
 //    }
     
-    func makeLine(from start: SIMD3<Float>, to end: SIMD3<Float>) -> SCNNode {
+    func makeLine(from start: SIMD3<Float>, to end: SIMD3<Float>, color: UIColor) -> SCNNode {
         let vector = end - start
         let line = SCNCylinder(radius: 0.05, height: CGFloat(simd_length(vector)))
         let lineNode = SCNNode(geometry: line)
@@ -132,6 +132,7 @@ struct SceneHelper {
         let qw = simd_length(yAxisSIMD) * simd_length(vector) + simd_dot(yAxisSIMD, vector)
         let q = simd_quatf(ix: vector_cross.x, iy: vector_cross.y, iz: vector_cross.z, r: qw)
         lineNode.simdRotate(by: q.normalized, aroundTarget: lineNode.simdPosition)
+        lineNode.geometry?.firstMaterial?.diffuse.contents = color
         return lineNode
     }
 }

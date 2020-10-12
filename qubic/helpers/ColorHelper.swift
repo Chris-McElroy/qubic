@@ -1,5 +1,5 @@
 //
-//  Colors.swift
+//  ColorHelper.swift
 //  qubic
 //
 //  Created by 4 on 7/27/20.
