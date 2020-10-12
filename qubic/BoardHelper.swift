@@ -38,6 +38,14 @@ extension Board {
     }
 }
 
+func expandMoves(_ moves: String) -> [Int] {
+    return moves.compactMap { moveStringMap.firstIndex(of: $0) }
+}
+
+let moveStringMap: [Character] = ["Q","W","E","R","T","Y","U","I","O","P","A","S","D","F","G","H","J","K","L","Z","X","C","V","B","N","M","q","w","e","r","t","y","u","i","o","p","a","s","d","f","g","h","j","k","l","z","x","c","v","b","n","m","1","2","3","4","5","6","7","8","9","0","_","-","."]
+
+let allSolveBoards = ["dZsf-RvH", "QR9v-HMCh_", "-vHRD9ojCMh", "RmDO9zvh-siL", "sRdGC1hQ", "dZsf-RvH", "QR9v-HMCh_", "-vHRD9ojCMh", "RmDO9zvh-siL",  "vmDHQ9khV-q", "RHvu96Dh-MPU", "mR9vDdH-VlhQ", "9R-vDHojqMC",  "dsqtRF9hMmVD", "Hd-yvqVjhRms", "dsVqHhC4M9", "RmvCsqJj", "VdMqhs-RDe", "VdMZhRmqs6Db9v-z", "RQj9hgX-s0_E", "mRHCVh90Wq", "Vqhsv9dHtRCD", "RHtqvu9hj27C",  "pmD93VvMqhRs",  "m-DQCMsdqVZU3vjY", "DQvMRhPU9-Cd", "jCdhqVbmH", "sdqMVvCQmD", "mdvnqVsHh",  "m-DQvdRsCjhq", "QW9X-C0_BRjmhDMPUOHt",  "m-CDrMbQvnRj", "-qm8hjVRs", "sdMCqhRHvbDW0a_", "vQJHY-yCjkR3VM", "9V-j_0RdfBQMJuc",  "mRD9vM-qVh",  "hVMsjqTD-", "jhVdCqvQ-nG_RBt9H", "sdMCqj9Hv1R"]
+
 let linesThruPoint: [[Int]] = [
     [0, 16, 32, 48, 56, 64, 72],  [0, 17, 33, 65],
     [0, 18, 34, 66],  [0, 19, 35, 52, 60, 67, 74],
@@ -163,5 +171,3 @@ let inLine: [[(Int, Int, Int)?]] = [
      [nil, nil, (66, 42, 22), nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, (46, 46, 30), nil, nil, nil, nil, nil, nil, nil, (66, 2, 42), nil, nil, nil, nil, nil, nil, nil, (46, 14, 46), nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, (66, 2, 22), nil, nil, nil, (46, 14, 30), nil, nil, nil, (30, 54, 58), nil, nil, nil, (30, 58, 50), nil, nil, nil, (30, 54, 50), nil, (15, 61, 63), (15, 60, 63), nil, (15, 61, 60)],
      [(72, 42, 21), nil, nil, (67, 23, 43), nil, nil, nil, nil, nil, nil, nil, nil, (59, 46, 29), nil, nil, (47, 31, 47), nil, nil, nil, nil, nil, (72, 42, 0), nil, (67, 3, 43), nil, nil, nil, nil, nil, (59, 46, 12), nil, (47, 15, 47), nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, (72, 21, 0), (67, 3, 23), nil, nil, (59, 12, 29), (47, 15, 31), (51, 53, 58), nil, nil, (31, 55, 59), nil, (51, 48, 58), nil, (31, 51, 59), nil, nil, (51, 48, 53), (31, 51, 55), (15, 61, 62), (15, 60, 62), (15, 61, 60), nil]
 ]
-
-let moveStringMap = ["Q","W","E","R","T","Y","U","I","O","P","A","S","D","F","G","H","J","K","L","Z","X","C","V","B","N","M","q","w","e","r","t","y","u","i","o","p","a","s","d","f","g","h","j","k","l","z","x","c","v","b","n","m","1","2","3","4","5","6","7","8","9","0","_","-","."]

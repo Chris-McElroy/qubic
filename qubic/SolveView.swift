@@ -21,12 +21,11 @@ struct SolveView: View {
             Fill(5)
             boardPicker
             if view == .solve {
-                GameView(allPresets.randomElement() ?? []) { self.switchBack() }
+                GameView(getSolveBoard()) { self.switchBack() }
             }
             Fill(5)
         }
     }
-    
     
     var difficultyPicker: some View {
         Image("blueCube")
@@ -40,6 +39,10 @@ struct SolveView: View {
             .frame(width: 160, height: 40)
             .background(Rectangle().foregroundColor(.purple))
             .cornerRadius(100)
+    }
+    
+    func getSolveBoard() -> [Int] {
+        return expandMoves(allSolveBoards.randomElement() ?? "")
     }
 }
 

@@ -34,6 +34,7 @@ struct BoardView: UIViewRepresentable {
 
 class BoardViewClass {
     let playerColor = [getUIColor(1), getUIColor(2)]
+    let preset: [Int]
     let myTurn: Int
     var winner: Int? = nil
     
@@ -48,11 +49,12 @@ class BoardViewClass {
     let normalScale = SCNVector3(1,1,1)
     let selectedScale = SCNVector3(1.3,1.3,1.3)
     
-    init(_ preset: [Int]) {
+    init(_ presetMoves: [Int]) {
+        preset = presetMoves
         myTurn = preset.count % 2
         addLightsNCamera()
         addCubes()
-        for p in preset { processMove(p) }
+        addPreset()
         help.prepSCNView(view: view, scene: scene)
         view.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleTap(_:))))
 //        print("a", preset)
@@ -80,32 +82,46 @@ class BoardViewClass {
         scene.rootNode.addChildNode(base)
     }
     
-    @objc private func handleTap(_ gestureRecognize: UIGestureRecognizer) {
-//        @Environment(\.preset) var preset: [Int]
-//        print("h", preset)
+    func addPreset() {
+        for p in preset { processMove(p) }
         selection?.scale = normalScale
+    }
+    
+    @objc private func handleTap(_ gestureRecognize: UIGestureRecognizer) {
         let hit = gestureRecognize.location(in: view)
         let hitResults = view.hitTest(hit, options: [:])
-        guard let result = hitResults.first?.node else { return }
-        guard let p = cube.firstIndex(of: result) else { return }
+        guard let result = hitResults.first?.node else { clearSelection(); return }
+        guard let p = cube.firstIndex(of: result) else { clearSelection(); return }
         if result == selection {
-            if getTurn() == myTurn && winner == nil {
+            if getTurn() == myTurn {
                 processMove(p)
-                queueOpMove()
+                if winner == nil { queueOpMove() }
             }
-            selection = nil
+            clearSelection()
         } else {
-            selection = result
-            selection?.scale = selectedScale
+            selectCube(result)
         }
+    }
+    
+    private func clearSelection() {
+        selection?.scale = normalScale
+        selection = nil
+    }
+    
+    private func selectCube(_ result: SCNNode) {
+        selection?.scale = normalScale
+        selection = result
+        selection?.scale = selectedScale
     }
     
     private func processMove(_ move: Int) {
         guard board.pointEmpty(move) else { print("point already full"); return }
+        guard winner == nil else { print("game already won"); return }
         let n = getTurn()
         let wins = board.get1stOrderWinsFor(n)
         board.addMove(p: move)
         cube[move].geometry?.firstMaterial?.diffuse.contents = playerColor[n]
+        if n != myTurn { selectCube(cube[move]) }
         if wins.contains(move) {
             winner = n
             for l in linesThruPoint[move] {
@@ -126,7 +142,7 @@ class BoardViewClass {
 
     private func queueOpMove() {
        let opMove = getOpMove()
-       let pause = Double.random(in: board.has1stOrderCheck(myTurn) ? 0.5..<1.0 : 2.0..<3.0)
+       let pause = Double.random(in: board.has1stOrderCheck(myTurn) ? 0.6..<1.0 : 2.0..<3.0)
        Timer.scheduledTimer(withTimeInterval: pause, repeats: false, block: { _ in
            self.processMove(opMove)
        })
