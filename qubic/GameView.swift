@@ -11,8 +11,13 @@ import SceneKit
 
 struct GameView: View {
     var switchBack: () -> Void
+    let board: BoardView
     
-    let board = BoardView()
+    init(_ preset: [Int] = [], _ switchBackFunc: @escaping () -> Void) {
+        board = BoardView(preset)
+        switchBack = switchBackFunc
+    }
+    
     var body: some View {
         board
 //            .frame(height: 800)
@@ -29,8 +34,9 @@ struct GameView: View {
             )
     }
 }
+
 struct GameView_Previews: PreviewProvider {
     static var previews: some View {
-        GameView() {}
+        GameView([3]) {}
     }
 }

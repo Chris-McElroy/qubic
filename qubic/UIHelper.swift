@@ -8,6 +8,12 @@
 
 import SwiftUI
 
+extension Dictionary {
+    func add(_ newElement: Element) -> Dictionary {
+        merging([newElement], uniquingKeysWith: { (old, _) in old } )
+    }
+}
+
 extension Sequence where Element: AdditiveArithmetic {
     func sum() -> Element { reduce(.zero, +) }
 }

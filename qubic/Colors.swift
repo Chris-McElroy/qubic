@@ -18,7 +18,11 @@ extension UIColor {
 }
 
 func getUIColor(_ n: Int) -> UIColor {
-    return UIColor(red: 0.15, green: 0.5, blue: 1.0, alpha: 1.0)
+    switch (n) {
+    case 1: return UIColor(red: 0.15, green: 0.5, blue: 1.0, alpha: 1.0)
+    case 2: return UIColor.green
+    default: return UIColor.white
+    }
 }
 
 func getColor(_ n: Int) -> Color {

@@ -11,6 +11,8 @@ import SwiftUI
 struct SolveView: View {
     @Binding var view: ViewStates
     var switchBack: () -> Void
+//    @State var preset: [Int] = allPresets.randomElement() ?? []
+    let allPresets = [[0,3,2],[3,5,32],[24,23,34,12,14,15]]
     
     var body: some View {
         VStack(spacing: 0) {
@@ -19,7 +21,7 @@ struct SolveView: View {
             Fill(5)
             boardPicker
             if view == .solve {
-                GameView() { self.switchBack() }
+                GameView(allPresets.randomElement() ?? []) { self.switchBack() }
             }
             Fill(5)
         }
