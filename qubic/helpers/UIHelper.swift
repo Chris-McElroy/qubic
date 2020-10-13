@@ -8,6 +8,10 @@
 
 import SwiftUI
 
+// Keys
+let DCStreakKey = "DCStreak"
+let LastDCKey = "LastDC"
+
 extension Dictionary {
     func add(_ newElement: Element) -> Dictionary {
         merging([newElement], uniquingKeysWith: { (old, _) in old } )
@@ -16,6 +20,16 @@ extension Dictionary {
 
 extension Sequence where Element: AdditiveArithmetic {
     func sum() -> Element { reduce(.zero, +) }
+}
+
+extension Date {
+    func isYesterday() -> Bool {
+        Calendar.current.isDateInYesterday(self)
+    }
+    
+    func isToday() -> Bool {
+        Calendar.current.isDateInToday(self)
+    }
 }
 
 struct Fill: View {

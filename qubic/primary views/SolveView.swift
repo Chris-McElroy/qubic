@@ -11,8 +11,6 @@ import SwiftUI
 struct SolveView: View {
     @Binding var view: ViewStates
     var switchBack: () -> Void
-//    @State var preset: [Int] = allPresets.randomElement() ?? []
-    let allPresets = [[0,3,2],[3,5,32],[24,23,34,12,14,15]]
     
     var body: some View {
         VStack(spacing: 0) {
@@ -28,21 +26,46 @@ struct SolveView: View {
     }
     
     var difficultyPicker: some View {
-        Image("blueCube")
-            .resizable()
-            .frame(width: 40, height: 40)
+        HStack {
+            Text(view == .solve ? "" : getDCString())
+            Image(getSolveBoard().count.isMultiple(of: 2) ? "limeCube" : "blueCube")
+                .resizable()
+                .frame(width: 40, height: 40)
+        }
     }
     
     var boardPicker: some View {
-        Text("August 22, 2020")
+        Text(getDateString())
             .foregroundColor(.white)
             .frame(width: 160, height: 40)
             .background(Rectangle().foregroundColor(.purple))
             .cornerRadius(100)
     }
     
+    func getDCString() -> String {
+        if let lastDC = UserDefaults.standard.value(forKey: LastDCKey) as? Date {
+            let streak = UserDefaults.standard.integer(forKey: DCStreakKey)
+            if streak > 0 && lastDC.isToday() { return "\(streak) day streak" }
+            else if lastDC.isYesterday() { return "" }
+        }
+        UserDefaults.standard.setValue(Date(), forKey: LastDCKey)
+        UserDefaults.standard.setValue(0, forKey: DCStreakKey)
+        return ""
+    }
+    
     func getSolveBoard() -> [Int] {
-        return expandMoves(allSolveBoards.randomElement() ?? "")
+        let day = Calendar.current.component(.day, from: Date())
+        let month = Calendar.current.component(.month, from: Date())
+        let year = Calendar.current.component(.year, from: Date())
+        let total = allSolveBoards.count
+        let offset = (year+month+day) % (total/31 + (total % 31 > day ? 1 : 0))
+        return expandMoves(allSolveBoards[31*offset+day])
+    }
+    
+    func getDateString() -> String {
+        let format = DateFormatter()
+        format.dateStyle = .long
+        return format.string(from: Date())
     }
 }
 

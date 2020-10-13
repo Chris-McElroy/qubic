@@ -9,7 +9,7 @@
 import Foundation
 
 func inc(_ n: Int) -> Int {
-    return (n + 1) & 1
+    return 1 - n
 }
 
 class Board {

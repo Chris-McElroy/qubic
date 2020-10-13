@@ -11,7 +11,7 @@ import Foundation
 struct Master: AI {
     func getMove(for board: Board) -> Int {
         let n = getTurn(for: board)
-        let o = 1 - n
+        let o = inc(n)
         var options = board.get1stOrderWinsFor(n)
         if options.isEmpty { options = board.get1stOrderWinsFor(o) }
         if options.isEmpty {
