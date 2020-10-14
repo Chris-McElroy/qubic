@@ -9,28 +9,18 @@
 import SwiftUI
 import SceneKit
 
-protocol AI {
-    func getMove(for board: Board) -> Int
-}
-
-struct BoardView: UIViewRepresentable {
-    let boardViewClass: BoardViewClass
-    init(_ preset: [Int]) { boardViewClass = BoardViewClass(preset) }
-    func makeUIView(context: Context) -> SCNView { boardViewClass.view }
+struct BoardViewRep: UIViewRepresentable {
+    private let boardView: BoardView = BoardView()
+    func makeUIView(context: Context) -> SCNView { boardView.view }
     func updateUIView(_ scnView: SCNView, context: Context) { }
-    func rotate(right: Bool) { boardViewClass.rotate(right: right) }
+    func rotate(right: Bool) { boardView.rotate(right: right) }
+    func load(_ data: GameData) { boardView.load(data) }
 }
 
-class BoardViewClass {
-    // game data
-    private let playerColor = [getUIColor(1), getUIColor(2)]
-    private let preset: [Int]
-    private let myTurn: Int
-    private let op: AI = Master()
-    private let board = Board()
-    var winner: Int? = nil
+class BoardView {
+    var data: GameData = GameData()
     
-    // SCN data
+    let view = SCNView()
     private let help = SceneHelper()
     private let scene = SCNScene()
     private let base = SCNNode()
@@ -39,16 +29,17 @@ class BoardViewClass {
     private var selection: SCNNode? = nil
     private let normalScale = SCNVector3(1,1,1)
     private let selectedScale = SCNVector3(1.3,1.3,1.3)
-    let view = SCNView()
     
-    init(_ givenPreset: [Int]) {
-        preset = givenPreset
-        myTurn = preset.count % 2
+    init() {
         addLightsNCamera()
         addCubes()
-        addPreset()
         help.prepSCNView(view: view, scene: scene)
         view.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleTap(_:))))
+    }
+    
+    func load(_ givenData: GameData) {
+        data = givenData
+        addPreset()
     }
     
     private func addLightsNCamera() {
@@ -74,7 +65,7 @@ class BoardViewClass {
     }
     
     private func addPreset() {
-        for p in preset { processMove(p) }
+        for p in data.preset { processMove(p) }
         selection?.scale = normalScale
     }
     
@@ -91,9 +82,9 @@ class BoardViewClass {
         guard let result = hitResults.first?.node else { clearSelection(); return }
         guard let p = cube.firstIndex(of: result) else { clearSelection(); return }
         if result == selection {
-            if getTurn() == myTurn {
+            if data.board.getTurn() == data.myTurn {
                 processMove(p)
-                if winner == nil { queueOpMove() }
+                if data.winner == nil { queueOpMove() }
             }
             clearSelection()
         } else {
@@ -102,33 +93,33 @@ class BoardViewClass {
     }
     
     private func queueOpMove() {
-        let move = op.getMove(for: board)
-        let pause = Double.random(in: board.has1stOrderCheck(myTurn) ? 0.6..<1.0 : 2.0..<3.0)
+        let move = data.getMove()
+        let pause = Double.random(in: data.board.has1stOrderCheck(data.myTurn) ? 0.6..<1.0 : 2.0..<3.0)
         Timer.scheduledTimer(withTimeInterval: pause, repeats: false) { _ in
             self.processMove(move)
         }
     }
     
     private func processMove(_ move: Int) {
-        guard board.pointEmpty(move) else { print("point already full"); return }
-        guard winner == nil else { print("game already won"); return }
-        let n = getTurn()
-        let wins = board.get1stOrderWinsFor(n)
-        board.addMove(p: move)
-        cube[move].geometry?.firstMaterial?.diffuse.contents = playerColor[n]
-        if n != myTurn { selectCube(cube[move]) }
+        guard data.board.pointEmpty(move) else { print("point already full"); return }
+        guard data.winner == nil else { print("game already won"); return }
+        let n = data.board.getTurn()
+        let wins = data.board.get1stOrderWinsFor(n)
+        data.board.addMove(p: move)
+        cube[move].geometry?.firstMaterial?.diffuse.contents = data.playerColor[n]
+        if n != data.myTurn { selectCube(cube[move]) }
         if wins.contains(move) { displayWin(move) }
     }
     
     private func displayWin(_ move: Int) {
-        let n = inc(getTurn())
-        winner = n
-        if n == myTurn { updateStreak() }
+        let n = inc(data.board.getTurn())
+        data.winner = n
+        if n == data.myTurn { updateStreak() }
         for l in linesThruPoint[move] {
-            if board.status[n][l] == 4 && currentLines[l] == nil {
+            if data.board.status[n][l] == 4 && currentLines[l] == nil {
                 let start = SIMD3<Float>(cube[pointsInLine[l][0]].position)
                 let end = SIMD3<Float>(cube[pointsInLine[l][3]].position)
-                let lineNode = help.makeLine(from: start, to: end, color: playerColor[n])
+                let lineNode = help.makeLine(from: start, to: end, color: data.playerColor[n])
                 base.addChildNode(lineNode)
                 currentLines[l] = lineNode
             }
@@ -149,10 +140,6 @@ class BoardViewClass {
         selection?.scale = selectedScale
     }
     
-    private func getTurn() -> Int {
-        return board.move[0].count - board.move[1].count
-    }
-    
     private func updateStreak() {
         var streak = 0
         if let lastDC = UserDefaults.standard.value(forKey: LastDCKey) as? Date, lastDC.isYesterday() {
@@ -165,6 +152,6 @@ class BoardViewClass {
 
 struct BoardView_Previews: PreviewProvider {
     static var previews: some View {
-        BoardView([])
+        BoardViewRep()
     }
 }

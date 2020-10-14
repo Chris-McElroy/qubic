@@ -10,23 +10,27 @@ import SwiftUI
 import SceneKit
 
 struct GameView: View {
-    var switchBack: () -> Void
-    let board: BoardView
+    @State var data: GameData = GameData()
+    var switchBack: () -> Void = { return }
+    let boardRep: BoardViewRep
     
     init(_ preset: [Int] = [], _ switchBackFunc: @escaping () -> Void) {
-        board = BoardView(preset)
         switchBack = switchBackFunc
+        boardRep = BoardViewRep()
+        let newData = GameData(preset: preset)
+        data = newData
+        boardRep.load(newData)
     }
     
     var body: some View {
-        board
+        boardRep
 //            .frame(height: 800)
             .gesture(DragGesture()
                 .onEnded { drag in
                     let h = drag.predictedEndTranslation.height
                     let w = drag.predictedEndTranslation.width
                     if abs(w)/abs(h) > 1 {
-                        self.board.rotate(right: w > 0)
+                        self.boardRep.rotate(right: w > 0)
                     } else if h > 0 {
                         self.switchBack()
                     }

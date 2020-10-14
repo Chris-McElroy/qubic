@@ -27,6 +27,10 @@ class Board {
         return (((board[0] | board[1]) &>> p) & 1) == 1
     }
     
+    func getTurn() -> Int {
+        return move[0].count - move[1].count
+    }
+    
     func addMove(p: Int) {
         let n = move[0].count - move[1].count
         let o = inc(n)
