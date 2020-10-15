@@ -15,7 +15,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Override point for customization after application launch.
         UserDefaults.standard.register(defaults: [
             DCStreakKey: Int.zero,
-            LastDCKey: Date()
+            LastDCKey: Date().getInt()
         ])
         return true
     }

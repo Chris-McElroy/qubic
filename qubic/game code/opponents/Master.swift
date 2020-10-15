@@ -9,6 +9,10 @@
 import Foundation
 
 extension Board {
+    func pauseTime() -> Double {
+        Double.random(in: has1stOrderCheck(nextTurn()) ? 0.6..<1.0 : 2.0..<3.0)
+    }
+    
     func getMasterMove() -> Int {
         let n = getTurn()
         let o = inc(n)
@@ -21,4 +25,3 @@ extension Board {
         return options.randomElement() ?? 0
     }
 }
-

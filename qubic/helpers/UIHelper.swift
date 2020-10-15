@@ -30,6 +30,10 @@ extension Date {
     func isToday() -> Bool {
         Calendar.current.isDateInToday(self)
     }
+    
+    func getInt() -> Int {
+        return Calendar.current.ordinality(of: .day, in: .era, for: self) ?? 0
+    }
 }
 
 struct Fill: View {

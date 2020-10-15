@@ -43,13 +43,11 @@ struct SolveView: View {
     }
     
     func getDCString() -> String {
-        if let lastDC = UserDefaults.standard.value(forKey: LastDCKey) as? Date {
-            let streak = UserDefaults.standard.integer(forKey: DCStreakKey)
-            if streak > 0 && lastDC.isToday() { return "\(streak) day streak" }
-            else if lastDC.isYesterday() { return "" }
-        }
-        UserDefaults.standard.setValue(Date(), forKey: LastDCKey)
-        UserDefaults.standard.setValue(0, forKey: DCStreakKey)
+        let lastDC = UserDefaults.standard.integer(forKey: LastDCKey)
+        let streak = UserDefaults.standard.integer(forKey: DCStreakKey)
+        if streak == 0 { return "" }
+        if lastDC >= Date().getInt()-1 { return "\(streak) day streak" }
+        UserDefaults.standard.setValue(0, forKey: DCStreakKey) // streak out of date, reset
         return ""
     }
     

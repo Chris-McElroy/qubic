@@ -12,6 +12,12 @@ enum OpponentType {
     case master
 }
 
+struct WinLine {
+    let start: Int
+    let end: Int
+    let line: Int
+}
+
 class GameData {
     // provided
     let myTurn: Int
@@ -20,7 +26,7 @@ class GameData {
     let preset: [Int]
     
     // created
-    let board = Board()
+    private let board = Board()
     var winner: Int? = nil
     var leaving: Bool = false
     
@@ -43,6 +49,11 @@ class GameData {
         case .master: return board.getMasterMove()
         }
     }
+    
+    func getTurn() -> Int { board.getTurn() }
+    func nextTurn() -> Int { board.nextTurn() }
+    func processMove(_ p: Int) -> [WinLine]? { board.processMove(p) }
+    func pauseTime() -> Double { board.pauseTime() }
 }
 
 func expandMoves(_ moves: String) -> [Int] {

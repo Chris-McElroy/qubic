@@ -20,6 +20,13 @@ struct SceneHelper {
         return cameraNode
     }
     
+    func makeCamera() -> SCNNode {
+        let pos = SCNVector3(x: -5.65, y: 5.2, z: 10.0)
+        let rot = SCNVector3(x: -0.403, y: -0.5135, z: 0)
+        let scale = 10.0
+        return makeCamera(pos: pos, rot: rot, scale: scale)
+    }
+    
     func makeOmniLight() -> SCNNode {
         let omniLightNode = SCNNode()
         omniLightNode.light = SCNLight()
@@ -74,6 +81,12 @@ struct SceneHelper {
     
     func dToR(_ degrees: Float) -> CGFloat {
         return CGFloat(GLKMathDegreesToRadians(degrees))
+    }
+    
+    func getFullRotate() -> SCNAction {
+        let rotate = SCNAction.rotate(by: .pi*2, around: yAxis, duration: 1.7)
+        rotate.timingMode = .easeOut
+        return rotate
     }
     
     let yAxis = SCNVector3(0,1,0)
