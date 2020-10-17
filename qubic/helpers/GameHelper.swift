@@ -18,7 +18,7 @@ struct WinLine {
     let line: Int
 }
 
-class GameData {
+class GameData: ObservableObject {
     // provided
     let myTurn: Int
     let op: OpponentType
@@ -26,22 +26,25 @@ class GameData {
     let preset: [Int]
     
     // created
+    @Published var turn: Int
     private let board = Board()
     var winner: Int? = nil
     var leaving: Bool = false
     
     init() {
         myTurn = 0
+        turn = 0
         op = .master
         playerColor = []
         preset = []
     }
     
     init(preset givenPreset: [Int]) {
-        myTurn = givenPreset.count % 2
-        op = .master
-        playerColor = [getUIColor(1), getUIColor(2)]
         preset = givenPreset
+        myTurn = preset.count % 2
+        turn = myTurn
+        op = .master
+        playerColor = [getUIColor(myTurn), getUIColor(1-myTurn)]
     }
     
     func getMove() -> Int {
@@ -52,8 +55,12 @@ class GameData {
     
     func getTurn() -> Int { board.getTurn() }
     func nextTurn() -> Int { board.nextTurn() }
-    func processMove(_ p: Int) -> [WinLine]? { board.processMove(p) }
     func pauseTime() -> Double { board.pauseTime() }
+    func processMove(_ p: Int) -> [WinLine]? {
+        let wins = board.processMove(p)
+        turn = board.getTurn()
+        return wins
+    }
 }
 
 func expandMoves(_ moves: String) -> [Int] {

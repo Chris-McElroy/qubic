@@ -13,7 +13,7 @@ struct CubeView : UIViewRepresentable {
     let view = SCNView()
     let scene = SCNScene()
     let help = SceneHelper()
-    let cube = SceneHelper().makeBox(color: getUIColor(1))
+    let cube = SceneHelper().makeBox(color: getUIColor(0))
 
     func makeUIView(context: Context) -> SCNView {
         let pos = SCNVector3(-2.0,2.0,2.0)

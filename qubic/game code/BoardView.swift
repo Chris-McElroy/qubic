@@ -82,15 +82,17 @@ private class BoardView {
     }
     
     func processMove(_ move: Int) {
-        guard let wins = data.processMove(move) else { print("Invalid move!"); return }
-        let n = data.nextTurn()
-        cube[move].geometry?.firstMaterial?.diffuse.contents = data.playerColor[n]
-        if n != data.myTurn { selectCube(cube[move]) }
-        if !wins.isEmpty {
-            data.winner = n
-            if n == data.myTurn { updateStreak() }
-            showWinLines(wins, data.playerColor[n])
-            base.runAction(help.getFullRotate())
+        withAnimation(.easeInOut(duration: 0.3)) {
+            guard let wins = data.processMove(move) else { print("Invalid move!"); return }
+            let n = data.nextTurn()
+            cube[move].geometry?.firstMaterial?.diffuse.contents = data.playerColor[n]
+            if n != data.myTurn { selectCube(cube[move]) }
+            if !wins.isEmpty {
+                data.winner = n
+                if n == data.myTurn { updateStreak() }
+                showWinLines(wins, data.playerColor[n])
+                base.runAction(help.getFullRotate())
+            }
         }
     }
     

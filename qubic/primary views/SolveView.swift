@@ -28,7 +28,7 @@ struct SolveView: View {
     var difficultyPicker: some View {
         HStack {
             Text(view == .solve ? "" : getDCString())
-            Image(getSolveBoard().count.isMultiple(of: 2) ? "limeCube" : "blueCube")
+            Image("pinkCube")
                 .resizable()
                 .frame(width: 40, height: 40)
         }
