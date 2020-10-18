@@ -54,6 +54,7 @@
 		1E6817A624CC977B001713E7 /* MainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainView.swift; sourceTree = "<group>"; };
 		1E6C428F24FCE1F20065BDF5 /* BoardHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardHelper.swift; sourceTree = "<group>"; };
 		1E6D2E4A24CE9729001EFE85 /* CubeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CubeView.swift; sourceTree = "<group>"; };
+		1E6E46B3253CCB4400DEC992 /* qubic.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = qubic.entitlements; sourceTree = "<group>"; };
 		1E7B959124D34015004B3C80 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		1E883EFA24EE3B14002686C8 /* HeightHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeightHelper.swift; sourceTree = "<group>"; };
 		1E8C554625365E3400C9A556 /* GameHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameHelper.swift; sourceTree = "<group>"; };
@@ -162,6 +163,7 @@
 				1E68179824CC973D001713E7 /* Assets.xcassets */,
 				1E3A697E24CE1F02000930A4 /* Oligopoly Regular.otf */,
 				1E6817A024CC973D001713E7 /* Info.plist */,
+				1E6E46B3253CCB4400DEC992 /* qubic.entitlements */,
 				1E68179A24CC973D001713E7 /* Preview Content */,
 			);
 			path = qubic;
@@ -410,6 +412,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = qubic/qubic.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_ASSET_PATHS = "\"qubic/Preview Content\"";
@@ -432,6 +435,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = qubic/qubic.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_ASSET_PATHS = "\"qubic/Preview Content\"";

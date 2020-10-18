@@ -27,7 +27,7 @@ struct SolveView: View {
     
     var difficultyPicker: some View {
         HStack {
-            Text(view == .solve ? "" : getDCString())
+            Text(getDCString())
             Image("pinkCube")
                 .resizable()
                 .frame(width: 40, height: 40)
@@ -42,13 +42,10 @@ struct SolveView: View {
             .cornerRadius(100)
     }
     
-    func getDCString() -> String {
-        let lastDC = UserDefaults.standard.integer(forKey: LastDCKey)
-        let streak = UserDefaults.standard.integer(forKey: DCStreakKey)
-        if streak == 0 { return "" }
-        if lastDC >= Date().getInt()-1 { return "\(streak) day streak" }
-        UserDefaults.standard.setValue(0, forKey: DCStreakKey) // streak out of date, reset
-        return ""
+    func getDateString() -> String {
+        let format = DateFormatter()
+        format.dateStyle = .long
+        return format.string(from: Date())
     }
     
     func getSolveBoard() -> [Int] {
@@ -60,10 +57,26 @@ struct SolveView: View {
         return expandMoves(allSolveBoards[31*offset+day])
     }
     
-    func getDateString() -> String {
-        let format = DateFormatter()
-        format.dateStyle = .long
-        return format.string(from: Date())
+    func getDCString() -> String {
+        let lastDC = UserDefaults.standard.integer(forKey: LastDCKey)
+        let streak = UserDefaults.standard.integer(forKey: DCStreakKey)
+        updateBadge(now: lastDC < Date().getInt())
+        if streak == 0 { return "" }
+        if lastDC >= Date().getInt()-1 { return "\(streak) day streak" }
+        UserDefaults.standard.setValue(0, forKey: DCStreakKey) // streak out of date, reset
+        return ""
+    }
+    
+    func updateBadge(now: Bool) {
+        UIApplication.shared.applicationIconBadgeNumber = now ? 1 : 0
+        let content = UNMutableNotificationContent()
+        content.badge = 1
+        var tomorrow = DateComponents()
+        tomorrow.hour = 0
+        tomorrow.minute = 0
+        let trigger = UNCalendarNotificationTrigger(dateMatching: tomorrow, repeats: false)
+        let request = UNNotificationRequest(identifier: badgeKey, content: content, trigger: trigger)
+        UNUserNotificationCenter.current().add(request)
     }
 }
 

@@ -17,6 +17,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             DCStreakKey: Int.zero,
             LastDCKey: Date().getInt()
         ])
+        
+        UNUserNotificationCenter.current().requestAuthorization(options: [.badge, .alert, .sound]) { success, error in
+            if success {
+                print("User Accepted")
+            } else if let error = error {
+                print(error.localizedDescription)
+           }
+        }
+//        application.registerForRemoteNotifications()
+        
         return true
     }
 
