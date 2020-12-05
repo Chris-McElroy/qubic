@@ -22,6 +22,7 @@ func getUIColor(_ n: Int) -> UIColor {
     case 0: return UIColor(red: 0.15, green: 0.5, blue: 1.0, alpha: 1.0)
     case 1: return .magenta
     case 2: return .green
+    case 33: return UIColor.null.withAlphaComponent(0.5)
     default: return .white
     }
 }

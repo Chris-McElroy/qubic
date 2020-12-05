@@ -20,7 +20,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         UNUserNotificationCenter.current().requestAuthorization(options: [.badge, .alert, .sound]) { success, error in
             if success {
-                print("User Accepted")
+                print("Accepted Notifications")
             } else if let error = error {
                 print(error.localizedDescription)
            }

@@ -21,9 +21,9 @@ struct SceneHelper {
     }
     
     func makeCamera() -> SCNNode {
-        let pos = SCNVector3(x: -5.65, y: 5.2, z: 10.0)
+        let pos = SCNVector3(x: -5.65, y: 4.9, z: 10.0)
         let rot = SCNVector3(x: -0.403, y: -0.5135, z: 0)
-        let scale = 10.0
+        let scale = 10.5
         return makeCamera(pos: pos, rot: rot, scale: scale)
     }
     
@@ -48,15 +48,22 @@ struct SceneHelper {
     func makeBox(color: UIColor = UIColor.null, size: CGFloat = 1.0) -> SCNNode {
         let box = SCNBox(width: size, height: size, length: size, chamferRadius: 0)
         let boxNode = SCNNode(geometry: box)
-        boxNode.geometry?.firstMaterial?.diffuse.contents = color
+        boxNode.setColor(color)
         return boxNode
+    }
+    
+    func makeDot(color: UIColor = UIColor.null, size: CGFloat = 1.0) -> SCNNode {
+        let dot = SCNSphere(radius: size)
+        let dotNode = SCNNode(geometry: dot)
+        dotNode.setColor(color)
+        return dotNode
     }
     
     func makeBox(name: String, pos: SCNVector3, color: UIColor = UIColor.null, size: CGFloat = 1.0) -> SCNNode {
         let box = SCNBox(width: size, height: size, length: size, chamferRadius: 0)
         let boxNode = SCNNode(geometry: box)
         boxNode.name = name
-        boxNode.geometry?.firstMaterial?.diffuse.contents = color
+        boxNode.setColor(color)
         boxNode.position = pos
         return boxNode
     }
@@ -85,7 +92,7 @@ struct SceneHelper {
     
     func getFullRotate() -> SCNAction {
         let rotate = SCNAction.rotate(by: .pi*2, around: yAxis, duration: 1.7)
-        rotate.timingMode = .easeOut
+        rotate.timingMode = .easeInEaseOut
         return rotate
     }
     
@@ -145,8 +152,14 @@ struct SceneHelper {
         let qw = simd_length(yAxisSIMD) * simd_length(vector) + simd_dot(yAxisSIMD, vector)
         let q = simd_quatf(ix: vector_cross.x, iy: vector_cross.y, iz: vector_cross.z, r: qw)
         lineNode.simdRotate(by: q.normalized, aroundTarget: lineNode.simdPosition)
-        lineNode.geometry?.firstMaterial?.diffuse.contents = color
+        lineNode.setColor(color)
         return lineNode
+    }
+}
+
+extension SCNNode {
+    func setColor(_ color: UIColor) {
+        self.geometry?.firstMaterial?.diffuse.contents = color
     }
 }
 

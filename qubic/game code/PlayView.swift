@@ -13,13 +13,8 @@ struct PlayView: View {
     var switchBack: () -> Void
     
     var body: some View {
-        VStack {
-            if view == .play {
-                Spacer()
-                GameView() { self.switchBack() }.frame(height: 700)
-                Spacer()
-            }
-            Spacer()
+        if view == .play {
+            GameView() { self.switchBack() }
         }
     }
 }

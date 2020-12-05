@@ -14,6 +14,9 @@ struct GameView: View {
     var switchBack: () -> Void = { return }
     let boardRep: BoardViewRep
     @State var cubeHeight: CGFloat = 10
+    @State var rotateMe = false
+    @State var isRotated = false
+    @State var cont = false
     
     init(_ preset: [Int] = [], _ switchBackFunc: @escaping () -> Void) {
         switchBack = switchBackFunc
@@ -24,9 +27,29 @@ struct GameView: View {
     }
     
     var body: some View {
-        ZStack {
+//        VStack(spacing: 20) {
+//            // 1
+//            Button("Rotate") {
+//                self.isRotated = true
+//                print(cont)
+//                self.cont.toggle()
+//            }
+//            // 2
+//            Rectangle()
+//                .foregroundColor(.green)
+//                .frame(width: 200, height: 200)
+//                .rotationEffect(Angle.degrees(isRotated && cont ? 360 : 0))
+//                .animation(cont ? animation : .default)
+//        }
+        
+        VStack(spacing: 0) {
+            Fill(4)
+            Text("other")
+                .foregroundColor(.white)
+                .frame(width: 160, height: 40)
+                .background(Rectangle().foregroundColor(Color(UIColor.magenta)))
+                .cornerRadius(100)
             boardRep
-    //            .frame(height: 800)
                 .gesture(DragGesture()
                     .onEnded { drag in
                         let h = drag.predictedEndTranslation.height
@@ -38,18 +61,15 @@ struct GameView: View {
                         }
                     }
                 )
-            VStack {
-                if data.turn == data.myTurn { Spacer() }
-                HStack {
-                    Image(data.turn == data.myTurn ? "blueCube" : "pinkCube")
-                        .resizable()
-                        .frame(width: 20, height: 20)
-                    Spacer()
-                }
-                if data.turn != data.myTurn { Spacer() }
-            }
+            Text("chris")
+                .foregroundColor(.white)
+                .frame(width: 160, height: 40)
+                .background(Rectangle().foregroundColor(.blue))
+                .cornerRadius(100)
         }
     }
+    
+    var animation = Animation.linear.delay(0)
 }
 
 struct GameView_Previews: PreviewProvider {

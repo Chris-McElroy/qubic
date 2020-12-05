@@ -33,7 +33,8 @@ extension Date {
     }
     
     func getInt() -> Int {
-        return Calendar.current.ordinality(of: .day, in: .era, for: self) ?? 0
+        let midnight = Calendar.current.startOfDay(for: self)
+        return Calendar.current.ordinality(of: .day, in: .era, for: midnight) ?? 0
     }
 }
 
@@ -53,6 +54,7 @@ struct Fill: View {
 
 let mainButtonHeight: CGFloat = 92
 let moreButtonHeight: CGFloat = 50
+let nameButtonWidth: CGFloat = 180
 
 struct MainStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
@@ -66,6 +68,7 @@ struct MainStyle: ButtonStyle {
             .shadow(radius: 4, x: 0, y: 3)
             .frame(width: 200, height: mainButtonHeight)
             .background(Fill())
+            .cornerRadius(30)
             .zIndex(1)
     }
 }
@@ -84,6 +87,29 @@ struct Solid: ButtonStyle {
     func makeBody(configuration: Self.Configuration) -> some View {
         configuration.label
             .opacity(1.0)
+    }
+}
+
+struct NameStyle: ButtonStyle {
+    let color: Color
+    
+    func makeBody(configuration: Self.Configuration) -> some View {
+        configuration.label
+            .opacity(1.0)
+            .foregroundColor(.white)
+            .frame(width: nameButtonWidth, height: 40)
+            .background(Rectangle().foregroundColor(color))
+            .cornerRadius(100)
+    }
+}
+
+struct Name: View {
+    let text: String
+    let color: Color
+    let action: () -> Void
+    
+    var body: some View {
+        Button(text, action: action).buttonStyle(NameStyle(color: color))
     }
 }
 

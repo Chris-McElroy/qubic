@@ -15,8 +15,8 @@ struct MainView: View {
     var body: some View {
         VStack(alignment: .center, spacing: 0) {
             Fill(heights.topSpacer)
-            top
-            mainStack
+            top//.zIndex(2)
+            mainStack//.zIndex(1)
             moreStack
             Spacer()
             Fill(heights.fill)
@@ -41,7 +41,8 @@ struct MainView: View {
             cube
                 .onTapGesture(count: 2) { self.cube.resetCube() }
                 .frame(height: heights.cube)
-            Spacer()
+            Fill()
+                .zIndex(2)
         }
         .frame(height: heights.get(heights.top))
         .background(Fill())
@@ -49,7 +50,7 @@ struct MainView: View {
     
     private var mainStack: some View {
         VStack(spacing: 0) {
-            TrainView()
+            TrainView(view: $heights.view) { self.switchBack() }
                 .frame(height: heights.get(heights.trainView), alignment: .bottom)
             mainButton(text: "train") { self.switchView(to: .trainMenu, or: .train) }
             SolveView(view: $heights.view) { self.switchBack() }
@@ -137,7 +138,7 @@ struct MainView: View {
 
 struct MainView_Previews: PreviewProvider {
     static var previews: some View {
-        MainView()
+        MainView().environmentObject(ScreenObserver())
 //            .previewDevice("iPad Pro (12.9-inch) (4th generation)")
 //            .previewDevice(PreviewDevice(rawValue: "iPhone SE (2nd generation)"))
 //            .previewDevice("iPhone 11 Pro")

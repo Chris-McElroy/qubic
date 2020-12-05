@@ -12,7 +12,7 @@ import SceneKit
 struct BoardViewRep: UIViewRepresentable {
     private let boardView: BoardView = BoardView()
     func makeUIView(context: Context) -> SCNView { boardView.view }
-    func updateUIView(_ scnView: SCNView, context: Context) { }
+    func updateUIView(_ scnView: SCNView, context: Context) {}
     func rotate(right: Bool) { boardView.rotate(right: right) }
     func load(_ data: GameData) { boardView.load(data) }
 }
@@ -24,9 +24,11 @@ private class BoardView {
     let help = SceneHelper()
     let scene = SCNScene()
     let base = SCNNode()
-    let cube: [SCNNode] = (0..<64).map { _ in SceneHelper().makeBox(size: 0.86) }
+    let dots: [SCNNode] = (0..<64).map { _ in SceneHelper().makeDot(color: getUIColor(33), size: 0.45) }
+    var moves: [SCNNode] = []
+    var nextMove: SCNNode? = nil
+    let nextMovePos = [SCNVector3(0,-11.3,0),SCNVector3(0,11.3,0)]
     var currentLines: [SCNNode?] = Array(repeating: nil, count: 76)
-    var selection: SCNNode? = nil
     let normalScale = SCNVector3(1,1,1)
     let selectedScale = SCNVector3(1.3,1.3,1.3)
     
@@ -34,20 +36,29 @@ private class BoardView {
         scene.rootNode.addChildNode(help.makeCamera())
         scene.rootNode.addChildNode(help.makeOmniLight())
         scene.rootNode.addChildNode(help.makeAmbiLight())
-        for i in 0..<64 {
-            let flat = SIMD3<Float>(Float(i/16), Float(i%4), Float((i/4)%4)) - 1.5
-            cube[i].position = SCNVector3(2*flat.x, -5.2*flat.y, flat.z*2)
-            base.addChildNode(cube[i])
-        }
+        for (p, dot) in dots.enumerated() { setPosition(for: dot, at: p) }
         scene.rootNode.addChildNode(base)
         help.prepSCNView(view: view, scene: scene)
         view.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleTap(_:))))
     }
     
+    func setPosition(for node: SCNNode, at p: Int) {
+        let flat = SIMD3<Float>(Float(p/16), Float(p%4), Float((p/4)%4)) - 1.5
+        node.position = SCNVector3(2*flat.x, -5.2*flat.y, flat.z*2)
+        base.addChildNode(node)
+    }
+    
     func load(_ givenData: GameData) {
         data = givenData
-        for p in data.preset { processMove(p) }
-        selection?.scale = normalScale
+        for p in data.preset { loadMove(p) }
+        setNextMove()
+    }
+    
+    func loadMove(_ move: Int) {
+        // Assumes no wins!
+        let turn = data.turn
+        guard data.processMove(move) != nil else { print("Invalid load move!"); return }
+        let _ = moveCube(move: move, color: data.playerColor[turn])
     }
     
     func rotate(right: Bool) {
@@ -60,16 +71,14 @@ private class BoardView {
     @objc func handleTap(_ gestureRecognize: UIGestureRecognizer) {
         let hit = gestureRecognize.location(in: view)
         let hitResults = view.hitTest(hit, options: [:])
-        guard let result = hitResults.first?.node else { clearSelection(); return }
-        guard let p = cube.firstIndex(of: result) else { clearSelection(); return }
-        if result == selection {
-            clearSelection()
-            if data.getTurn() == data.myTurn && data.winner == nil {
+        guard let result = hitResults.first?.node else { return }
+        if let p = dots.firstIndex(of: result) {
+            if data.turn == data.myTurn && data.winner == nil {
                 processMove(p)
                 if data.winner == nil { queueOpMove() }
             }
-        } else {
-            selectCube(result)
+        } else if moves.contains(result) {
+            result.runAction(help.getFullRotate())
         }
     }
     
@@ -82,39 +91,57 @@ private class BoardView {
     }
     
     func processMove(_ move: Int) {
-        withAnimation(.easeInOut(duration: 0.3)) {
-            guard let wins = data.processMove(move) else { print("Invalid move!"); return }
-            let n = data.nextTurn()
-            cube[move].geometry?.firstMaterial?.diffuse.contents = data.playerColor[n]
-            if n != data.myTurn { selectCube(cube[move]) }
-            if !wins.isEmpty {
-                data.winner = n
-                if n == data.myTurn { updateStreak() }
-                showWinLines(wins, data.playerColor[n])
-                base.runAction(help.getFullRotate())
-            }
+        let turn = data.turn
+        guard let wins = data.processMove(move) else { print("Invalid move!"); return }
+        let delay = moveCube(move: move, color: data.playerColor[turn]) + 0.1
+        if !wins.isEmpty {
+            data.winner = turn
+            if turn == data.myTurn { updateStreak() }
+            Timer.scheduledTimer(withTimeInterval: delay, repeats: false, block: {_ in
+                self.showWinLines(wins, self.data.playerColor[turn])
+                self.base.runAction(self.help.getFullRotate())
+            })
+        } else {
+            setNextMove()
         }
+    }
+    
+    func showFR() {
+        
+    }
+    
+    func moveCube(move: Int, color: UIColor) -> TimeInterval {
+        let cube = nextMove ?? help.makeBox(color: color, size: 0.86)
+        nextMove?.removeFromParentNode()
+        nextMove = nil
+        moves.append(cube)
+        base.addChildNode(cube)
+        let pos = dots[move].simdPosition
+        let time = TimeInterval(distance(pos, cube.simdPosition)/40.0 + 0.2)
+        let translate = SCNAction.move(to: SCNVector3(pos), duration: time)
+        translate.timingMode = .easeIn
+        let fade = SCNAction.fadeOut(duration: time)
+        fade.timingMode = .easeIn
+        cube.runAction(translate)
+        dots[move].runAction(fade)
+        return time
     }
     
     func showWinLines(_ wins: [WinLine], _ color: UIColor) {
         for line in wins {
-            let start = SIMD3<Float>(cube[line.start].position)
-            let end = SIMD3<Float>(cube[line.end].position)
+            let start = SIMD3<Float>(dots[line.start].position)
+            let end = SIMD3<Float>(dots[line.end].position)
             let lineNode = help.makeLine(from: start, to: end, color: color)
             base.addChildNode(lineNode)
             currentLines[line.line] = lineNode
         }
     }
     
-    func clearSelection() {
-        selection?.scale = normalScale
-        selection = nil
-    }
-    
-    func selectCube(_ result: SCNNode) {
-        selection?.scale = normalScale
-        selection = result
-        selection?.scale = selectedScale
+    func setNextMove() {
+        let newMove = help.makeBox(color: data.playerColor[data.turn], size: 0.86)
+        newMove.position = nextMovePos[data.turn == data.myTurn ? 0 : 1]
+        scene.rootNode.addChildNode(newMove)
+        nextMove = newMove
     }
     
     func updateStreak() {
@@ -124,6 +151,15 @@ private class BoardView {
         if lastDC < Date().getInt() - 1 { streak = 0 }
         UserDefaults.standard.setValue(Date().getInt(), forKey: LastDCKey)
         UserDefaults.standard.setValue(streak + 1, forKey: DCStreakKey)
+        UIApplication.shared.applicationIconBadgeNumber = 0
+        let content = UNMutableNotificationContent()
+        content.badge = 1
+        var tomorrow = DateComponents()
+        tomorrow.hour = 0
+        tomorrow.minute = 0
+        let trigger = UNCalendarNotificationTrigger(dateMatching: tomorrow, repeats: false)
+        let request = UNNotificationRequest(identifier: badgeKey, content: content, trigger: trigger)
+        UNUserNotificationCenter.current().add(request)
     }
 }
 
