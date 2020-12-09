@@ -18,10 +18,18 @@ struct GameView: View {
     @State var isRotated = false
     @State var cont = false
     
-    init(_ preset: [Int] = [], _ switchBackFunc: @escaping () -> Void) {
+    init(_ switchBackFunc: @escaping () -> Void) {
         switchBack = switchBackFunc
         boardRep = BoardViewRep()
-        let newData = GameData(preset: preset)
+        let newData = GameData(preset: [], dc: false)
+        data = newData
+        boardRep.load(newData)
+    }
+    
+    init(_ preset: [Int], dc: Bool, _ switchBackFunc: @escaping () -> Void) {
+        switchBack = switchBackFunc
+        boardRep = BoardViewRep()
+        let newData = GameData(preset: preset, dc: dc)
         data = newData
         boardRep.load(newData)
     }
@@ -74,6 +82,6 @@ struct GameView: View {
 
 struct GameView_Previews: PreviewProvider {
     static var previews: some View {
-        GameView([3]) {}
+        GameView([3], dc: false) {}
     }
 }

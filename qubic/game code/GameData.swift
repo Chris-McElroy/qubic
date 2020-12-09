@@ -18,12 +18,20 @@ struct WinLine {
     let line: Int
 }
 
+enum GameType {
+    case dc
+    case train
+    case solve
+    case play
+}
+
 class GameData: ObservableObject {
     // provided
     let myTurn: Int
     let op: OpponentType
     let playerColor: [UIColor]
     let preset: [Int]
+    let type: GameType
     
     // created
     @Published var turn: Int
@@ -34,15 +42,17 @@ class GameData: ObservableObject {
     init() {
         myTurn = 0
         turn = 0
+        type = .play
         op = .master
         playerColor = []
         preset = []
     }
     
-    init(preset givenPreset: [Int]) {
+    init(preset givenPreset: [Int], dc: Bool) {
         preset = givenPreset
         myTurn = preset.count % 2
         turn = 0
+        type = dc ? .dc : .solve
         op = .master
         let myColor = getUIColor(0)
         let opColor = getUIColor(1)

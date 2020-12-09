@@ -11,20 +11,27 @@ import SwiftUI
 struct SolveView: View {
     @Binding var view: ViewStates
     @State var streakText: String = ""
-    @State var selected: CGFloat = 0
+    @State var selected: [Int] = [0,0]
+    @State var boardOptions: [String] = (1...35).map { String($0) }
     var switchBack: () -> Void
     
+    let difficultyOptions = ["daily\n239","simple\n23","common\n23","tricky\n23"]
+    
+    var pickerText: [[String]] { [boardOptions,difficultyOptions,getDateString()] }
     
     var body: some View {
         VStack(spacing: 0) {
             if view == .solve {
-                GameView(getSolveBoard()) { self.switchBack() }
+                GameView(getSolveBoard(), dc: selected[0] == 0) {self.switchBack() }.onAppear { print(selected)}
             } else {
                 VStack(spacing: 0) {
-                    Spacer().onAppear { updateStreak() }
-                    difficultyPicker
-                    Fill(5)
-                    boardPicker
+//                    Spacer()
+                    HPicker(text: pickerText, width: 77, selected: $selected)
+                        .frame(height: 90)
+                        .onAppear { updateStreak() }
+//                    difficultyPicker
+//                    Fill(5)
+//                    boardPicker
                 }.opacity(view == .solveMenu ? 1 : 0)
             }
         }
@@ -39,29 +46,43 @@ struct SolveView: View {
         }
     }
     
-    var boardPicker: some View {
-        HStack {
-            Spacer(minLength: nameButtonWidth*(1-selected))
-            Name(text: getDateString(), color: .purple) { select(0) }
-            Name(text: "hard board", color: .blue) { select(1) }
-            Spacer(minLength: nameButtonWidth*selected)
-        }.frame(alignment: .center)
-    }
+//    var boardOptions: [UIView] { [UIName(text: getDateString(), color: .purple, action: nil), UIName(text: "hard board", color: .blue, action: nil)] }
+    
+//    var boardPicker: some View {
+//        HPicker(text: (0...30).map { String($0) }).frame(height: 40)
+//        Picker("boards", selection: $selected) {
+//            Text("this2").font(.system(size: 100))
+//                .frame(width: 40, height: 160, alignment: .center)
+//                .rotationEffect(.degrees(90))
+//            Text("this1")
+//                .frame(width: 40, height: 160, alignment: .center)
+//                .rotationEffect(.degrees(90))
+//            HStack {
+//                Spacer(minLength: nameButtonWidth*(1-selected))
+//                Name(text: getDateString(), color: .purple) { select(0) }
+//                Name(text: "hard board", color: .blue) { select(1) }
+//                Spacer(minLength: nameButtonWidth*selected)
+//            }.frame(alignment: .center)
+//        }.pickerStyle(InlinePickerStyle())
+//        .rotationEffect(.degrees(-90))
+//        .frame(width: 300, height: 40)
+//
+//    }
     
     func select(_ n: Int) {
         withAnimation(.easeInOut(duration: 0.3)) {
-            selected = CGFloat(n)
+            selected[0] = Int(n)
         }
     }
     
-    func getDateString() -> String {
+    func getDateString() -> [String] {
         let format = DateFormatter()
-        format.dateStyle = .long
-        return format.string(from: Date())
+        format.dateStyle = .short
+        return [format.string(from: Date())]
     }
     
     func getSolveBoard() -> [Int] {
-        if selected == 0 {
+        if selected[0] == 0 {
             let day = Calendar.current.component(.day, from: Date())
             let month = Calendar.current.component(.month, from: Date())
             let year = Calendar.current.component(.year, from: Date())
@@ -77,8 +98,8 @@ struct SolveView: View {
         let lastDC = UserDefaults.standard.integer(forKey: LastDCKey)
         let streak = UserDefaults.standard.integer(forKey: DCStreakKey)
         updateBadge(now: lastDC < Date().getInt())
-        if lastDC >= Date().getInt() - 1 {
-            streakText = "\(streak) day streak"
+        if lastDC >= Date().getInt() - 1 && streak > 0 {
+            streakText = "streak: \(streak)"
         } else {
             streakText = ""
             UserDefaults.standard.setValue(0, forKey: DCStreakKey)

@@ -96,7 +96,7 @@ private class BoardView {
         let delay = moveCube(move: move, color: data.playerColor[turn]) + 0.1
         if !wins.isEmpty {
             data.winner = turn
-            if turn == data.myTurn { updateStreak() }
+            if turn == data.myTurn && data.type == .dc { updateStreak() }
             Timer.scheduledTimer(withTimeInterval: delay, repeats: false, block: {_ in
                 self.showWinLines(wins, self.data.playerColor[turn])
                 self.base.runAction(self.help.getFullRotate())

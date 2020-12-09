@@ -35,7 +35,7 @@ struct MainView: View {
     
     private var top: some View {
         VStack {
-            Text("qubic")
+            Text("4Play beta")
                 .font(.custom("Oligopoly Regular", size: 24))
                 .padding(.top, 20)
             cube
