@@ -10,7 +10,6 @@ import SwiftUI
 
 extension Color {
     public static var systemBackground: Color = Color(UIColor.systemBackground)
-    
 }
 
 extension UIColor {

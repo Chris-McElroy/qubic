@@ -52,6 +52,7 @@ private class BoardView {
         data = givenData
         for p in data.preset { loadMove(p) }
         setNextMove()
+        if data.myTurn != data.turn { queueOpMove() }
     }
     
     func loadMove(_ move: Int) {
@@ -84,7 +85,7 @@ private class BoardView {
     
     func queueOpMove() {
         let move = data.getMove()
-        let pause = data.pauseTime()
+        let pause = data.getPause()
         Timer.scheduledTimer(withTimeInterval: pause, repeats: false) { _ in
             self.processMove(move)
         }
@@ -96,7 +97,7 @@ private class BoardView {
         let delay = moveCube(move: move, color: data.playerColor[turn]) + 0.1
         if !wins.isEmpty {
             data.winner = turn
-            if turn == data.myTurn && data.type == .dc { updateStreak() }
+            if turn == data.myTurn { updateWins() }
             Timer.scheduledTimer(withTimeInterval: delay, repeats: false, block: {_ in
                 self.showWinLines(wins, self.data.playerColor[turn])
                 self.base.runAction(self.help.getFullRotate())
@@ -144,22 +145,30 @@ private class BoardView {
         nextMove = newMove
     }
     
-    func updateStreak() {
-        var streak = UserDefaults.standard.integer(forKey: DCStreakKey)
-        let lastDC = UserDefaults.standard.integer(forKey: LastDCKey)
-        if lastDC == Date().getInt() { return }
-        if lastDC < Date().getInt() - 1 { streak = 0 }
-        UserDefaults.standard.setValue(Date().getInt(), forKey: LastDCKey)
-        UserDefaults.standard.setValue(streak + 1, forKey: DCStreakKey)
-        UIApplication.shared.applicationIconBadgeNumber = 0
-        let content = UNMutableNotificationContent()
-        content.badge = 1
-        var tomorrow = DateComponents()
-        tomorrow.hour = 0
-        tomorrow.minute = 0
-        let trigger = UNCalendarNotificationTrigger(dateMatching: tomorrow, repeats: false)
-        let request = UNNotificationRequest(identifier: badgeKey, content: content, trigger: trigger)
-        UNUserNotificationCenter.current().add(request)
+    func updateWins() {
+        if data.mode == .daily {
+            var streak = UserDefaults.standard.integer(forKey: streakKey)
+            let lastDC = UserDefaults.standard.integer(forKey: lastDCKey)
+            if lastDC == Date().getInt() { return }
+            if lastDC < Date().getInt() - 1 { streak = 0 }
+            UserDefaults.standard.setValue(Date().getInt(), forKey: lastDCKey)
+            UserDefaults.standard.setValue(streak + 1, forKey: streakKey)
+            UIApplication.shared.applicationIconBadgeNumber = 0
+            let content = UNMutableNotificationContent()
+            content.badge = 1
+            var tomorrow = DateComponents()
+            tomorrow.hour = 0
+            tomorrow.minute = 0
+            let trigger = UNCalendarNotificationTrigger(dateMatching: tomorrow, repeats: false)
+            let request = UNNotificationRequest(identifier: badgeKey, content: content, trigger: trigger)
+            UNUserNotificationCenter.current().add(request)
+        } else if data.mode == .tricky {
+            UserDefaults.standard.setValue([1], forKey: trickyKey)
+        } else if data.mode == .beginner {
+            UserDefaults.standard.setValue(1, forKey: beginnerKey)
+        } else if data.mode == .defender {
+            UserDefaults.standard.setValue(1, forKey: defenderKey)
+        }
     }
 }
 

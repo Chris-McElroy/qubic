@@ -14,7 +14,7 @@ struct PlayView: View {
     
     var body: some View {
         if view == .play {
-            GameView() { self.switchBack() }
+            GameView(mode: .play) { self.switchBack() }
         }
     }
 }

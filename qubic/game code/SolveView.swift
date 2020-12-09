@@ -10,41 +10,36 @@ import SwiftUI
 
 struct SolveView: View {
     @Binding var view: ViewStates
-    @State var streakText: String = ""
     @State var selected: [Int] = [0,0]
-    @State var boardOptions: [String] = (1...35).map { String($0) }
     var switchBack: () -> Void
-    
-    let difficultyOptions = ["daily\n239","simple\n23","common\n23","tricky\n23"]
-    
-    var pickerText: [[String]] { [boardOptions,difficultyOptions,getDateString()] }
+    var mode: GameMode {
+        switch selected[1] {
+        case 1: return .tricky
+        default: return .daily
+        }
+    }
+    var board: Int { selected[0] }
     
     var body: some View {
         VStack(spacing: 0) {
             if view == .solve {
-                GameView(getSolveBoard(), dc: selected[0] == 0) {self.switchBack() }.onAppear { print(selected)}
+                GameView(mode: mode, boardNum: board) { self.switchBack() }
             } else {
-                VStack(spacing: 0) {
-//                    Spacer()
-                    HPicker(text: pickerText, width: 77, selected: $selected)
-                        .frame(height: 90)
-                        .onAppear { updateStreak() }
-//                    difficultyPicker
-//                    Fill(5)
-//                    boardPicker
-                }.opacity(view == .solveMenu ? 1 : 0)
+                HPicker(text: getPickerText(), dim: (77, 40), selected: $selected)
+                    .frame(height: 80)
+                    .opacity(view == .solveMenu ? 1 : 0)
             }
         }
     }
     
-    var difficultyPicker: some View {
-        HStack {
-            Text(streakText)
-            Image("pinkCube")
-                .resizable()
-                .frame(width: 40, height: 40)
-        }
-    }
+//    var difficultyPicker: some View {
+//        HStack {
+//            Text(String(streak))
+//            Image("pinkCube")
+//                .resizable()
+//                .frame(width: 40, height: 40)
+//        }
+//    }
     
 //    var boardOptions: [UIView] { [UIName(text: getDateString(), color: .purple, action: nil), UIName(text: "hard board", color: .blue, action: nil)] }
     
@@ -68,42 +63,35 @@ struct SolveView: View {
 //        .frame(width: 300, height: 40)
 //
 //    }
+//    
+//    func select(_ n: Int) {
+//        withAnimation(.easeInOut(duration: 0.3)) {
+//            type = n
+//        }
+//    }
     
-    func select(_ n: Int) {
-        withAnimation(.easeInOut(duration: 0.3)) {
-            selected[0] = Int(n)
-        }
+    func getPickerText() -> [[String]] {
+        let streak = getStreakText()
+        let tricky = getTrickyText()
+        return [["1"],[streak,tricky]]
     }
     
-    func getDateString() -> [String] {
-        let format = DateFormatter()
-        format.dateStyle = .short
-        return [format.string(from: Date())]
-    }
-    
-    func getSolveBoard() -> [Int] {
-        if selected[0] == 0 {
-            let day = Calendar.current.component(.day, from: Date())
-            let month = Calendar.current.component(.month, from: Date())
-            let year = Calendar.current.component(.year, from: Date())
-            let total = allSolveBoards.count
-            let offset = (year+month+day) % (total/31 + (total%31 > day ? 1 : 0))
-            return expandMoves(allSolveBoards[31*offset + day])
-        } else {
-            return expandMoves(allSolveBoards[21])
-        }
-    }
-    
-    func updateStreak() {
-        let lastDC = UserDefaults.standard.integer(forKey: LastDCKey)
-        let streak = UserDefaults.standard.integer(forKey: DCStreakKey)
+    func getStreakText() -> String {
+        let lastDC = UserDefaults.standard.integer(forKey: lastDCKey)
         updateBadge(now: lastDC < Date().getInt())
-        if lastDC >= Date().getInt() - 1 && streak > 0 {
-            streakText = "streak: \(streak)"
-        } else {
-            streakText = ""
-            UserDefaults.standard.setValue(0, forKey: DCStreakKey)
-        }
+        let streak = UserDefaults.standard.integer(forKey: streakKey)
+        return "daily\n\(streak)"
+//        if lastDC >= Date().getInt() - 1 && streak > 0 {
+//            streak = "streak: \(streak)"
+//        } else {
+//            streakText = ""
+//            UserDefaults.standard.setValue(0, forKey: DCStreakKey)
+//        }
+    }
+    
+    func getTrickyText() -> String {
+        let tricky = UserDefaults.standard.array(forKey: trickyKey) as? [Int] ?? [0]
+        return "tricky\n\(tricky.sum())"
     }
     
     func updateBadge(now: Bool) {

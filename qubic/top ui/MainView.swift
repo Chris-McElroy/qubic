@@ -95,7 +95,7 @@ struct MainView: View {
                     .rotationEffect(Angle(degrees: heights.view == .main ? 0 : 180))
             }
             .padding(.bottom, 35)
-            .padding(.horizontal, 150)
+            .padding(.horizontal, 130)
             .padding(.top, 5)
             .background(Fill())
         }

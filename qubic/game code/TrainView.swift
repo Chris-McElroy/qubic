@@ -10,19 +10,32 @@ import SwiftUI
 
 struct TrainView: View {
     @Binding var view: ViewStates
+    @State var selected: [Int] = [0,1,0]
     var switchBack: () -> Void
+    let pickerText = [["sandbox","challenge"],["first","random","second"],["beginner","defender"]]
+    var mode: GameMode {
+        switch selected[2] {
+        case 1: return .defender
+        default: return .beginner
+        }
+    }
+    var turn: Int {
+        switch selected[1] {
+        case 0: return 0
+        case 2: return 1
+        default: return Int.random(in: 0...1)
+        }
+    }
     
     var body: some View {
         VStack(spacing: 0) {
             if view == .train {
-                GameView() { self.switchBack() }
+                GameView(mode: mode, turn: turn) { self.switchBack() }
             } else {
-                VStack(spacing: 0) {
-                    Spacer()
-                    difficultyPicker
-                    Fill(5)
-                    boardPicker
-                }.opacity(view == .trainMenu ? 1 : 0)
+                Spacer()
+                HPicker(text: pickerText, dim: (100, 55), selected: $selected)
+                    .frame(height: 180)
+                    .opacity(view == .trainMenu ? 1 : 0)
             }
         }
     }

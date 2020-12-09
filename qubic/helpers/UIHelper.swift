@@ -9,9 +9,12 @@
 import SwiftUI
 
 // Keys
-let DCStreakKey = "DCStreak"
-let LastDCKey = "LastDC"
+let streakKey = "DCStreak"
+let lastDCKey = "LastDC"
 let badgeKey = "qubic badge notification"
+let trickyKey = "tricky"
+let beginnerKey = "beginner"
+let defenderKey = "defender"
 
 extension Dictionary {
     func add(_ newElement: Element) -> Dictionary {

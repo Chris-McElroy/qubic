@@ -14,8 +14,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
         UserDefaults.standard.register(defaults: [
-            DCStreakKey: Int.zero,
-            LastDCKey: Date().getInt()
+            streakKey: Int.zero,
+            lastDCKey: 737764,
+            beginnerKey: 0,
+            defenderKey: 0,
+            trickyKey: [0]
         ])
         
         UNUserNotificationCenter.current().requestAuthorization(options: [.badge, .alert, .sound]) { success, error in

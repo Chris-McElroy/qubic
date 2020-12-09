@@ -9,7 +9,7 @@
 import Foundation
 
 extension Board {
-    func pauseTime() -> Double {
+    func getMasterPause() -> Double {
         Double.random(in: has1stOrderCheck(nextTurn()) ? 0.6..<1.0 : 2.0..<3.0)
     }
     

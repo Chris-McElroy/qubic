@@ -23,6 +23,7 @@
 		1E6817A724CC977B001713E7 /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E6817A624CC977B001713E7 /* MainView.swift */; };
 		1E6C429024FCE1F20065BDF5 /* BoardHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E6C428F24FCE1F20065BDF5 /* BoardHelper.swift */; };
 		1E6D2E4B24CE9729001EFE85 /* CubeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E6D2E4A24CE9729001EFE85 /* CubeView.swift */; };
+		1E713370258184B600059BC3 /* Beginner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E71336F258184B600059BC3 /* Beginner.swift */; };
 		1E7B959224D34015004B3C80 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E7B959124D34015004B3C80 /* SettingsView.swift */; };
 		1E883EFB24EE3B14002686C8 /* HeightHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E883EFA24EE3B14002686C8 /* HeightHelper.swift */; };
 		1E8C554725365E3400C9A556 /* GameData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E8C554625365E3400C9A556 /* GameData.swift */; };
@@ -56,6 +57,7 @@
 		1E6C428F24FCE1F20065BDF5 /* BoardHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardHelper.swift; sourceTree = "<group>"; };
 		1E6D2E4A24CE9729001EFE85 /* CubeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CubeView.swift; sourceTree = "<group>"; };
 		1E6E46B3253CCB4400DEC992 /* qubic.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = qubic.entitlements; sourceTree = "<group>"; };
+		1E71336F258184B600059BC3 /* Beginner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Beginner.swift; sourceTree = "<group>"; };
 		1E7B959124D34015004B3C80 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		1E883EFA24EE3B14002686C8 /* HeightHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeightHelper.swift; sourceTree = "<group>"; };
 		1E8C554625365E3400C9A556 /* GameData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameData.swift; sourceTree = "<group>"; };
@@ -129,6 +131,7 @@
 			isa = PBXGroup;
 			children = (
 				1E3335D1253400FD00966EA6 /* Master.swift */,
+				1E71336F258184B600059BC3 /* Beginner.swift */,
 			);
 			path = opponents;
 			sourceTree = "<group>";
@@ -247,6 +250,7 @@
 				1EAEE3BD24D9DCBA00490530 /* ReplaysView.swift in Sources */,
 				1E02D59B24CE5696001BF62B /* AboutView.swift in Sources */,
 				1E6C429024FCE1F20065BDF5 /* BoardHelper.swift in Sources */,
+				1E713370258184B600059BC3 /* Beginner.swift in Sources */,
 				1EEB0D4E24CF3780008F5B4B /* ColorHelper.swift in Sources */,
 				1E017BA024CDB71A00CF979A /* PlayView.swift in Sources */,
 				1E8C554725365E3400C9A556 /* GameData.swift in Sources */,
