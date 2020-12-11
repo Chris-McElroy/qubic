@@ -11,7 +11,7 @@ import SwiftUI
 struct SolveView: View {
     @Binding var view: ViewStates
     @State var selected: [Int] = [0,0]
-    var switchBack: () -> Void
+    let game: BoardScene
     var mode: GameMode {
         switch selected[1] {
         case 1: return .tricky
@@ -23,7 +23,8 @@ struct SolveView: View {
     var body: some View {
         VStack(spacing: 0) {
             if view == .solve {
-                GameView(mode: mode, boardNum: board) { self.switchBack() }
+                GameView(game: game)
+                    .onAppear { game.data = GameData(mode: mode, boardNum: board) }
             } else {
                 HPicker(text: getPickerText(), dim: (77, 40), selected: $selected)
                     .frame(height: 80)
@@ -111,6 +112,6 @@ struct SolveView: View {
 
 struct SolveView_Previews: PreviewProvider {
     static var previews: some View {
-        SolveView(view: .constant(.solveMenu)) {}
+        SolveView(view: .constant(.solveMenu), game: BoardScene())
     }
 }

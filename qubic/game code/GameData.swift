@@ -27,7 +27,8 @@ enum GameMode {
 class GameData: ObservableObject {
     // provided
     let myTurn: Int
-    let playerColor: [UIColor]
+    let names: [String]
+    let colors: [UIColor]
     let preset: [Int]
     let mode: GameMode
     
@@ -41,19 +42,22 @@ class GameData: ObservableObject {
         myTurn = 0
         turn = 0
         mode = .play
-        playerColor = []
+        names = ["beep", "boop"]
+        colors = [.green, .green]
         preset = []
     }
     
-    init(mode: GameMode, boardNum: Int = 0, turn: Int?) {
+    init(mode: GameMode, boardNum: Int = 0, turn: Int? = nil) {
         preset = GameData.getBoard(boardNum, for: mode)
         myTurn = turn != nil ? turn! : preset.count % 2
-        self.turn = 0
+        self.turn = preset.count % 2
         self.mode = mode
         let myColor = getUIColor(0)
         let opColor = getUIColor(1)
+        let nameList = ["me", "other"]
         let colorList = [myColor, opColor]
-        playerColor = myTurn == 0 ? colorList : colorList.reversed()
+        names = myTurn == 0 ? nameList : nameList.reversed()
+        colors = myTurn == 0 ? colorList : colorList.reversed()
     }
     
     func getMove() -> Int {

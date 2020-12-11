@@ -58,7 +58,7 @@ extension MainView {
             top.df = screen - 3*mainButtonHeight - bottomGap
             total = 3*screen
             cube = small ? 200 : 280
-            if screenHeight < 600 { cube = 100 }
+            if screenHeight < 600 { cube = 140 }
             fillOffset = -2*screen + 83 - 2*topGap
             backButtonOffset = -screen - 10 + topGap
             subViews = [top.df, trainView.df, train.df, solveView.df, solve.df, playView.df, play.df, about.df, settings.df, replays.df, friends.df, moreFill.df]

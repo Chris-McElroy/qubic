@@ -9,17 +9,18 @@
 import SwiftUI
 import SceneKit
 
-struct BoardViewRep: UIViewRepresentable {
-    private let boardView: BoardView = BoardView()
-    func makeUIView(context: Context) -> SCNView { boardView.view }
+struct BoardView: UIViewRepresentable {
+    let boardScene: BoardScene
+    func makeUIView(context: Context) -> SCNView { boardScene.reset(); return boardScene.view }
     func updateUIView(_ scnView: SCNView, context: Context) {}
-    func rotate(right: Bool) { boardView.rotate(right: right) }
-    func load(_ data: GameData) { boardView.load(data) }
+//    func rotate(right: Bool) { boardScene.rotate(right: right) }
+//    func load(_ data: GameData) { boardScene.load(data) }
 }
 
-private class BoardView {
-    var data: GameData = GameData()
-    
+class BoardScene: ObservableObject {
+    @Published var data: GameData = GameData()
+    var goBack: () -> Void = {}
+    var cancelBack: () -> Bool = { true }
     let view = SCNView()
     let help = SceneHelper()
     let scene = SCNScene()
@@ -39,7 +40,23 @@ private class BoardView {
         for (p, dot) in dots.enumerated() { setPosition(for: dot, at: p) }
         scene.rootNode.addChildNode(base)
         help.prepSCNView(view: view, scene: scene)
-        view.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleTap(_:))))
+        view.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleTap)))
+    }
+    
+    func reset() {
+        for move in moves {
+            move.removeFromParentNode()
+        }
+        moves.removeAll()
+        for dot in dots {
+            dot.opacity = 1
+        }
+        for l in 0..<76 {
+            currentLines[l]?.removeFromParentNode()
+            currentLines[l] = nil
+        }
+        nextMove?.removeFromParentNode()
+        nextMove = nil
     }
     
     func setPosition(for node: SCNNode, at p: Int) {
@@ -48,10 +65,9 @@ private class BoardView {
         base.addChildNode(node)
     }
     
-    func load(_ givenData: GameData) {
-        data = givenData
+    func load() {
         for p in data.preset { loadMove(p) }
-        setNextMove()
+//        setNextMove()
         if data.myTurn != data.turn { queueOpMove() }
     }
     
@@ -59,7 +75,7 @@ private class BoardView {
         // Assumes no wins!
         let turn = data.turn
         guard data.processMove(move) != nil else { print("Invalid load move!"); return }
-        let _ = moveCube(move: move, color: data.playerColor[turn])
+        addCube(move: move, color: data.colors[turn])
     }
     
     func rotate(right: Bool) {
@@ -70,16 +86,18 @@ private class BoardView {
     }
     
     @objc func handleTap(_ gestureRecognize: UIGestureRecognizer) {
-        let hit = gestureRecognize.location(in: view)
-        let hitResults = view.hitTest(hit, options: [:])
-        guard let result = hitResults.first?.node else { return }
-        if let p = dots.firstIndex(of: result) {
-            if data.turn == data.myTurn && data.winner == nil {
-                processMove(p)
-                if data.winner == nil { queueOpMove() }
+        if cancelBack() {
+            let hit = gestureRecognize.location(in: view)
+            let hitResults = view.hitTest(hit, options: [:])
+            guard let result = hitResults.first?.node else { return }
+            if let p = dots.firstIndex(of: result) {
+                if data.turn == data.myTurn && data.winner == nil {
+                    processMove(p)
+                    if data.winner == nil { queueOpMove() }
+                }
+            } else if moves.contains(result) {
+                result.runAction(help.getFullRotate(1.0))
             }
-        } else if moves.contains(result) {
-            result.runAction(help.getFullRotate())
         }
     }
     
@@ -94,16 +112,18 @@ private class BoardView {
     func processMove(_ move: Int) {
         let turn = data.turn
         guard let wins = data.processMove(move) else { print("Invalid move!"); return }
-        let delay = moveCube(move: move, color: data.playerColor[turn]) + 0.1
+//        let delay = moveCube(move: move, color: data.colors[turn]) + 0.1
+        addCube(move: move, color: data.colors[turn])
+        moves.last?.runAction(help.getHalfRotate())
         if !wins.isEmpty {
             data.winner = turn
             if turn == data.myTurn { updateWins() }
-            Timer.scheduledTimer(withTimeInterval: delay, repeats: false, block: {_ in
-                self.showWinLines(wins, self.data.playerColor[turn])
-                self.base.runAction(self.help.getFullRotate())
+            Timer.scheduledTimer(withTimeInterval: 0, repeats: false, block: {_ in
+                self.showWinLines(wins, self.data.colors[turn])
+                self.base.runAction(self.help.getFullRotate(1.45))
             })
         } else {
-            setNextMove()
+//            setNextMove()
         }
     }
     
@@ -128,6 +148,14 @@ private class BoardView {
         return time
     }
     
+    func addCube(move: Int, color: UIColor) {
+        let cube = help.makeBox(color: color, size: 0.86)
+        moves.append(cube)
+        base.addChildNode(cube)
+        cube.position = dots[move].position
+        dots[move].opacity = 0
+    }
+    
     func showWinLines(_ wins: [WinLine], _ color: UIColor) {
         for line in wins {
             let start = SIMD3<Float>(dots[line.start].position)
@@ -139,7 +167,7 @@ private class BoardView {
     }
     
     func setNextMove() {
-        let newMove = help.makeBox(color: data.playerColor[data.turn], size: 0.86)
+        let newMove = help.makeBox(color: data.colors[data.turn], size: 0.86)
         newMove.position = nextMovePos[data.turn == data.myTurn ? 0 : 1]
         scene.rootNode.addChildNode(newMove)
         nextMove = newMove
@@ -174,6 +202,6 @@ private class BoardView {
 
 struct BoardView_Previews: PreviewProvider {
     static var previews: some View {
-        BoardViewRep()
+        BoardView(boardScene: BoardScene())
     }
 }

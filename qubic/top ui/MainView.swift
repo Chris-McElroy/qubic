@@ -11,11 +11,14 @@ import SwiftUI
 struct MainView: View {
     @EnvironmentObject var screen: ScreenObserver
     @State var heights: Heights = Heights()
+    @State var halfBack: Bool = false
+    
+    let game = BoardScene()
     
     var body: some View {
         VStack(alignment: .center, spacing: 0) {
             Fill(heights.topSpacer)
-            top//.zIndex(2)
+            top.zIndex(2)
             mainStack//.zIndex(1)
             moreStack
             Spacer()
@@ -24,8 +27,12 @@ struct MainView: View {
             backButton.frame(height: heights.backButton)
                 .offset(y: heights.backButtonOffset)
         }
-        .onAppear { self.heights = Heights(newScreen: self.screen) }
-        .onAppear { self.heights.view = .main  }
+        .onAppear {
+            heights = Heights(newScreen: self.screen)
+            heights.view = .main
+            game.goBack = goBack
+            game.cancelBack = cancelBack
+        }
         .frame(height: heights.total)
         .background(Fill())
         .gesture(scrollGestures)
@@ -50,13 +57,13 @@ struct MainView: View {
     
     private var mainStack: some View {
         VStack(spacing: 0) {
-            TrainView(view: $heights.view) { self.switchBack() }
+            TrainView(view: $heights.view, game: game)
                 .frame(height: heights.get(heights.trainView), alignment: .bottom)
             mainButton(text: "train") { self.switchView(to: .trainMenu, or: .train) }
-            SolveView(view: $heights.view) { self.switchBack() }
+            SolveView(view: $heights.view, game: game)
                 .frame(height: heights.get(heights.solveView), alignment: .bottom)
             mainButton(text: "solve") { self.switchView(to: .solveMenu, or: .solve) }
-            PlayView(view: $heights.view) { self.switchBack() }
+            PlayView(view: $heights.view, game: game)
                 .frame(height: heights.get(heights.playView), alignment: .bottom)
             mainButton(text: "play") { self.switchView(to: .play) }
         }
@@ -86,16 +93,16 @@ struct MainView: View {
     }
     
     private var backButton: some View {
-        Button(action: { self.switchBack() }) {
+        Button(action: goBack ) {
             VStack {
-                Text(heights.view == .main ? "more" : "back")
+                Text(heights.view == .main ? "more" : halfBack ? "leave game?" : "back")
                     .font(.custom("Oligopoly Regular", size: 16))
                     .animation(nil)
                 Text("↓")
                     .rotationEffect(Angle(degrees: heights.view == .main ? 0 : 180))
             }
             .padding(.bottom, 35)
-            .padding(.horizontal, 130)
+            .padding(.horizontal, 100)
             .padding(.top, 5)
             .background(Fill())
         }
@@ -112,7 +119,7 @@ struct MainView: View {
                         if h < 0 { self.switchView(to: .more) }
                         else { self.cube.flipCube() }
                     } else if h > 0 {
-                        self.switchBack()
+                        self.goBack()
                     }
                 } else {
                     self.cube.rotate(right: w > 0)
@@ -128,11 +135,25 @@ struct MainView: View {
         }
     }
     
-    func switchBack() {
-        let backMain: [ViewStates] = [.more,.trainMenu,.train,.solveMenu,.solve,.play]
-        withAnimation(.easeInOut(duration: 0.4)) {
-            heights.view = backMain.contains(heights.view) ? .main : .more
+    func goBack() {
+        let backMain: [ViewStates] = [.more,.train,.trainMenu,.solve,.solveMenu,.play]
+        if [.play,.solve,.train].contains(heights.view) { halfBack.toggle() }
+        if halfBack {
+            UIImpactFeedbackGenerator(style: .rigid).impactOccurred()
+        } else {
+            withAnimation(.easeInOut(duration: 0.4)) {
+                heights.view = backMain.contains(heights.view) ? .main : .more
+            }
         }
+    }
+    
+    func cancelBack() -> Bool {
+        if halfBack {
+            UIImpactFeedbackGenerator(style: .light).impactOccurred()
+            halfBack = false
+            return false
+        }
+        return true
     }
 }
 

@@ -10,21 +10,11 @@ import SwiftUI
 import SceneKit
 
 struct GameView: View {
-    @ObservedObject var data: GameData = GameData()
-    var switchBack: () -> Void = { return }
-    let boardRep: BoardViewRep
+    @ObservedObject var game: BoardScene
     @State var cubeHeight: CGFloat = 10
     @State var rotateMe = false
     @State var isRotated = false
     @State var cont = false
-    
-    init(mode: GameMode, boardNum: Int = 0, turn: Int? = nil, _ switchBackFunc: @escaping () -> Void) {
-        switchBack = switchBackFunc
-        boardRep = BoardViewRep()
-        let newData = GameData(mode: mode, turn: turn)
-        data = newData
-        boardRep.load(newData)
-    }
     
     var body: some View {
 //        VStack(spacing: 20) {
@@ -42,31 +32,49 @@ struct GameView: View {
 //                .animation(cont ? animation : .default)
 //        }
         
+        // i had game data be an observed object so that i could change gameview when the turn changes
+        
         VStack(spacing: 0) {
-            Fill(4)
-            Text("other")
-                .foregroundColor(.white)
-                .frame(width: 160, height: 40)
-                .background(Rectangle().foregroundColor(Color(UIColor.magenta)))
-                .cornerRadius(100)
-            boardRep
+            HStack {
+                Player(turn: 0, data: game.data)
+                Spacer().frame(minWidth: 15, maxWidth: 80)
+                Player(turn: 1, data: game.data)
+            }.padding(.horizontal, 22)
+            .padding(.top, 20)
+            .padding(.bottom, 10)
+            .zIndex(1.0)
+            BoardView(boardScene: game)
+                .onAppear {
+                    game.load()
+                }
                 .gesture(DragGesture()
                     .onEnded { drag in
                         let h = drag.predictedEndTranslation.height
                         let w = drag.predictedEndTranslation.width
                         if abs(w)/abs(h) > 1 {
-                            self.boardRep.rotate(right: w > 0)
+                            game.rotate(right: w > 0)
                         } else if h > 0 {
-                            self.switchBack()
+                            game.goBack()
                         }
                     }
                 )
-            Text("chris")
+                .zIndex(0.0)
+        }
+    }
+    
+    struct Player: View {
+        let turn: Int
+        @ObservedObject var data: GameData
+        var color: Color { Color(data.colors[turn]) }
+        
+        var body: some View {
+            Text(data.names[turn])
                 .foregroundColor(.white)
-                .frame(width: 160, height: 40)
-                .background(Rectangle().foregroundColor(.blue))
+                .frame(minWidth: 140, maxWidth: 160, minHeight: 40)
+                .background(Rectangle().foregroundColor(color))
                 .cornerRadius(100)
-            Fill(4)
+                .shadow(color: data.turn == turn ? color : .clear, radius: 8, y: 0)
+                .animation(.easeIn(duration: 0.3))
         }
     }
     
@@ -75,6 +83,7 @@ struct GameView: View {
 
 struct GameView_Previews: PreviewProvider {
     static var previews: some View {
-        GameView(mode: .play) {}
+        GameView(game: BoardScene())
+            .previewDevice(PreviewDevice(rawValue: "iPhone SE (1st generation)"))
     }
 }

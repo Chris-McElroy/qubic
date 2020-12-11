@@ -23,7 +23,7 @@ struct SceneHelper {
     func makeCamera() -> SCNNode {
         let pos = SCNVector3(x: -5.65, y: 4.9, z: 10.0)
         let rot = SCNVector3(x: -0.403, y: -0.5135, z: 0)
-        let scale = 10.5
+        let scale = 9.5
         return makeCamera(pos: pos, rot: rot, scale: scale)
     }
     
@@ -75,24 +75,30 @@ struct SceneHelper {
         view.backgroundColor = UIColor.systemBackground
     }
     
-    func makeQuaternion(_ x: Double, _ y: Double, _ z: Double, _ d: Float) -> SCNQuaternion {
-        let glkq = makeGLKQuaternion(x, y, z, d)
-        return SCNQuaternion(x: glkq.x, y: glkq.y, z: glkq.z, w: glkq.w)
+//    func makeQuaternion(_ x: Double, _ y: Double, _ z: Double, _ d: Float) -> SCNQuaternion {
+//        let glkq = makeGLKQuaternion(x, y, z, d)
+//        return SCNQuaternion(x: glkq.x, y: glkq.y, z: glkq.z, w: glkq.w)
+//    }
+//    
+//    func makeGLKQuaternion(_ x: Double, _ y: Double, _ z: Double, _ d: Float) -> GLKQuaternion {
+//        let l: Double = sqrt(pow(x,2) + pow(y,2) + pow(z,2))
+//        let normAxis = GLKVector3(v:(Float(x/l),Float(y/l),Float(z/l)))
+//        return GLKQuaternionMakeWithAngleAndVector3Axis(Float(dToR(d)), normAxis)
+//    }
+    
+    func dToR(_ degrees: CGFloat) -> CGFloat {
+        return .pi/180*degrees
     }
     
-    func makeGLKQuaternion(_ x: Double, _ y: Double, _ z: Double, _ d: Float) -> GLKQuaternion {
-        let l: Double = sqrt(pow(x,2) + pow(y,2) + pow(z,2))
-        let normAxis = GLKVector3(v:(Float(x/l),Float(y/l),Float(z/l)))
-        return GLKQuaternionMakeWithAngleAndVector3Axis(Float(dToR(d)), normAxis)
+    func getFullRotate(_ time: Double) -> SCNAction {
+        let rotate = SCNAction.rotate(by: .pi*2, around: yAxis, duration: time)
+        rotate.timingMode = .easeOut
+        return rotate
     }
     
-    func dToR(_ degrees: Float) -> CGFloat {
-        return CGFloat(GLKMathDegreesToRadians(degrees))
-    }
-    
-    func getFullRotate() -> SCNAction {
-        let rotate = SCNAction.rotate(by: .pi*2, around: yAxis, duration: 1.7)
-        rotate.timingMode = .easeInEaseOut
+    func getHalfRotate() -> SCNAction {
+        let rotate = SCNAction.rotate(by: .pi, around: yAxis, duration: 0.5)
+        rotate.timingMode = .easeOut
         return rotate
     }
     
