@@ -12,17 +12,16 @@ import SceneKit
 struct CubeView : UIViewRepresentable {
     let view = SCNView()
     let scene = SCNScene()
-    let help = SceneHelper()
-    let cube = SceneHelper().makeBox(color: getUIColor(0))
+    let cube = SceneHelper.makeBox(color: getUIColor(0))
 
     func makeUIView(context: Context) -> SCNView {
         let pos = SCNVector3(-2.0,2.0,2.0)
-        let rot = SCNVector3(-0.615479709,help.dToR(-45),0.0) // magic number is -atan(1/sqrt(2))
-        scene.rootNode.addChildNode(help.makeCamera(pos: pos, rot: rot, scale: 1))
-        scene.rootNode.addChildNode(help.makeOmniLight())
-        scene.rootNode.addChildNode(help.makeAmbiLight())
+        let rot = SCNVector3(-0.615479709,-.pi/4,0.0) // magic number is -atan(1/sqrt(2))
+        scene.rootNode.addChildNode(SceneHelper.makeCamera(pos: pos, rot: rot, scale: 1))
+        scene.rootNode.addChildNode(SceneHelper.makeOmniLight())
+        scene.rootNode.addChildNode(SceneHelper.makeAmbiLight())
         scene.rootNode.addChildNode(cube)
-        help.prepSCNView(view: view, scene: scene)
+        SceneHelper.prepSCNView(view: view, scene: scene)
         return view
     }
 
@@ -30,14 +29,14 @@ struct CubeView : UIViewRepresentable {
     }
     
     func rotate(right: Bool) {
-        let angle = help.dToR(90*(right ? 1 : -1))
+        let angle: CGFloat = .pi/2*(right ? 1 : -1)
         let rotateAction = SCNAction.rotate(by: angle, around: SCNVector3(0,1,0), duration: 0.4)
         rotateAction.timingMode = .easeInEaseOut
         cube.runAction(rotateAction)
     }
     
     func flipCube() {
-        let rotateAction = SCNAction.rotate(by: help.dToR(180), around: SCNVector3(1,0,1), duration: 0.5)
+        let rotateAction = SCNAction.rotate(by: .pi, around: SCNVector3(1,0,1), duration: 0.5)
         rotateAction.timingMode = .easeInEaseOut
         cube.runAction(rotateAction)
     }

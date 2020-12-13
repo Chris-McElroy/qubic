@@ -8,8 +8,10 @@
 
 import SceneKit
 
-struct SceneHelper {
-    func makeCamera(pos: SCNVector3, rot: SCNVector3, scale: Double) -> SCNNode {
+var lineWidth: CGFloat = 0.008
+
+class SceneHelper {
+    static func makeCamera(pos: SCNVector3, rot: SCNVector3, scale: Double) -> SCNNode {
         // create and add a camera to the scene
         let cameraNode = SCNNode()
         cameraNode.camera = SCNCamera()
@@ -20,14 +22,14 @@ struct SceneHelper {
         return cameraNode
     }
     
-    func makeCamera() -> SCNNode {
+    static func makeCamera() -> SCNNode {
         let pos = SCNVector3(x: -5.65, y: 4.9, z: 10.0)
         let rot = SCNVector3(x: -0.403, y: -0.5135, z: 0)
         let scale = 9.5
         return makeCamera(pos: pos, rot: rot, scale: scale)
     }
     
-    func makeOmniLight() -> SCNNode {
+    static func makeOmniLight() -> SCNNode {
         let omniLightNode = SCNNode()
         omniLightNode.light = SCNLight()
         omniLightNode.light?.type = SCNLight.LightType.omni
@@ -37,7 +39,7 @@ struct SceneHelper {
         return omniLightNode
     }
     
-    func makeAmbiLight() -> SCNNode {
+    static func makeAmbiLight() -> SCNNode {
         let ambiLightNode = SCNNode()
         ambiLightNode.light = SCNLight()
         ambiLightNode.light?.type = SCNLight.LightType.ambient
@@ -45,21 +47,114 @@ struct SceneHelper {
         return ambiLightNode
     }
     
-    func makeBox(color: UIColor = UIColor.null, size: CGFloat = 1.0) -> SCNNode {
+    static func makeBox(color: UIColor = UIColor.null, size: CGFloat = 1.0) -> SCNNode {
         let box = SCNBox(width: size, height: size, length: size, chamferRadius: 0)
         let boxNode = SCNNode(geometry: box)
         boxNode.setColor(color)
         return boxNode
     }
     
-    func makeDot(color: UIColor = UIColor.null, size: CGFloat = 1.0) -> SCNNode {
-        let dot = SCNSphere(radius: size)
-        let dotNode = SCNNode(geometry: dot)
+    static func makeDot(color: UIColor = UIColor.null, size: CGFloat = 1.0) -> SCNNode {
+        var dotNode = SCNNode(geometry: SCNBox(width: size, height: size, length: size, chamferRadius: 0))
         dotNode.setColor(color)
+        let dotType = UserDefaults.standard.integer(forKey: dotKey)
+        if dotType == 1 {
+            dotNode = SCNNode(geometry: SCNSphere(radius: 0.45))
+            dotNode.setColor(color)
+        } else if dotType == 2 {
+            dotNode = getAxesPoint(size: 0.6)
+        } else if dotType == 3 {
+            dotNode = getBlankCube(size: 0.52)
+        } else if dotType == 4 {
+            dotNode = getSpace(size: 0.86-3*lineWidth)
+        }
         return dotNode
     }
     
-    func makeBox(name: String, pos: SCNVector3, color: UIColor = UIColor.null, size: CGFloat = 1.0) -> SCNNode {
+    static func getAxesPoint(size: CGFloat) -> SCNNode {
+        let line = SCNCylinder(radius: lineWidth, height: size)
+        line.firstMaterial?.diffuse.contents = UIColor.label
+        let xNode = SCNNode(geometry: line)
+        let yNode = SCNNode(geometry: line)
+        let zNode = SCNNode(geometry: line)
+        xNode.rotation = SCNVector4(0,0,1,CGFloat.pi/2)
+        zNode.rotation = SCNVector4(1,0,0,CGFloat.pi/2)
+        let base = SCNNode(geometry: SCNSphere(radius: 0.45))
+        base.geometry?.firstMaterial?.diffuse.contents = UIColor.clear
+//        let core = SCNNode(geometry: SCNSphere(radius: 0.04))
+//        core.setColor(.black)
+        base.addChildNode(xNode)
+        base.addChildNode(yNode)
+        base.addChildNode(zNode)
+//        base.addChildNode(core)
+        return base
+    }
+    
+    static func getBlankCube(size: CGFloat) -> SCNNode {
+        let line = SCNCylinder(radius: lineWidth, height: size)
+        let xNodes = (0..<4).map { _ in SCNNode(geometry: line) }
+        let yNodes = (0..<4).map { _ in SCNNode(geometry: line) }
+        let zNodes = (0..<4).map { _ in SCNNode(geometry: line) }
+        let offsets = [(-size/2,-size/2),(size/2,-size/2),(-size/2,size/2),(size/2,size/2)]
+        xNodes.forEach { $0.rotation = SCNVector4(0,0,1,CGFloat.pi/2) }
+        zNodes.forEach { $0.rotation = SCNVector4(1,0,0,CGFloat.pi/2) }
+        xNodes.forEach { $0.setColor(.label) }
+        yNodes.forEach { $0.setColor(.label) }
+        zNodes.forEach { $0.setColor(.label) }
+        let base = SCNNode(geometry: SCNSphere(radius: 0.45))
+        base.setColor(.clear)
+        xNodes.forEach { base.addChildNode($0) }
+        yNodes.forEach { base.addChildNode($0) }
+        zNodes.forEach { base.addChildNode($0) }
+        for (i,node) in xNodes.enumerated() {
+            node.position = SCNVector3(0,offsets[i].0,offsets[i].1)
+        }
+        for (i,node) in yNodes.enumerated() {
+            node.position = SCNVector3(offsets[i].0,0,offsets[i].1)
+        }
+        for (i,node) in zNodes.enumerated() {
+            node.position = SCNVector3(offsets[i].0,offsets[i].1,0)
+        }
+        return base
+    }
+    
+    static func getSpace(size: CGFloat) -> SCNNode {
+        let line = SCNCylinder(radius: lineWidth, height: size)
+        let short = size/4.2
+        let shortLine = SCNCylinder(radius: lineWidth, height: short)
+        let xNodes = (0..<4).map { _ in SCNNode(geometry: line) }
+        let yNodes = (0..<4).map { _ in SCNNode(geometry: shortLine) }
+        let zNodes = (0..<4).map { _ in SCNNode(geometry: line) }
+        let xOffsets = [(-size/2,-size/2),(-size/2+short,-size/2),(-size/2,size/2),(-size/2+short,size/2)]
+        let yOffsets = [(-size/2,-size/2),(size/2,-size/2),(-size/2,size/2),(size/2,size/2)]
+        let zOffsets = [(-size/2,-size/2),(size/2,-size/2),(-size/2,-size/2+short),(size/2,-size/2+short)]
+        xNodes.forEach { $0.rotation = SCNVector4(0,0,1,CGFloat.pi/2) }
+        zNodes.forEach { $0.rotation = SCNVector4(1,0,0,CGFloat.pi/2) }
+        xNodes.forEach { $0.setColor(.label) }
+        yNodes.forEach { $0.setColor(.label) }
+        zNodes.forEach { $0.setColor(.label) }
+        let wef = SCNNode(geometry: SCNBox(width: 0.9, height: 0.34, length: 0.9, chamferRadius: 0))
+        let base = SCNNode(geometry: SCNSphere(radius: 0.35))
+        base.addChildNode(wef)
+        wef.position.y = -0.43+0.17
+        wef.setColor(.clear)
+        base.setColor(.clear)
+        xNodes.forEach { base.addChildNode($0) }
+        yNodes.forEach { base.addChildNode($0) }
+        zNodes.forEach { base.addChildNode($0) }
+        for (i,node) in xNodes.enumerated() {
+            node.position = SCNVector3(0,xOffsets[i].0,xOffsets[i].1)
+        }
+        for (i,node) in yNodes.enumerated() {
+            node.position = SCNVector3(yOffsets[i].0,-size/2+short/2,yOffsets[i].1)
+        }
+        for (i,node) in zNodes.enumerated() {
+            node.position = SCNVector3(zOffsets[i].0,zOffsets[i].1,0)
+        }
+        return base
+    }
+    
+    static func makeBox(name: String, pos: SCNVector3, color: UIColor = UIColor.null, size: CGFloat = 1.0) -> SCNNode {
         let box = SCNBox(width: size, height: size, length: size, chamferRadius: 0)
         let boxNode = SCNNode(geometry: box)
         boxNode.name = name
@@ -68,7 +163,7 @@ struct SceneHelper {
         return boxNode
     }
     
-    func prepSCNView(view: SCNView, scene: SCNScene) {
+    static func prepSCNView(view: SCNView, scene: SCNScene) {
         view.scene = scene
         view.allowsCameraControl = false
         view.showsStatistics = false
@@ -86,24 +181,22 @@ struct SceneHelper {
 //        return GLKQuaternionMakeWithAngleAndVector3Axis(Float(dToR(d)), normAxis)
 //    }
     
-    func dToR(_ degrees: CGFloat) -> CGFloat {
-        return .pi/180*degrees
-    }
-    
-    func getFullRotate(_ time: Double) -> SCNAction {
+    static func getFullRotate(_ time: Double) -> SCNAction {
+        let yAxis = SCNVector3(0,1,0)
         let rotate = SCNAction.rotate(by: .pi*2, around: yAxis, duration: time)
         rotate.timingMode = .easeOut
         return rotate
     }
     
-    func getHalfRotate() -> SCNAction {
+    static func getHalfRotate() -> SCNAction {
+        let yAxis = SCNVector3(0,1,0)
         let rotate = SCNAction.rotate(by: .pi, around: yAxis, duration: 0.5)
         rotate.timingMode = .easeOut
         return rotate
     }
     
-    let yAxis = SCNVector3(0,1,0)
-    let yAxisSIMD = SIMD3<Float>(0,1,0)
+//    static let yAxis = SCNVector3(0,1,0)
+//    sttaic let yAxisSIMD = SIMD3<Float>(0,1,0)
 //
 //    func fillSpace(from start: SCNVector3, to end: SCNVector3) -> SCNNode {
 //        let offsets: [[SIMD3<Float>]] = [
@@ -149,7 +242,8 @@ struct SceneHelper {
 //        return node
 //    }
     
-    func makeLine(from start: SIMD3<Float>, to end: SIMD3<Float>, color: UIColor) -> SCNNode {
+    static func makeLine(from start: SIMD3<Float>, to end: SIMD3<Float>, color: UIColor) -> SCNNode {
+        let yAxisSIMD = SIMD3<Float>(0,1,0)
         let vector = end - start
         let line = SCNCylinder(radius: 0.05, height: CGFloat(simd_length(vector)))
         let lineNode = SCNNode(geometry: line)

@@ -27,8 +27,7 @@ enum GameMode {
 class GameData: ObservableObject {
     // provided
     let myTurn: Int
-    let names: [String]
-    let colors: [UIColor]
+    let player: [Player]
     let preset: [Int]
     let mode: GameMode
     
@@ -42,35 +41,25 @@ class GameData: ObservableObject {
         myTurn = 0
         turn = 0
         mode = .play
-        names = ["beep", "boop"]
-        colors = [.green, .green]
+        player = [Player(b: board, n: myTurn), Player(b: board, n: myTurn)]
         preset = []
     }
     
     init(mode: GameMode, boardNum: Int = 0, turn: Int? = nil) {
-        preset = GameData.getBoard(boardNum, for: mode)
+        preset = GameData.getPreset(boardNum, for: mode)
         myTurn = turn != nil ? turn! : preset.count % 2
-        self.turn = preset.count % 2
+        self.turn = 0
         self.mode = mode
-        let myColor = getUIColor(0)
-        let opColor = getUIColor(1)
-        let nameList = ["me", "other"]
-        let colorList = [myColor, opColor]
-        names = myTurn == 0 ? nameList : nameList.reversed()
-        colors = myTurn == 0 ? colorList : colorList.reversed()
+        let me = Player(b: board, n: myTurn)
+        let op = GameData.getOp(for: mode, b: board, n: myTurn^1)
+        player = myTurn == 0 ? [me, op] : [op, me]
     }
     
-    func getMove() -> Int {
+    static private func getOp(for mode: GameMode, b: Board, n: Int) -> Player {
         switch mode {
-        case .beginner: return board.getBeginnerMove()
-        default: return board.getMasterMove()
-        }
-    }
-    
-    func getPause() -> Double {
-        switch mode {
-        case .beginner: return board.getBeginnerPause()
-        default: return board.getMasterPause()
+        case .beginner: return Beginner(b: b, n: n)
+        case .defender: return Defender(b: b, n: n)
+        default:        return Cubist(b: b, n: n)
         }
     }
 
@@ -81,7 +70,7 @@ class GameData: ObservableObject {
         return wins
     }
     
-    private static func getBoard(_ board: Int, for mode: GameMode) -> [Int] {
+    private static func getPreset(_ board: Int, for mode: GameMode) -> [Int] {
         if mode == .daily {
             let day = Calendar.current.component(.day, from: Date())
             let month = Calendar.current.component(.month, from: Date())

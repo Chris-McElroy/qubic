@@ -11,8 +11,8 @@ import Foundation
 extension Board {
     func has1stOrderWin(_ n: Int) -> Bool {
         // returns true if player n has won
-        for s in status[n] {
-            if s == 4 { return true }
+        for s in status {
+            if s == 4*(1 + 4*n) { return true }
         }
         return false
     }
@@ -20,9 +20,8 @@ extension Board {
     func get1stOrderWinsFor(_ n: Int) -> [Int] {
         // returns points that give player n a win
         var wins: [Int] = []
-        let o = inc(n)
         for l in 0..<76 {
-            if status[n][l] == 3 && status[o][l] == 0 {
+            if status[l] == 3*(1 + 4*n) {
                 for p in Board.pointsInLine[l] {
                     if ((board[n] &>> p) & 1) == 0 {
                         wins.append(p)
@@ -37,34 +36,21 @@ extension Board {
     func has1stOrderCheckmate(_ n: Int) -> Bool {
         // returns true if player n will have a win
         // available no matter what the opponent does
-        var checks = -1
-        let o = inc(n)
-        for l in 0..<76 {
-            if status[n][l] == 3 && status[o][l] == 0 {
-                for p in Board.pointsInLine[l] {
-                    if ((board[n] &>> p) & 1) == 0 {
-                        if checks < 0 { checks = p }
-                        else { return true }
-                        break
-                    }
-                }
+        for p in (0..<64).filter({ pointEmpty($0) }) {
+            if Board.linesThruPoint[p].filter({ status[$0] == 2*(1 + 4*n) }).count > 1 {
+                return true
             }
         }
         return false
     }
     
-    func get1stOrderCheckmatesFor(_ n: Int) -> Set<Int> {
+    func get1stOrderCheckmatesFor(_ n: Int) -> [Int] {
         // returns points that leave player n with a
         // win no matter what the opponent does
-        var checks: Set<Int> = []
-        var checkmates: Set<Int> = []
-        for l in doubles[n] {
-            for p in Board.pointsInLine[l] {
-                if ((board[n] &>> p) & 1) == 0 {
-                    let (duplicate,_) = checks.insert(p)
-                    if duplicate { checkmates.insert(p) }
-                    break
-                }
+        var checkmates: [Int] = []
+        for p in (0..<64).filter({ pointEmpty($0) }) {
+            if Board.linesThruPoint[p].filter({ status[$0] == 2*(1 + 4*n) }).count > 1 {
+                checkmates.append(p)
             }
         }
         return checkmates
@@ -73,25 +59,21 @@ extension Board {
     func has1stOrderCheck(_ n: Int) -> Bool {
         // returns true if player n has
         // at least one option for a win next move
-        let o = inc(n)
         for l in 0..<76 {
-            if status[n][l] == 3 && status[o][l] == 0 {
+            if status[l] == 3*(1 + 4*n) {
                 return true
             }
         }
         return false
     }
     
-    func get1stOrderChecksFor(_ n: Int) -> Set<Int> {
+    func get1stOrderChecksFor(_ n: Int) -> [Int] {
         // returns points that leave player n with
         // at least one option for a win next move
-        var checks: Set<Int> = []
-        for l in doubles[n] {
-            for p in Board.pointsInLine[l] {
-                if ((board[n] &>> p) & 1) == 0 {
-                    checks.insert(p)
-                    break
-                }
+        var checks: [Int] = []
+        for p in (0..<64).filter({ pointEmpty($0) }) {
+            if Board.linesThruPoint[p].filter({ status[$0] == 3*(1 + 4*n) }).count > 0 {
+                checks.append(p)
             }
         }
         return checks
@@ -106,108 +88,108 @@ extension Board {
         addMove(wins.first!) // only works if the next player is o
         // TODO make this callable no matter who's move it is
         // TODO check for o getting check with their move
-        if get2ndOrderWinFor(n) != nil {
-            undoMove()
-            return true
-        }
+//        if get2ndOrderWinFor(n) != nil {
+//            undoMove()
+//            return true
+//        }
         undoMove()
         return false
     }
     
-    func get2ndOrderWinFor(_ n: Int) -> Int? {
-        // if possible, returns a point that will give player n a 1st order check,
-        // and will eventually allow them to get a 2nd order win
-        
-        // TODO check the state of the board?
-        // or state clearly what I'm assuming about the board
-        let o = inc(n)
-//        dTable = []
-        var dQueue: Set<D> = []
-        var dBoard: [Set<D>] = Array(repeating: [], count: 64)
-        move[n].forEach { m in dQueue.insert(D(given: m)) }
-        
-        while let d0 = dQueue.popFirst() {
-            // try to find wins
-            for d1 in dBoard[d0.gain] {
-                if let winPairs = worksSansChecks(d0: d0, d1: d1) {
-                    let gains2 = d0.gains | d1.gains
-                    let costs2 = d0.costs | d1.costs
-                    // check that no checks will form
-                    var checkPoint: Int? = nil
-                    var checkStatus: [[Int]] = status
-                    for cost in winPairs.keys {
-                        if checkPoint != nil { break }
-                        for l in Board.linesThruPoint[cost] {
-                            if checkStatus[o][l] == 2 && checkStatus[n][l] == 0 {
-                                var points = Board.pointsInLine[l]
-                                points.remove(at: cost)
-                                for p in points {
-                                    if (board[o] | costs2) & (1 &<< p) == 0 {
-                                        checkPoint = p
-                                        break
-                                    }
-                                }
-                                break
-                            }
-                            checkStatus[o][l] += 1
-                        }
-                    }
-                    // TODO make sure that if the check has a check on the way, that it also finds that
-//                    // if no checks, you're good!
-//                    guard let forcedPoint = checkPoint else {
-//                        // yay we found one! (checkPoint was nil)
-//                        return getFirstMove(i: 4, printMoves: false)
+//    func get2ndOrderWinFor(_ n: Int) -> Int? {
+//        // if possible, returns a point that will give player n a 1st order check,
+//        // and will eventually allow them to get a 2nd order win
+//
+//        // TODO check the state of the board?
+//        // or state clearly what I'm assuming about the board
+//        let o = n^1
+////        dTable = []
+//        var dQueue: Set<D> = []
+//        var dBoard: [Set<D>] = Array(repeating: [], count: 64)
+//        move[n].forEach { m in dQueue.insert(D(given: m)) }
+//
+//        while let d0 = dQueue.popFirst() {
+//            // try to find wins
+//            for d1 in dBoard[d0.gain] {
+//                if let winPairs = worksSansChecks(d0: d0, d1: d1) {
+//                    let gains2 = d0.gains | d1.gains
+//                    let costs2 = d0.costs | d1.costs
+//                    // check that no checks will form
+//                    var checkPoint: Int? = nil
+//                    var checkStatus: [[Int]] = status
+//                    for cost in winPairs.keys {
+//                        if checkPoint != nil { break }
+//                        for l in Board.linesThruPoint[cost] {
+//                            if checkStatus[o][l] == 2 && checkStatus[n][l] == 0 {
+//                                var points = Board.pointsInLine[l]
+//                                points.remove(at: cost)
+//                                for p in points {
+//                                    if (board[o] | costs2) & (1 &<< p) == 0 {
+//                                        checkPoint = p
+//                                        break
+//                                    }
+//                                }
+//                                break
+//                            }
+//                            checkStatus[o][l] += 1
+//                        }
 //                    }
-//                    // otherwise, see if the forced point is left open
-//                    if gains2 & (1 &<< forcedPoint) == 0 {
-//                        // if they are open, see if the natural blocks work
+//                    // TODO make sure that if the check has a check on the way, that it also finds that
+////                    // if no checks, you're good!
+////                    guard let forcedPoint = checkPoint else {
+////                        // yay we found one! (checkPoint was nil)
+////                        return getFirstMove(i: 4, printMoves: false)
+////                    }
+////                    // otherwise, see if the forced point is left open
+////                    if gains2 & (1 &<< forcedPoint) == 0 {
+////                        // if they are open, see if the natural blocks work
+////                    }
+////                        // if they are closed, see if you can build up to that block without the thing that causes it
+////                        // also consider seeing if you can stop the check from being a check at all?
+//                }
+//            }
+//            // try to find new deductions
+//            let opBoard = d0.costs | board[o]
+//            for l in Board.linesThruPoint[d0.gain] {
+//                // check that the line seems clear
+//                if Board.linePoints[l] & opBoard == 0 {
+//                    let points = Board.pointsInLine[l] //.subtracting([d0.gain])
+//                    for p in points {
+//                        for d1 in dBoard[p] {
+//                            // check that the gain cubes and cost cubes are separate
+//                            if (d0.gains & d1.costs) | (d0.costs & d1.gains) == 0 {
+//                                var newPoints = points//.subtracting([p])
+//                                let p0 = newPoints[0]
+//                                let p1 = newPoints[0]
+//                                let gains = d0.gains | d1.gains
+//                                let costs = d0.costs | d1.costs
+//                                // check that p0 and p1 are open
+//                                if ((board[n] | gains | costs) & ((1 &<< p0) | (1 &<< p1))) == 0 {
+//                                    // check that the cost cubes only overlap if the gain cubes for that one overlaps
+//                                    var allPairs: Dictionary<Int,Int> = d0.pairs
+//                                    var mergable: Bool = true
+//                                    for pair in d1.pairs {
+//                                        if let prevGain = allPairs.updateValue(pair.value, forKey: pair.key) {
+//                                            if prevGain != pair.value {
+//                                                mergable = false
+//                                                break
+//                                            }
+//                                        }
+//                                    }
+//                                    if mergable {
+//                                        dQueue.insert(D(gain: p0, cost: p1, gains: gains | (1 &<< p0) , costs: costs | (1 &<< p1), pairs: allPairs.add((key: p1, value: p0)), line: l))
+//                                        dQueue.insert(D(gain: p1, cost: p0, gains: gains | (1 &<< p1) , costs: costs | (1 &<< p0), pairs: allPairs.add((key: p0, value: p1)), line: l))
+//                                    }
+//                                }
+//                            }
+//                        }
 //                    }
-//                        // if they are closed, see if you can build up to that block without the thing that causes it
-//                        // also consider seeing if you can stop the check from being a check at all?
-                }
-            }
-            // try to find new deductions
-            let opBoard = d0.costs | board[o]
-            for l in Board.linesThruPoint[d0.gain] {
-                // check that the line seems clear
-                if Board.linePoints[l] & opBoard == 0 {
-                    let points = Board.pointsInLine[l] //.subtracting([d0.gain])
-                    for p in points {
-                        for d1 in dBoard[p] {
-                            // check that the gain cubes and cost cubes are separate
-                            if (d0.gains & d1.costs) | (d0.costs & d1.gains) == 0 {
-                                var newPoints = points//.subtracting([p])
-                                let p0 = newPoints[0]
-                                let p1 = newPoints[0]
-                                let gains = d0.gains | d1.gains
-                                let costs = d0.costs | d1.costs
-                                // check that p0 and p1 are open
-                                if ((board[n] | gains | costs) & ((1 &<< p0) | (1 &<< p1))) == 0 {
-                                    // check that the cost cubes only overlap if the gain cubes for that one overlaps
-                                    var allPairs: Dictionary<Int,Int> = d0.pairs
-                                    var mergable: Bool = true
-                                    for pair in d1.pairs {
-                                        if let prevGain = allPairs.updateValue(pair.value, forKey: pair.key) {
-                                            if prevGain != pair.value {
-                                                mergable = false
-                                                break
-                                            }
-                                        }
-                                    }
-                                    if mergable {
-                                        dQueue.insert(D(gain: p0, cost: p1, gains: gains | (1 &<< p0) , costs: costs | (1 &<< p1), pairs: allPairs.add((key: p1, value: p0)), line: l))
-                                        dQueue.insert(D(gain: p1, cost: p0, gains: gains | (1 &<< p1) , costs: costs | (1 &<< p0), pairs: allPairs.add((key: p0, value: p1)), line: l))
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            dBoard[d0.gain].insert(d0)
-        }
-        return nil
-    }
+//                }
+//            }
+//            dBoard[d0.gain].insert(d0)
+//        }
+//        return nil
+//    }
     
     func noConflict(n: Int, d0: D, d1: D, p0: Int, p1: Int) -> (UInt64, UInt64, Dictionary<Int,Int>)? {
         // check that the gain cubes and cost cubes are separate

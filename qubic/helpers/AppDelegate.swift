@@ -18,7 +18,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             lastDCKey: 737764,
             beginnerKey: 0,
             defenderKey: 0,
-            trickyKey: [0]
+            trickyKey: [0],
+            dotKey: 0
         ])
         
         UNUserNotificationCenter.current().requestAuthorization(options: [.badge, .alert, .sound]) { success, error in

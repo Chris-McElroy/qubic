@@ -10,7 +10,7 @@ import SwiftUI
 import SceneKit
 
 struct GameView: View {
-    @ObservedObject var game: BoardScene
+    @ObservedObject var board: BoardScene
     @State var cubeHeight: CGFloat = 10
     @State var rotateMe = false
     @State var isRotated = false
@@ -36,25 +36,23 @@ struct GameView: View {
         
         VStack(spacing: 0) {
             HStack {
-                Player(turn: 0, data: game.data)
+                PlayerName(turn: 0, data: board.data)
                 Spacer().frame(minWidth: 15, maxWidth: 80)
-                Player(turn: 1, data: game.data)
+                PlayerName(turn: 1, data: board.data)
             }.padding(.horizontal, 22)
             .padding(.top, 20)
             .padding(.bottom, 10)
             .zIndex(1.0)
-            BoardView(boardScene: game)
-                .onAppear {
-                    game.load()
-                }
+            BoardView(boardScene: board)
+                .onAppear { board.load() }
                 .gesture(DragGesture()
                     .onEnded { drag in
                         let h = drag.predictedEndTranslation.height
                         let w = drag.predictedEndTranslation.width
                         if abs(w)/abs(h) > 1 {
-                            game.rotate(right: w > 0)
+                            board.rotate(right: w > 0)
                         } else if h > 0 {
-                            game.goBack()
+                            board.goBack()
                         }
                     }
                 )
@@ -62,13 +60,13 @@ struct GameView: View {
         }
     }
     
-    struct Player: View {
+    struct PlayerName: View {
         let turn: Int
         @ObservedObject var data: GameData
-        var color: Color { Color(data.colors[turn]) }
+        var color: Color { Color(data.player[turn].color) }
         
         var body: some View {
-            Text(data.names[turn])
+            Text(data.player[turn].name)
                 .foregroundColor(.white)
                 .frame(minWidth: 140, maxWidth: 160, minHeight: 40)
                 .background(Rectangle().foregroundColor(color))
@@ -83,7 +81,7 @@ struct GameView: View {
 
 struct GameView_Previews: PreviewProvider {
     static var previews: some View {
-        GameView(game: BoardScene())
+        GameView(board: BoardScene())
             .previewDevice(PreviewDevice(rawValue: "iPhone SE (1st generation)"))
     }
 }

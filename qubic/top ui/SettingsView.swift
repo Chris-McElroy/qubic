@@ -10,7 +10,7 @@ import SwiftUI
 
 struct SettingsView: View {
     var mainButtonAction: () -> Void
-    @State var sup: Bool = false
+    @State var dots = [UserDefaults.standard.integer(forKey: dotKey)]
     
     var body: some View {
         VStack {
@@ -18,12 +18,15 @@ struct SettingsView: View {
                 Text("settings")
             }
             .buttonStyle(MoreStyle())
-            Spacer()
-            Toggle("this", isOn: $sup)
-                .padding()
+            Fill(20)
+            HPicker(text: [["cubes","spheres","points","blanks","spaces"]], dim: (100,50), selected: $dots, action: setDots)
             Spacer()
         }
         .background(Fill())
+    }
+    
+    func setDots(row: Int, component: Int) -> Void {
+        UserDefaults.standard.setValue(row, forKey: dotKey)
     }
 }
 

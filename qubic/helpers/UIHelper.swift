@@ -15,6 +15,7 @@ let badgeKey = "qubic badge notification"
 let trickyKey = "tricky"
 let beginnerKey = "beginner"
 let defenderKey = "defender"
+let dotKey = "dotKey"
 
 extension Dictionary {
     func add(_ newElement: Element) -> Dictionary {
@@ -60,18 +61,20 @@ let moreButtonHeight: CGFloat = 50
 let nameButtonWidth: CGFloat = 180
 
 struct MainStyle: ButtonStyle {
+    let color: Color
+    
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .font(.custom("Oligopoly Regular", size: 26))
             .foregroundColor(.white)
             .frame(width: 200, height: mainButtonHeight-22)
-            .background(LinearGradient(gradient: Gradient(colors: [.init(red: 0.1, green: 0.3, blue: 1), .blue]), startPoint: .leading, endPoint: .trailing))
-            .cornerRadius(100)
+            .background(Rectangle().foregroundColor(color).cornerRadius(100))
+//            .background(LinearGradient(gradient: Gradient(colors: [.init(red: 0.1, green: 0.3, blue: 1), .blue]), startPoint: .leading, endPoint: .trailing))
+//            .cornerRadius(100)
             .opacity(configuration.isPressed ? 0.5 : 1.0)
             .shadow(radius: 4, x: 0, y: 3)
             .frame(width: 200, height: mainButtonHeight)
             .background(Fill())
-            .cornerRadius(30)
             .zIndex(1)
     }
 }

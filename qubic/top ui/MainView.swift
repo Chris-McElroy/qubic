@@ -13,7 +13,7 @@ struct MainView: View {
     @State var heights: Heights = Heights()
     @State var halfBack: Bool = false
     
-    let game = BoardScene()
+    let board = BoardScene()
     
     var body: some View {
         VStack(alignment: .center, spacing: 0) {
@@ -30,8 +30,8 @@ struct MainView: View {
         .onAppear {
             heights = Heights(newScreen: self.screen)
             heights.view = .main
-            game.goBack = goBack
-            game.cancelBack = cancelBack
+            board.goBack = goBack
+            board.cancelBack = cancelBack
         }
         .frame(height: heights.total)
         .background(Fill())
@@ -57,24 +57,30 @@ struct MainView: View {
     
     private var mainStack: some View {
         VStack(spacing: 0) {
-            TrainView(view: $heights.view, game: game)
+            TrainView(view: $heights.view, board: board)
                 .frame(height: heights.get(heights.trainView), alignment: .bottom)
-            mainButton(text: "train") { self.switchView(to: .trainMenu, or: .train) }
-            SolveView(view: $heights.view, game: game)
+            mainButton(text: "train", color: heights.view == .trainMenu ? getColor(0) : getColor3(0)) { self.switchView(to: .trainMenu, or: .train) }
+            SolveView(view: $heights.view, board: board)
                 .frame(height: heights.get(heights.solveView), alignment: .bottom)
-            mainButton(text: "solve") { self.switchView(to: .solveMenu, or: .solve) }
-            PlayView(view: $heights.view, game: game)
+            ZStack {
+                mainButton(text: "solve", color: heights.view == .solveMenu ? getColor(0) : getColor2(0)) { self.switchView(to: .solveMenu, or: .solve) }
+                if UserDefaults.standard.integer(forKey: lastDCKey) != Date().getInt() {
+                    Circle().frame(width: 24, height: 24).foregroundColor(heights.view == .solveMenu ? getColor2(0) : getColor(0)).zIndex(2).offset(x: 88, y: -25)
+                }
+            }
+            PlayView(view: $heights.view, board: board)
                 .frame(height: heights.get(heights.playView), alignment: .bottom)
-            mainButton(text: "play") { self.switchView(to: .play) }
+            mainButton(text: "play", color: getColor(0)) { self.switchView(to: .play) }
         }
     }
     
     private struct mainButton: View {
         let text: String
+        let color: Color
         let action: () -> Void
         
         var body: some View {
-            Button(action: action, label: { Text(text) }).buttonStyle(MainStyle())
+            Button(action: action, label: { Text(text) }).buttonStyle(MainStyle(color: color))
         }
     }
     

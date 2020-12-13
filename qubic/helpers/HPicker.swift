@@ -15,6 +15,7 @@ struct HPicker : UIViewRepresentable {
     @State var text: [[String]]
     @State var dim: (CGFloat,CGFloat)
     @Binding var selected: [Int]
+    var action: (Int, Int) -> Void
     
     func makeCoordinator() -> Coordinator {
         return Coordinator(parent1: self)
@@ -82,7 +83,10 @@ struct HPicker : UIViewRepresentable {
         }
         
         func solveMode(is s: String) -> Bool {
-            parent.text[1][parent.selected[1]].contains(s)
+            if parent.selected.count == 2 && parent.text.count == 2 {
+                return parent.text[1][parent.selected[1]].contains(s)
+            }
+            return false
         }
         
         func trainMode() -> Bool {
@@ -116,6 +120,7 @@ struct HPicker : UIViewRepresentable {
         
         func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
             parent.selected[component] = row
+            parent.action(row, component)
             if parent.text[component][0].contains("\n") {
                 pickerView.selectRow(0, inComponent: 0, animated: true)
                 pickerView.reloadComponent(0)

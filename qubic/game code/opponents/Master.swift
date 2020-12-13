@@ -8,20 +8,25 @@
 
 import Foundation
 
-extension Board {
-    func getMasterPause() -> Double {
-        Double.random(in: has1stOrderCheck(nextTurn()) ? 0.6..<1.0 : 2.0..<3.0)
+class Cubist: Player {
+    override init(b: Board, n: Int) {
+        super.init(b: b, n: n, name: "Cubist", color: .yellow,
+                   wins:            [Array(repeating: 2.0, count: 76),
+                                     Array(repeating: 2.0, count: 76)],
+                   o1CheckMates:    [Array(repeating: 2.0, count: 76),
+                                     Array(repeating: 2.0, count: 76)],
+                   o1Checks:        [Array(repeating: 0.0, count: 76),
+                                     Array(repeating: 0.0, count: 76)])
     }
     
-    func getMasterMove() -> Int {
-        let n = getTurn()
-        let o = inc(n)
-        var options = get1stOrderWinsFor(n)
-        if options.isEmpty { options = get1stOrderWinsFor(o) }
-        if options.isEmpty {
-            options = Array(0..<64)
-            options.removeAll { pointFull($0) }
-        }
-        return options.randomElement() ?? 0
+    override func getPause() -> Double {
+        Double.random(in: b.has1stOrderCheck(n) ? 0.6..<1.0 : 2.0..<3.0)
+    }
+    
+    override func unforcedHeuristic() -> Int {
+        let rich = (0..<64).filter {  Board.rich.contains($0) && b.pointEmpty($0) }
+        let poor = (0..<64).filter { !Board.rich.contains($0) && b.pointEmpty($0) }
+        return rich.isEmpty ? poor.randomElement() ?? 0 : rich.randomElement() ?? 0
     }
 }
+

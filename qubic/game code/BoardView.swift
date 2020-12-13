@@ -22,10 +22,9 @@ class BoardScene: ObservableObject {
     var goBack: () -> Void = {}
     var cancelBack: () -> Bool = { true }
     let view = SCNView()
-    let help = SceneHelper()
     let scene = SCNScene()
     let base = SCNNode()
-    let dots: [SCNNode] = (0..<64).map { _ in SceneHelper().makeDot(color: getUIColor(33), size: 0.45) }
+    var dots: [SCNNode] = (0..<64).map { _ in SceneHelper.makeDot(color: getUIColor(33), size: 0.68) } // was let
     var moves: [SCNNode] = []
     var nextMove: SCNNode? = nil
     let nextMovePos = [SCNVector3(0,-11.3,0),SCNVector3(0,11.3,0)]
@@ -34,12 +33,12 @@ class BoardScene: ObservableObject {
     let selectedScale = SCNVector3(1.3,1.3,1.3)
     
     init() {
-        scene.rootNode.addChildNode(help.makeCamera())
-        scene.rootNode.addChildNode(help.makeOmniLight())
-        scene.rootNode.addChildNode(help.makeAmbiLight())
+        scene.rootNode.addChildNode(SceneHelper.makeCamera())
+        scene.rootNode.addChildNode(SceneHelper.makeOmniLight())
+        scene.rootNode.addChildNode(SceneHelper.makeAmbiLight())
         for (p, dot) in dots.enumerated() { setPosition(for: dot, at: p) }
         scene.rootNode.addChildNode(base)
-        help.prepSCNView(view: view, scene: scene)
+        SceneHelper.prepSCNView(view: view, scene: scene)
         view.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleTap)))
     }
     
@@ -49,8 +48,10 @@ class BoardScene: ObservableObject {
         }
         moves.removeAll()
         for dot in dots {
-            dot.opacity = 1
+            dot.removeFromParentNode()
         }
+        dots = (0..<64).map { _ in SceneHelper.makeDot(color: getUIColor(33), size: 0.68) }
+        for (p, dot) in dots.enumerated() { setPosition(for: dot, at: p) }
         for l in 0..<76 {
             currentLines[l]?.removeFromParentNode()
             currentLines[l] = nil
@@ -60,7 +61,7 @@ class BoardScene: ObservableObject {
     }
     
     func setPosition(for node: SCNNode, at p: Int) {
-        let flat = SIMD3<Float>(Float(p/16), Float(p%4), Float((p/4)%4)) - 1.5
+        let flat = SIMD3<Float>(Float(p%4), Float(p/16), Float((p/4)%4)) - 1.5
         node.position = SCNVector3(2*flat.x, -5.2*flat.y, flat.z*2)
         base.addChildNode(node)
     }
@@ -75,12 +76,11 @@ class BoardScene: ObservableObject {
         // Assumes no wins!
         let turn = data.turn
         guard data.processMove(move) != nil else { print("Invalid load move!"); return }
-        addCube(move: move, color: data.colors[turn])
+        addCube(move: move, color: data.player[turn].color)
     }
     
     func rotate(right: Bool) {
-        let angle = help.dToR(right ? 90 : -90)
-        let rotateAction = SCNAction.rotate(by: angle, around: help.yAxis, duration: 0.4)
+        let rotateAction = SCNAction.rotate(by: right ? .pi/2 : -.pi/2, around: SCNVector3(0,1,0), duration: 0.4)
         rotateAction.timingMode = .easeInEaseOut
         base.runAction(rotateAction)
     }
@@ -90,20 +90,20 @@ class BoardScene: ObservableObject {
             let hit = gestureRecognize.location(in: view)
             let hitResults = view.hitTest(hit, options: [:])
             guard let result = hitResults.first?.node else { return }
-            if let p = dots.firstIndex(of: result) {
+            if let p = dots.firstIndex(where: { $0.childNodes.contains(result) || $0 == result }) {
                 if data.turn == data.myTurn && data.winner == nil {
                     processMove(p)
                     if data.winner == nil { queueOpMove() }
                 }
             } else if moves.contains(result) {
-                result.runAction(help.getFullRotate(1.0))
+                result.runAction(SceneHelper.getFullRotate(1.0))
             }
         }
     }
     
     func queueOpMove() {
-        let move = data.getMove()
-        let pause = data.getPause()
+        let move = data.player[data.turn].getMove()
+        let pause = data.player[data.turn].getPause()
         Timer.scheduledTimer(withTimeInterval: pause, repeats: false) { _ in
             self.processMove(move)
         }
@@ -113,14 +113,18 @@ class BoardScene: ObservableObject {
         let turn = data.turn
         guard let wins = data.processMove(move) else { print("Invalid move!"); return }
 //        let delay = moveCube(move: move, color: data.colors[turn]) + 0.1
-        addCube(move: move, color: data.colors[turn])
-        moves.last?.runAction(help.getHalfRotate())
+        if UserDefaults.standard.integer(forKey: dotKey) == 4 {
+            placeCube(move: move, color: data.player[turn].color)
+        } else {
+            addCube(move: move, color: data.player[turn].color)
+            moves.last?.runAction(SceneHelper.getHalfRotate())
+        }
         if !wins.isEmpty {
             data.winner = turn
             if turn == data.myTurn { updateWins() }
-            Timer.scheduledTimer(withTimeInterval: 0, repeats: false, block: {_ in
-                self.showWinLines(wins, self.data.colors[turn])
-                self.base.runAction(self.help.getFullRotate(1.45))
+            Timer.scheduledTimer(withTimeInterval: 0.2, repeats: false, block: {_ in
+                self.showWinLines(wins, self.data.player[turn].color)
+                self.base.runAction(SceneHelper.getFullRotate(1.45))
             })
         } else {
 //            setNextMove()
@@ -132,7 +136,7 @@ class BoardScene: ObservableObject {
     }
     
     func moveCube(move: Int, color: UIColor) -> TimeInterval {
-        let cube = nextMove ?? help.makeBox(color: color, size: 0.86)
+        let cube = nextMove ?? SceneHelper.makeBox(color: color, size: 0.86)
         nextMove?.removeFromParentNode()
         nextMove = nil
         moves.append(cube)
@@ -149,25 +153,47 @@ class BoardScene: ObservableObject {
     }
     
     func addCube(move: Int, color: UIColor) {
-        let cube = help.makeBox(color: color, size: 0.86)
+        let cube = SceneHelper.makeBox(color: color, size: 0.86)
         moves.append(cube)
         base.addChildNode(cube)
         cube.position = dots[move].position
         dots[move].opacity = 0
     }
     
+    func placeCube(move: Int, color: UIColor) {
+        let cube = SceneHelper.makeBox(color: color, size: 0.86)
+        moves.append(cube)
+        base.addChildNode(cube)
+        var newPos = dots[move].position
+        newPos.y += 0.4
+        cube.opacity = 0.3
+        cube.position = newPos
+        cube.rotation = SCNVector4(.random(in: -1...1), 0, .random(in: -1...1), .random(in: 0.20...0.4))
+        let translate = SCNAction.move(to: dots[move].position, duration: 0.16)
+        let rotate = SCNAction.rotate(toAxisAngle: SCNVector4(x: 0, y: 0, z: 0, w: 0), duration: 0.16)
+        let fade = SCNAction.fadeIn(duration: 0.15)
+        rotate.timingMode = .easeIn
+        translate.timingMode = .easeIn
+//        let fade = SCNAction.fadeOut(duration: time)
+//        fade.timingMode = .easeIn
+        cube.runAction(fade)
+        cube.runAction(translate)
+        cube.runAction(rotate)
+//        dots[move].runAction(fade)
+    }
+    
     func showWinLines(_ wins: [WinLine], _ color: UIColor) {
         for line in wins {
             let start = SIMD3<Float>(dots[line.start].position)
             let end = SIMD3<Float>(dots[line.end].position)
-            let lineNode = help.makeLine(from: start, to: end, color: color)
+            let lineNode = SceneHelper.makeLine(from: start, to: end, color: color)
             base.addChildNode(lineNode)
             currentLines[line.line] = lineNode
         }
     }
     
     func setNextMove() {
-        let newMove = help.makeBox(color: data.colors[data.turn], size: 0.86)
+        let newMove = SceneHelper.makeBox(color: data.player[data.turn].color, size: 0.86)
         newMove.position = nextMovePos[data.turn == data.myTurn ? 0 : 1]
         scene.rootNode.addChildNode(newMove)
         nextMove = newMove

@@ -11,7 +11,7 @@ import SwiftUI
 struct TrainView: View {
     @Binding var view: ViewStates
     @State var selected: [Int] = [0,1,0]
-    let game: BoardScene
+    let board: BoardScene
     
     let pickerText = [["sandbox","challenge"],["first","random","second"],["beginner","defender"]]
     var mode: GameMode {
@@ -31,11 +31,11 @@ struct TrainView: View {
     var body: some View {
         VStack(spacing: 0) {
             if view == .train {
-                GameView(game: game)
-                    .onAppear { game.data = GameData(mode: mode, turn: turn) }
+                GameView(board: board)
+                    .onAppear { board.data = GameData(mode: mode, turn: turn) }
             } else {
                 Spacer()
-                HPicker(text: pickerText, dim: (100, 55), selected: $selected)
+                HPicker(text: pickerText, dim: (100, 55), selected: $selected, action: {_,_ in }) // use action!
                     .frame(height: 180)
                     .opacity(view == .trainMenu ? 1 : 0)
             }
@@ -61,6 +61,6 @@ struct TrainView: View {
 
 struct TrainView_Previews: PreviewProvider {
     static var previews: some View {
-        TrainView(view: .constant(.solveMenu), game: BoardScene())
+        TrainView(view: .constant(.solveMenu), board: BoardScene())
     }
 }

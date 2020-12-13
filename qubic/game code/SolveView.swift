@@ -11,22 +11,22 @@ import SwiftUI
 struct SolveView: View {
     @Binding var view: ViewStates
     @State var selected: [Int] = [0,0]
-    let game: BoardScene
+    let board: BoardScene
     var mode: GameMode {
         switch selected[1] {
         case 1: return .tricky
         default: return .daily
         }
     }
-    var board: Int { selected[0] }
+    var boardNum: Int { selected[0] }
     
     var body: some View {
         VStack(spacing: 0) {
             if view == .solve {
-                GameView(game: game)
-                    .onAppear { game.data = GameData(mode: mode, boardNum: board) }
+                GameView(board: board)
+                    .onAppear { board.data = GameData(mode: mode, boardNum: boardNum) }
             } else {
-                HPicker(text: getPickerText(), dim: (77, 40), selected: $selected)
+                HPicker(text: getPickerText(), dim: (77, 40), selected: $selected, action: {_,_ in }) // Use action!
                     .frame(height: 80)
                     .opacity(view == .solveMenu ? 1 : 0)
             }
@@ -112,6 +112,6 @@ struct SolveView: View {
 
 struct SolveView_Previews: PreviewProvider {
     static var previews: some View {
-        SolveView(view: .constant(.solveMenu), game: BoardScene())
+        SolveView(view: .constant(.solveMenu), board: BoardScene())
     }
 }

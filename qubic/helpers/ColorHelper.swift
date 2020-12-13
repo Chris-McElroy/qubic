@@ -18,7 +18,7 @@ extension UIColor {
 
 func getUIColor(_ n: Int) -> UIColor {
     switch (n) {
-    case 0: return UIColor(red: 0.15, green: 0.5, blue: 1.0, alpha: 1.0)
+    case 0: return UIColor(red: 0.15, green: 0.51, blue: 1.0, alpha: 1.0)
     case 1: return .magenta
     case 2: return .green
     case 33: return UIColor.null.withAlphaComponent(0.5)
@@ -26,6 +26,35 @@ func getUIColor(_ n: Int) -> UIColor {
     }
 }
 
+func getUIColor2(_ n: Int) -> UIColor {
+    switch (n) {
+    case 0: return UIColor(red: 0.094, green: 0.36, blue: 0.74, alpha: 1.0)
+    case 1: return .magenta
+    case 2: return .green
+    case 33: return UIColor.null.withAlphaComponent(0.5)
+    default: return .white
+    }
+}
+
+func getUIColor3(_ n: Int) -> UIColor {
+    switch (n) {
+    case 0: return UIColor(red: 0.051, green: 0.24, blue: 0.51, alpha: 1.0)
+    case 1: return .magenta
+    case 2: return .green
+    case 33: return UIColor.null.withAlphaComponent(0.5)
+    default: return .white
+    }
+}
+
+
 func getColor(_ n: Int) -> Color {
-    return Color(UIColor(red: 0.15, green: 0.5, blue: 1.0, alpha: 1.0))
+    return Color(getUIColor(n))
+}
+
+func getColor2(_ n: Int) -> Color {
+    return Color(getUIColor2(n))
+}
+
+func getColor3(_ n: Int) -> Color {
+    return Color(getUIColor3(n))
 }
