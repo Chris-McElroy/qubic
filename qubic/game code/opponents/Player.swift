@@ -6,14 +6,14 @@
 //  Copyright © 2020 XNO LLC. All rights reserved.
 //
 
-import UIKit
+import Foundation
 
 class Player {
     let b: Board
     let n: Int
     let o: Int
     let name: String
-    let color: UIColor
+    var color: Int
     
     let wins: [[Double]]
     let o1CheckMates: [[Double]]
@@ -23,14 +23,14 @@ class Player {
         self.b = b
         self.n = n
         o = n^1
-        name = "me"
-        color = getUIColor(0)
+        name = UserDefaults.standard.string(forKey: usernameKey) ?? "me"
+        color = 0
         wins = []
         o1CheckMates = []
         o1Checks = []
     }
     
-    init(b: Board, n: Int, name: String, color: UIColor, wins: [[Double]], o1CheckMates: [[Double]], o1Checks: [[Double]]) {
+    init(b: Board, n: Int, name: String, color: Int, wins: [[Double]], o1CheckMates: [[Double]], o1Checks: [[Double]]) {
         self.b = b
         self.n = n
         self.o = n^1

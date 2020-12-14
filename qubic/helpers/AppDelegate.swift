@@ -15,20 +15,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Override point for customization after application launch.
         UserDefaults.standard.register(defaults: [
             streakKey: Int.zero,
-            lastDCKey: 737764,
+            lastDCKey: defaultLastDC,
             beginnerKey: 0,
             defenderKey: 0,
             trickyKey: [0],
-            dotKey: 0
+            usernameKey: "me",
+            dotKey: 0,
+            notificationKey: 1
         ])
         
-        UNUserNotificationCenter.current().requestAuthorization(options: [.badge, .alert, .sound]) { success, error in
-            if success {
-                print("Accepted Notifications")
-            } else if let error = error {
-                print(error.localizedDescription)
-           }
-        }
 //        application.registerForRemoteNotifications()
         
         return true

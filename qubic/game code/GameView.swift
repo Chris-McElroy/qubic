@@ -10,7 +10,7 @@ import SwiftUI
 import SceneKit
 
 struct GameView: View {
-    @ObservedObject var board: BoardScene
+    @ObservedObject var board: BoardScene // TODO do i still need to observe this?
     @State var cubeHeight: CGFloat = 10
     @State var rotateMe = false
     @State var isRotated = false
@@ -57,13 +57,21 @@ struct GameView: View {
                     }
                 )
                 .zIndex(0.0)
+                .alert(isPresented: $board.showDCAlert) {
+                    Alert(title: Text("Enable Badges"),
+                          message: Text("Allow 4Play to show a badge when a daily challenge is available?"),
+                          primaryButton: .default(Text("OK"), action: {
+                                Notifications.turnOn()
+                          }),
+                          secondaryButton: .cancel())
+                }
         }
     }
     
     struct PlayerName: View {
         let turn: Int
         @ObservedObject var data: GameData
-        var color: Color { Color(data.player[turn].color) }
+        var color: Color { .primary(data.player[turn].color) }
         
         var body: some View {
             Text(data.player[turn].name)

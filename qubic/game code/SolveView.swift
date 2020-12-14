@@ -78,8 +78,7 @@ struct SolveView: View {
     }
     
     func getStreakText() -> String {
-        let lastDC = UserDefaults.standard.integer(forKey: lastDCKey)
-        updateBadge(now: lastDC < Date().getInt())
+        Notifications.setBadge(justSolved: false)
         let streak = UserDefaults.standard.integer(forKey: streakKey)
         return "daily\n\(streak)"
 //        if lastDC >= Date().getInt() - 1 && streak > 0 {
@@ -93,20 +92,6 @@ struct SolveView: View {
     func getTrickyText() -> String {
         let tricky = UserDefaults.standard.array(forKey: trickyKey) as? [Int] ?? [0]
         return "tricky\n\(tricky.sum())"
-    }
-    
-    func updateBadge(now: Bool) {
-        UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: [badgeKey])
-        UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [badgeKey])
-        UIApplication.shared.applicationIconBadgeNumber = now ? 1 : 0
-        let content = UNMutableNotificationContent()
-        content.badge = 1
-        var tomorrow = DateComponents()
-        tomorrow.hour = 0
-        tomorrow.minute = 0
-        let trigger = UNCalendarNotificationTrigger(dateMatching: tomorrow, repeats: false)
-        let request = UNNotificationRequest(identifier: badgeKey, content: content, trigger: trigger)
-        UNUserNotificationCenter.current().add(request)
     }
 }
 

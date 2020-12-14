@@ -19,10 +19,10 @@ struct MainView: View {
         VStack(alignment: .center, spacing: 0) {
             Fill(heights.topSpacer)
             top.zIndex(2)
-            mainStack//.zIndex(1)
+            mainStack
             moreStack
             Spacer()
-            Fill(heights.fill)
+            Fill(heights.fill).zIndex(3)
                 .offset(y: heights.fillOffset)
             backButton.frame(height: heights.backButton)
                 .offset(y: heights.backButtonOffset)
@@ -59,18 +59,18 @@ struct MainView: View {
         VStack(spacing: 0) {
             TrainView(view: $heights.view, board: board)
                 .frame(height: heights.get(heights.trainView), alignment: .bottom)
-            mainButton(text: "train", color: heights.view == .trainMenu ? getColor(0) : getColor3(0)) { self.switchView(to: .trainMenu, or: .train) }
+            mainButton(text: "train", color: heights.view == .trainMenu ? .primary(0) : .tertiary(0)) { self.switchView(to: .trainMenu, or: .train) }
             SolveView(view: $heights.view, board: board)
                 .frame(height: heights.get(heights.solveView), alignment: .bottom)
             ZStack {
-                mainButton(text: "solve", color: heights.view == .solveMenu ? getColor(0) : getColor2(0)) { self.switchView(to: .solveMenu, or: .solve) }
+                mainButton(text: "solve", color: heights.view == .solveMenu ? .primary(0) : .secondary(0)) { self.switchView(to: .solveMenu, or: .solve) }
                 if UserDefaults.standard.integer(forKey: lastDCKey) != Date().getInt() {
-                    Circle().frame(width: 24, height: 24).foregroundColor(heights.view == .solveMenu ? getColor2(0) : getColor(0)).zIndex(2).offset(x: 88, y: -25)
+                    Circle().frame(width: 24, height: 24).foregroundColor(heights.view == .solveMenu ? .secondary(0) : .primary(0)).zIndex(2).offset(x: 88, y: -25)
                 }
             }
             PlayView(view: $heights.view, board: board)
                 .frame(height: heights.get(heights.playView), alignment: .bottom)
-            mainButton(text: "play", color: getColor(0)) { self.switchView(to: .play) }
+            mainButton(text: "play", color: .primary(0)) { self.switchView(to: .play) }
         }
     }
     

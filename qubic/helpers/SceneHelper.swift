@@ -55,18 +55,18 @@ class SceneHelper {
     }
     
     static func makeDot(color: UIColor = UIColor.null, size: CGFloat = 1.0) -> SCNNode {
-        var dotNode = SCNNode(geometry: SCNBox(width: size, height: size, length: size, chamferRadius: 0))
-        dotNode.setColor(color)
+        var dotNode = getSpace(size: 0.86-3*lineWidth)
         let dotType = UserDefaults.standard.integer(forKey: dotKey)
         if dotType == 1 {
+            dotNode = getBlankCube(size: 0.52)
+        } else if dotType == 2 {
+            dotNode = SCNNode(geometry: SCNBox(width: size, height: size, length: size, chamferRadius: 0))
+            dotNode.setColor(color)
+        } else if dotType == 3 {
             dotNode = SCNNode(geometry: SCNSphere(radius: 0.45))
             dotNode.setColor(color)
-        } else if dotType == 2 {
-            dotNode = getAxesPoint(size: 0.6)
-        } else if dotType == 3 {
-            dotNode = getBlankCube(size: 0.52)
         } else if dotType == 4 {
-            dotNode = getSpace(size: 0.86-3*lineWidth)
+            dotNode = getAxesPoint(size: 0.6)
         }
         return dotNode
     }

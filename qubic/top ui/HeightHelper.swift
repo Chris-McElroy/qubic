@@ -39,7 +39,7 @@ extension MainView {
         
         var view: ViewStates = .main
         var total: CGFloat
-        var topSpacer: CGFloat { screen - subViews[0..<display.top.id].sum() }
+        var topSpacer: CGFloat { 2*screen - subViews[0..<display.top.id].sum() }
         var cube: CGFloat
         let fill: CGFloat = 40
         var fillOffset: CGFloat
@@ -57,11 +57,11 @@ extension MainView {
             screen = screenHeight - 2*topGap
             lineWidth = small ? 0.012 : 0.01
             top.df = screen - 3*mainButtonHeight - bottomGap
-            total = 3*screen
+            total = 5*screen
             cube = small ? 200 : 280
             if screenHeight < 600 { cube = 140 }
-            fillOffset = -2*screen + 83 - 2*topGap
-            backButtonOffset = -screen - 10 + topGap
+            fillOffset = -3*screen + 83 - 2*topGap
+            backButtonOffset = -2*screen - 10 + topGap
             subViews = [top.df, trainView.df, train.df, solveView.df, solve.df, playView.df, play.df, about.df, settings.df, replays.df, friends.df, moreFill.df]
         }
         

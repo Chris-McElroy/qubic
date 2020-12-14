@@ -32,7 +32,14 @@ struct HPicker : UIViewRepresentable {
         return picker
     }
     
-    func updateUIView(_ uiView: UIViewType, context: Context) { }
+    func updateUIView(_ uiView: UIViewType, context: Context) {
+        guard let picker = uiView as? UIPickerView else { return }
+        if selected.count == picker.numberOfComponents {
+            for (c,r) in selected.enumerated() {
+                picker.selectRow(r, inComponent: c, animated: true)
+            }
+        }
+    }
     
     class Coordinator: NSObject, UIPickerViewDelegate, UIPickerViewDataSource {
         var parent: HPicker

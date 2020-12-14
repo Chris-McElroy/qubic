@@ -30,6 +30,7 @@ class GameData: ObservableObject {
     let player: [Player]
     let preset: [Int]
     let mode: GameMode
+    let dayInt: Int?
     
     // created
     @Published var turn: Int
@@ -43,15 +44,18 @@ class GameData: ObservableObject {
         mode = .play
         player = [Player(b: board, n: myTurn), Player(b: board, n: myTurn)]
         preset = []
+        dayInt = nil
     }
     
     init(mode: GameMode, boardNum: Int = 0, turn: Int? = nil) {
         preset = GameData.getPreset(boardNum, for: mode)
+        dayInt = Date().getInt()
         myTurn = turn != nil ? turn! : preset.count % 2
         self.turn = 0
         self.mode = mode
         let me = Player(b: board, n: myTurn)
         let op = GameData.getOp(for: mode, b: board, n: myTurn^1)
+        if me.color == op.color { op.color = GameData.getDefaultColor(for: me.color) }
         player = myTurn == 0 ? [me, op] : [op, me]
     }
     
@@ -83,5 +87,9 @@ class GameData: ObservableObject {
         } else {
             return []
         }
+    }
+    
+    private static func getDefaultColor(for n: Int) -> Int {
+        return n == 0 ? 2 : 0
     }
 }

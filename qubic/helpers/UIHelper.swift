@@ -11,17 +11,14 @@ import SwiftUI
 // Keys
 let streakKey = "DCStreak"
 let lastDCKey = "LastDC"
+let defaultLastDC = 737764
 let badgeKey = "qubic badge notification"
 let trickyKey = "tricky"
 let beginnerKey = "beginner"
 let defenderKey = "defender"
 let dotKey = "dotKey"
-
-extension Dictionary {
-    func add(_ newElement: Element) -> Dictionary {
-        merging([newElement], uniquingKeysWith: { (old, _) in old } )
-    }
-}
+let usernameKey = "username"
+let notificationKey = "notifications"
 
 extension Sequence where Element: AdditiveArithmetic {
     func sum() -> Element { reduce(.zero, +) }
@@ -42,6 +39,11 @@ extension Date {
     }
 }
 
+let notificationAlert = Alert(title: Text("Notifications Disabled"),
+                              message: Text("Notifications must be enabled in your phone’s settings before you can turn them on in-app."),
+                              primaryButton: .default(Text("Settings"), action: { UIApplication.shared.open(URL(string: UIApplication.openSettingsURLString)!) }),
+                              secondaryButton: .cancel())
+
 struct Fill: View {
     let height: CGFloat?
     
@@ -53,6 +55,18 @@ struct Fill: View {
         Rectangle()
             .foregroundColor(.systemBackground)
             .frame(height: height)
+    }
+}
+
+struct Blank: View {
+    let height: CGFloat?
+    
+    init(_ height: CGFloat? = nil) {
+        self.height = height
+    }
+    
+    var body: some View {
+        Spacer().frame(height: height)
     }
 }
 

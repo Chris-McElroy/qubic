@@ -21,10 +21,11 @@ class BoardScene: ObservableObject {
     @Published var data: GameData = GameData()
     var goBack: () -> Void = {}
     var cancelBack: () -> Bool = { true }
+    @Published var showDCAlert: Bool = false
     let view = SCNView()
     let scene = SCNScene()
     let base = SCNNode()
-    var dots: [SCNNode] = (0..<64).map { _ in SceneHelper.makeDot(color: getUIColor(33), size: 0.68) } // was let
+    var dots: [SCNNode] = (0..<64).map { _ in SceneHelper.makeDot(color: .primary(33), size: 0.68) } // was let
     var moves: [SCNNode] = []
     var nextMove: SCNNode? = nil
     let nextMovePos = [SCNVector3(0,-11.3,0),SCNVector3(0,11.3,0)]
@@ -50,7 +51,7 @@ class BoardScene: ObservableObject {
         for dot in dots {
             dot.removeFromParentNode()
         }
-        dots = (0..<64).map { _ in SceneHelper.makeDot(color: getUIColor(33), size: 0.68) }
+        dots = (0..<64).map { _ in SceneHelper.makeDot(color: .primary(33), size: 0.68) }
         for (p, dot) in dots.enumerated() { setPosition(for: dot, at: p) }
         for l in 0..<76 {
             currentLines[l]?.removeFromParentNode()
@@ -76,7 +77,7 @@ class BoardScene: ObservableObject {
         // Assumes no wins!
         let turn = data.turn
         guard data.processMove(move) != nil else { print("Invalid load move!"); return }
-        addCube(move: move, color: data.player[turn].color)
+        addCube(move: move, color: .primary(data.player[turn].color))
     }
     
     func rotate(right: Bool) {
@@ -113,17 +114,17 @@ class BoardScene: ObservableObject {
         let turn = data.turn
         guard let wins = data.processMove(move) else { print("Invalid move!"); return }
 //        let delay = moveCube(move: move, color: data.colors[turn]) + 0.1
-        if UserDefaults.standard.integer(forKey: dotKey) == 4 {
-            placeCube(move: move, color: data.player[turn].color)
+        if UserDefaults.standard.integer(forKey: dotKey) == 0 {
+            placeCube(move: move, color: .primary(data.player[turn].color))
         } else {
-            addCube(move: move, color: data.player[turn].color)
+            addCube(move: move, color: .primary(data.player[turn].color))
             moves.last?.runAction(SceneHelper.getHalfRotate())
         }
         if !wins.isEmpty {
             data.winner = turn
             if turn == data.myTurn { updateWins() }
             Timer.scheduledTimer(withTimeInterval: 0.2, repeats: false, block: {_ in
-                self.showWinLines(wins, self.data.player[turn].color)
+                self.showWinLines(wins, .primary(self.data.player[turn].color))
                 self.base.runAction(SceneHelper.getFullRotate(1.45))
             })
         } else {
@@ -193,7 +194,7 @@ class BoardScene: ObservableObject {
     }
     
     func setNextMove() {
-        let newMove = SceneHelper.makeBox(color: data.player[data.turn].color, size: 0.86)
+        let newMove = SceneHelper.makeBox(color: .primary(data.player[data.turn].color), size: 0.86)
         newMove.position = nextMovePos[data.turn == data.myTurn ? 0 : 1]
         scene.rootNode.addChildNode(newMove)
         nextMove = newMove
@@ -201,21 +202,12 @@ class BoardScene: ObservableObject {
     
     func updateWins() {
         if data.mode == .daily {
-            var streak = UserDefaults.standard.integer(forKey: streakKey)
-            let lastDC = UserDefaults.standard.integer(forKey: lastDCKey)
-            if lastDC == Date().getInt() { return }
-            if lastDC < Date().getInt() - 1 { streak = 0 }
-            UserDefaults.standard.setValue(Date().getInt(), forKey: lastDCKey)
-            UserDefaults.standard.setValue(streak + 1, forKey: streakKey)
-            UIApplication.shared.applicationIconBadgeNumber = 0
-            let content = UNMutableNotificationContent()
-            content.badge = 1
-            var tomorrow = DateComponents()
-            tomorrow.hour = 0
-            tomorrow.minute = 0
-            let trigger = UNCalendarNotificationTrigger(dateMatching: tomorrow, repeats: false)
-            let request = UNNotificationRequest(identifier: badgeKey, content: content, trigger: trigger)
-            UNUserNotificationCenter.current().add(request)
+            Notifications.ifUndetermined {
+                DispatchQueue.main.async {
+                    self.showDCAlert = true
+                }
+            }
+            Notifications.setBadge(justSolved: true, dayInt: data.dayInt ?? Date().getInt())
         } else if data.mode == .tricky {
             UserDefaults.standard.setValue([1], forKey: trickyKey)
         } else if data.mode == .beginner {

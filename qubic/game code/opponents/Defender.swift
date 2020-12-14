@@ -10,7 +10,7 @@ import Foundation
 
 class Defender: Player {
     override init(b: Board, n: Int) {
-        super.init(b: b, n: n, name: "Defender", color: .red,
+        super.init(b: b, n: n, name: "defender", color: 4,
                    wins:            [Player.setStats(hs: 0.99, vs: 0.99, hd: 0.98, vd: 0.85, md: 0.80),
                                      Player.setStats(hs: 1.0,  vs: 1.0,  hd: 1.0,  vd: 0.95, md: 0.9)],
                    o1CheckMates:    [Player.setStats(hs: 0.20, vs: 0.10, hd: 0.10, vd: 0.05, md: 0.05), // was 0.7 total
