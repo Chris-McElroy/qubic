@@ -9,6 +9,15 @@
 import SceneKit
 
 var lineWidth: CGFloat = 0.008
+func setLineWidth(_ height: CGFloat) {
+    if height < 650 {
+        lineWidth = 0.012
+    } else if height < 700 {
+        lineWidth = 0.009461
+    } else {
+        lineWidth = 0.01
+    }
+}
 
 class SceneHelper {
     static func makeCamera(pos: SCNVector3, rot: SCNVector3, scale: Double) -> SCNNode {

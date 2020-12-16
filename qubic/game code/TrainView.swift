@@ -13,7 +13,10 @@ struct TrainView: View {
     @State var selected: [Int] = [0,1,0]
     let board: BoardScene
     
-    let pickerText = [["sandbox","challenge"],["first","random","second"],["beginner","defender"]]
+    let pickerText = [[("sandbox", false),("challenge", false)],
+                      [("first", false),("random", false),("second", false)],
+                      [("beginner", UserDefaults.standard.integer(forKey: beginnerKey) == 1),
+                       ("defender", UserDefaults.standard.integer(forKey: defenderKey) == 1)]]
     var mode: GameMode {
         switch selected[2] {
         case 1: return .defender
@@ -35,7 +38,7 @@ struct TrainView: View {
                     .onAppear { board.data = GameData(mode: mode, turn: turn) }
             } else {
                 Spacer()
-                HPicker(text: pickerText, dim: (100, 55), selected: $selected, action: {_,_ in }) // use action!
+                HPicker(use: .train, content: pickerText, dim: (100, 55), selected: $selected, action: {_,_ in })
                     .frame(height: 180)
                     .opacity(view == .trainMenu ? 1 : 0)
             }

@@ -73,6 +73,7 @@ struct Blank: View {
 let mainButtonHeight: CGFloat = 92
 let moreButtonHeight: CGFloat = 50
 let nameButtonWidth: CGFloat = 180
+var screenWidth: CGFloat = 300
 
 struct MainStyle: ButtonStyle {
     let color: Color
@@ -87,9 +88,9 @@ struct MainStyle: ButtonStyle {
 //            .cornerRadius(100)
             .opacity(configuration.isPressed ? 0.5 : 1.0)
             .shadow(radius: 4, x: 0, y: 3)
-            .frame(width: 200, height: mainButtonHeight)
+            .frame(width: screenWidth, height: mainButtonHeight)
             .background(Fill())
-            .zIndex(1)
+//            .zIndex(10)
     }
 }
 
@@ -159,7 +160,7 @@ extension UILabel {
     func underline() {
         if let textString = self.text {
             let attributedString = NSMutableAttributedString(string: textString)
-            attributedString.addAttribute(NSAttributedString.Key.underlineStyle, value: NSUnderlineStyle.single.rawValue, range: NSRange(location: 0, length: attributedString.length - 1))
+            attributedString.addAttribute(NSAttributedString.Key.underlineStyle, value: NSUnderlineStyle.single.rawValue, range: NSRange(location: 0, length: attributedString.length))
             attributedText = attributedString
         }
     }

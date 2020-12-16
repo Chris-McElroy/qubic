@@ -26,10 +26,18 @@ struct SolveView: View {
                 GameView(board: board)
                     .onAppear { board.data = GameData(mode: mode, boardNum: boardNum) }
             } else {
-                HPicker(text: getPickerText(), dim: (77, 40), selected: $selected, action: {_,_ in }) // Use action!
+                HPicker(use: .solve, content: getPickerText(), dim: (77, 40), selected: $selected, action: hPickerAction)
                     .frame(height: 80)
                     .opacity(view == .solveMenu ? 1 : 0)
             }
+        }
+    }
+    
+    func hPickerAction(row: Int, component: Int) {
+        if component == 1 {
+            selected[0] = [0,1][row]
+        } else {
+            selected[1] = [0,1][row]
         }
     }
     
@@ -71,16 +79,23 @@ struct SolveView: View {
 //        }
 //    }
     
-    func getPickerText() -> [[String]] {
-        let streak = getStreakText()
-        let tricky = getTrickyText()
-        return [["1"],[streak,tricky]]
+    func getPickerText() -> [[Any]] {
+        let streak = getStreakView
+        let tricky = getTrickyView
+        let dailyBoard = getDailyBoard()
+        let trickyBoards = getTrickyBoards()
+        return [dailyBoard + trickyBoards,[streak,tricky]]
     }
     
-    func getStreakText() -> String {
+    func getStreakView() -> UIView {
         Notifications.setBadge(justSolved: false)
         let streak = UserDefaults.standard.integer(forKey: streakKey)
-        return "daily\n\(streak)"
+        return getLabel(for: "daily\n\(streak)")
+        
+    //    if text.contains("\n") {
+    //    } else {
+    //        if solveMode(is: "daily") { text = row == 0 ? getDateText() : "" }
+        
 //        if lastDC >= Date().getInt() - 1 && streak > 0 {
 //            streak = "streak: \(streak)"
 //        } else {
@@ -89,10 +104,44 @@ struct SolveView: View {
 //        }
     }
     
-    func getTrickyText() -> String {
+    func getTrickyView() -> UIView {
         let tricky = UserDefaults.standard.array(forKey: trickyKey) as? [Int] ?? [0]
-        return "tricky\n\(tricky.sum())"
+        return getLabel(for: "tricky\n\(tricky.sum())")
     }
+    
+    func getLabel(for string: String) -> UILabel {
+        let label = UILabel()
+        let loc = NSString(string: string).range(of: "\n").location
+        let text = NSMutableAttributedString.init(string: string)
+        text.setAttributes([NSAttributedString.Key.font: UIFont.systemFont(ofSize: 15),
+                            NSAttributedString.Key.foregroundColor: UIColor.gray],
+                           range: NSRange(location: loc, length: string.count-loc))
+        label.attributedText = text
+        label.lineBreakMode = .byWordWrapping
+        label.numberOfLines = 0
+        label.textAlignment = .center
+        label.transform = CGAffineTransform(rotationAngle: .pi/2)
+        return label
+    }
+    
+    func getDailyBoard() -> [(String, Bool)] {
+        let format = DateFormatter()
+        format.dateStyle = .short
+        let solved = Date().getInt() == UserDefaults.standard.integer(forKey: lastDCKey)
+        return [(format.string(from: Date()), solved)]
+    }
+    
+    func getTrickyBoards() -> [(String, Bool)] {
+        var boardArray: [(String, Bool)] = []
+        guard let trickyBoards = UserDefaults.standard.array(forKey: trickyKey) as? [Int] else {
+            return []
+        }
+        for (i,solved) in trickyBoards.enumerated() {
+            boardArray.append(("tricky \(i+1)",solved == 1))
+        }
+        return boardArray
+    }
+    
 }
 
 struct SolveView_Previews: PreviewProvider {

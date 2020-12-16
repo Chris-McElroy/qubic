@@ -20,11 +20,11 @@ class Defender: Player {
     }
     
     override func getPause() -> Double {
-        if b.get1stOrderWinsFor(0).count + b.get1stOrderWinsFor(1).count > 0 {
+        if b.getO1WinsFor(0).count + b.getO1WinsFor(1).count > 0 {
             return .random(in: 1.0..<3.0)
         }
         
-        if b.get1stOrderCheckmatesFor(0).count + b.get1stOrderCheckmatesFor(1).count > 0 {
+        if b.getO1CheckmatesFor(0).count + b.getO1CheckmatesFor(1).count > 0 {
             return .random(in: 2.0..<4.0)
         }
         

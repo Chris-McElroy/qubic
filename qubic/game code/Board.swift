@@ -53,7 +53,7 @@ class Board {
         let n = getTurn()
         addMove(p)
         var winLines: [WinLine] = []
-        if has1stOrderWin(n) {
+        if hasO1Win(n) {
             for line in Board.linesThruPoint[p] {
                 if status[line] == 4*(1 + 4*n) {
                     let points = Board.pointsInLine[line]

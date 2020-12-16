@@ -41,27 +41,17 @@ class Player {
         self.o1Checks = o1Checks
     }
     
-    func getPause() -> Double {
-        if b.get1stOrderWinsFor(0).count + b.get1stOrderWinsFor(1).count > 0 {
-            return .random(in: 1.0..<2.0)
-        }
-        
-        if b.get1stOrderCheckmatesFor(0).count + b.get1stOrderCheckmatesFor(1).count > 0 {
-            return .random(in: 1.5..<4.0)
-        }
-        
-        let moves = Double(b.move[0].count)
-        let bottom = 0.6 + moves/6
-        let top = 1.5 + moves/4
-        return .random(in: bottom..<top)
-    }
+    func getPause() -> Double { return 0 }
     
-    func getMove() -> Int {
-        if let m = getMove(in: b.get1stOrderWinsFor, s: 3, stats: wins) { return m }
-        if let m = getMove(in: b.get1stOrderCheckmatesFor, s: 2, stats: o1CheckMates) { return m }
-        if let m = getMove(in: b.get1stOrderChecksFor, s: 3, stats: o1Checks) { return m }
+    func move(with process: @escaping (Int) -> Void) {
+        var move = 0
         
-        return unforcedHeuristic()
+        if let m = shouldMove(in: b.getO1WinsFor, s: 3, stats: wins) { move = m }
+        else if let m = shouldMove(in: b.getO1CheckmatesFor, s: 2, stats: o1CheckMates) { move = m }
+        else if let m = shouldMove(in: b.getO1ChecksFor, s: 3, stats: o1Checks) { move = m }
+        else { move = unforcedHeuristic() }
+        
+        Timer.scheduledTimer(withTimeInterval: getPause(), repeats: false, block: { _ in process(move) })
     }
     
     func unforcedHeuristic() -> Int {
@@ -78,7 +68,7 @@ class Player {
         return statsArray
     }
     
-    private func getMove(in test: (Int) -> [Int], s: Int, stats: [[Double]]) -> Int? {
+    private func shouldMove(in test: (Int) -> [Int], s: Int, stats: [[Double]]) -> Int? {
         for (i,t) in [(0,n),(1,o)] {
             for m in test(t).shuffled() {
                 for l in Board.linesThruPoint[m].shuffled() {

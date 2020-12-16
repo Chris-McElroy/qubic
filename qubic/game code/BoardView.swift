@@ -70,7 +70,7 @@ class BoardScene: ObservableObject {
     func load() {
         for p in data.preset { loadMove(p) }
 //        setNextMove()
-        if data.myTurn != data.turn { queueOpMove() }
+        data.player[data.turn].move(with: processMove)
     }
     
     func loadMove(_ move: Int) {
@@ -92,21 +92,14 @@ class BoardScene: ObservableObject {
             let hitResults = view.hitTest(hit, options: [:])
             guard let result = hitResults.first?.node else { return }
             if let p = dots.firstIndex(where: { $0.childNodes.contains(result) || $0 == result }) {
-                if data.turn == data.myTurn && data.winner == nil {
-                    processMove(p)
-                    if data.winner == nil { queueOpMove() }
+                if data.winner == nil {
+                    if let user = data.player[data.turn] as? User {
+                        user.move(at: p)
+                    }
                 }
             } else if moves.contains(result) {
                 result.runAction(SceneHelper.getFullRotate(1.0))
             }
-        }
-    }
-    
-    func queueOpMove() {
-        let move = data.player[data.turn].getMove()
-        let pause = data.player[data.turn].getPause()
-        Timer.scheduledTimer(withTimeInterval: pause, repeats: false) { _ in
-            self.processMove(move)
         }
     }
     
@@ -120,15 +113,16 @@ class BoardScene: ObservableObject {
             addCube(move: move, color: .primary(data.player[turn].color))
             moves.last?.runAction(SceneHelper.getHalfRotate())
         }
-        if !wins.isEmpty {
+        UIImpactFeedbackGenerator(style: .heavy).impactOccurred()
+        if wins.isEmpty {
+            data.player[data.turn].move(with: processMove)
+        } else {
             data.winner = turn
             if turn == data.myTurn { updateWins() }
             Timer.scheduledTimer(withTimeInterval: 0.2, repeats: false, block: {_ in
                 self.showWinLines(wins, .primary(self.data.player[turn].color))
                 self.base.runAction(SceneHelper.getFullRotate(1.45))
             })
-        } else {
-//            setNextMove()
         }
     }
     
@@ -175,12 +169,10 @@ class BoardScene: ObservableObject {
         let fade = SCNAction.fadeIn(duration: 0.15)
         rotate.timingMode = .easeIn
         translate.timingMode = .easeIn
-//        let fade = SCNAction.fadeOut(duration: time)
-//        fade.timingMode = .easeIn
         cube.runAction(fade)
         cube.runAction(translate)
         cube.runAction(rotate)
-//        dots[move].runAction(fade)
+        Timer.scheduledTimer(withTimeInterval: 0.2, repeats: false, block: { _ in self.dots[move].opacity = 0 })
     }
     
     func showWinLines(_ wins: [WinLine], _ color: UIColor) {

@@ -32,8 +32,6 @@ struct GameView: View {
 //                .animation(cont ? animation : .default)
 //        }
         
-        // i had game data be an observed object so that i could change gameview when the turn changes
-        
         VStack(spacing: 0) {
             HStack {
                 PlayerName(turn: 0, data: board.data)
@@ -75,6 +73,8 @@ struct GameView: View {
         
         var body: some View {
             Text(data.player[turn].name)
+                .lineLimit(1)
+                .padding(.horizontal, 5)
                 .foregroundColor(.white)
                 .frame(minWidth: 140, maxWidth: 160, minHeight: 40)
                 .background(Rectangle().foregroundColor(color))

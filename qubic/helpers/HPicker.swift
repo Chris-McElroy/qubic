@@ -10,9 +10,16 @@ import SwiftUI
 import UIKit
 import CoreGraphics
 
+enum HPickerUse {
+    case train
+    case solve
+    case notifications
+    case boardStyle
+}
+
 struct HPicker : UIViewRepresentable {
-    
-    @State var text: [[String]]
+    let use: HPickerUse
+    @State var content: [[Any]]
     @State var dim: (CGFloat,CGFloat)
     @Binding var selected: [Int]
     var action: (Int, Int) -> Void
@@ -34,8 +41,20 @@ struct HPicker : UIViewRepresentable {
     
     func updateUIView(_ uiView: UIViewType, context: Context) {
         guard let picker = uiView as? UIPickerView else { return }
-        if selected.count == picker.numberOfComponents {
-            for (c,r) in selected.enumerated() {
+        for c in 0..<content.count {
+            for r in 0..<content[c].count {
+                if let string = content[c][r] as? String {
+                    if let label = picker.view(forRow: r, forComponent: c) as? UILabel {
+                        if label.text != string {
+                            picker.reloadComponent(c)
+                            break
+                        }
+                    }
+                }
+            }
+        }
+        for (c,r) in selected.enumerated() {
+            if picker.selectedRow(inComponent: c) != r {
                 picker.selectRow(r, inComponent: c, animated: true)
             }
         }
@@ -49,72 +68,30 @@ struct HPicker : UIViewRepresentable {
         }
         
         func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
-            (solveMode(is: "daily") && component == 0) ? 1 : parent.text[component].count
+            parent.content[component].count
         }
         
         func numberOfComponents(in pickerView: UIPickerView) -> Int {
-            parent.text.count
+            parent.content.count
         }
         
         func pickerView(_ pickerView: UIPickerView, viewForRow row: Int, forComponent component: Int, reusing view: UIView?) -> UIView {
             if component+row == 0 { pickerView.subviews[1].alpha = 0 }
-            var text = parent.text[component][row]
-            let v = UIButton(type: .custom)
-            if text.contains("\n") {
-                v.setAttributedTitle(getFormattedText(from: text), for: .normal)
-                v.titleLabel?.lineBreakMode = .byWordWrapping
-                v.titleLabel?.textAlignment = .center
-            } else {
-                if solveMode(is: "daily") { text = row == 0 ? getDateText() : "" }
-                v.setTitle(text, for: .normal)
-                v.setTitleColor(.label, for: .normal)
-                if shouldUnderline(component, row) { v.underline() }
-            }
-            v.transform = CGAffineTransform(rotationAngle: .pi/2)
-            return v
+            
+            let content = parent.content[component][row]
+            if let givenFunc = content as? () -> UIView { return givenFunc() }
+            guard let (text, done) = content as? (String, Bool) else { return UIView() }
+            return getLabel(for: text, underline: done)
         }
         
-        func getFormattedText(from string: String) -> NSMutableAttributedString {
-            let loc = NSString(string: string).range(of: "\n").location
-            let text = NSMutableAttributedString.init(string: string)
-            text.setAttributes([NSAttributedString.Key.font: UIFont.systemFont(ofSize: 15),
-                                     NSAttributedString.Key.foregroundColor: UIColor.gray],
-                                    range: NSRange(location: loc, length: string.count-loc))
-            return text
-        }
-        
-        func getDateText() -> String {
-            let format = DateFormatter()
-            format.dateStyle = .short
-            return format.string(from: Date())
-        }
-        
-        func solveMode(is s: String) -> Bool {
-            if parent.selected.count == 2 && parent.text.count == 2 {
-                return parent.text[1][parent.selected[1]].contains(s)
-            }
-            return false
-        }
-        
-        func trainMode() -> Bool {
-            parent.text.count == 3 ? parent.text[2][0].contains("beginner") : false
-        }
-        
-        func shouldUnderline(_ c: Int, _ r: Int) -> Bool {
-            if c == 0 {
-                if solveMode(is: "daily") {
-                    return Date().getInt() == UserDefaults.standard.integer(forKey: lastDCKey)
-                } else if solveMode(is: "tricky") {
-                    return (UserDefaults.standard.array(forKey: trickyKey)?[r] as? Int ?? 0) == 1
-                }
-            } else if c == 2 && trainMode() {
-                if r == 0 {
-                    return UserDefaults.standard.integer(forKey: beginnerKey) == 1
-                } else {
-                    return UserDefaults.standard.integer(forKey: defenderKey) == 1
-                }
-            }
-            return false
+        func getLabel(for text: String, underline: Bool) -> UILabel {
+            let label = UILabel()
+            label.text = text
+            label.textAlignment = .center
+            label.textColor = .label
+            if underline { label.underline() }
+            label.transform = CGAffineTransform(rotationAngle: .pi/2)
+            return label
         }
         
         func pickerView(_ pickerView: UIPickerView, rowHeightForComponent component: Int) -> CGFloat {
@@ -128,10 +105,6 @@ struct HPicker : UIViewRepresentable {
         func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
             parent.selected[component] = row
             parent.action(row, component)
-            if parent.text[component][0].contains("\n") {
-                pickerView.selectRow(0, inComponent: 0, animated: true)
-                pickerView.reloadComponent(0)
-            }
         }
         
     }

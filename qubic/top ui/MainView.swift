@@ -124,7 +124,7 @@ struct MainView: View {
                     if self.heights.view == .main {
                         if h < 0 { self.switchView(to: .more) }
                         else { self.cube.flipCube() }
-                    } else if h > 0 {
+                    } else if h > 0 || [.trainMenu,.solveMenu].contains(self.heights.view) {
                         self.goBack()
                     }
                 } else {

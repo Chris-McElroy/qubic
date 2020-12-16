@@ -9,7 +9,7 @@
 import Foundation
 
 extension Board {
-    func has1stOrderWin(_ n: Int) -> Bool {
+    func hasO1Win(_ n: Int) -> Bool {
         // returns true if player n has won
         for s in status {
             if s == 4*(1 + 4*n) { return true }
@@ -17,7 +17,7 @@ extension Board {
         return false
     }
     
-    func get1stOrderWinsFor(_ n: Int) -> [Int] {
+    func getO1WinsFor(_ n: Int) -> [Int] {
         // returns points that give player n a win
         var wins: [Int] = []
         for l in 0..<76 {
@@ -33,7 +33,7 @@ extension Board {
         return wins
     }
     
-    func has1stOrderCheckmate(_ n: Int) -> Bool {
+    func hasO1Checkmate(_ n: Int) -> Bool {
         // returns true if player n will have a win
         // available no matter what the opponent does
         for p in (0..<64).filter({ pointEmpty($0) }) {
@@ -44,7 +44,7 @@ extension Board {
         return false
     }
     
-    func get1stOrderCheckmatesFor(_ n: Int) -> [Int] {
+    func getO1CheckmatesFor(_ n: Int) -> [Int] {
         // returns points that leave player n with a
         // win no matter what the opponent does
         var checkmates: [Int] = []
@@ -56,7 +56,7 @@ extension Board {
         return checkmates
     }
     
-    func has1stOrderCheck(_ n: Int) -> Bool {
+    func hasO1Check(_ n: Int) -> Bool {
         // returns true if player n has
         // at least one option for a win next move
         for l in 0..<76 {
@@ -67,7 +67,7 @@ extension Board {
         return false
     }
     
-    func get1stOrderChecksFor(_ n: Int) -> [Int] {
+    func getO1ChecksFor(_ n: Int) -> [Int] {
         // returns points that leave player n with
         // at least one option for a win next move
         var checks: [Int] = []
@@ -79,11 +79,11 @@ extension Board {
         return checks
     }
     
-    func has2ndOrderWin(_ n: Int) -> Bool {
+    func hasO2Win(_ n: Int) -> Bool {
         // returns true if player n has 1st order check,
         // and they have a string of checks available that
         // leads to a 1st order checkmate
-        let wins = get1stOrderWinsFor(n)
+        let wins = getO1WinsFor(n)
         if wins.count != 1 { return false }
         addMove(wins.first!) // only works if the next player is o
         // TODO make this callable no matter who's move it is
@@ -280,28 +280,28 @@ extension Board {
 //        return possMove
 //    }
     
-    func has2ndOrderCheckmate(_ n: Int) -> Bool {
+    func hasO2Checkmate(_ n: Int) -> Bool {
         // returns true if player n will have a 2nd order win
         // available no matter what the opponent does
         // TODO this
         return false
     }
     
-    func get2ndOrderCheckmatesFor(_ n: Int) -> Set<Int> {
+    func getO2CheckmatesFor(_ n: Int) -> Set<Int> {
         // returns points that leave player n with a
         // 2nd order win no matter what the opponent does
         // TODO this
         return Set<Int>()
     }
     
-    func has2ndOrderCheck(_ n: Int) -> Bool {
+    func hasO2Check(_ n: Int) -> Bool {
         // returns true if player n will has at least
         // one option for a 2nd order win next move
         // TODO this
         return false
     }
     
-    func get2ndOrderChecksFor(_ n: Int) -> Set<Int> {
+    func getO2ChecksFor(_ n: Int) -> Set<Int> {
         // returns points that leave player n with at least
         // one option for a 2nd order win next move
         // TODO this

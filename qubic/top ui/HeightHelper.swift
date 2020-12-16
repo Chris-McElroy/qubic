@@ -51,11 +51,12 @@ extension MainView {
         
         init(newScreen: ScreenObserver? = nil) {
             let screenHeight = newScreen?.height ?? 800
+            screenWidth = newScreen?.width ?? 300
             let small = screenHeight < 700
             let topGap: CGFloat = small ? 10 : 30
             bottomGap = 80 - topGap
             screen = screenHeight - 2*topGap
-            lineWidth = small ? 0.012 : 0.01
+            setLineWidth(screenHeight)
             top.df = screen - 3*mainButtonHeight - bottomGap
             total = 5*screen
             cube = small ? 200 : 280

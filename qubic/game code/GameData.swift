@@ -53,7 +53,7 @@ class GameData: ObservableObject {
         myTurn = turn != nil ? turn! : preset.count % 2
         self.turn = 0
         self.mode = mode
-        let me = Player(b: board, n: myTurn)
+        let me = User(b: board, n: myTurn)
         let op = GameData.getOp(for: mode, b: board, n: myTurn^1)
         if me.color == op.color { op.color = GameData.getDefaultColor(for: me.color) }
         player = myTurn == 0 ? [me, op] : [op, me]
@@ -68,9 +68,10 @@ class GameData: ObservableObject {
     }
 
     func nextTurn() -> Int { board.nextTurn() }
+    
     func processMove(_ p: Int) -> [WinLine]? {
         let wins = board.processMove(p)
-        turn = board.getTurn()
+        turn = wins?.count == 0 ? board.getTurn() : turn
         return wins
     }
     

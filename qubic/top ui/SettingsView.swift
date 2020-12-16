@@ -15,18 +15,30 @@ struct SettingsView: View {
     @State var username = UserDefaults.standard.string(forKey: usernameKey) ?? "me"
     @State var showNotificationAlert = false
     @State var notificationChecker: (Int,Timer?) = (0,nil)
+//    @State var lineSize = lineWidth
+    
+    static let notificationContent = [[("on", false),("off", false)]]
+    static let boardStyleContent = [["spaces","blanks","cubes","spheres","points"].map { ($0, false) }]
     
     var body: some View {
         ZStack {
             // HPickers
             VStack(spacing: 0) {
                 Fill(75)
-                HPicker(text: [["on","off"]], dim: (50,30), selected: $notifications, action: setNotifications)
+                HPicker(use: .notifications, content: SettingsView.notificationContent,
+                        dim: (50,30), selected: $notifications, action: setNotifications)
                     .frame(height: 40)
+                    .onAppear { Notifications.ifDenied {
+                        notifications = [1]
+                        UserDefaults.standard.setValue(1, forKey: notificationKey)
+                    }}
                 Fill(102)
-                HPicker(text: [["spaces","blanks","cubes","spheres","points",]], dim: (80,30), selected: $style, action: setDots)
+                HPicker(use: .boardStyle, content: SettingsView.boardStyleContent,
+                        dim: (80,30), selected: $style, action: setDots)
                     .frame(height: 40)
                 Spacer()
+//                Text("\(lineSize)")
+//                Slider(value: $lineSize, in: 0.005...0.020, onEditingChanged: { _ in lineWidth = lineSize })
             }
             // mask
             VStack(spacing: 0) {

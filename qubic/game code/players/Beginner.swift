@@ -20,11 +20,11 @@ class Beginner: Player {
     }
     
     override func getPause() -> Double {
-        if b.get1stOrderWinsFor(0).count + b.get1stOrderWinsFor(1).count > 0 {
+        if b.getO1WinsFor(0).count + b.getO1WinsFor(1).count > 0 {
             return Double.random(in: 1.0..<2.0)
         }
         
-        if b.get1stOrderCheckmatesFor(0).count + b.get1stOrderCheckmatesFor(1).count > 0 {
+        if b.getO1CheckmatesFor(0).count + b.getO1CheckmatesFor(1).count > 0 {
             return Double.random(in: 1.5..<4.0)
         }
         
