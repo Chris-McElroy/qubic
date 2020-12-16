@@ -34,15 +34,14 @@ struct GameView: View {
         
         VStack(spacing: 0) {
             HStack {
-                PlayerName(turn: 0, data: board.data)
+                PlayerName(turn: 0, board: board, data: board.data)
                 Spacer().frame(minWidth: 15, maxWidth: 80)
-                PlayerName(turn: 1, data: board.data)
+                PlayerName(turn: 1, board: board, data: board.data)
             }.padding(.horizontal, 22)
             .padding(.top, 20)
             .padding(.bottom, 10)
             .zIndex(1.0)
             BoardView(boardScene: board)
-                .onAppear { board.load() }
                 .gesture(DragGesture()
                     .onEnded { drag in
                         let h = drag.predictedEndTranslation.height
@@ -68,23 +67,34 @@ struct GameView: View {
     
     struct PlayerName: View {
         let turn: Int
+        @ObservedObject var board: BoardScene
         @ObservedObject var data: GameData
-        var color: Color { .primary(data.player[turn].color) }
+        var color: Color { .primary(board.data.player[turn].color) }
         
         var body: some View {
-            Text(data.player[turn].name)
-                .lineLimit(1)
-                .padding(.horizontal, 5)
-                .foregroundColor(.white)
-                .frame(minWidth: 140, maxWidth: 160, minHeight: 40)
-                .background(Rectangle().foregroundColor(color))
-                .cornerRadius(100)
-                .shadow(color: data.turn == turn ? color : .clear, radius: 8, y: 0)
-                .animation(.easeIn(duration: 0.3))
+            ZStack {
+                Text(board.newStreak != nil ? "\(board.newStreak ?? 0) day streak!" : "")
+                Text(board.data.player[turn].name)
+                    .lineLimit(1)
+                    .padding(.horizontal, 5)
+                    .foregroundColor(.white)
+                    .frame(minWidth: 140, maxWidth: 160, minHeight: 40)
+                    .background(Rectangle().foregroundColor(color))
+                    .cornerRadius(100)
+                    .shadow(color: board.data.turn == turn ? color : .clear, radius: 8, y: 0)
+                    .animation(.easeIn(duration: 0.3))
+                    .rotation3DEffect(board.newStreak != nil && data.winner != turn ? .radians(.pi/2) : .zero, axis: (x: 1, y: 0, z: 0), anchor: .top)
+            }
         }
     }
     
     var animation = Animation.linear.delay(0)
+    
+//    func showStreak() {
+//        withAnimation {
+//            
+//        }
+//    }
 }
 
 struct GameView_Previews: PreviewProvider {

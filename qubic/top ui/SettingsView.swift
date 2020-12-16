@@ -9,6 +9,7 @@
 import SwiftUI
 
 struct SettingsView: View {
+    @Binding var view: ViewStates
     var mainButtonAction: () -> Void
     @State var style = [UserDefaults.standard.integer(forKey: dotKey)]
     @State var notifications = [UserDefaults.standard.integer(forKey: notificationKey)]
@@ -22,52 +23,62 @@ struct SettingsView: View {
     
     var body: some View {
         ZStack {
-            // HPickers
-            VStack(spacing: 0) {
-                Fill(75)
-                HPicker(use: .notifications, content: SettingsView.notificationContent,
-                        dim: (50,30), selected: $notifications, action: setNotifications)
-                    .frame(height: 40)
-                    .onAppear { Notifications.ifDenied {
-                        notifications = [1]
-                        UserDefaults.standard.setValue(1, forKey: notificationKey)
-                    }}
-                Fill(102)
-                HPicker(use: .boardStyle, content: SettingsView.boardStyleContent,
-                        dim: (80,30), selected: $style, action: setDots)
-                    .frame(height: 40)
-                Spacer()
-//                Text("\(lineSize)")
-//                Slider(value: $lineSize, in: 0.005...0.020, onEditingChanged: { _ in lineWidth = lineSize })
-            }
-            // mask
-            VStack(spacing: 0) {
-                Fill(75)
-                Blank(40)
-                Fill(103)
-                Blank(40)
-                Fill(100)
-                Spacer()
+            if view == .settings {
+                // HPickers
+                VStack(spacing: 0) {
+                    Fill(77)
+                    HPicker(use: .notifications, content: SettingsView.notificationContent,
+                            dim: (50,30), selected: $notifications, action: setNotifications)
+                        .frame(height: 40)
+                        .onAppear { Notifications.ifDenied {
+                            notifications = [1]
+                            UserDefaults.standard.setValue(1, forKey: notificationKey)
+                        }}
+                    Fill(102)
+                    HPicker(use: .boardStyle, content: SettingsView.boardStyleContent,
+                            dim: (80,30), selected: $style, action: setDots)
+                        .frame(height: 40)
+                    Spacer()
+    //                Text("\(lineSize)")
+    //                Slider(value: $lineSize, in: 0.005...0.020, onEditingChanged: { _ in lineWidth = lineSize })
+                }
+                // mask
+                VStack(spacing: 0) {
+                    Fill(77)
+                    Blank(40)
+                    Fill(103)
+                    Blank(40)
+                    Fill(100)
+                    Spacer()
+                }
             }
             // content
             VStack(spacing: 0) {
-                Button(action: mainButtonAction) {
-                    Text("settings")
+                ZStack {
+                    Fill().frame(height: moreButtonHeight)
+                    Button(action: mainButtonAction) {
+                        Text("settings")
+                    }
+                    .buttonStyle(MoreStyle())
                 }
-                .buttonStyle(MoreStyle())
-                Fill(10)
-                Text("notifications")
-                Blank(50)
-                Text("edit username")
-                Fill(7)
-                TextField("enter name", text: $username, onCommit: {
-                    UserDefaults.standard.setValue(username, forKey: usernameKey)
-                })
-                    .multilineTextAlignment(.center)
-                    .disableAutocorrection(true)
-                    .accentColor(.primary(0)) // TODO make this your color
-                    .frame(width: 200, height: 43, alignment: .top)
-                Text("board style")
+                .zIndex(4)
+                if view == .settings {
+                    VStack(spacing: 0) {
+                        Fill(10)
+                        Text("notifications")
+                        Blank(50)
+                        Text("edit username")
+                        Fill(7)
+                        TextField("enter name", text: $username, onCommit: {
+                            UserDefaults.standard.setValue(username, forKey: usernameKey)
+                        })
+                            .multilineTextAlignment(.center)
+                            .disableAutocorrection(true)
+                            .accentColor(.primary(0)) // TODO make this your color
+                            .frame(width: 200, height: 43, alignment: .top)
+                        Text("board style")
+                    }.zIndex(3)
+                }
                 Spacer()
             }
             .alert(isPresented: $showNotificationAlert, content: { notificationAlert })
@@ -106,6 +117,6 @@ struct SettingsView: View {
 
 struct SettingsView_Previews: PreviewProvider {
     static var previews: some View {
-        SettingsView() {}
+        SettingsView(view: .constant(.settings)) {}
     }
 }

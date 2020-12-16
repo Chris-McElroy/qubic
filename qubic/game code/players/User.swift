@@ -6,7 +6,7 @@
 //  Copyright © 2020 XNO LLC. All rights reserved.
 //
 
-import Foundation
+import SwiftUI
 
 class User: Player {
     var process: ((Int) -> Void)? = nil
@@ -21,6 +21,7 @@ class User: Player {
     }
     
     func move(at p: Int) {
+        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
         process?(p)
         process = nil
     }

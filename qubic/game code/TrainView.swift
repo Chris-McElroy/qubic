@@ -35,8 +35,8 @@ struct TrainView: View {
         VStack(spacing: 0) {
             if view == .train {
                 GameView(board: board)
-                    .onAppear { board.data = GameData(mode: mode, turn: turn) }
-            } else {
+                    .onAppear { board.load(GameData(mode: mode, turn: turn)) }
+            } else if view == .trainMenu {
                 Spacer()
                 HPicker(use: .train, content: pickerText, dim: (100, 55), selected: $selected, action: {_,_ in })
                     .frame(height: 180)

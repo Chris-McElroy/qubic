@@ -54,15 +54,17 @@ class GameData: ObservableObject {
         self.turn = 0
         self.mode = mode
         let me = User(b: board, n: myTurn)
-        let op = GameData.getOp(for: mode, b: board, n: myTurn^1)
+        let op = GameData.getOp(for: mode, b: board, n: myTurn^1, num: boardNum)
         if me.color == op.color { op.color = GameData.getDefaultColor(for: me.color) }
         player = myTurn == 0 ? [me, op] : [op, me]
     }
     
-    static private func getOp(for mode: GameMode, b: Board, n: Int) -> Player {
+    static private func getOp(for mode: GameMode, b: Board, n: Int, num: Int) -> Player {
         switch mode {
         case .beginner: return Beginner(b: b, n: n)
         case .defender: return Defender(b: b, n: n)
+        case .daily:    return Daily(b: b, n: n)
+        case .tricky:   return Tricky(b: b, n: n, num: num)
         default:        return Cubist(b: b, n: n)
         }
     }

@@ -15,6 +15,10 @@
 		1E3335D2253400FD00966EA6 /* Cubist.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E3335D1253400FD00966EA6 /* Cubist.swift */; };
 		1E3A697F24CE1F02000930A4 /* Oligopoly Regular.otf in Resources */ = {isa = PBXBuildFile; fileRef = 1E3A697E24CE1F02000930A4 /* Oligopoly Regular.otf */; };
 		1E5A5AAE24CD077900F31124 /* TrainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E5A5AAD24CD077900F31124 /* TrainView.swift */; };
+		1E636FBB258A8687005B8D4F /* Daily.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E636FBA258A8687005B8D4F /* Daily.swift */; };
+		1E636FC0258A882B005B8D4F /* Tricky.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E636FBF258A882B005B8D4F /* Tricky.swift */; };
+		1E636FC3258A8995005B8D4F /* Simple.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E636FC2258A8995005B8D4F /* Simple.swift */; };
+		1E636FC6258A8A06005B8D4F /* Common.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E636FC5258A8A06005B8D4F /* Common.swift */; };
 		1E68179324CC973B001713E7 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E68179224CC973B001713E7 /* AppDelegate.swift */; };
 		1E68179524CC973B001713E7 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E68179424CC973B001713E7 /* SceneDelegate.swift */; };
 		1E68179924CC973D001713E7 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1E68179824CC973D001713E7 /* Assets.xcassets */; };
@@ -50,6 +54,10 @@
 		1E3335D1253400FD00966EA6 /* Cubist.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Cubist.swift; sourceTree = "<group>"; };
 		1E3A697E24CE1F02000930A4 /* Oligopoly Regular.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Oligopoly Regular.otf"; sourceTree = "<group>"; };
 		1E5A5AAD24CD077900F31124 /* TrainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrainView.swift; sourceTree = "<group>"; };
+		1E636FBA258A8687005B8D4F /* Daily.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Daily.swift; sourceTree = "<group>"; };
+		1E636FBF258A882B005B8D4F /* Tricky.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tricky.swift; sourceTree = "<group>"; };
+		1E636FC2258A8995005B8D4F /* Simple.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Simple.swift; sourceTree = "<group>"; };
+		1E636FC5258A8A06005B8D4F /* Common.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Common.swift; sourceTree = "<group>"; };
 		1E68178F24CC973B001713E7 /* qubic.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = qubic.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1E68179224CC973B001713E7 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		1E68179424CC973B001713E7 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -142,6 +150,10 @@
 				1EC2788C2585ACC600F6A5EB /* Player.swift */,
 				1EBD920025897ED90082B65E /* User.swift */,
 				1E3335D1253400FD00966EA6 /* Cubist.swift */,
+				1E636FBA258A8687005B8D4F /* Daily.swift */,
+				1E636FC2258A8995005B8D4F /* Simple.swift */,
+				1E636FC5258A8A06005B8D4F /* Common.swift */,
+				1E636FBF258A882B005B8D4F /* Tricky.swift */,
 				1E7A91932584B0A800AE3BE7 /* Defender.swift */,
 				1E71336F258184B600059BC3 /* Beginner.swift */,
 			);
@@ -259,6 +271,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1E636FC3258A8995005B8D4F /* Simple.swift in Sources */,
 				1EAEE3BD24D9DCBA00490530 /* ReplaysView.swift in Sources */,
 				1E02D59B24CE5696001BF62B /* AboutView.swift in Sources */,
 				1E6C429024FCE1F20065BDF5 /* BoardHelper.swift in Sources */,
@@ -274,6 +287,7 @@
 				1E883EFB24EE3B14002686C8 /* HeightHelper.swift in Sources */,
 				1E2E74BC24E86AA600218E55 /* GameView.swift in Sources */,
 				1EDDE19024FAC70800B7742C /* Board.swift in Sources */,
+				1E636FC6258A8A06005B8D4F /* Common.swift in Sources */,
 				1EE4C75C24EB7ADC0038C1E2 /* UIHelper.swift in Sources */,
 				1E9E9FBE24CDEB4700002500 /* SceneHelper.swift in Sources */,
 				1EAEE3BB24D9DA1400490530 /* FriendsView.swift in Sources */,
@@ -283,6 +297,8 @@
 				1E5A5AAE24CD077900F31124 /* TrainView.swift in Sources */,
 				1E7B117D2586B33400A0CD9F /* NotificationHelper.swift in Sources */,
 				1E3335D2253400FD00966EA6 /* Cubist.swift in Sources */,
+				1E636FBB258A8687005B8D4F /* Daily.swift in Sources */,
+				1E636FC0258A882B005B8D4F /* Tricky.swift in Sources */,
 				1E017B9E24CDB70D00CF979A /* SolveView.swift in Sources */,
 				1E2E74BE24E86B6500218E55 /* BoardView.swift in Sources */,
 				1E6D2E4B24CE9729001EFE85 /* CubeView.swift in Sources */,
@@ -431,7 +447,7 @@
 				CODE_SIGN_ENTITLEMENTS = qubic/qubic.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 7;
+				CURRENT_PROJECT_VERSION = 8;
 				DEVELOPMENT_ASSET_PATHS = "\"qubic/Preview Content\"";
 				DEVELOPMENT_TEAM = A44UN86BN6;
 				ENABLE_PREVIEWS = YES;
@@ -459,7 +475,7 @@
 				CODE_SIGN_ENTITLEMENTS = qubic/qubic.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 7;
+				CURRENT_PROJECT_VERSION = 8;
 				DEVELOPMENT_ASSET_PATHS = "\"qubic/Preview Content\"";
 				DEVELOPMENT_TEAM = A44UN86BN6;
 				ENABLE_PREVIEWS = YES;

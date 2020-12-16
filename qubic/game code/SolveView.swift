@@ -18,15 +18,15 @@ struct SolveView: View {
         default: return .daily
         }
     }
-    var boardNum: Int { selected[0] }
+    var boardNum: Int { selected[0]-[0,1][selected[1]] }
     
     var body: some View {
         VStack(spacing: 0) {
             if view == .solve {
                 GameView(board: board)
-                    .onAppear { board.data = GameData(mode: mode, boardNum: boardNum) }
-            } else {
-                HPicker(use: .solve, content: getPickerText(), dim: (77, 40), selected: $selected, action: hPickerAction)
+                    .onAppear { board.load(GameData(mode: mode, boardNum: boardNum)) }
+            } else if view == .solveMenu {
+                HPicker(use: .solve, content: getPickerText(), dim: (90, 40), selected: $selected, action: hPickerAction)
                     .frame(height: 80)
                     .opacity(view == .solveMenu ? 1 : 0)
             }
@@ -136,7 +136,7 @@ struct SolveView: View {
         guard let trickyBoards = UserDefaults.standard.array(forKey: trickyKey) as? [Int] else {
             return []
         }
-        for (i,solved) in trickyBoards.enumerated() {
+        for (i, solved) in trickyBoards.enumerated() {
             boardArray.append(("tricky \(i+1)",solved == 1))
         }
         return boardArray

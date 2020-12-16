@@ -73,7 +73,6 @@ struct Blank: View {
 let mainButtonHeight: CGFloat = 92
 let moreButtonHeight: CGFloat = 50
 let nameButtonWidth: CGFloat = 180
-var screenWidth: CGFloat = 300
 
 struct MainStyle: ButtonStyle {
     let color: Color
@@ -88,7 +87,7 @@ struct MainStyle: ButtonStyle {
 //            .cornerRadius(100)
             .opacity(configuration.isPressed ? 0.5 : 1.0)
             .shadow(radius: 4, x: 0, y: 3)
-            .frame(width: screenWidth, height: mainButtonHeight)
+            .frame(width: 200, height: mainButtonHeight)
             .background(Fill())
 //            .zIndex(10)
     }
@@ -100,6 +99,8 @@ struct MoreStyle: ButtonStyle {
             .font(.custom("Oligopoly Regular", size: 20))
             .foregroundColor(.primary)
             .padding(8)
+            .frame(height: moreButtonHeight)
+            .background(Fill())
             .opacity(configuration.isPressed ? 0.25 : 1.0)
     }
 }

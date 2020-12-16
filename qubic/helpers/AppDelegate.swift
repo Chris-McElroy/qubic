@@ -14,12 +14,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
         UserDefaults.standard.register(defaults: [
-            streakKey: Int.zero,
+            streakKey: 0,
             lastDCKey: defaultLastDC,
             beginnerKey: 0,
             defenderKey: 0,
             trickyKey: [0],
-            usernameKey: "me",
+            usernameKey: "new user",
             dotKey: 0,
             notificationKey: 1
         ])

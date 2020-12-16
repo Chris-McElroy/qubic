@@ -18,8 +18,8 @@ enum ViewStates {
     case play
     case about
     case settings
-    case replays
-    case friends
+//    case replays
+//    case friends
 }
 
 extension MainView {
@@ -33,9 +33,9 @@ extension MainView {
         let play      = SubView(id: 6,  df: mainButtonHeight)
         let about     = SubView(id: 7,  df: moreButtonHeight)
         let settings  = SubView(id: 8,  df: moreButtonHeight)
-        let replays   = SubView(id: 9,  df: moreButtonHeight)
-        let friends   = SubView(id: 10, df: moreButtonHeight)
-        let moreFill  = SubView(id: 11, df: moreButtonHeight)
+//        let replays   = SubView(id: 9,  df: moreButtonHeight)
+//        let friends   = SubView(id: 10, df: moreButtonHeight)
+        let moreFill  = SubView(id: 9, df: moreButtonHeight)
         
         var view: ViewStates = .main
         var total: CGFloat
@@ -51,7 +51,6 @@ extension MainView {
         
         init(newScreen: ScreenObserver? = nil) {
             let screenHeight = newScreen?.height ?? 800
-            screenWidth = newScreen?.width ?? 300
             let small = screenHeight < 700
             let topGap: CGFloat = small ? 10 : 30
             bottomGap = 80 - topGap
@@ -63,7 +62,7 @@ extension MainView {
             if screenHeight < 600 { cube = 140 }
             fillOffset = -3*screen + 83 - 2*topGap
             backButtonOffset = -2*screen - 10 + topGap
-            subViews = [top.df, trainView.df, train.df, solveView.df, solve.df, playView.df, play.df, about.df, settings.df, replays.df, friends.df, moreFill.df]
+            subViews = [top.df, trainView.df, train.df, solveView.df, solve.df, playView.df, play.df, about.df, settings.df, moreFill.df]
         }
         
         private var display: Display {
@@ -75,10 +74,10 @@ extension MainView {
             case .solve:     return Display(top: solveView, focus: solveView, bottom: solveView)
             case .play:      return Display(top: playView,  focus: playView,  bottom: playView)
             case .more:      return Display(top: train,     focus: moreFill,  bottom: moreFill)
-            case .about:     return Display(top: about,     focus: about,     bottom: friends)
-            case .settings:  return Display(top: about,     focus: settings,  bottom: friends)
-            case .replays:   return Display(top: about,     focus: replays,   bottom: friends)
-            case .friends:   return Display(top: about,     focus: friends,   bottom: friends)
+            case .about:     return Display(top: about,     focus: about,     bottom: settings)
+            case .settings:  return Display(top: about,     focus: settings,  bottom: settings)
+//            case .replays:   return Display(top: about,     focus: replays,   bottom: friends)
+//            case .friends:   return Display(top: about,     focus: friends,   bottom: friends)
             }
         }
         

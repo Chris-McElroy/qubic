@@ -18,14 +18,15 @@ struct MainView: View {
     var body: some View {
         VStack(alignment: .center, spacing: 0) {
             Fill(heights.topSpacer)
-            top.zIndex(2)
-            mainStack
-            moreStack
+            top.zIndex(9)
+            mainStack.zIndex(1)
+            moreStack.zIndex(0)
             Spacer()
-            Fill(heights.fill).zIndex(3)
+            Fill(heights.fill).zIndex(10)
                 .offset(y: heights.fillOffset)
             backButton.frame(height: heights.backButton)
                 .offset(y: heights.backButtonOffset)
+                .zIndex(10)
         }
         .onAppear {
             heights = Heights(newScreen: self.screen)
@@ -80,20 +81,25 @@ struct MainView: View {
         let action: () -> Void
         
         var body: some View {
-            Button(action: action, label: { Text(text) }).buttonStyle(MainStyle(color: color))
+            ZStack {
+                Fill().frame(height: mainButtonHeight)
+                Button(action: action, label: { Text(text) }).buttonStyle(MainStyle(color: color))
+            }
         }
     }
     
     private var moreStack: some View {
         VStack(spacing: 0) {
-            AboutView() { self.switchView(to: .about) }
+            AboutView(view: $heights.view) { self.switchView(to: .about) }
                 .frame(height: heights.get(heights.about), alignment: .top)
-            SettingsView() { self.switchView(to: .settings) }
+                .zIndex(2)
+            SettingsView(view: $heights.view) { self.switchView(to: .settings) }
                 .frame(height: heights.get(heights.settings), alignment: .top)
-            ReplaysView() { self.switchView(to: .replays) }
-                .frame(height: heights.get(heights.replays), alignment: .top)
-            FriendsView() { self.switchView(to: .friends) }
-                .frame(height: heights.get(heights.friends), alignment: .top)
+                .zIndex(1)
+//            ReplaysView() { self.switchView(to: .replays) }
+//                .frame(height: heights.get(heights.replays), alignment: .top)
+//            FriendsView() { self.switchView(to: .friends) }
+//                .frame(height: heights.get(heights.friends), alignment: .top)
             Fill(heights.get(heights.moreFill))
         }
     }
@@ -135,7 +141,7 @@ struct MainView: View {
     
     func switchView(to newView: ViewStates, or otherView: ViewStates? = nil) {
         if let nextView = (heights.view != newView) ? newView : otherView {
-            withAnimation(.easeInOut(duration: 0.4)) {
+            withAnimation(.easeInOut(duration: 0.4)) { //0.4
                 heights.view = nextView
             }
         }
@@ -147,7 +153,7 @@ struct MainView: View {
         if halfBack {
             UIImpactFeedbackGenerator(style: .rigid).impactOccurred()
         } else {
-            withAnimation(.easeInOut(duration: 0.4)) {
+            withAnimation(.easeInOut(duration: 0.4)) { //0.4
                 heights.view = backMain.contains(heights.view) ? .main : .more
             }
         }

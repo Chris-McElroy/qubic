@@ -15,7 +15,7 @@ struct PlayView: View {
     var body: some View {
         if view == .play {
             GameView(board: board)
-                .onAppear { board.data = GameData(mode: .play, turn: Int.random(in: 0...1)) }
+                .onAppear { board.load(GameData(mode: .play, turn: Int.random(in: 0...1))) }
         }
     }
 }

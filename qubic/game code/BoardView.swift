@@ -22,6 +22,7 @@ class BoardScene: ObservableObject {
     var goBack: () -> Void = {}
     var cancelBack: () -> Bool = { true }
     @Published var showDCAlert: Bool = false
+    @Published var newStreak: Int? = nil
     let view = SCNView()
     let scene = SCNScene()
     let base = SCNNode()
@@ -67,7 +68,8 @@ class BoardScene: ObservableObject {
         base.addChildNode(node)
     }
     
-    func load() {
+    func load(_ data: GameData) {
+        self.data = data
         for p in data.preset { loadMove(p) }
 //        setNextMove()
         data.player[data.turn].move(with: processMove)
@@ -113,7 +115,6 @@ class BoardScene: ObservableObject {
             addCube(move: move, color: .primary(data.player[turn].color))
             moves.last?.runAction(SceneHelper.getHalfRotate())
         }
-        UIImpactFeedbackGenerator(style: .heavy).impactOccurred()
         if wins.isEmpty {
             data.player[data.turn].move(with: processMove)
         } else {
@@ -193,13 +194,17 @@ class BoardScene: ObservableObject {
     }
     
     func updateWins() {
-        if data.mode == .daily {
+        if data.mode == .daily && data.dayInt != UserDefaults.standard.integer(forKey: lastDCKey) {
             Notifications.ifUndetermined {
                 DispatchQueue.main.async {
                     self.showDCAlert = true
                 }
             }
             Notifications.setBadge(justSolved: true, dayInt: data.dayInt ?? Date().getInt())
+            withAnimation { newStreak = UserDefaults.standard.integer(forKey: streakKey) }
+            Timer.scheduledTimer(withTimeInterval: 2.4, repeats: false, block: { _ in
+                withAnimation { self.newStreak = nil }
+            })
         } else if data.mode == .tricky {
             UserDefaults.standard.setValue([1], forKey: trickyKey)
         } else if data.mode == .beginner {
