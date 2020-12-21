@@ -10,13 +10,13 @@ import Foundation
 
 class Cubist: Player {
     override init(b: Board, n: Int) {
-        super.init(b: b, n: n, name: "cubist", color: 3,
-                   wins:            [Array(repeating: 2.0, count: 76),
-                                     Array(repeating: 2.0, count: 76)],
-                   o1CheckMates:    [Array(repeating: 2.0, count: 76),
-                                     Array(repeating: 2.0, count: 76)],
-                   o1Checks:        [Array(repeating: 0.0, count: 76),
-                                     Array(repeating: 0.0, count: 76)])
+        super.init(b: b, n: n, name: "cubist", color: 3, d: 1,
+                   w1: [Array(repeating: 2.0, count: 76),
+                        Array(repeating: 2.0, count: 76)],
+                   w2: [Array(repeating: 2.0, count: 76),
+                        Array(repeating: 2.0, count: 76)],
+                   c1: [Array(repeating: 0.0, count: 76),
+                        Array(repeating: 0.0, count: 76)])
     }
     
     override func getPause() -> Double {

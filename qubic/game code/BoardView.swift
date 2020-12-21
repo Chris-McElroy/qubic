@@ -170,9 +170,8 @@ class BoardScene: ObservableObject {
         let fade = SCNAction.fadeIn(duration: 0.15)
         rotate.timingMode = .easeIn
         translate.timingMode = .easeIn
-        cube.runAction(fade)
-        cube.runAction(translate)
-        cube.runAction(rotate)
+        let placeAction = SCNAction.group([translate, rotate, fade])
+        cube.runAction(placeAction)
         Timer.scheduledTimer(withTimeInterval: 0.2, repeats: false, block: { _ in self.dots[move].opacity = 0 })
     }
     

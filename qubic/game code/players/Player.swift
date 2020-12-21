@@ -15,9 +15,10 @@ class Player {
     let name: String
     var color: Int
     
-    let wins: [[Double]]
-    let o1CheckMates: [[Double]]
-    let o1Checks: [[Double]]
+    let d: Int
+    let w1: [[Double]]
+    let w2: [[Double]]
+    let c1: [[Double]]
     
     init(b: Board, n: Int) {
         self.b = b
@@ -25,20 +26,22 @@ class Player {
         o = n^1
         name = UserDefaults.standard.string(forKey: usernameKey) ?? "me"
         color = 0
-        wins = []
-        o1CheckMates = []
-        o1Checks = []
+        d = 0
+        w1 = []
+        w2 = []
+        c1 = []
     }
     
-    init(b: Board, n: Int, name: String, color: Int, wins: [[Double]], o1CheckMates: [[Double]], o1Checks: [[Double]]) {
+    init(b: Board, n: Int, name: String, color: Int, d: Int, w1: [[Double]], w2: [[Double]], c1: [[Double]]) {
         self.b = b
         self.n = n
         self.o = n^1
         self.name = name
         self.color = color
-        self.wins = wins
-        self.o1CheckMates = o1CheckMates
-        self.o1Checks = o1Checks
+        self.d = d
+        self.w1 = w1
+        self.w2 = w2
+        self.c1 = c1
     }
     
     func getPause() -> Double { return 0 }
@@ -46,9 +49,15 @@ class Player {
     func move(with process: @escaping (Int) -> Void) {
         var move = 0
         
-        if let m = shouldMove(in: b.getO1WinsFor, s: 3, stats: wins) { move = m }
-        else if let m = shouldMove(in: b.getO1CheckmatesFor, s: 2, stats: o1CheckMates) { move = m }
-        else if let m = shouldMove(in: b.getO1ChecksFor, s: 3, stats: o1Checks) { move = m }
+        if let m = shouldMove(in: b.getW1(for: n), for: n, s: 3, stats: w1[0]) { move = m }
+        else if let m = shouldMove(in: b.getW1(for: o), for: o, s: 3, stats: w1[1]) { move = m }
+        
+        else if let m = shouldMove(in: b.getW2(for: n, depth: d), for: n, s: 2, stats: w2[0]) { move = m }
+        else if let m = shouldMove(in: b.getW2(for: o, depth: d), for: o, s: 2, stats: w2[1]) { move = m }
+        
+        else if let m = shouldMove(in: b.getC1(for: n), for: n, s: 2, stats: c1[0]) { move = m }
+        else if let m = shouldMove(in: b.getC1(for: o), for: o, s: 2, stats: c1[1]) { move = m }
+        
         else { move = unforcedHeuristic() }
         
         Timer.scheduledTimer(withTimeInterval: getPause(), repeats: false, block: { _ in process(move) })
@@ -68,13 +77,11 @@ class Player {
         return statsArray
     }
     
-    private func shouldMove(in test: (Int) -> [Int], s: Int, stats: [[Double]]) -> Int? {
-        for (i,t) in [(0,n),(1,o)] {
-            for m in test(t).shuffled() {
-                for l in Board.linesThruPoint[m].shuffled() {
-                    if b.status[l] == s*(1 + 4*t) && .random(in: 0..<1) < stats[i][l] {
-                        return m
-                    }
+    private func shouldMove(in set: Set<Int>, for n: Int, s: Int, stats: [Double]) -> Int? {
+        for m in set.shuffled() {
+            for l in Board.linesThruPoint[m].shuffled() {
+                if b.status[l] == 4+s*(2*n-1) && .random(in: 0..<1) < stats[l] {
+                    return m
                 }
             }
         }

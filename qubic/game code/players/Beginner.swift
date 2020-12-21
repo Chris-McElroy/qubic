@@ -10,23 +10,23 @@ import Foundation
 
 class Beginner: Player {
     override init(b: Board, n: Int) {
-        super.init(b: b, n: n, name: "beginner", color: 2,
-                   wins:            [Player.setStats(hs: 0.98, vs: 0.85, hd: 0.95, vd: 0.40, md: 0.40),
-                                     Player.setStats(hs: 0.95, vs: 0.60, hd: 0.85, vd: 0.30, md: 0.20)],
-                   o1CheckMates:    [Player.setStats(hs: 0.20, vs: 0.10, hd: 0.10, vd: 0.05, md: 0.05), // was 0.6 total
-                                     Player.setStats(hs: 0.20, vs: 0.10, hd: 0.10, vd: 0.03, md: 0.03)], // was 0.2 total
-                   o1Checks:        [Player.setStats(hs: 0.20, vs: 0.10, hd: 0.10, vd: 0.05, md: 0.05),
-                                     Player.setStats(hs: 0.20, vs: 0.10, hd: 0.10, vd: 0.03, md: 0.03)])
+        super.init(b: b, n: n, name: "beginner", color: 2, d: 1,
+                   w1: [Player.setStats(hs: 0.98, vs: 0.85, hd: 0.95, vd: 0.40, md: 0.40),
+                        Player.setStats(hs: 0.95, vs: 0.60, hd: 0.85, vd: 0.30, md: 0.20)],
+                   w2: [Player.setStats(hs: 0.20, vs: 0.10, hd: 0.10, vd: 0.05, md: 0.05), // was 0.6 total
+                        Player.setStats(hs: 0.20, vs: 0.10, hd: 0.10, vd: 0.03, md: 0.03)], // was 0.2 total
+                   c1: [Player.setStats(hs: 0.20, vs: 0.10, hd: 0.10, vd: 0.05, md: 0.05),
+                        Player.setStats(hs: 0.20, vs: 0.10, hd: 0.10, vd: 0.03, md: 0.03)])
     }
     
     override func getPause() -> Double {
-        if b.getO1WinsFor(0).count + b.getO1WinsFor(1).count > 0 {
+        if b.hasW1(0) || b.hasW1(1) {
             return Double.random(in: 1.0..<2.0)
         }
         
-        if b.getO1CheckmatesFor(0).count + b.getO1CheckmatesFor(1).count > 0 {
-            return Double.random(in: 1.5..<4.0)
-        }
+//        if b.getO1CheckmatesFor(0).count + b.getO1CheckmatesFor(1).count > 0 {
+//            return Double.random(in: 1.5..<4.0)
+//        }
         
         let moves = Double(b.move[0].count)
         let bottom = 0.6 + moves/6

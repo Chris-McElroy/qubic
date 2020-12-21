@@ -36,12 +36,19 @@ struct Notifications {
         })
     }
     
-    static func turnOn() {
+    static func turnOn(callBack: @escaping (Bool) -> Void = {_ in }) {
         UserDefaults.standard.setValue(0, forKey: notificationKey)
         UNUserNotificationCenter.current().requestAuthorization(options: [.badge, .alert, .sound]) { success, error in
             if let error = error { print(error.localizedDescription) }
             UserDefaults.standard.setValue(success ? 0 : 1, forKey: notificationKey)
+            callBack(success)
         }
+    }
+    
+    static func turnOff() {
+        UserDefaults.standard.setValue(1, forKey: notificationKey)
+        UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: [badgeKey])
+        UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [badgeKey])
     }
     
     static func setBadge(justSolved: Bool, dayInt: Int = Date().getInt()) {

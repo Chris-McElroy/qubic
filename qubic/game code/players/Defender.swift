@@ -10,23 +10,23 @@ import Foundation
 
 class Defender: Player {
     override init(b: Board, n: Int) {
-        super.init(b: b, n: n, name: "defender", color: 4,
-                   wins:            [Player.setStats(hs: 0.99, vs: 0.99, hd: 0.98, vd: 0.85, md: 0.80),
-                                     Player.setStats(hs: 1.0,  vs: 1.0,  hd: 1.0,  vd: 0.95, md: 0.9)],
-                   o1CheckMates:    [Player.setStats(hs: 0.20, vs: 0.10, hd: 0.10, vd: 0.05, md: 0.05), // was 0.7 total
-                                     Player.setStats(hs: 0.20, vs: 0.10, hd: 0.10, vd: 0.03, md: 0.03)], // was 0.95 total
-                   o1Checks:        [Player.setStats(hs: 0.10, vs: 0.05, hd: 0.10, vd: 0.03, md: 0.02),
-                                     Player.setStats(hs: 0.8,  vs: 0.6,  hd: 0.5,  vd: 0.2,  md: 0.4)])
+        super.init(b: b, n: n, name: "defender", color: 4, d: 1,
+                   w1: [Player.setStats(hs: 0.99, vs: 0.99, hd: 0.98, vd: 0.85, md: 0.80),
+                        Player.setStats(hs: 1.0,  vs: 1.0,  hd: 1.0,  vd: 0.95, md: 0.9)],
+                   w2: [Player.setStats(hs: 0.20, vs: 0.10, hd: 0.10, vd: 0.05, md: 0.05), // was 0.7 total
+                        Player.setStats(hs: 0.20, vs: 0.10, hd: 0.10, vd: 0.03, md: 0.03)], // was 0.95 total
+                   c1: [Player.setStats(hs: 0.10, vs: 0.05, hd: 0.10, vd: 0.03, md: 0.02),
+                        Player.setStats(hs: 0.8,  vs: 0.6,  hd: 0.5,  vd: 0.2,  md: 0.4)])
     }
     
     override func getPause() -> Double {
-        if b.getO1WinsFor(0).count + b.getO1WinsFor(1).count > 0 {
+        if b.getW1(for: 0).count + b.getW1(for: 0).count > 0 {
             return .random(in: 1.0..<3.0)
         }
         
-        if b.getO1CheckmatesFor(0).count + b.getO1CheckmatesFor(1).count > 0 {
-            return .random(in: 2.0..<4.0)
-        }
+//        if b.getO1CheckmatesFor(0).count + b.getO1CheckmatesFor(1).count > 0 {
+//            return .random(in: 2.0..<4.0)
+//        }
         
         let moves = Double(b.move[0].count)
         let bottom = 0.9 + moves/10

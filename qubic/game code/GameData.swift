@@ -65,7 +65,7 @@ class GameData: ObservableObject {
         case .defender: return Defender(b: b, n: n)
         case .daily:    return Daily(b: b, n: n)
         case .tricky:   return Tricky(b: b, n: n, num: num)
-        default:        return Cubist(b: b, n: n)
+        default:        return User(b: b, n: n)
         }
     }
 

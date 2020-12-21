@@ -9,83 +9,147 @@
 import Foundation
 
 extension Board {
-    func hasO1Win(_ n: Int) -> Bool {
+    
+    func hasW0(_ n: Int) -> Bool {
         // returns true if player n has won
-        for s in status {
-            if s == 4*(1 + 4*n) { return true }
-        }
-        return false
+        return !open[8*n].isEmpty
     }
     
-    func getO1WinsFor(_ n: Int) -> [Int] {
+    func getW0(for n: Int) -> Set<Int> {
+        // returns the lines where player n has won
+        return Set(open[8*n].keys)
+    }
+    
+    func hasW1(_ n: Int) -> Bool {
+        // returns true if player n has a win
+        return !open[1+6*n].isEmpty
+    }
+    
+    func getW1(for n: Int) -> Set<Int> {
         // returns points that give player n a win
-        var wins: [Int] = []
-        for l in 0..<76 {
-            if status[l] == 3*(1 + 4*n) {
-                for p in Board.pointsInLine[l] {
-                    if ((board[n] &>> p) & 1) == 0 {
-                        wins.append(p)
-                        break
-                    }
-                }
-            }
+        var wins: Set<Int> = []
+        for p in open[1+6*n].values {
+            wins.insert(p.first!)
         }
         return wins
     }
     
-    func hasO1Checkmate(_ n: Int) -> Bool {
-        // returns true if player n will have a win
-        // available no matter what the opponent does
-        for p in (0..<64).filter({ pointEmpty($0) }) {
-            if Board.linesThruPoint[p].filter({ status[$0] == 2*(1 + 4*n) }).count > 1 {
-                return true
-            }
-        }
-        return false
-    }
-    
-    func getO1CheckmatesFor(_ n: Int) -> [Int] {
-        // returns points that leave player n with a
-        // win no matter what the opponent does
-        var checkmates: [Int] = []
-        for p in (0..<64).filter({ pointEmpty($0) }) {
-            if Board.linesThruPoint[p].filter({ status[$0] == 2*(1 + 4*n) }).count > 1 {
-                checkmates.append(p)
-            }
-        }
-        return checkmates
-    }
-    
-    func hasO1Check(_ n: Int) -> Bool {
+    func hasC1(_ n: Int) -> Bool {
         // returns true if player n has
-        // at least one option for a win next move
-        for l in 0..<76 {
-            if status[l] == 3*(1 + 4*n) {
-                return true
-            }
-        }
-        return false
+        // at least one option for a check
+        return !open[2+4*n].isEmpty
     }
     
-    func getO1ChecksFor(_ n: Int) -> [Int] {
+    func getC1(for n: Int) -> Set<Int> {
         // returns points that leave player n with
         // at least one option for a win next move
-        var checks: [Int] = []
-        for p in (0..<64).filter({ pointEmpty($0) }) {
-            if Board.linesThruPoint[p].filter({ status[$0] == 3*(1 + 4*n) }).count > 0 {
-                checks.append(p)
+        var wins: Set<Int> = []
+        for p in open[2+4*n].values {
+            wins.insert(p.first!)
+        }
+        return wins
+    }
+    
+    func hasW2(_ n: Int, depth: Int = 32) -> Bool {
+        let o = n^1
+        var stack: [Board] = [self]
+        var nextStack: [Board] = []
+        var seen: Set<UInt64> = [board[n]]
+        let first = move[n].count
+        
+        for _ in 0..<depth {
+            for b in stack {
+                if b.hasW1(o) {
+                    if b.addCheckMove(n, &nextStack, &seen, first) != nil {
+                        return true
+                    }
+                } else {
+                    if b.addAllForces(n, &nextStack, &seen, first) != nil {
+                        return true
+                    }
+                }
+            }
+            stack = nextStack
+            nextStack = []
+        }
+        return false
+    }
+    
+    func getW2(for n: Int, depth: Int = 32) -> Set<Int> {
+        let o = n^1
+        var stack: [Board] = [self]
+        var nextStack: [Board] = []
+        var seen: Set<UInt64> = [board[n]]
+        var wins: Set<Int> = []
+        let first = move[n].count
+        
+        for _ in 0..<depth {
+            for b in stack {
+                if b.hasW1(o) {
+                    if let p = b.addCheckMove(n, &nextStack, &seen, first) {
+                        wins.insert(p)
+                    }
+                } else {
+                    if let p = b.addAllForces(n, &nextStack, &seen, first) {
+                        wins.insert(p)
+                    }
+                }
+            }
+            stack = nextStack
+            nextStack = []
+        }
+        return wins
+    }
+    
+    private func addCheckMove(_ n: Int, _ stack: inout [Board], _ seen: inout Set<UInt64>, _ first: Int) -> Int? {
+        let o = n^1
+        if let check = open[1+6*o].values.first?[0] {
+            if let back = checkBack(n, check) {
+                let b1 = Board(self)
+                b1.addMove(check, for: n)
+                if b1.hasW1(o) { return nil }
+                b1.addMove(back, for: o)
+                if b1.hasW1(n) { return b1.move[n][first] }
+                if seen.insert(b1.board[n]).inserted { stack.append(b1) }
             }
         }
-        return checks
+        return nil
+    }
+    
+    private func checkBack(_ n: Int, _ p: Int) -> Int? {
+        for pair in open[2+4*n].values {
+            for i in [0,1] {
+                if pair[i] == p { return pair[i^1] }
+            }
+        }
+        return nil
+    }
+    
+    private func addAllForces(_ n: Int, _ stack: inout [Board], _  seen: inout Set<UInt64>, _ first: Int) -> Int? {
+        for pair in open[2+4*n].values {
+            let b1 = Board(self)
+            b1.addMove(pair[0], for: n)
+            b1.addMove(pair[1], for: n^1)
+            if b1.hasW1(n) { return b1.move[n][first] }
+            
+            let b2 = Board(self)
+            b2.addMove(pair[1], for: n)
+            b2.addMove(pair[0], for: n^1)
+            if b2.hasW1(n) { return b2.move[n][first] }
+            
+            if seen.insert(b1.board[n]).inserted { stack.append(b1) }
+            if seen.insert(b2.board[n]).inserted { stack.append(b2) }
+        }
+        return nil
     }
     
     func hasO2Win(_ n: Int) -> Bool {
         // returns true if player n has 1st order check,
         // and they have a string of checks available that
         // leads to a 1st order checkmate
-        let wins = getO1WinsFor(n)
-        if wins.count != 1 { return false }
-        addMove(wins.first!) // only works if the next player is o
+//        let wins = getO1WinsFor(n)
+//        if wins.count != 1 { return false }
+//        addMove(wins.first!) // only works if the next player is o
         // TODO make this callable no matter who's move it is
         // TODO check for o getting check with their move
 //        if get2ndOrderWinFor(n) != nil {
@@ -307,6 +371,31 @@ extension Board {
         // TODO this
         return Set<Int>()
     }
+    
+    
+    
+//    func hasO1Checkmate(_ n: Int) -> Bool {
+//        // returns true if player n will have a win
+//        // available no matter what the opponent does
+//        for p in (0..<64).filter({ pointEmpty($0) }) {
+//            if Board.linesThruPoint[p].filter({ status[$0] == 2*(1 + 4*n) }).count > 1 {
+//                return true
+//            }
+//        }
+//        return false
+//    }
+//
+//    func getO1CheckmatesFor(_ n: Int) -> [Int] {
+//        // returns points that leave player n with a
+//        // win no matter what the opponent does
+//        var checkmates: [Int] = []
+//        for p in (0..<64).filter({ pointEmpty($0) }) {
+//            if Board.linesThruPoint[p].filter({ status[$0] == 2*(1 + 4*n) }).count > 1 {
+//                checkmates.append(p)
+//            }
+//        }
+//        return checkmates
+//    }
 }
 
 //    // TODO consider removing

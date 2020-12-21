@@ -15,7 +15,6 @@ struct SettingsView: View {
     @State var notifications = [UserDefaults.standard.integer(forKey: notificationKey)]
     @State var username = UserDefaults.standard.string(forKey: usernameKey) ?? "me"
     @State var showNotificationAlert = false
-    @State var notificationChecker: (Int,Timer?) = (0,nil)
 //    @State var lineSize = lineWidth
     
     static let notificationContent = [[("on", false),("off", false)]]
@@ -92,25 +91,16 @@ struct SettingsView: View {
     
     func setNotifications(row: Int, component: Int) -> Void {
         if row == 0 {
-            Notifications.turnOn()
-            notificationChecker = (0, Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true, block: { _ in
-                notificationChecker.0 += 1
-                Notifications.ifDenied {
-                    notifications = [1]
-                    showNotificationAlert = true
-                    notificationChecker.1?.invalidate()
-                }
-                Notifications.ifAllowed {
-                    notificationChecker.1?.invalidate()
-                }
-                if notificationChecker.0 > 120 {
-                    notificationChecker.1?.invalidate()
-                }
-            }))
+            Notifications.turnOn(callBack: notificationsAllowed)
+        } else {
+            Notifications.turnOff()
         }
-        else {
-            UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: [badgeKey])
-            UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [badgeKey])
+    }
+    
+    func notificationsAllowed(success: Bool) {
+        if !success {
+            notifications = [1]
+            showNotificationAlert = true
         }
     }
 }
