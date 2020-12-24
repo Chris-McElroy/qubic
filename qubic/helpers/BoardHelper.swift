@@ -48,6 +48,8 @@ extension Board {
     }
     
     static let rich = [0,3,12,15,21,22,25,26,37,38,41,42,48,51,60,63]
+    static let corners = [0,3,12,15,48,51,60,63]
+    static let centers = [21,22,25,26,37,38,41,42]
     
     static let linesThruPoint: [[Int]] = [
         [0, 16, 32, 48, 56, 64, 72],  [0, 17, 33, 65],

@@ -54,8 +54,7 @@ class Board {
         }
     }
     
-    func undoMove() {
-        let n = (move[0].count - move[1].count)^1
+    func undoMove(for n: Int) {
         let p = move[n].popLast()!
         board[n] ^= (1 << p)
         for line in Board.linesThruPoint[p] {
@@ -81,7 +80,6 @@ class Board {
                     status[line] = nil
                 }
             }
-            
         }
     }
     

@@ -101,6 +101,20 @@ extension Board {
         return wins
     }
     
+    func getW2Blocks(for n: Int, depth: Int = 32) -> Set<Int>? {
+        var blocks: Set<Int> = []
+        let o = n^1
+        if !hasW2(o) { return nil }
+        for p in 0..<64 {
+            if pointEmpty(p) {
+                addMove(p, for: n)
+                if hasW2(o, depth: depth) { blocks.insert(p) }
+                undoMove(for: n)
+            }
+        }
+        return blocks.isEmpty ? nil : blocks
+    }
+    
     private func addCheckMove(_ n: Int, _ stack: inout [Board], _ seen: inout Set<UInt64>, _ first: Int) -> Int? {
         let o = n^1
         if let check = open[1+6*o].values.first?[0] {
@@ -143,22 +157,22 @@ extension Board {
         return nil
     }
     
-    func hasO2Win(_ n: Int) -> Bool {
-        // returns true if player n has 1st order check,
-        // and they have a string of checks available that
-        // leads to a 1st order checkmate
+//    func hasO2Win(_ n: Int) -> Bool {
+//        // returns true if player n has 1st order check,
+//        // and they have a string of checks available that
+//        // leads to a 1st order checkmate
 //        let wins = getO1WinsFor(n)
 //        if wins.count != 1 { return false }
 //        addMove(wins.first!) // only works if the next player is o
-        // TODO make this callable no matter who's move it is
-        // TODO check for o getting check with their move
+//        // TODO make this callable no matter who's move it is
+//        // TODO check for o getting check with their move
 //        if get2ndOrderWinFor(n) != nil {
 //            undoMove()
 //            return true
 //        }
-        undoMove()
-        return false
-    }
+//        undoMove()
+//        return false
+//    }
     
 //    func get2ndOrderWinFor(_ n: Int) -> Int? {
 //        // if possible, returns a point that will give player n a 1st order check,
@@ -167,7 +181,7 @@ extension Board {
 //        // TODO check the state of the board?
 //        // or state clearly what I'm assuming about the board
 //        let o = n^1
-////        dTable = []
+//        dTable = []
 //        var dQueue: Set<D> = []
 //        var dBoard: [Set<D>] = Array(repeating: [], count: 64)
 //        move[n].forEach { m in dQueue.insert(D(given: m)) }
@@ -199,17 +213,17 @@ extension Board {
 //                        }
 //                    }
 //                    // TODO make sure that if the check has a check on the way, that it also finds that
-////                    // if no checks, you're good!
-////                    guard let forcedPoint = checkPoint else {
-////                        // yay we found one! (checkPoint was nil)
-////                        return getFirstMove(i: 4, printMoves: false)
-////                    }
-////                    // otherwise, see if the forced point is left open
-////                    if gains2 & (1 &<< forcedPoint) == 0 {
-////                        // if they are open, see if the natural blocks work
-////                    }
-////                        // if they are closed, see if you can build up to that block without the thing that causes it
-////                        // also consider seeing if you can stop the check from being a check at all?
+//                    // if no checks, you're good!
+//                    guard let forcedPoint = checkPoint else {
+//                        // yay we found one! (checkPoint was nil)
+//                        return getFirstMove(i: 4, printMoves: false)
+//                    }
+//                    // otherwise, see if the forced point is left open
+//                    if gains2 & (1 &<< forcedPoint) == 0 {
+//                        // if they are open, see if the natural blocks work
+//                    }
+//                        // if they are closed, see if you can build up to that block without the thing that causes it
+//                        // also consider seeing if you can stop the check from being a check at all?
 //                }
 //            }
 //            // try to find new deductions
@@ -255,46 +269,46 @@ extension Board {
 //        return nil
 //    }
     
-    func noConflict(n: Int, d0: D, d1: D, p0: Int, p1: Int) -> (UInt64, UInt64, Dictionary<Int,Int>)? {
-        // check that the gain cubes and cost cubes are separate
-        if (d0.gains & d1.costs) | (d0.costs & d1.gains) != 0 {
-            return nil
-        }
-        let gains = d0.gains | d1.gains
-        let costs = d0.costs | d1.costs
-        // check that p0 and p1 are open
-        if ((board[n] | gains | costs) & ((1 &<< p0) | (1 &<< p1))) != 0 {
-            return nil
-        }
-        // check that the cost cubes only overlap if the gain cubes for that one overlaps
-        var allPairs: Dictionary<Int,Int> = d0.pairs
-        for pair in d1.pairs {
-            if let prevGain = allPairs.updateValue(pair.value, forKey: pair.key) {
-                if prevGain != pair.value {
-                    return nil
-                }
-            }
-        }
-        // success!
-        return (gains, costs, allPairs)
-    }
-    
-    func worksSansChecks(d0: D, d1: D) -> Dictionary<Int,Int>? {
-        // check that the gain cubes and cost cubes are separate
-        if (d0.gains & d1.costs) | (d0.costs & d1.gains) != 0 {
-            return nil
-        }
-        // check that the cost cubes only overlap if the gain cubes for that one overlaps
-        var allPairs: Dictionary<Int,Int> = d0.pairs
-        for pair in d1.pairs {
-            if let prevGain = allPairs.updateValue(pair.value, forKey: pair.key) {
-                if prevGain != pair.value {
-                    return nil
-                }
-            }
-        }
-        return allPairs
-    }
+//    func noConflict(n: Int, d0: D, d1: D, p0: Int, p1: Int) -> (UInt64, UInt64, Dictionary<Int,Int>)? {
+//        // check that the gain cubes and cost cubes are separate
+//        if (d0.gains & d1.costs) | (d0.costs & d1.gains) != 0 {
+//            return nil
+//        }
+//        let gains = d0.gains | d1.gains
+//        let costs = d0.costs | d1.costs
+//        // check that p0 and p1 are open
+//        if ((board[n] | gains | costs) & ((1 &<< p0) | (1 &<< p1))) != 0 {
+//            return nil
+//        }
+//        // check that the cost cubes only overlap if the gain cubes for that one overlaps
+//        var allPairs: Dictionary<Int,Int> = d0.pairs
+//        for pair in d1.pairs {
+//            if let prevGain = allPairs.updateValue(pair.value, forKey: pair.key) {
+//                if prevGain != pair.value {
+//                    return nil
+//                }
+//            }
+//        }
+//        // success!
+//        return (gains, costs, allPairs)
+//    }
+//
+//    func worksSansChecks(d0: D, d1: D) -> Dictionary<Int,Int>? {
+//        // check that the gain cubes and cost cubes are separate
+//        if (d0.gains & d1.costs) | (d0.costs & d1.gains) != 0 {
+//            return nil
+//        }
+//        // check that the cost cubes only overlap if the gain cubes for that one overlaps
+//        var allPairs: Dictionary<Int,Int> = d0.pairs
+//        for pair in d1.pairs {
+//            if let prevGain = allPairs.updateValue(pair.value, forKey: pair.key) {
+//                if prevGain != pair.value {
+//                    return nil
+//                }
+//            }
+//        }
+//        return allPairs
+//    }
 //
 //    func checkCombos(n: Int, plyLimit: Int) -> Int? {
 //        // check for non-conflicting deductions on the same point
@@ -343,34 +357,6 @@ extension Board {
 //        }
 //        return possMove
 //    }
-    
-    func hasO2Checkmate(_ n: Int) -> Bool {
-        // returns true if player n will have a 2nd order win
-        // available no matter what the opponent does
-        // TODO this
-        return false
-    }
-    
-    func getO2CheckmatesFor(_ n: Int) -> Set<Int> {
-        // returns points that leave player n with a
-        // 2nd order win no matter what the opponent does
-        // TODO this
-        return Set<Int>()
-    }
-    
-    func hasO2Check(_ n: Int) -> Bool {
-        // returns true if player n will has at least
-        // one option for a 2nd order win next move
-        // TODO this
-        return false
-    }
-    
-    func getO2ChecksFor(_ n: Int) -> Set<Int> {
-        // returns points that leave player n with at least
-        // one option for a 2nd order win next move
-        // TODO this
-        return Set<Int>()
-    }
     
     
     

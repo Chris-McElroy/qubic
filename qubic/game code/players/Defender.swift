@@ -38,8 +38,8 @@ class Defender: Player {
         let rich = (0..<64).filter {  Board.rich.contains($0) && b.pointEmpty($0) }
         let poor = (0..<64).filter { !Board.rich.contains($0) && b.pointEmpty($0) }
         let bias = 15.0*Double(rich.count)/(0.001+Double(poor.count))
-        if poor.isEmpty { return rich.randomElement() ?? 0}
-        if rich.isEmpty { return poor.randomElement() ?? 0}
+        if poor.isEmpty { return rich.randomElement() ?? 0 }
+        if rich.isEmpty { return poor.randomElement() ?? 0 }
         return .random(in: 0...1) < (bias/(1+bias)) ? rich.randomElement() ?? 0 : poor.randomElement() ?? 0
     }
 }
