@@ -62,7 +62,7 @@ class Board {
                 var openPoints = open[s][line]!
                 openPoints.append(p)
                 open[s][line] = nil
-                status[line]! -= 1 - 2*n
+                status[line]! -= 2*n-1
                 open[status[line]!][line] = openPoints
             } else {
                 var openPoints: [Int] = []
@@ -89,16 +89,16 @@ class Board {
         let n = getTurn()
         addMove(p, for: n)
         
-        var printed = false
-        for d in 1..<10 {
-            let w2 = (hasW2(0, depth: d), false)
-            if w2.0 || w2.1 {
-                print("\(d):", w2.0, w2.1)
-                printed = true
-                break
-            }
-        }
-        if !printed { print("nothing") }
+//        var printed = false
+//        for d in 1..<10 {
+//            let w2 = (hasW2(0, depth: d), false)
+//            if w2.0 || w2.1 {
+//                print("\(d):", w2.0, w2.1)
+//                printed = true
+//                break
+//            }
+//        }
+//        if !printed { print("nothing") }
         
         var winLines: [WinLine] = []
         for line in getW0(for: n) {

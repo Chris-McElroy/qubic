@@ -15,12 +15,8 @@ struct WinLine {
 }
 
 enum GameMode {
-    case beginner
-    case defender
-    case daily
-    case simple
-    case common
-    case tricky
+    case beginner, defender, cubist
+    case daily, simple, common, tricky
     case play
 }
 
@@ -63,6 +59,7 @@ class GameData: ObservableObject {
         switch mode {
         case .beginner: return Beginner(b: b, n: n)
         case .defender: return Defender(b: b, n: n)
+        case .cubist:   return Cubist(b: b, n: n)
         case .daily:    return Daily(b: b, n: n)
         case .tricky:   return Tricky(b: b, n: n, num: num)
         default:        return User(b: b, n: n)

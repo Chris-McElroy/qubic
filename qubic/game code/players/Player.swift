@@ -15,12 +15,12 @@ class Player {
     let name: String
     var color: Int
     
-    let depth: Int
-    let lineP: [Double]
-    let bucketP: Double
-    let w2BlockP: Double
+    let lineP: [Int: Double]
     let dirStats: [Double]
+    let depth: Int
+    let w2BlockP: Double
     let lineScore: [Double]
+    let bucketP: Double
     
     init(b: Board, n: Int) {
         self.b = b
@@ -29,27 +29,27 @@ class Player {
         name = ""
         color = 0
         
-        depth = 0
-        lineP = []
-        bucketP = 0
-        w2BlockP = 0
+        lineP = [:]
         dirStats = []
+        depth = 0
+        w2BlockP = 0
         lineScore = []
+        bucketP = 0
     }
     
-    init(b: Board, n: Int, name: String, color: Int, depth: Int, lineP: [Double], bucketP: Double, w2BlockP: Double, dirStats: [Double], lineScore: [Double]) {
+    init(b: Board, n: Int, name: String, color: Int, lineP: [Int: Double], dirStats: [Double], depth: Int, w2BlockP: Double, lineScore: [Double], bucketP: Double) {
         self.b = b
         self.n = n
         self.o = n^1
         self.name = name
         self.color = color
         
-        self.depth = depth
         self.lineP = lineP
-        self.bucketP = bucketP
-        self.w2BlockP = w2BlockP
         self.dirStats = dirStats
-        self.lineScore = lineScore
+        self.depth = depth
+        self.w2BlockP = w2BlockP
+        self.lineScore = n == 0 ? lineScore : lineScore.reversed()
+        self.bucketP = bucketP
     }
     
     func getPause() -> Double { return 0 }
@@ -65,9 +65,9 @@ class Player {
         Timer.scheduledTimer(withTimeInterval: getPause(), repeats: false, block: { _ in process(move) })
     }
     
-    func myW1() -> Int? { shouldMove(in: b.getW1(for: n), s: 1+6*n) }
-    func opW1() -> Int? { shouldMove(in: b.getW1(for: o), s: 1+6*o) }
-    func myW2() -> Int? { shouldMove(in: b.getW2(for: n, depth: depth), s: 2+4*n) }
+    func myW1() -> Int? { shouldMove(in: b.getW1(for: n), s: 3) }
+    func opW1() -> Int? { shouldMove(in: b.getW1(for: o), s: -3) }
+    func myW2() -> Int? { shouldMove(in: b.getW2(for: n, depth: depth), s: 2) }
     func opW2() -> Set<Int>? {
         if w2BlockP > .random(in: 0..<1) {
             return b.getW2Blocks(for: n, depth: depth)
@@ -76,9 +76,11 @@ class Player {
     }
     
     func shouldMove(in set: Set<Int>, s: Int) -> Int? {
+        let baseP = lineP[s] ?? 0
+        let status = 4 + s*(2*n-1)
         for m in set.shuffled() {
             for l in Board.linesThruPoint[m].shuffled() {
-                if s == b.status[l] && lineP[s]*dirStats[l] > .random(in: 0..<1) {
+                if status == b.status[l] && baseP*dirStats[l] > .random(in: 0..<1) {
                     return m
                 }
             }

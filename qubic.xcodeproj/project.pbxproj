@@ -148,14 +148,14 @@
 			isa = PBXGroup;
 			children = (
 				1EC2788C2585ACC600F6A5EB /* Player.swift */,
-				1EBD920025897ED90082B65E /* User.swift */,
+				1E71336F258184B600059BC3 /* Beginner.swift */,
+				1E7A91932584B0A800AE3BE7 /* Defender.swift */,
 				1E3335D1253400FD00966EA6 /* Cubist.swift */,
 				1E636FBA258A8687005B8D4F /* Daily.swift */,
 				1E636FC2258A8995005B8D4F /* Simple.swift */,
 				1E636FC5258A8A06005B8D4F /* Common.swift */,
 				1E636FBF258A882B005B8D4F /* Tricky.swift */,
-				1E7A91932584B0A800AE3BE7 /* Defender.swift */,
-				1E71336F258184B600059BC3 /* Beginner.swift */,
+				1EBD920025897ED90082B65E /* User.swift */,
 			);
 			path = players;
 			sourceTree = "<group>";

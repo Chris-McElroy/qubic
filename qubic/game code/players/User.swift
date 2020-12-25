@@ -13,7 +13,7 @@ class User: Player {
     
     override init(b: Board, n: Int) {
         let name = UserDefaults.standard.string(forKey: usernameKey) ?? "me"
-        super.init(b: b, n: n, name: name, color: 0, d:0, w1: [], w2: [], c1: [])
+        super.init(b: b, n: n, name: name, color: 0, lineP: [:], dirStats: [], depth: 0, w2BlockP: 0, lineScore: [], bucketP: 0)
     }
     
     override func move(with process: @escaping (Int) -> Void) {

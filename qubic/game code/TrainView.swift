@@ -16,11 +16,17 @@ struct TrainView: View {
     let pickerText = [[("sandbox", false),("challenge", false)],
                       [("first", false),("random", false),("second", false)],
                       [("beginner", UserDefaults.standard.integer(forKey: beginnerKey) == 1),
-                       ("defender", UserDefaults.standard.integer(forKey: defenderKey) == 1)]]
+                       ("defender", UserDefaults.standard.integer(forKey: defenderKey) == 1),
+                       ("cubist", UserDefaults.standard.integer(forKey: cubistKey) == 1)]]
     var mode: GameMode {
         switch selected[2] {
+        case 0: return .beginner
         case 1: return .defender
-        default: return .beginner
+//        case 2: return .attacker
+//        case 3: return .commander
+//        case 4: return .diviner
+        case 2: return .cubist
+        default: return .cubist
         }
     }
     var turn: Int {
