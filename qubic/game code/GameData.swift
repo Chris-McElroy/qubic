@@ -43,7 +43,7 @@ class GameData: ObservableObject {
         dayInt = nil
     }
     
-    init(mode: GameMode, boardNum: Int = 0, turn: Int? = nil) {
+    init(mode: GameMode, boardNum: Int = 0, turn: Int? = nil, hints: Bool = false) {
         preset = GameData.getPreset(boardNum, for: mode)
         dayInt = Date().getInt()
         myTurn = turn != nil ? turn! : preset.count % 2
