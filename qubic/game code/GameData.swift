@@ -15,7 +15,7 @@ struct WinLine {
 }
 
 enum GameMode {
-    case beginner, defender, cubist
+    case novice, defender, warrior, tyrant, oracle, cubist
     case daily, simple, common, tricky
     case play
 }
@@ -57,8 +57,11 @@ class GameData: ObservableObject {
     
     static private func getOp(for mode: GameMode, b: Board, n: Int, num: Int) -> Player {
         switch mode {
-        case .beginner: return Beginner(b: b, n: n)
+        case .novice:   return Novice(b: b, n: n)
         case .defender: return Defender(b: b, n: n)
+        case .warrior:  return Warrior(b: b, n: n)
+        case .tyrant:   return Tyrant(b: b, n: n)
+        case .oracle:   return Oracle(b: b, n: n)
         case .cubist:   return Cubist(b: b, n: n)
         case .daily:    return Daily(b: b, n: n)
         case .tricky:   return Tricky(b: b, n: n, num: num)

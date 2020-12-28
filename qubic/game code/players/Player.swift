@@ -59,7 +59,7 @@ class Player {
         
         if let m =      myW1() { move = m }
         else if let m = opW1() { move = m }
-        else if let m = myW2() { move = m }
+        else if let m = myW2() { print("got win"); move = m }
         else { move = unforcedHeuristic() }
         
         Timer.scheduledTimer(withTimeInterval: getPause(), repeats: false, block: { _ in process(move) })
@@ -67,7 +67,7 @@ class Player {
     
     func myW1() -> Int? { shouldMove(in: b.getW1(for: n), s: 3) }
     func opW1() -> Int? { shouldMove(in: b.getW1(for: o), s: -3) }
-    func myW2() -> Int? { shouldMove(in: b.getW2(for: n, depth: depth), s: 2) }
+    func myW2() -> Int? { shouldMove(in: b.getW2(for: n, depth: depth) ?? [], s: 2) }
     func opW2() -> Set<Int>? {
         if w2BlockP > .random(in: 0..<1) {
             return b.getW2Blocks(for: n, depth: depth)

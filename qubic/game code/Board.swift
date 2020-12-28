@@ -58,26 +58,30 @@ class Board {
         let p = move[n].popLast()!
         board[n] ^= (1 << p)
         for line in Board.linesThruPoint[p] {
-            if let s = status[line] {
-                var openPoints = open[s][line]!
+            if var s = status[line] {
+                var openPoints = open[s].removeValue(forKey: line)!
                 openPoints.append(p)
-                open[s][line] = nil
-                status[line]! -= 2*n-1
-                open[status[line]!][line] = openPoints
+                s -= 2*n-1
+                open[s][line] = openPoints.sorted()
+                status[line] = s
             } else {
                 var openPoints: [Int] = []
-                var lineNum: UInt64 = 0
-                for point in Board.pointsInLine[line] {
-                    lineNum |= 1 << point
-                    if pointEmpty(point) {
-                        openPoints.append(point)
+                var p0Moves = false
+                var p1Moves = false
+                for p in Board.pointsInLine[line] {
+                    if (board[0] &>> p) & 1 == 1 {
+                        p0Moves = true
+                    } else if (board[1] &>> p) & 1 == 1 {
+                        p1Moves = true
+                    } else {
+                        openPoints.append(p)
                     }
                 }
-                if board[0] & lineNum == 0 || board[1] & lineNum == 0 {
-                    status[line] = 4 + (2*n - 1)*(4 - openPoints.count)
-                    open[status[line]!][line] = openPoints
-                } else {
+                if p0Moves && p1Moves {
                     status[line] = nil
+                } else {
+                    status[line] = p0Moves ? openPoints.count : (8 - openPoints.count)
+                    open[status[line]!][line] = openPoints
                 }
             }
         }

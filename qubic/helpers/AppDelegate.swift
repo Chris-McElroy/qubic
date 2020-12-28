@@ -16,8 +16,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         UserDefaults.standard.register(defaults: [
             streakKey: 0,
             lastDCKey: defaultLastDC,
-            beginnerKey: 0,
-            defenderKey: 0,
+            trainKey: [0,0,0,0,0,0,0],
+            lastTrainKey: 0,
             trickyKey: [0],
             usernameKey: "new user",
             dotKey: 0,

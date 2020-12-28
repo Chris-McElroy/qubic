@@ -14,8 +14,8 @@ let lastDCKey = "LastDC"
 let defaultLastDC = 737764
 let badgeKey = "qubic badge notification"
 let trickyKey = "tricky"
-let beginnerKey = "beginner"
-let defenderKey = "defender"
+let trainKey = "train"
+let lastTrainKey = "lastTrain"
 let cubistKey = "cubist"
 let dotKey = "dotKey"
 let usernameKey = "username"
@@ -37,6 +37,10 @@ extension Date {
     func getInt() -> Int {
         let midnight = Calendar.current.startOfDay(for: self)
         return Calendar.current.ordinality(of: .day, in: .era, for: midnight) ?? 0
+    }
+    
+    static var now: TimeInterval {
+        timeIntervalSinceReferenceDate
     }
 }
 

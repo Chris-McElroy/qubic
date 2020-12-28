@@ -50,7 +50,7 @@ extension Board {
         return wins
     }
     
-    func hasW2(_ n: Int, depth: Int = 32) -> Bool {
+    func hasW2(_ n: Int, depth: Int = 32, deadline: TimeInterval = Date.now + 30) -> Bool? {
         let o = n^1
         var stack: [Board] = [self]
         var nextStack: [Board] = []
@@ -71,11 +71,12 @@ extension Board {
             }
             stack = nextStack
             nextStack = []
+            if Date.now > deadline { return nil }
         }
         return false
     }
     
-    func getW2(for n: Int, depth: Int = 32) -> Set<Int> {
+    func getW2(for n: Int, depth: Int = 32, deadline: TimeInterval = Date.now + 30) -> Set<Int>? {
         let o = n^1
         var stack: [Board] = [self]
         var nextStack: [Board] = []
@@ -97,21 +98,25 @@ extension Board {
             }
             stack = nextStack
             nextStack = []
+            if Date.now > deadline { return nil }
         }
         return wins
     }
     
-    func getW2Blocks(for n: Int, depth: Int = 32) -> Set<Int>? {
+    func getW2Blocks(for n: Int, depth: Int = 32, deadline: TimeInterval = Date.now + 30) -> Set<Int>? {
         var blocks: Set<Int> = []
         let o = n^1
-        if !hasW2(o) { return nil }
-        for p in 0..<64 {
-            if pointEmpty(p) {
-                addMove(p, for: n)
-                if hasW2(o, depth: depth) { blocks.insert(p) }
-                undoMove(for: n)
-            }
+        if hasW1(n) { return nil } // I should handle this case but I'm not
+        if hasW2(o) == false { return nil }
+        let checks = open[2+4*n].values.joined() // same for removing checks below
+        let options = Array(0..<64).filter({ pointEmpty($0) && !checks.contains($0) })
+        for p in options.shuffled() {
+            addMove(p, for: n)
+            if hasW2(o, depth: depth, deadline: deadline) == false { blocks.insert(p) }
+            undoMove(for: n)
+            if Date.now > deadline { break }
         }
+        if blocks.isEmpty { print("threatmate") }
         return blocks.isEmpty ? nil : blocks
     }
     

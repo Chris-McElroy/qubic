@@ -116,7 +116,9 @@ class BoardScene: ObservableObject {
             moves.last?.runAction(SceneHelper.getHalfRotate())
         }
         if wins.isEmpty {
-            data.player[data.turn].move(with: processMove)
+            Timer.scheduledTimer(withTimeInterval: 0.2, repeats: false, block: { _ in
+                self.data.player[self.data.turn].move(with: self.processMove)
+            })
         } else {
             data.winner = turn
             if turn == data.myTurn { updateWins() }
@@ -206,10 +208,10 @@ class BoardScene: ObservableObject {
             })
         } else if data.mode == .tricky {
             UserDefaults.standard.setValue([1], forKey: trickyKey)
-        } else if data.mode == .beginner {
-            UserDefaults.standard.setValue(1, forKey: beginnerKey)
-        } else if data.mode == .defender {
-            UserDefaults.standard.setValue(1, forKey: defenderKey)
+        } else if let index = [.novice, .defender, .warrior, .tyrant, .oracle, .cubist].firstIndex(of: data.mode) {
+            var beaten = UserDefaults.standard.array(forKey: trainKey) as? [Int] ??  [0,0,0,0,0,0]
+            beaten[index] = 1
+            UserDefaults.standard.setValue(beaten, forKey: trainKey)
         }
     }
 }

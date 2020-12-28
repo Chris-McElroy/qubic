@@ -8,15 +8,15 @@
 
 import Foundation
 
-class Beginner: Player {
+class Novice: Player {
     
     override init(b: Board, n: Int) {
-        super.init(b: b, n: n, name: "beginner", color: 2,
-                   lineP: [3: 1.0, -3: 0.95, 2: 0.20],
-                   dirStats: Player.setStats(hs: 0.98, vs: 0.85, hd: 0.95, vd: 0.40, md: 0.35),
+        super.init(b: b, n: n, name: "novice", color: 2,
+                   lineP: [3: 1.0, -3: 0.9, 2: 0.20],
+                   dirStats: Player.setStats(hs: 0.98, vs: 0.65, hd: 0.95, vd: 0.20, md: 0.25),
                    depth: 1,
                    w2BlockP: 0.2,
-                   lineScore: [0,3,2,1,1,1,2,3,0], // my points on the left
+                   lineScore: [0,0,2,1,1,1,2,0,0], // my points on the left
                    bucketP: 0.4)
 //                   w1: [Player.setStats(hs: 0.98, vs: 0.85, hd: 0.95, vd: 0.40, md: 0.40),
 //                        Player.setStats(hs: 0.95, vs: 0.60, hd: 0.85, vd: 0.30, md: 0.20)],

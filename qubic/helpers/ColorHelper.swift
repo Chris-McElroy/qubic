@@ -17,7 +17,9 @@ extension UIColor {
         case 1: return .magenta
         case 2: return .green
         case 3: return UIColor(red: 1.0, green: 0.8, blue: 0.0, alpha: 1.0)
-        case 4: return .red
+        case 4: return .cyan
+        case 5: return .orange
+        case 6: return .red
         case 33: return UIColor.null.withAlphaComponent(0.5)
         default: return .white
         }
@@ -29,7 +31,9 @@ extension UIColor {
         case 1: return .magenta
         case 2: return .green
         case 3: return UIColor(red: 1.0, green: 0.8, blue: 0.0, alpha: 1.0)
-        case 4: return .red
+        case 4: return .cyan
+        case 5: return .orange
+        case 6: return .red
         case 33: return UIColor.null.withAlphaComponent(0.5)
         default: return .white
         }
@@ -41,7 +45,9 @@ extension UIColor {
         case 1: return .magenta
         case 2: return .green
         case 3: return UIColor(red: 1.0, green: 0.8, blue: 0.0, alpha: 1.0)
-        case 4: return .red
+        case 4: return .cyan
+        case 5: return .orange
+        case 6: return .red
         case 33: return UIColor.null.withAlphaComponent(0.5)
         default: return .white
         }
