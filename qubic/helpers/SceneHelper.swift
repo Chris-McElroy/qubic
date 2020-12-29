@@ -142,7 +142,9 @@ class SceneHelper {
         xNodes.forEach { $0.setColor(.label) }
         yNodes.forEach { $0.setColor(.label) }
         zNodes.forEach { $0.setColor(.label) }
-        let wef = SCNNode(geometry: SCNBox(width: 0.9, height: 0.34, length: 0.9, chamferRadius: 0))
+        let box = SCNBox(width: 0.9, height: 0.34, length: 0.9, chamferRadius: 0)
+        box.name = "clear"
+        let wef = SCNNode(geometry: box)
         let base = SCNNode(geometry: SCNSphere(radius: 0.35))
         base.addChildNode(wef)
         wef.position.y = -0.43+0.17

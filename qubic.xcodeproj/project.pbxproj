@@ -32,7 +32,7 @@
 		1E7B117D2586B33400A0CD9F /* NotificationHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E7B117C2586B33400A0CD9F /* NotificationHelper.swift */; };
 		1E7B959224D34015004B3C80 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E7B959124D34015004B3C80 /* SettingsView.swift */; };
 		1E883EFB24EE3B14002686C8 /* HeightHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E883EFA24EE3B14002686C8 /* HeightHelper.swift */; };
-		1E8C554725365E3400C9A556 /* GameData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E8C554625365E3400C9A556 /* GameData.swift */; };
+		1E8C554725365E3400C9A556 /* Game.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E8C554625365E3400C9A556 /* Game.swift */; };
 		1E9E9FBE24CDEB4700002500 /* SceneHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E9E9FBD24CDEB4700002500 /* SceneHelper.swift */; };
 		1EA0CABA2580468D00C200E8 /* HPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EA0CAB92580468D00C200E8 /* HPicker.swift */; };
 		1EAEE3BB24D9DA1400490530 /* FriendsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EAEE3BA24D9DA1400490530 /* FriendsView.swift */; };
@@ -77,7 +77,7 @@
 		1E7B117C2586B33400A0CD9F /* NotificationHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationHelper.swift; sourceTree = "<group>"; };
 		1E7B959124D34015004B3C80 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		1E883EFA24EE3B14002686C8 /* HeightHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeightHelper.swift; sourceTree = "<group>"; };
-		1E8C554625365E3400C9A556 /* GameData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameData.swift; sourceTree = "<group>"; };
+		1E8C554625365E3400C9A556 /* Game.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Game.swift; sourceTree = "<group>"; };
 		1E9E9FBD24CDEB4700002500 /* SceneHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneHelper.swift; sourceTree = "<group>"; };
 		1EA0CAB92580468D00C200E8 /* HPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HPicker.swift; sourceTree = "<group>"; };
 		1EAEE3BA24D9DA1400490530 /* FriendsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendsView.swift; sourceTree = "<group>"; };
@@ -107,14 +107,11 @@
 		1E3335D4253405E100966EA6 /* game code */ = {
 			isa = PBXGroup;
 			children = (
-				1E5A5AAD24CD077900F31124 /* TrainView.swift */,
-				1E017B9D24CDB70D00CF979A /* SolveView.swift */,
-				1E017B9F24CDB71A00CF979A /* PlayView.swift */,
 				1E2E74BB24E86AA600218E55 /* GameView.swift */,
 				1E2E74BD24E86B6500218E55 /* BoardView.swift */,
+				1E8C554625365E3400C9A556 /* Game.swift */,
 				1EDDE18F24FAC70800B7742C /* Board.swift */,
 				1EC2B8842536A86C001B0A1F /* Checks.swift */,
-				1E8C554625365E3400C9A556 /* GameData.swift */,
 				1E3335DF25342D1100966EA6 /* players */,
 			);
 			path = "game code";
@@ -140,6 +137,9 @@
 			isa = PBXGroup;
 			children = (
 				1E6817A624CC977B001713E7 /* MainView.swift */,
+				1E5A5AAD24CD077900F31124 /* TrainView.swift */,
+				1E017B9D24CDB70D00CF979A /* SolveView.swift */,
+				1E017B9F24CDB71A00CF979A /* PlayView.swift */,
 				1E883EFA24EE3B14002686C8 /* HeightHelper.swift */,
 				1E6D2E4A24CE9729001EFE85 /* CubeView.swift */,
 				1E02D59A24CE5696001BF62B /* AboutView.swift */,
@@ -287,7 +287,7 @@
 				1E713370258184B600059BC3 /* Novice.swift in Sources */,
 				1EEB0D4E24CF3780008F5B4B /* ColorHelper.swift in Sources */,
 				1E017BA024CDB71A00CF979A /* PlayView.swift in Sources */,
-				1E8C554725365E3400C9A556 /* GameData.swift in Sources */,
+				1E8C554725365E3400C9A556 /* Game.swift in Sources */,
 				1EA0CABA2580468D00C200E8 /* HPicker.swift in Sources */,
 				1EC2B8852536A86C001B0A1F /* Checks.swift in Sources */,
 				1E68179324CC973B001713E7 /* AppDelegate.swift in Sources */,

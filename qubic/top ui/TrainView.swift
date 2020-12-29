@@ -11,14 +11,14 @@ import SwiftUI
 struct TrainView: View {
     @Binding var view: ViewStates
     @State var selected: [Int] = [0,1,UserDefaults.standard.integer(forKey: lastTrainKey)]
-    let board: BoardScene
+    let game: Game
     let beaten = UserDefaults.standard.array(forKey: trainKey) as? [Int] ?? [0,0,0,0,0,0]
     
     var body: some View {
         VStack(spacing: 0) {
             if view == .train {
-                GameView(board: board)
-                    .onAppear { board.load(GameData(mode: mode, turn: turn)) }
+                GameView(game: game)
+                    .onAppear { game.load(mode: mode, turn: turn, hints: hints) }
             } else if view == .trainMenu {
                 Spacer()
                 HPicker(use: .train, content: pickerText, dim: (90, 55), selected: $selected, action: onSelection)
@@ -64,6 +64,10 @@ struct TrainView: View {
         }
     }
     
+    var hints: Bool {
+        selected[0] == 0
+    }
+    
 //    var difficultyPicker: some View {
 //        HStack {
 //            Image("pinkCube")
@@ -83,6 +87,6 @@ struct TrainView: View {
 
 struct TrainView_Previews: PreviewProvider {
     static var previews: some View {
-        TrainView(view: .constant(.solveMenu), board: BoardScene())
+        TrainView(view: .constant(.solveMenu), game: Game())
     }
 }

@@ -10,18 +10,18 @@ import SwiftUI
 
 struct PlayView: View {
     @Binding var view: ViewStates
-    let board: BoardScene
+    let game: Game
     
     var body: some View {
         if view == .play {
-            GameView(board: board)
-                .onAppear { board.load(GameData(mode: .play, turn: Int.random(in: 0...1))) }
+            GameView(game: game)
+                .onAppear { game.load(mode: .play, turn: Int.random(in: 0...1)) }
         }
     }
 }
 
 struct PlayView_Previews: PreviewProvider {
     static var previews: some View {
-        PlayView(view: .constant(.main), board: BoardScene())
+        PlayView(view: .constant(.main), game: Game())
     }
 }

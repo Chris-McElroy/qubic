@@ -13,7 +13,7 @@ class Oracle: Player {
         super.init(b: b, n: n, name: "oracle", color: 1,
                    lineP: [3: 1.96, -3: 2.2, 2: 0.20],
                    dirStats: Player.setStats(hs: 1.0, vs: 1.0, hd: 0.9, vd: 0.9, md: 1.0),
-                   depth: 2,
+                   depth: 8,
                    w2BlockP: 0.6,
                    lineScore: [0,1,1,1,1,3,15,20,0], // my points on the left
                    bucketP: 0.8)

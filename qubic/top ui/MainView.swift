@@ -13,7 +13,7 @@ struct MainView: View {
     @State var heights: Heights = Heights()
     @State var halfBack: Bool = false
     
-    let board = BoardScene()
+    @ObservedObject var game = Game()
     
     var body: some View {
         VStack(alignment: .center, spacing: 0) {
@@ -31,8 +31,8 @@ struct MainView: View {
         .onAppear {
             heights = Heights(newScreen: self.screen)
             heights.view = .main
-            board.goBack = goBack
-            board.cancelBack = cancelBack
+            game.goBack = goBack
+            game.cancelBack = cancelBack
         }
         .frame(height: heights.total)
         .background(Fill())
@@ -58,10 +58,10 @@ struct MainView: View {
     
     private var mainStack: some View {
         VStack(spacing: 0) {
-            TrainView(view: $heights.view, board: board)
+            TrainView(view: $heights.view, game: game)
                 .frame(height: heights.get(heights.trainView), alignment: .bottom)
             mainButton(text: "train", color: heights.view == .trainMenu ? .primary(0) : .tertiary(0)) { self.switchView(to: .trainMenu, or: .train) }
-            SolveView(view: $heights.view, board: board)
+            SolveView(view: $heights.view, game: game)
                 .frame(height: heights.get(heights.solveView), alignment: .bottom)
             ZStack {
                 mainButton(text: "solve", color: heights.view == .solveMenu ? .primary(0) : .secondary(0)) { self.switchView(to: .solveMenu, or: .solve) }
@@ -69,7 +69,7 @@ struct MainView: View {
                     Circle().frame(width: 24, height: 24).foregroundColor(heights.view == .solveMenu ? .secondary(0) : .primary(0)).zIndex(2).offset(x: 88, y: -25)
                 }
             }
-            PlayView(view: $heights.view, board: board)
+            PlayView(view: $heights.view, game: game)
                 .frame(height: heights.get(heights.playView), alignment: .bottom)
             mainButton(text: "play", color: .primary(0)) { self.switchView(to: .play) }
         }
@@ -105,20 +105,40 @@ struct MainView: View {
     }
     
     private var backButton: some View {
-        Button(action: goBack ) {
-            VStack {
-                Text(heights.view == .main ? "more" : halfBack ? "leave game?" : "back")
-                    .font(.custom("Oligopoly Regular", size: 16))
-                    .animation(nil)
-                Text("↓")
-                    .rotationEffect(Angle(degrees: heights.view == .main ? 0 : 180))
+        HStack {
+            Button(action: game.undoMove) {
+                Text("undo")
+                    .font(.custom("Oligopoly Regular", size: 15.5))
+                    .padding(.leading, 40)
+                    .padding(.bottom, 52)
             }
-            .padding(.bottom, 35)
-            .padding(.horizontal, 100)
-            .padding(.top, 5)
-            .background(Fill())
-        }
-        .buttonStyle(Solid())
+            .buttonStyle(Solid())
+            .opacity([.train, .solve, .play].contains(heights.view) ? game.undoOpacity : 0)
+            Spacer()
+            Button(action: goBack ) {
+                VStack {
+                    Text(heights.view == .main ? "more" : halfBack ? "leave game?" : "back")
+                        .font(.custom("Oligopoly Regular", size: 16))
+                        .animation(nil)
+                    Text("↓")
+                        .rotationEffect(Angle(degrees: heights.view == .main ? 0 : 180))
+                }
+                .padding(.bottom, 35)
+                .padding(.horizontal, 20)
+                .padding(.top, 5)
+                .background(Fill())
+            }
+            .buttonStyle(Solid())
+            Spacer()
+            Button(action: {}) {
+                Text("redo")
+                    .font(.custom("Oligopoly Regular", size: 15.5))
+                    .padding(.trailing, 40)
+                    .padding(.bottom, 52)
+            }
+            .buttonStyle(Solid())
+            .opacity([.train, .solve, .play].contains(heights.view) ? game.redoOpacity : 0)
+        }.background(Rectangle().foregroundColor(.systemBackground))
     }
     
     var scrollGestures: some Gesture {

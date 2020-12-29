@@ -14,7 +14,7 @@ class Board {
     var open: [[Int: [Int]]]
     var status: [Int?]
     
-    func getTurn() -> Int {  move[0].count - move[1].count }
+    func getTurn() -> Int { move[0].count - move[1].count }
     func nextTurn() -> Int {  1 - move[0].count + move[1].count }
     
     func pointEmpty(_ p: Int) -> Bool { (((board[0] | board[1]) &>> p) & 1) == 0 }
@@ -55,7 +55,7 @@ class Board {
     }
     
     func undoMove(for n: Int) {
-        let p = move[n].popLast()!
+        guard let p = move[n].popLast() else { return }
         board[n] ^= (1 << p)
         for line in Board.linesThruPoint[p] {
             if var s = status[line] {
