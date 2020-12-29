@@ -168,6 +168,10 @@ struct MainView: View {
     }
     
     func goBack() {
+        if game.hintCard {
+            withAnimation { game.hintCard = false }
+            return
+        }
         let backMain: [ViewStates] = [.more,.train,.trainMenu,.solve,.solveMenu,.play]
         if [.play,.solve,.train].contains(heights.view) { halfBack.toggle() }
         if halfBack {
@@ -180,6 +184,10 @@ struct MainView: View {
     }
     
     func cancelBack() -> Bool {
+        if game.hintCard {
+            withAnimation { game.hintCard = false }
+            return false
+        }
         if halfBack {
             UIImpactFeedbackGenerator(style: .light).impactOccurred()
             halfBack = false

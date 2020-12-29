@@ -54,7 +54,7 @@ class Player {
     
     func getPause() -> Double { return 0 }
     
-    func move(with process: @escaping (Int) -> Void) {
+    func move(with process: @escaping (Int, Int) -> Void) {
         var move = 0
         
         if let m =      myW1() { move = m }
@@ -62,7 +62,7 @@ class Player {
         else if let m = myW2() { print("got win"); move = m }
         else { move = unforcedHeuristic() }
         
-        Timer.scheduledTimer(withTimeInterval: getPause(), repeats: false, block: { _ in process(move) })
+        Timer.scheduledTimer(withTimeInterval: getPause(), repeats: false, block: { _ in process(move, self.n) })
     }
     
     func myW1() -> Int? { shouldMove(in: b.getW1(for: n), s: 3) }

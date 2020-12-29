@@ -50,6 +50,8 @@ struct GameView: View {
                                 game.boardScene?.rotate(right: w > 0)
                             } else if h > 0 {
                                 game.goBack()
+                            } else {
+                                withAnimation { game.hintCard = true }
                             }
                         }
                     )
@@ -80,7 +82,7 @@ struct GameView: View {
                         Spacer()
                     }.padding(.horizontal, 40)
                 }.frame(height: 260)
-            }
+            }.offset(y: game.hintCard ? 0 : 300)
         }
         
     }

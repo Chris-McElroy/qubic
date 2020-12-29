@@ -22,6 +22,7 @@ enum GameMode {
 
 class Game: ObservableObject {
     @Published var turn: Int = 0
+    @Published var hintCard: Bool = false
     @Published var showDCAlert: Bool = false
     @Published var newStreak: Int? = nil
     @Published var undoOpacity: Double = 0
@@ -36,7 +37,6 @@ class Game: ObservableObject {
     var dayInt: Int? = nil
     var winner: Int? = nil
     var hints: Bool = false
-    var hintCard: Bool = false
     var leaving: Bool = false
     private var board = Board()
     var boardScene: BoardScene? = nil
@@ -86,7 +86,8 @@ class Game: ObservableObject {
         boardScene?.addCube(move: move, color: .primary(player[turn].color))
     }
     
-    func processMove(_ move: Int) {
+    func processMove(_ move: Int, for n: Int) {
+        guard n == turn else { print("Invalid turn!"); return }
         guard let wins = board.processMove(move) else { print("Invalid move!"); return }
         boardScene?.showMove(move)
         turn = board.getTurn()
@@ -115,9 +116,7 @@ class Game: ObservableObject {
         let oldCount = board.move[0].count + board.move[1].count
         if hints { withAnimation { undoOpacity = oldCount == 0 ? 0.3 : 1 } }
         Timer.scheduledTimer(withTimeInterval: 0.5, repeats: false, block: { _ in
-            if self.board.move[0].count + self.board.move[1].count == oldCount {
-                self.player[self.turn].move(with: self.processMove)
-            }
+            self.player[self.turn].move(with: self.processMove)
         })
     }
     
