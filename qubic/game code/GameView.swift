@@ -10,27 +10,14 @@ import SwiftUI
 import SceneKit
 
 struct GameView: View {
-    @ObservedObject var game: Game // TODO do i still need to observe this?
+    @ObservedObject var game: Game
     @State var cubeHeight: CGFloat = 10
     @State var rotateMe = false
     @State var isRotated = false
     @State var cont = false
+    @State var hintSelection = [1,1]
     
     var body: some View {
-//        VStack(spacing: 20) {
-//            // 1
-//            Button("Rotate") {
-//                self.isRotated = true
-//                print(cont)
-//                self.cont.toggle()
-//            }
-//            // 2
-//            Rectangle()
-//                .foregroundColor(.green)
-//                .frame(width: 200, height: 200)
-//                .rotationEffect(Angle.degrees(isRotated && cont ? 360 : 0))
-//                .animation(cont ? animation : .default)
-//        }
         ZStack {
             VStack(spacing: 0) {
                 HStack {
@@ -51,7 +38,15 @@ struct GameView: View {
                             } else if h > 0 {
                                 game.goBack()
                             } else {
-                                withAnimation { game.hintCard = true }
+                                withAnimation {
+                                    game.hintCard = true
+                                }
+                                if game.hintText == nil {
+                                    hintSelection[1] = 1
+                                    Timer.scheduledTimer(withTimeInterval: 0.5, repeats: false) { _ in
+                                        game.updateHintText()
+                                    }
+                                }
                             }
                         }
                     )
@@ -65,26 +60,70 @@ struct GameView: View {
                               secondaryButton: .cancel())
                     }
             }
-            VStack {
+            VStack(spacing: 0) {
                 Spacer()
                 ZStack {
                     Fill()
                         .shadow(radius: 20)
-                    VStack(spacing: 10) {
-                        Spacer()
-                        Text("threats    wins             ")
-                        Spacer()
-                        Text("open check").bold()
-                        Text("Your opponent did not answer your check, so you are free to take the last move in that line and win!")
-                        Spacer()
-                        Text("possible wins")
-                        Text("show    hide          ")
-                        Spacer()
-                    }.padding(.horizontal, 40)
-                }.frame(height: 260)
+                    hintContent
+                    
+                }.frame(height: 240)
             }.offset(y: game.hintCard ? 0 : 300)
         }
-        
+    }
+    
+    var hintContent: some View {
+        ZStack {
+            if let text = game.hintText {
+                // HPickers
+                VStack(spacing: 0) {
+                    Spacer()
+                    HPicker(content: [[("blocks", false), ("wins", false)],[("on",false),("off",false)]], dim: (60, 50), selected: $hintSelection, action: onSelection)
+                        .frame(height: 100)
+                }
+                // Mask
+                VStack(spacing: 0) {
+                    Fill()
+                    Blank(30)
+                    Fill(20)
+                    Blank(30)
+                    Fill(10)
+                }
+                // Content
+                VStack(spacing: 0) {
+                    Blank(15)
+                    Text(text[hintSelection[0]][0]).bold()
+                    Blank(4)
+                    Text(text[hintSelection[0]][1]).multilineTextAlignment(.center)
+                    Spacer()
+                    Text("show moves")
+                    Blank(34)
+                    Text("hints for")
+                    Blank(36)
+                }.padding(.horizontal, 40)
+            } else {
+                if game.hints {
+                    Text("loading...")
+                } else {
+                    Text("hints are only\navailable in sandbox mode!")
+                        .multilineTextAlignment(.center)
+                }
+            }
+        }
+    }
+    
+    func onSelection(row: Int, component: Int) {
+        print("selected", row, component, hintSelection[0])
+        if component == 1 { // changing show
+            if row == 0 {
+                game.showMoves(for: hintSelection[0] == 1 ? game.myTurn : game.myTurn^1)
+            } else {
+                game.showMoves(for: nil)
+            }
+        } else { // changing blocks/wins
+            hintSelection[1] = 1
+            game.showMoves(for: nil)
+        }
     }
     
     struct PlayerName: View {

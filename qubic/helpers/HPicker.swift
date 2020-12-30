@@ -10,15 +10,7 @@ import SwiftUI
 import UIKit
 import CoreGraphics
 
-enum HPickerUse {
-    case train
-    case solve
-    case notifications
-    case boardStyle
-}
-
 struct HPicker : UIViewRepresentable {
-    let use: HPickerUse
     @State var content: [[Any]]
     @State var dim: (CGFloat,CGFloat)
     @Binding var selected: [Int]

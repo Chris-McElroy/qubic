@@ -26,7 +26,7 @@ struct SolveView: View {
                 GameView(game: game)
                     .onAppear { game.load(mode: mode, boardNum: boardNum) }
             } else if view == .solveMenu {
-                HPicker(use: .solve, content: getPickerText(), dim: (90, 40), selected: $selected, action: hPickerAction)
+                HPicker(content: getPickerText(), dim: (90, 40), selected: $selected, action: hPickerAction)
                     .frame(height: 80)
                     .opacity(view == .solveMenu ? 1 : 0)
             }

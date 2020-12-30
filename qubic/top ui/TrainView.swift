@@ -21,7 +21,7 @@ struct TrainView: View {
                     .onAppear { game.load(mode: mode, turn: turn, hints: hints) }
             } else if view == .trainMenu {
                 Spacer()
-                HPicker(use: .train, content: pickerText, dim: (90, 55), selected: $selected, action: onSelection)
+                HPicker(content: pickerText, dim: (90, 55), selected: $selected, action: onSelection)
                     .frame(height: 180)
                     .opacity(view == .trainMenu ? 1 : 0)
             }

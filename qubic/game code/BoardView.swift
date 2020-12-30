@@ -91,6 +91,7 @@ class BoardScene {
     
     func showMove(_ move: Int) {
 //        let delay = moveCube(move: move, color: game.colors[turn]) + 0.1
+        spinDots([])
         if UserDefaults.standard.integer(forKey: dotKey) == 0 {
             placeCube(move: move, color: .primary(game.player[game.turn].color))
         } else {
@@ -198,6 +199,20 @@ class BoardScene {
             cube.removeFromParentNode()
         })
         
+    }
+    
+    func spinDots(_ list: Set<Int>) {
+        let spin = SCNAction.rotate(by: .pi*2, around: SCNVector3(0,1,0), duration: 1.0)
+        let spinBack = SCNAction.rotate(toAxisAngle: SCNVector4(0,1,0,0), duration: 0.1)
+        let longSpin = SCNAction.repeatForever(spin)
+        for (i,d) in dots.enumerated() {
+            if list.contains(i) {
+                d.runAction(longSpin)
+            } else {
+                d.removeAllActions()
+                d.runAction(spinBack)
+            }
+        }
     }
 }
 

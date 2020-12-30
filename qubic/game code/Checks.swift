@@ -50,21 +50,91 @@ extension Board {
         return wins
     }
     
+    private struct W2Board: Hashable {
+        let board: Board
+        let n: Int
+        var starts: Set<Int>
+        
+        init(board: Board, n: Int, starts: Set<Int>) {
+            self.board = Board(board)
+            self.n = n
+            self.starts = starts
+        }
+        
+        static func == (lhs: Board.W2Board, rhs: Board.W2Board) -> Bool {
+            lhs.board.board[lhs.n] == rhs.board.board[rhs.n]
+        }
+        
+        func hash(into hasher: inout Hasher) {
+            hasher.combine(board.board[n])
+        }
+        
+        func addCheckMove(_ n: Int, _ stack: inout Set<W2Board>, _ first: Bool) -> Set<Int>? {
+            let o = n^1
+            if let check = board.open[1+6*o].values.first?[0] {
+                if let back = checkBack(n, check) {
+                    let b1 = W2Board(board: board, n: n, starts: first ? [check] : starts)
+                    b1.board.addMove(check, for: n)
+                    if b1.board.hasW1(o) { return nil }
+                    b1.board.addMove(back, for: o)
+                    if b1.board.hasW1(n) { return b1.starts }
+                    
+                    if var other = stack.update(with: b1) {
+                        other.starts.formUnion(b1.starts)
+                        stack.update(with: other)
+                    }
+                }
+            }
+            return nil  // board.move[n][first]
+        }
+        
+        func checkBack(_ n: Int, _ p: Int) -> Int? {
+            for pair in board.open[2+4*n].values {
+                for i in [0,1] {
+                    if pair[i] == p { return pair[i^1] }
+                }
+            }
+            return nil
+        }
+        
+        func addAllForces(_ n: Int, _ stack: inout Set<W2Board>, _ first: Bool) -> Set<Int>? {
+            for pair in board.open[2+4*n].values {
+                let b1 = W2Board(board: board, n: n, starts: first ? [pair[0]] : starts)
+                b1.board.addMove(pair[0], for: n)
+                b1.board.addMove(pair[1], for: n^1)
+                if b1.board.hasW1(n) { return b1.starts }
+                
+                let b2 = W2Board(board: board, n: n, starts: first ? [pair[1]] : starts)
+                b2.board.addMove(pair[1], for: n)
+                b2.board.addMove(pair[0], for: n^1)
+                if b2.board.hasW1(n) { return b2.starts }
+                
+                if var other1 = stack.update(with: b1) {
+                    other1.starts.formUnion(b1.starts)
+                    stack.update(with: other1)
+                }
+                if var other2 = stack.update(with: b2) {
+                    other2.starts.formUnion(b2.starts)
+                    stack.update(with: other2)
+                }
+            }
+            return nil
+        }
+    }
+    
     func hasW2(_ n: Int, depth: Int = 32, deadline: TimeInterval = Date.now + 30) -> Bool? {
         let o = n^1
-        var stack: [Board] = [self]
-        var nextStack: [Board] = []
-        var seen: Set<UInt64> = [board[n]]
-        let first = move[n].count
+        var stack: Set<W2Board> = [W2Board(board: self, n: n, starts: [])]
+        var nextStack: Set<W2Board> = []
         
-        for _ in 0..<depth {
+        for d in 0..<depth {
             for b in stack {
-                if b.hasW1(o) {
-                    if b.addCheckMove(n, &nextStack, &seen, first) != nil {
+                if b.board.hasW1(o) {
+                    if b.addCheckMove(n, &nextStack, d == 0) != nil {
                         return true
                     }
                 } else {
-                    if b.addAllForces(n, &nextStack, &seen, first) != nil {
+                    if b.addAllForces(n, &nextStack, d == 0) != nil {
                         return true
                     }
                 }
@@ -78,21 +148,19 @@ extension Board {
     
     func getW2(for n: Int, depth: Int = 32, deadline: TimeInterval = Date.now + 30) -> Set<Int>? {
         let o = n^1
-        var stack: [Board] = [self]
-        var nextStack: [Board] = []
-        var seen: Set<UInt64> = [board[n]]
+        var stack: Set<W2Board> = [W2Board(board: self, n: n, starts: [])]
+        var nextStack: Set<W2Board> = []
         var wins: Set<Int> = []
-        let first = move[n].count
         
-        for _ in 0..<depth {
+        for d in 0..<depth {
             for b in stack {
-                if b.hasW1(o) {
-                    if let p = b.addCheckMove(n, &nextStack, &seen, first) {
-                        wins.insert(p)
+                if b.board.hasW1(o) {
+                    if let p = b.addCheckMove(n, &nextStack, d == 0) {
+                        wins.formUnion(p)
                     }
                 } else {
-                    if let p = b.addAllForces(n, &nextStack, &seen, first) {
-                        wins.insert(p)
+                    if let p = b.addAllForces(n, &nextStack, d == 0) {
+                        wins.formUnion(p)
                     }
                 }
             }
@@ -118,48 +186,6 @@ extension Board {
         }
         if blocks.isEmpty { print("threatmate") }
         return blocks.isEmpty ? nil : blocks
-    }
-    
-    private func addCheckMove(_ n: Int, _ stack: inout [Board], _ seen: inout Set<UInt64>, _ first: Int) -> Int? {
-        let o = n^1
-        if let check = open[1+6*o].values.first?[0] {
-            if let back = checkBack(n, check) {
-                let b1 = Board(self)
-                b1.addMove(check, for: n)
-                if b1.hasW1(o) { return nil }
-                b1.addMove(back, for: o)
-                if b1.hasW1(n) { return b1.move[n][first] }
-                if seen.insert(b1.board[n]).inserted { stack.append(b1) }
-            }
-        }
-        return nil
-    }
-    
-    private func checkBack(_ n: Int, _ p: Int) -> Int? {
-        for pair in open[2+4*n].values {
-            for i in [0,1] {
-                if pair[i] == p { return pair[i^1] }
-            }
-        }
-        return nil
-    }
-    
-    private func addAllForces(_ n: Int, _ stack: inout [Board], _  seen: inout Set<UInt64>, _ first: Int) -> Int? {
-        for pair in open[2+4*n].values {
-            let b1 = Board(self)
-            b1.addMove(pair[0], for: n)
-            b1.addMove(pair[1], for: n^1)
-            if b1.hasW1(n) { return b1.move[n][first] }
-            
-            let b2 = Board(self)
-            b2.addMove(pair[1], for: n)
-            b2.addMove(pair[0], for: n^1)
-            if b2.hasW1(n) { return b2.move[n][first] }
-            
-            if seen.insert(b1.board[n]).inserted { stack.append(b1) }
-            if seen.insert(b2.board[n]).inserted { stack.append(b2) }
-        }
-        return nil
     }
     
 //    func hasO2Win(_ n: Int) -> Bool {
