@@ -20,7 +20,7 @@ class Cubist: Player {
     }
     
     override func getPause() -> Double {
-        0.2
+        1
     }
 }
 

@@ -29,6 +29,7 @@ struct SolveView: View {
                 HPicker(content: getPickerText(), dim: (90, 40), selected: $selected, action: hPickerAction)
                     .frame(height: 80)
                     .opacity(view == .solveMenu ? 1 : 0)
+                Blank(3)
             }
         }
     }

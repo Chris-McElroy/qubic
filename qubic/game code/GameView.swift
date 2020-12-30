@@ -38,14 +38,8 @@ struct GameView: View {
                             } else if h > 0 {
                                 game.goBack()
                             } else {
-                                withAnimation {
-                                    game.hintCard = true
-                                }
-                                if game.hintText == nil {
+                                if game.showHintCard() {
                                     hintSelection[1] = 1
-                                    Timer.scheduledTimer(withTimeInterval: 0.5, repeats: false) { _ in
-                                        game.updateHintText()
-                                    }
                                 }
                             }
                         }
@@ -78,7 +72,7 @@ struct GameView: View {
                 // HPickers
                 VStack(spacing: 0) {
                     Spacer()
-                    HPicker(content: [[("blocks", false), ("wins", false)],[("on",false),("off",false)]], dim: (60, 50), selected: $hintSelection, action: onSelection)
+                    HPicker(content: [[("blocks", text[0][0] != "no wins"), ("wins", text[1][0] != "no wins")],[("on",false),("off",false)]], dim: (60, 50), selected: $hintSelection, action: onSelection)
                         .frame(height: 100)
                 }
                 // Mask
@@ -102,18 +96,24 @@ struct GameView: View {
                     Blank(36)
                 }.padding(.horizontal, 40)
             } else {
-                if game.hints {
-                    Text("loading...")
+                if game.undoOpacity == 0 {
+                    if [.daily, .simple, .common, .tricky].contains(game.mode) {
+                        Text("hints are not available on solve boards until they are solved!")
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal, 40)
+                    } else {
+                        Text("hints are only available in sandbox mode or after games!")
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal, 40)
+                    }
                 } else {
-                    Text("hints are only\navailable in sandbox mode!")
-                        .multilineTextAlignment(.center)
+                    Text("loading...")
                 }
             }
         }
     }
     
     func onSelection(row: Int, component: Int) {
-        print("selected", row, component, hintSelection[0])
         if component == 1 { // changing show
             if row == 0 {
                 game.showMoves(for: hintSelection[0] == 1 ? game.myTurn : game.myTurn^1)

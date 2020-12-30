@@ -61,6 +61,7 @@ struct MainView: View {
             TrainView(view: $heights.view, game: game)
                 .frame(height: heights.get(heights.trainView), alignment: .bottom)
             mainButton(text: "train", color: heights.view == .trainMenu ? .primary(0) : .tertiary(0)) { self.switchView(to: .trainMenu, or: .train) }
+                .zIndex(5)
             SolveView(view: $heights.view, game: game)
                 .frame(height: heights.get(heights.solveView), alignment: .bottom)
             ZStack {
@@ -130,7 +131,7 @@ struct MainView: View {
             }
             .buttonStyle(Solid())
             Spacer()
-            Button(action: {}) {
+            Button(action: game.redoMove) {
                 Text("redo")
                     .font(.custom("Oligopoly Regular", size: 15.5))
                     .padding(.trailing, 40)
@@ -168,10 +169,7 @@ struct MainView: View {
     }
     
     func goBack() {
-        if game.hintCard {
-            withAnimation { game.hintCard = false }
-            return
-        }
+        if game.hideHintCard() { return }
         let backMain: [ViewStates] = [.more,.train,.trainMenu,.solve,.solveMenu,.play]
         if [.play,.solve,.train].contains(heights.view) { halfBack.toggle() }
         if halfBack {
@@ -184,10 +182,7 @@ struct MainView: View {
     }
     
     func cancelBack() -> Bool {
-        if game.hintCard {
-            withAnimation { game.hintCard = false }
-            return false
-        }
+        if game.hideHintCard() { return false }
         if halfBack {
             UIImpactFeedbackGenerator(style: .light).impactOccurred()
             halfBack = false

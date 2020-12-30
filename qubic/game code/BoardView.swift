@@ -79,10 +79,8 @@ class BoardScene {
         let hitResults = view.hitTest(hit, options: [:])
         guard let result = hitResults.first?.node else { return }
         if let p = dots.firstIndex(where: { $0.childNodes.contains(result) || $0 == result }) {
-            if game.winner == nil {
-                if let user = game.player[game.turn] as? User {
-                    user.move(at: p)
-                }
+            if let user = game.player[game.myTurn] as? User {
+                user.move(at: p)
             }
         } else if moves.contains(result) == true {
             result.runAction(SceneHelper.getFullRotate(1.0))
@@ -96,6 +94,18 @@ class BoardScene {
             placeCube(move: move, color: .primary(game.player[game.turn].color))
         } else {
             addCube(move: move, color: .primary(game.player[game.turn].color))
+            moves.last?.runAction(SceneHelper.getHalfRotate())
+        }
+    }
+    
+    func showReplayMove(_ move: Int) {
+        spinDots([])
+        let color = UIColor.primary(game.player[game.turn].color)
+        
+        if UserDefaults.standard.integer(forKey: dotKey) == 0 {
+            placeCube(move: move, color: color, opacity: 0.7)
+        } else {
+            addCube(move: move, color: color, opacity: 0.7)
             moves.last?.runAction(SceneHelper.getHalfRotate())
         }
     }
@@ -143,15 +153,16 @@ class BoardScene {
         return time
     }
     
-    func addCube(move: Int, color: UIColor) {
+    func addCube(move: Int, color: UIColor, opacity: CGFloat = 1.0) {
         let cube = SceneHelper.makeBox(color: color, size: 0.86)
         moves.append(cube)
         base.addChildNode(cube)
         cube.position = dots[move].position
+        cube.opacity = opacity
         dots[move].opacity = 0
     }
     
-    func placeCube(move: Int, color: UIColor) {
+    func placeCube(move: Int, color: UIColor, opacity: CGFloat = 1.0) {
         let cube = SceneHelper.makeBox(color: color, size: 0.86)
         moves.append(cube)
         base.addChildNode(cube)
@@ -162,7 +173,7 @@ class BoardScene {
         cube.rotation = SCNVector4(.random(in: -1...1), 0, .random(in: -1...1), .random(in: 0.20...0.4))
         let translate = SCNAction.move(to: dots[move].position, duration: 0.16)
         let rotate = SCNAction.rotate(toAxisAngle: SCNVector4(x: 0, y: 0, z: 0, w: 0), duration: 0.16)
-        let fade = SCNAction.fadeIn(duration: 0.15)
+        let fade = SCNAction.fadeOpacity(to: opacity, duration: 0.15)
         rotate.timingMode = .easeIn
         translate.timingMode = .easeIn
         let placeAction = SCNAction.group([translate, rotate, fade])
@@ -172,18 +183,11 @@ class BoardScene {
         dots[move].runAction(dotFade)
     }
     
-    func undoMove() {
+    func undoMove(_ move: Int) {
         guard let cube = moves.popLast() else { return }
         clearWinLines()
-        var dot = dots[0]
-        var minDist = distance(cube.simdPosition, dot.simdPosition)
-        for poss in dots {
-            let newDist = distance(cube.simdPosition, poss.simdPosition)
-            if newDist < minDist {
-                minDist = newDist
-                dot = poss
-            }
-        }
+        spinDots([])
+        let dot = dots[move]
         dot.opacity = 1
         var upPos = cube.position
         upPos.y += 0.4
@@ -198,7 +202,14 @@ class BoardScene {
         Timer.scheduledTimer(withTimeInterval: 0.20, repeats: false, block: { _ in
             cube.removeFromParentNode()
         })
-        
+    }
+    
+    func remove(_ move: Int) {
+        guard let cube = moves.popLast() else { return }
+        let dot = dots[move]
+        dot.opacity = 1
+        cube.opacity = 0
+        cube.removeFromParentNode()
     }
     
     func spinDots(_ list: Set<Int>) {
