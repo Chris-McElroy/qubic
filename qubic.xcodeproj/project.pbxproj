@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 50;
+	objectVersion = 52;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -12,6 +12,11 @@
 		1E02D59B24CE5696001BF62B /* AboutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E02D59A24CE5696001BF62B /* AboutView.swift */; };
 		1E2E74BC24E86AA600218E55 /* GameView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E2E74BB24E86AA600218E55 /* GameView.swift */; };
 		1E2E74BE24E86B6500218E55 /* BoardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E2E74BD24E86B6500218E55 /* BoardView.swift */; };
+		1E3170F425AA0C7500FCCEA4 /* Messages.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1E3170F325AA0C7500FCCEA4 /* Messages.framework */; };
+		1E3170F725AA0C7500FCCEA4 /* MessagesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E3170F625AA0C7500FCCEA4 /* MessagesViewController.swift */; };
+		1E3170FA25AA0C7500FCCEA4 /* MainInterface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1E3170F825AA0C7500FCCEA4 /* MainInterface.storyboard */; };
+		1E3170FC25AA0C7800FCCEA4 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1E3170FB25AA0C7800FCCEA4 /* Assets.xcassets */; };
+		1E31710025AA0C7800FCCEA4 /* qubicMessage.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 1E3170F125AA0C7500FCCEA4 /* qubicMessage.appex */; platformFilter = ios; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		1E3335D2253400FD00966EA6 /* Cubist.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E3335D1253400FD00966EA6 /* Cubist.swift */; };
 		1E3A697F24CE1F02000930A4 /* Oligopoly Regular.otf in Resources */ = {isa = PBXBuildFile; fileRef = 1E3A697E24CE1F02000930A4 /* Oligopoly Regular.otf */; };
 		1E5A5AAE24CD077900F31124 /* TrainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E5A5AAD24CD077900F31124 /* TrainView.swift */; };
@@ -48,12 +53,42 @@
 		1EEB0D4E24CF3780008F5B4B /* ColorHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EEB0D4D24CF3780008F5B4B /* ColorHelper.swift */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		1E3170FE25AA0C7800FCCEA4 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1E68178724CC973B001713E7 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 1E3170F025AA0C7500FCCEA4;
+			remoteInfo = qubicMessage;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		1E31710125AA0C7800FCCEA4 /* Embed App Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				1E31710025AA0C7800FCCEA4 /* qubicMessage.appex in Embed App Extensions */,
+			);
+			name = "Embed App Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		1E017B9D24CDB70D00CF979A /* SolveView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SolveView.swift; sourceTree = "<group>"; };
 		1E017B9F24CDB71A00CF979A /* PlayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayView.swift; sourceTree = "<group>"; };
 		1E02D59A24CE5696001BF62B /* AboutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutView.swift; sourceTree = "<group>"; };
 		1E2E74BB24E86AA600218E55 /* GameView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameView.swift; sourceTree = "<group>"; };
 		1E2E74BD24E86B6500218E55 /* BoardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardView.swift; sourceTree = "<group>"; };
+		1E3170F125AA0C7500FCCEA4 /* qubicMessage.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = qubicMessage.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		1E3170F325AA0C7500FCCEA4 /* Messages.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Messages.framework; path = System/Library/Frameworks/Messages.framework; sourceTree = SDKROOT; };
+		1E3170F625AA0C7500FCCEA4 /* MessagesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessagesViewController.swift; sourceTree = "<group>"; };
+		1E3170F925AA0C7500FCCEA4 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/MainInterface.storyboard; sourceTree = "<group>"; };
+		1E3170FB25AA0C7800FCCEA4 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		1E3170FD25AA0C7800FCCEA4 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		1E3335D1253400FD00966EA6 /* Cubist.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Cubist.swift; sourceTree = "<group>"; };
 		1E3A697E24CE1F02000930A4 /* Oligopoly Regular.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Oligopoly Regular.otf"; sourceTree = "<group>"; };
 		1E5A5AAD24CD077900F31124 /* TrainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrainView.swift; sourceTree = "<group>"; };
@@ -94,6 +129,14 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		1E3170EE25AA0C7500FCCEA4 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1E3170F425AA0C7500FCCEA4 /* Messages.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		1E68178C24CC973B001713E7 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -104,6 +147,25 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		1E3170F225AA0C7500FCCEA4 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				1E3170F325AA0C7500FCCEA4 /* Messages.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		1E3170F525AA0C7500FCCEA4 /* qubicMessage */ = {
+			isa = PBXGroup;
+			children = (
+				1E3170F625AA0C7500FCCEA4 /* MessagesViewController.swift */,
+				1E3170F825AA0C7500FCCEA4 /* MainInterface.storyboard */,
+				1E3170FB25AA0C7800FCCEA4 /* Assets.xcassets */,
+				1E3170FD25AA0C7800FCCEA4 /* Info.plist */,
+			);
+			path = qubicMessage;
+			sourceTree = "<group>";
+		};
 		1E3335D4253405E100966EA6 /* game code */ = {
 			isa = PBXGroup;
 			children = (
@@ -173,6 +235,8 @@
 			isa = PBXGroup;
 			children = (
 				1E68179124CC973B001713E7 /* qubic */,
+				1E3170F525AA0C7500FCCEA4 /* qubicMessage */,
+				1E3170F225AA0C7500FCCEA4 /* Frameworks */,
 				1E68179024CC973B001713E7 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -181,6 +245,7 @@
 			isa = PBXGroup;
 			children = (
 				1E68178F24CC973B001713E7 /* qubic.app */,
+				1E3170F125AA0C7500FCCEA4 /* qubicMessage.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -211,6 +276,23 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		1E3170F025AA0C7500FCCEA4 /* qubicMessage */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1E31710425AA0C7800FCCEA4 /* Build configuration list for PBXNativeTarget "qubicMessage" */;
+			buildPhases = (
+				1E3170ED25AA0C7500FCCEA4 /* Sources */,
+				1E3170EE25AA0C7500FCCEA4 /* Frameworks */,
+				1E3170EF25AA0C7500FCCEA4 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = qubicMessage;
+			productName = qubicMessage;
+			productReference = 1E3170F125AA0C7500FCCEA4 /* qubicMessage.appex */;
+			productType = "com.apple.product-type.app-extension.messages";
+		};
 		1E68178E24CC973B001713E7 /* qubic */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 1E6817A324CC973D001713E7 /* Build configuration list for PBXNativeTarget "qubic" */;
@@ -218,10 +300,12 @@
 				1E68178B24CC973B001713E7 /* Sources */,
 				1E68178C24CC973B001713E7 /* Frameworks */,
 				1E68178D24CC973B001713E7 /* Resources */,
+				1E31710125AA0C7800FCCEA4 /* Embed App Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				1E3170FF25AA0C7800FCCEA4 /* PBXTargetDependency */,
 			);
 			name = qubic;
 			productName = qubic;
@@ -234,10 +318,13 @@
 		1E68178724CC973B001713E7 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastSwiftUpdateCheck = 1160;
+				LastSwiftUpdateCheck = 1230;
 				LastUpgradeCheck = 1160;
 				ORGANIZATIONNAME = "XNO LLC";
 				TargetAttributes = {
+					1E3170F025AA0C7500FCCEA4 = {
+						CreatedOnToolsVersion = 12.3;
+					};
 					1E68178E24CC973B001713E7 = {
 						CreatedOnToolsVersion = 11.6;
 					};
@@ -257,11 +344,21 @@
 			projectRoot = "";
 			targets = (
 				1E68178E24CC973B001713E7 /* qubic */,
+				1E3170F025AA0C7500FCCEA4 /* qubicMessage */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		1E3170EF25AA0C7500FCCEA4 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1E3170FC25AA0C7800FCCEA4 /* Assets.xcassets in Resources */,
+				1E3170FA25AA0C7500FCCEA4 /* MainInterface.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		1E68178D24CC973B001713E7 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -276,6 +373,14 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		1E3170ED25AA0C7500FCCEA4 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1E3170F725AA0C7500FCCEA4 /* MessagesViewController.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		1E68178B24CC973B001713E7 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -320,7 +425,23 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		1E3170FF25AA0C7800FCCEA4 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 1E3170F025AA0C7500FCCEA4 /* qubicMessage */;
+			targetProxy = 1E3170FE25AA0C7800FCCEA4 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin PBXVariantGroup section */
+		1E3170F825AA0C7500FCCEA4 /* MainInterface.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				1E3170F925AA0C7500FCCEA4 /* Base */,
+			);
+			name = MainInterface.storyboard;
+			sourceTree = "<group>";
+		};
 		1E68179D24CC973D001713E7 /* LaunchScreen.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (
@@ -332,6 +453,50 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		1E31710225AA0C7800FCCEA4 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = "iMessage App Icon";
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = A44UN86BN6;
+				INFOPLIST_FILE = qubicMessage/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.3;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = store.xno.4Play.qubicMessage;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		1E31710325AA0C7800FCCEA4 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = "iMessage App Icon";
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = A44UN86BN6;
+				INFOPLIST_FILE = qubicMessage/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.3;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = store.xno.4Play.qubicMessage;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 		1E6817A124CC973D001713E7 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -455,6 +620,7 @@
 		1E6817A424CC973D001713E7 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = qubic/qubic.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
@@ -483,6 +649,7 @@
 		1E6817A524CC973D001713E7 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = qubic/qubic.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
@@ -511,6 +678,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		1E31710425AA0C7800FCCEA4 /* Build configuration list for PBXNativeTarget "qubicMessage" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1E31710225AA0C7800FCCEA4 /* Debug */,
+				1E31710325AA0C7800FCCEA4 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		1E68178A24CC973B001713E7 /* Build configuration list for PBXProject "qubic" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
