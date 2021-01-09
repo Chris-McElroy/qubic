@@ -110,10 +110,10 @@ struct MainView: View {
             Button(action: game.undoMove) {
                 Text("undo")
                     .font(.custom("Oligopoly Regular", size: 15.5))
+                    .accentColor(.label)
                     .padding(.leading, 40)
                     .padding(.bottom, 52)
             }
-            .buttonStyle(Solid())
             .opacity([.train, .solve, .play].contains(heights.view) ? game.undoOpacity : 0)
             Spacer()
             Button(action: goBack ) {
@@ -134,10 +134,10 @@ struct MainView: View {
             Button(action: game.redoMove) {
                 Text("redo")
                     .font(.custom("Oligopoly Regular", size: 15.5))
+                    .accentColor(.label)
                     .padding(.trailing, 40)
                     .padding(.bottom, 52)
             }
-            .buttonStyle(Solid())
             .opacity([.train, .solve, .play].contains(heights.view) ? game.redoOpacity : 0)
         }.background(Rectangle().foregroundColor(.systemBackground))
     }

@@ -56,6 +56,7 @@ extension UIColor {
 
 extension Color {
     public static var systemBackground: Color = Color(UIColor.systemBackground)
+    public static var label: Color = Color(UIColor.label)
     
     static func primary(_ n: Int) -> Color {
         return Color(UIColor.primary(n))

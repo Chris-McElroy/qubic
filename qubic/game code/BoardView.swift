@@ -79,7 +79,8 @@ class BoardScene {
         let hitResults = view.hitTest(hit, options: [:])
         guard let result = hitResults.first?.node else { return }
         if let p = dots.firstIndex(where: { $0.childNodes.contains(result) || $0 == result }) {
-            if let user = game.player[game.myTurn] as? User {
+            let turn = game.winner == nil ? game.turn : game.myTurn
+            if let user = game.player[turn] as? User {
                 user.move(at: p)
             }
         } else if moves.contains(result) == true {

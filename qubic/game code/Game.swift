@@ -117,13 +117,13 @@ class Game: ObservableObject {
             })
         } else {
             winner = turn^1
+            if winner == myTurn { updateWins() }
             if ![.daily, .simple, .common, .tricky].contains(mode) || winner == myTurn {
                 withAnimation {
                     undoOpacity = 1.0
                     redoOpacity = 0.3
                 }
             }
-            if winner == myTurn { updateWins() }
             Timer.scheduledTimer(withTimeInterval: 0.2, repeats: false, block: { _ in
                 self.boardScene?.showWin(wins)
             })
