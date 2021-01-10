@@ -9,6 +9,11 @@
 import SwiftUI
 
 struct Notifications {
+    static let notificationAlert = Alert(title: Text("Notifications Disabled"),
+                                  message: Text("Notifications must be enabled in your phone’s settings before you can turn them on in-app."),
+                                  primaryButton: .default(Text("Settings"), action: { UIApplication.shared.open(URL(string: UIApplication.openSettingsURLString)!) }),
+                                  secondaryButton: .cancel())
+    
     static func ifAllowed(_ run: @escaping () -> Void) {
         let current = UNUserNotificationCenter.current()
         current.getNotificationSettings(completionHandler: { settings in

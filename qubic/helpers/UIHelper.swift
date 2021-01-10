@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-// Keys
+// UserInfo
 let streakKey = "DCStreak"
 let lastDCKey = "LastDC"
 let defaultLastDC = 737764
@@ -43,11 +43,6 @@ extension Date {
         timeIntervalSinceReferenceDate
     }
 }
-
-let notificationAlert = Alert(title: Text("Notifications Disabled"),
-                              message: Text("Notifications must be enabled in your phone’s settings before you can turn them on in-app."),
-                              primaryButton: .default(Text("Settings"), action: { UIApplication.shared.open(URL(string: UIApplication.openSettingsURLString)!) }),
-                              secondaryButton: .cancel())
 
 struct Fill: View {
     let height: CGFloat?

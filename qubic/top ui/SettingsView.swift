@@ -80,7 +80,7 @@ struct SettingsView: View {
                 }
                 Spacer()
             }
-            .alert(isPresented: $showNotificationAlert, content: { notificationAlert })
+            .alert(isPresented: $showNotificationAlert, content: { Notifications.notificationAlert })
         }
         .background(Fill())
     }

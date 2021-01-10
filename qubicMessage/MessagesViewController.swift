@@ -11,13 +11,16 @@ import Messages
 
 class MessagesViewController: MSMessagesAppViewController {
     var selected: MSMessage?
-    var loadButton = UIButton()
+    let picker = HPicker(content: [["first", "random", "second"]], dim: (100,100), selected: [1], action: {_,_ in })
+    let loadButton = UIButton()
     var gameView = UIView()
-    var test = UIButton()
+    let sentLabel = UILabel()
+    let playerView: [UIView] = [UIView(), UIView()]
+    let playerText: [UILabel] = [UILabel(), UILabel()]
+    let game = Game()
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view.
         
         loadButton.frame = CGRect(x: view.center.x-40, y: 100, width: 80, height: 40)
         loadButton.setTitle("load", for: .normal)
@@ -25,23 +28,54 @@ class MessagesViewController: MSMessagesAppViewController {
         loadButton.addTarget(self, action: #selector(pressedStart), for: .touchUpInside)
         view.addSubview(loadButton)
         
-        gameView.frame = CGRect(x: 0, y: 0, width: 200, height: 200)
+        picker.picker.frame = CGRect(x: view.center.x-200, y: 50, width: 400, height: 100)
+        view.addSubview(picker.picker)
         
-        test.frame = CGRect(x: 0, y: 0, width: 80, height: 40)
-        test.setTitle("test", for: .normal)
-        test.setTitleColor(.label, for: .normal)
-        test.addTarget(self, action: #selector(pressedTest), for: .touchUpInside)
-        gameView.addSubview(test)
+        loadButton.frame = CGRect(x: view.center.x-40, y: 130, width: 80, height: 40)
+        loadButton.setTitle("load", for: .normal)
+        loadButton.setTitleColor(.label, for: .normal)
+        loadButton.addTarget(self, action: #selector(pressedStart), for: .touchUpInside)
+        view.addSubview(loadButton)
+        
+        game.sendMessage = sendMessage
+        gameView.addSubview(game.boardScene?.view ?? UIView())
+        print(view.bounds.height-200, view.bounds.height-230, view.bounds.height)
+//        368.0 338.0 568.0
+//        644.0 614.0 844.0
+        game.boardScene?.view.frame = CGRect(x: 0, y: 80, width: view.bounds.width, height: view.bounds.height*0.9-145)
+        gameView.frame = CGRect(x: 0, y: 0, width: view.bounds.width, height: view.bounds.height)
+        
+        sentLabel.frame = CGRect(x: gameView.center.x-40, y: gameView.center.y, width: 80, height: 40)
+        sentLabel.text = "sent!"
+        sentLabel.textColor = .white
+        sentLabel.textAlignment = .center
+        let halfGray = UIColor.gray.withAlphaComponent(0.8)
+        sentLabel.backgroundColor = halfGray
+        sentLabel.layer.cornerRadius = 12
+        sentLabel.layer.masksToBounds = true
+        gameView.addSubview(sentLabel)
+        sentLabel.isHidden = true
+        
+        for p in stride(from: 0, through: 1, by: 1) {
+            let width = min(150, (gameView.bounds.width-60)/2)
+            let x = p == 0 ? 20 : (gameView.bounds.width - 20 - width)
+            playerView[p].frame = CGRect(x: x, y: 15, width: width, height: 50)
+            playerView[p].layer.cornerRadius = 25
+            gameView.addSubview(playerView[p])
+            
+            playerText[p].frame = playerView[p].frame
+            playerText[p].textColor = .white
+            playerText[p].textAlignment = .center
+            gameView.addSubview(playerText[p])
+        }
         
         view.addSubview(gameView)
     }
     
-    // MARK: - Conversation Handling
-    
     override func willSelect(_ message: MSMessage, conversation: MSConversation) {
-        selected = message
-        loadButton.isHidden = true
-        gameView.isHidden = false
+        if selected == nil {
+            newMessage(message)
+        }
     }
     
     override func willBecomeActive(with conversation: MSConversation) {
@@ -50,10 +84,13 @@ class MessagesViewController: MSMessagesAppViewController {
         
         // Use this method to configure the extension and restore previously stored state.
         
-        if let newMessage = conversation.selectedMessage {
-            selected = newMessage
-            loadButton.isHidden = true
-            gameView.isHidden = false
+        if let message = conversation.selectedMessage {
+            newMessage(message)
+//            selected = newMessage
+//            loadButton.isHidden = true
+//            gameView.isHidden = false
+//            print("becoming active", newMessage.url)
+//            game.load(from: newMessage.url)
         } else {
             loadButton.isHidden = false
             gameView.isHidden = true
@@ -94,7 +131,7 @@ class MessagesViewController: MSMessagesAppViewController {
         if selected != nil && presentationStyle == .compact {
             selected = nil
             loadButton.isHidden = false
-            print("should hide game")
+            gameView.isHidden = true
         }
     }
     
@@ -104,24 +141,87 @@ class MessagesViewController: MSMessagesAppViewController {
         // Use this method to finalize any behaviors associated with the change in presentation style.
     }
     
-    @objc func pressedTest() {
+    func newMessage(_ message: MSMessage) {
+        selected = message
+        loadButton.isHidden = true
+        gameView.isHidden = false
+        game.load(from: message.url)
+        
+        for p in stride(from: 0, through: 1, by: 1) {
+            playerView[p].backgroundColor = .primary(game.player[p].color)
+            playerText[p].text = game.player[p].name
+            playerView[p].layer.shadowColor = UIColor.primary(game.player[p].color).cgColor
+            playerView[p].layer.shadowRadius = 12
+//                playerView[p].layer.shadowOffset = .init(width: 10, height: 10)
+            playerView[p].layer.shadowPath = UIBezierPath(rect: playerView[p].bounds.inset(by: .init(top: 8, left: 0, bottom: 0, right: 0))).cgPath
+            if let winner = game.winner {
+                playerView[p].layer.shadowOpacity = winner == p ? 1 : 0
+            } else {
+                playerView[p].layer.shadowOpacity = game.turn == p ? 1 : 0
+            }
+        }
+    }
+    
+    func sendMessage(move: Character) {
+//        print("sending move!")
+        if game.winner == nil {
+            playerView[0].layer.shadowOpacity = game.turn == 0 ? 1 : 0
+            playerView[1].layer.shadowOpacity = game.turn == 1 ? 1 : 0
+        }
+        
         let message = MSMessage(session: selected?.session ?? MSSession())
         message.summaryText = "4Play game"
         let layout = MSMessageTemplateLayout()
-        layout.image = UIImage(named: "blueCube")
+        layout.image = UIImage(named: "icon1024half")
         layout.caption = "4Play"
         message.layout = layout
+        guard let url = selected?.url else { print("no url"); return }
+        guard var urlComponents = URLComponents(url: url, resolvingAgainstBaseURL: true) else { print("url failed"); return }
+        let gameString = (urlComponents.queryItems?[0].value ?? "") + String(move)
+        urlComponents.queryItems?[0] = URLQueryItem(name: "game", value: gameString)
+        
+        message.url = urlComponents.url
+        
         activeConversation?.send(message)
+        
+        Timer.scheduledTimer(withTimeInterval: 0.3, repeats: false, block: { _ in
+            self.sentLabel.isHidden = false
+        })
+        Timer.scheduledTimer(withTimeInterval: 1.2, repeats: false, block: { _ in
+            self.sentLabel.isHidden = true
+        })
     }
     
     @objc func pressedStart() {
         let message = MSMessage(session: selected?.session ?? MSSession())
         message.summaryText = "4Play game"
         let layout = MSMessageTemplateLayout()
-        layout.image = UIImage(named: "blueCube")
+        layout.image = UIImage(named: "icon1024half")
         layout.caption = "4Play"
         message.layout = layout
-        activeConversation?.insert(message)
+        let uuid = UIDevice.current.identifierForVendor?.uuidString ?? ""
+        
+        var first: Bool = 0 == .random(in: 0...1)
+        if picker.selected[0] == 0 { first = true }
+        if picker.selected[0] == 2 { first = false }
+        
+        var urlComponents = URLComponents()
+        urlComponents.host = "qubic"
+        urlComponents.queryItems = [
+            URLQueryItem(name: "game", value: "."),
+            URLQueryItem(name: "type", value: "default"),
+            URLQueryItem(name: "me", value: uuid),
+            URLQueryItem(name: "p1", value: first ? "me" : "op")
+        ]
+        message.url = urlComponents.url
+//        print(message.url)
+        
+        if first {
+            requestPresentationStyle(.expanded)
+            newMessage(message)
+        } else {
+            activeConversation?.insert(message)
+        }
     }
 
 }

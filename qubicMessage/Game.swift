@@ -1,12 +1,13 @@
 //
 //  Game.swift
-//  qubic
+//  qubicMessage
 //
-//  Created by 4 on 10/13/20.
-//  Copyright © 2020 XNO LLC. All rights reserved.
+//  Created by 4 on 1/9/21.
+//  Copyright © 2021 XNO LLC. All rights reserved.
 //
 
-import SwiftUI
+import Foundation
+import UIKit
 
 struct WinLine {
     let start: Int
@@ -36,6 +37,7 @@ class Game: ObservableObject {
     
     var goBack: () -> Void = {}
     var cancelBack: () -> Bool = { true }
+    var sendMessage: (Character) -> Void = { _ in }
     var myTurn: Int = 0
     var player: [Player] = [Player(b: Board(), n: 0), Player(b: Board(), n: 0)]
     var preset: [Int] = []
@@ -43,6 +45,7 @@ class Game: ObservableObject {
     var dayInt: Int? = nil
     var winner: Int? = nil
     var replayMode: Bool = false
+    var moved: Bool = false
 //    var hints: Bool = false
     var leaving: Bool = false
     private var board = Board()
@@ -55,21 +58,31 @@ class Game: ObservableObject {
         boardScene = BoardScene(game: self)
     }
     
-    static private func getOp(for mode: GameMode, b: Board, n: Int, num: Int) -> Player {
-        switch mode {
-        case .novice:   return Novice(b: b, n: n)
-        case .defender: return Defender(b: b, n: n)
-        case .warrior:  return Warrior(b: b, n: n)
-        case .tyrant:   return Tyrant(b: b, n: n)
-        case .oracle:   return Oracle(b: b, n: n)
-        case .cubist:   return Cubist(b: b, n: n)
-        case .daily:    return Daily(b: b, n: n)
-        case .tricky:   return Tricky(b: b, n: n, num: num)
-        default:        return Daily(b: b, n: n)
+    func load(from url: URL?) {
+        guard let solidUrl = url else {
+            print("no url")
+            return
         }
-    }
-    
-    func load(mode: GameMode, boardNum: Int = 0, turn: Int? = nil, hints: Bool = false) {
+        guard let data = URLComponents(url: solidUrl, resolvingAgainstBaseURL: false) else {
+            print("couldn't parse parts")
+            return
+        }
+        
+        let gameString = String(data.queryItems?[0].value?.dropFirst() ?? "")
+        print(gameString)
+        preset = expandMoves(gameString)
+        
+        guard let uuid = UIDevice.current.identifierForVendor?.uuidString else {
+            print("no uuid")
+            return
+        }
+        let selfCreated = data.queryItems?[2].value ?? "" == uuid
+        myTurn = selfCreated == (data.queryItems?[3].value ?? "" == "me") ? 0 : 1
+        moved = preset.count % 2 != myTurn
+//        moved = false // TODO switch out with above
+        
+//        print(selfCreated, myTurn, uuid, moved)
+        
         board = Board()
         boardScene?.reset()
         undoOpacity = 0
@@ -80,37 +93,46 @@ class Game: ObservableObject {
         undoneMoveStack = []
         hintCard = false
         replayMode = false
-        preset = Game.getPreset(boardNum, for: mode)
         dayInt = Date().getInt()
-        myTurn = turn != nil ? turn! : preset.count % 2
         self.turn = 0
-        self.mode = mode
-//        self.hints = hints
+        self.mode = .play
         let me = User(b: board, n: myTurn)
-        let op = Game.getOp(for: mode, b: board, n: myTurn^1, num: boardNum)
+        let op = User(b: board, n: myTurn^1, name: "friend")
         if me.color == op.color { op.color = Game.getDefaultColor(for: me.color) }
         player = myTurn == 0 ? [me, op] : [op, me]
         for p in preset { loadMove(p) }
-        player[self.turn].move(with: processMove)
-        withAnimation { undoOpacity = hints ? 0.3 : 0.0 }
+        if winner == nil { player[self.turn].move(with: processMove) }
+//        undoOpacity = hints ? 0.3 : 0.0
     }
     
     func loadMove(_ move: Int) {
-        // Assumes no wins!
-        guard board.processMove(move) != nil else { print("Invalid load move!"); return }
+        guard let wins = board.processMove(move) else { print("Invalid load move!"); return }
         boardScene?.addCube(move: move, color: .primary(player[turn].color))
         turn = board.getTurn()
+        if undoOpacity == 0.3 { undoOpacity = 1 }
+        if !wins.isEmpty {
+            winner = turn^1
+            if winner == myTurn { updateWins() }
+            undoOpacity = 1.0
+            redoOpacity = 0.3
+            Timer.scheduledTimer(withTimeInterval: 0.2, repeats: false, block: { _ in
+                self.boardScene?.showWin(wins)
+            })
+        }
     }
     
     func processMove(_ move: Int, on key: UInt64) {
+//        print("processing move")
+        guard !moved else { return }
         guard !hintCard else { pendingMove = (move, key); return }
         pendingMove = nil
         guard key == board.board[turn] else { print("Invalid turn!"); return }
         guard let wins = board.processMove(move) else { print("Invalid move!"); return }
         boardScene?.showMove(move)
         turn = board.getTurn()
+        moved = true
         hintText = nil
-        if undoOpacity == 0.3 { withAnimation { undoOpacity = 1 } }
+        if undoOpacity == 0.3 { undoOpacity = 1 }
         if wins.isEmpty {
             Timer.scheduledTimer(withTimeInterval: 0.2, repeats: false, block: { _ in
                 self.player[self.turn].move(with: self.processMove)
@@ -119,15 +141,14 @@ class Game: ObservableObject {
             winner = turn^1
             if winner == myTurn { updateWins() }
             if ![.daily, .simple, .common, .tricky].contains(mode) || winner == myTurn {
-                withAnimation {
-                    undoOpacity = 1.0
-                    redoOpacity = 0.3
-                }
+                undoOpacity = 1.0
+                redoOpacity = 0.3
             }
             Timer.scheduledTimer(withTimeInterval: 0.2, repeats: false, block: { _ in
                 self.boardScene?.showWin(wins)
             })
         }
+        sendMessage(moveStringMap[move])
     }
     
     func processReplayMove(_ move: Int, on key: UInt64) {
@@ -136,19 +157,17 @@ class Game: ObservableObject {
         turn = board.getTurn()
         replayMoveCount += 1
         hintText = nil
-        if undoOpacity == 0.3 { withAnimation { undoOpacity = 1 } }
+        if undoOpacity == 0.3 { undoOpacity = 1 }
         player[myTurn].move(with: self.processReplayMove)
     }
     
     func showHintCard() -> Bool {
-        withAnimation {
-            hintCard = true
-            if undoOpacity == 1 {
-                undoOpacity = 0.3
-            }
-            if redoOpacity == 1 {
-                redoOpacity = 0.3
-            }
+        hintCard = true
+        if undoOpacity == 1 {
+            undoOpacity = 0.3
+        }
+        if redoOpacity == 1 {
+            redoOpacity = 0.3
         }
         
         if hintText == nil {
@@ -162,16 +181,14 @@ class Game: ObservableObject {
     
     func hideHintCard() -> Bool {
         if !hintCard { return false }
-        withAnimation {
-            hintCard = false
-            let emptyBoard = (board.board[0] + board.board[1] == 0)
-            if undoOpacity == 0.3 && !emptyBoard {
-                undoOpacity = 1
-            }
-            let fullBoard = undoneMoveStack.isEmpty
-            if redoOpacity == 0.3 && !fullBoard {
-                redoOpacity = 1
-            }
+        hintCard = false
+        let emptyBoard = (board.board[0] + board.board[1] == 0)
+        if undoOpacity == 0.3 && !emptyBoard {
+            undoOpacity = 1
+        }
+        let fullBoard = undoneMoveStack.isEmpty
+        if redoOpacity == 0.3 && !fullBoard {
+            redoOpacity = 1
         }
         if let move = pendingMove {
             Timer.scheduledTimer(withTimeInterval: 0.5, repeats: false) { _ in
@@ -190,11 +207,11 @@ class Game: ObservableObject {
         turn = board.getTurn()
         hintText = nil
         let emptyBoard = (board.board[0] + board.board[1] == 0)
-        withAnimation { undoOpacity = emptyBoard ? 0.3 : 1 }
+        undoOpacity = emptyBoard ? 0.3 : 1
         if replayMode {
             if replayMoveCount == 0 {
                 undoneMoveStack.append(move)
-                withAnimation { redoOpacity = 1 }
+                redoOpacity = 1
             } else {
                 replayMoveCount -= 1
             }
@@ -222,7 +239,7 @@ class Game: ObservableObject {
             boardScene?.showMove(move)
             turn = board.getTurn()
             hintText = nil
-            withAnimation { undoOpacity = 1 }
+            undoOpacity = 1
             if !wins.isEmpty && undoneMoveStack.isEmpty && replayMoveCount == 0 {
                 Timer.scheduledTimer(withTimeInterval: 0.2, repeats: false, block: { _ in
                     self.boardScene?.showWin(wins)
@@ -230,23 +247,8 @@ class Game: ObservableObject {
             }
         }
         let fullBoard = undoneMoveStack.isEmpty
-        withAnimation { redoOpacity = fullBoard ? 0.3 : 1 }
+        redoOpacity = fullBoard ? 0.3 : 1
         player[myTurn].move(with: processReplayMove)
-    }
-    
-    private static func getPreset(_ board: Int, for mode: GameMode) -> [Int] {
-        if mode == .daily {
-            let day = Calendar.current.component(.day, from: Date())
-            let month = Calendar.current.component(.month, from: Date())
-            let year = Calendar.current.component(.year, from: Date())
-            let total = allSolveBoards.count
-            let offset = (year+month+day) % (total/31 + (total%31 > day ? 1 : 0))
-            return expandMoves(allSolveBoards[31*offset + day])
-        } else if mode == .tricky {
-            return expandMoves(allSolveBoards[21])
-        } else {
-            return []
-        }
     }
     
     private static func getDefaultColor(for n: Int) -> Int {
@@ -254,24 +256,6 @@ class Game: ObservableObject {
     }
     
     func updateWins() {
-        if mode == .daily && dayInt != UserDefaults.standard.integer(forKey: lastDCKey) {
-            Notifications.ifUndetermined {
-                DispatchQueue.main.async {
-                    self.showDCAlert = true
-                }
-            }
-            Notifications.setBadge(justSolved: true, dayInt: dayInt ?? Date().getInt())
-            withAnimation { newStreak = UserDefaults.standard.integer(forKey: streakKey) }
-            Timer.scheduledTimer(withTimeInterval: 2.4, repeats: false, block: { _ in
-                withAnimation { self.newStreak = nil }
-            })
-        } else if mode == .tricky {
-            UserDefaults.standard.setValue([1], forKey: trickyKey)
-        } else if let index = [.novice, .defender, .warrior, .tyrant, .oracle, .cubist].firstIndex(of: mode), undoOpacity == 0 {
-            var beaten = UserDefaults.standard.array(forKey: trainKey) as? [Int] ??  [0,0,0,0,0,0]
-            beaten[index] = 1
-            UserDefaults.standard.setValue(beaten, forKey: trainKey)
-        }
     }
     
     func getHints(for n: Int) -> HintValue? {

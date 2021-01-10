@@ -19,12 +19,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             trainKey: [0,0,0,0,0,0,0],
             lastTrainKey: 0,
             trickyKey: [0],
-            usernameKey: "new user",
+            usernameKey: "new player",
             dotKey: 0,
             notificationKey: 1
         ])
-        
-//        application.registerForRemoteNotifications()
         
         return true
     }
