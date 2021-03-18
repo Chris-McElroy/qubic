@@ -57,34 +57,39 @@ struct MainView: View {
     }
     
     private var mainStack: some View {
-        VStack(spacing: 0) {
+        let playText = "  \u{2009}\u{2009}\u{2009}play\u{2009}\u{2009}\u{2009}  "
+        
+        return VStack(spacing: 0) {
             TrainView(view: $heights.view, game: game)
                 .frame(height: heights.get(heights.trainView), alignment: .bottom)
-            mainButton(text: "train", color: heights.view == .trainMenu ? .primary(0) : .tertiary(0)) { self.switchView(to: .trainMenu, or: .train) }
+            mainButton(view: $heights.view, views: [.trainMenu, .train], text: "  train  ", color: .tertiary(0), action: switchView)
                 .zIndex(5)
             SolveView(view: $heights.view, game: game)
                 .frame(height: heights.get(heights.solveView), alignment: .bottom)
             ZStack {
-                mainButton(text: "solve", color: heights.view == .solveMenu ? .primary(0) : .secondary(0)) { self.switchView(to: .solveMenu, or: .solve) }
+                mainButton(view: $heights.view, views: [.solveMenu, .solve], text: " solve ", color: .secondary(0), action: switchView)
                 if UserDefaults.standard.integer(forKey: lastDCKey) != Date().getInt() {
                     Circle().frame(width: 24, height: 24).foregroundColor(heights.view == .solveMenu ? .secondary(0) : .primary(0)).zIndex(2).offset(x: 88, y: -25)
                 }
             }
             PlayView(view: $heights.view, game: game)
                 .frame(height: heights.get(heights.playView), alignment: .bottom)
-            mainButton(text: "play", color: .primary(0)) { self.switchView(to: .play) }
+            mainButton(view: $heights.view, views: [.playMenu, .play], text: playText, color: .primary(0), action: switchView)
         }
     }
     
     private struct mainButton: View {
+        @Binding var view: ViewStates
+        let views: [ViewStates]
         let text: String
         let color: Color
-        let action: () -> Void
+        let action: (ViewStates, ViewStates) -> Void
         
         var body: some View {
             ZStack {
                 Fill().frame(height: mainButtonHeight)
-                Button(action: action, label: { Text(text) }).buttonStyle(MainStyle(color: color))
+                Button(action: { action(views[0], views[1]) }, label: { Text(views.contains(view) ? "  start  " : text) })
+                    .buttonStyle(MainStyle(color: views.contains(view) ? .primary(0) : color))
             }
         }
     }
@@ -151,7 +156,7 @@ struct MainView: View {
                     if self.heights.view == .main {
                         if h < 0 { self.switchView(to: .more) }
                         else { self.cube.flipCube() }
-                    } else if h > 0 || [.trainMenu,.solveMenu].contains(self.heights.view) {
+                    } else if h > 0 || [.trainMenu, .solveMenu, .playMenu].contains(self.heights.view) {
                         self.goBack()
                     }
                 } else {
@@ -170,13 +175,21 @@ struct MainView: View {
     
     func goBack() {
         if game.hideHintCard() { return }
-        let backMain: [ViewStates] = [.more,.train,.trainMenu,.solve,.solveMenu,.play]
+        let back: [ViewStates: ViewStates] = [
+            .more: .main,
+            .trainMenu: .main,
+            .solveMenu: .main,
+            .playMenu: .main,
+            .train: .trainMenu,
+            .solve: .solveMenu,
+            .play: .playMenu
+        ]
         if [.play,.solve,.train].contains(heights.view) { halfBack.toggle() }
         if halfBack {
             UIImpactFeedbackGenerator(style: .rigid).impactOccurred()
         } else {
             withAnimation(.easeInOut(duration: 0.4)) { //0.4
-                heights.view = backMain.contains(heights.view) ? .main : .more
+                heights.view = back[heights.view, default: .more]
             }
         }
     }

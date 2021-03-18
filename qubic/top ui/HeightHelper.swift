@@ -15,6 +15,7 @@ enum ViewStates {
     case train
     case solveMenu
     case solve
+    case playMenu
     case play
     case about
     case settings
@@ -72,10 +73,11 @@ extension MainView {
             case .train:     return Display(top: trainView, focus: trainView, bottom: trainView)
             case .solveMenu: return Display(top: top,       focus: solveView, bottom: solve)
             case .solve:     return Display(top: solveView, focus: solveView, bottom: solveView)
+            case .playMenu:  return Display(top: playView,  focus: playView,  bottom: play)
             case .play:      return Display(top: playView,  focus: playView,  bottom: playView)
             case .more:      return Display(top: train,     focus: moreFill,  bottom: moreFill)
-            case .about:     return Display(top: about,     focus: about,     bottom: settings)
-            case .settings:  return Display(top: about,     focus: settings,  bottom: settings)
+            case .about:     return Display(top: about,     focus: about,     bottom: about)
+            case .settings:  return Display(top: settings,     focus: settings,  bottom: settings)
 //            case .replays:   return Display(top: about,     focus: replays,   bottom: friends)
 //            case .friends:   return Display(top: about,     focus: friends,   bottom: friends)
             }

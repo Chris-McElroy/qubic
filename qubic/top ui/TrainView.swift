@@ -10,16 +10,16 @@ import SwiftUI
 
 struct TrainView: View {
     @Binding var view: ViewStates
-    @State var selected: [Int] = [0,1,UserDefaults.standard.integer(forKey: lastTrainKey)]
+    @State var selected: [Int] = [UserDefaults.standard.integer(forKey: lastTrainKey),1,0]
     let game: Game
     let beaten = UserDefaults.standard.array(forKey: trainKey) as? [Int] ?? [0,0,0,0,0,0]
     
     var body: some View {
-        VStack(spacing: 0) {
-            if view == .train {
-                GameView(game: game)
-                    .onAppear { game.load(mode: mode, turn: turn, hints: hints) }
-            } else if view == .trainMenu {
+        if view == .train {
+            GameView(game: game)
+                .onAppear { game.load(mode: mode, turn: turn, hints: hints) }
+        } else if view == .trainMenu {
+            VStack(spacing: 0) {
                 Spacer()
                 HPicker(content: pickerText, dim: (90, 55), selected: $selected, action: onSelection)
                     .frame(height: 180)
@@ -35,18 +35,18 @@ struct TrainView: View {
     }
     
     var pickerText: [[(String, Bool)]] {
-        [[("sandbox", false),("challenge", false)],
-         [("first", false),("random", false),("second", false)],
-         [("novice",    beaten[0] == 1),
+        [[("novice",    beaten[0] == 1),
           ("defender",  beaten[1] == 1),
           ("warrior",   beaten[2] == 1),
           ("tyrant",    beaten[3] == 1),
           ("oracle",    beaten[4] == 1),
-          ("cubist",    beaten[5] == 1)]]
+          ("cubist",    beaten[5] == 1)],
+         [("first", false),("random", false),("second", false)],
+         [("sandbox", false),("challenge", false)]]
     }
     
     var mode: GameMode {
-        switch selected[2] {
+        switch selected[0] {
         case 0: return .novice
         case 1: return .defender
         case 2: return .warrior
@@ -65,7 +65,7 @@ struct TrainView: View {
     }
     
     var hints: Bool {
-        selected[0] == 0
+        selected[2] == 0
     }
     
 //    var difficultyPicker: some View {
