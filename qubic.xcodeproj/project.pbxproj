@@ -59,6 +59,7 @@
 		1EC2788D2585ACC600F6A5EB /* Player.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EC2788C2585ACC600F6A5EB /* Player.swift */; };
 		1EC2B8852536A86C001B0A1F /* Checks.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EC2B8842536A86C001B0A1F /* Checks.swift */; };
 		1EC86B1325AABDE000DA434A /* HPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EC86B1225AABDE000DA434A /* HPicker.swift */; };
+		1EDAE0DF260814EC006173B4 /* MessageHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EDAE0DE260814EC006173B4 /* MessageHelper.swift */; };
 		1EDDE19024FAC70800B7742C /* Board.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EDDE18F24FAC70800B7742C /* Board.swift */; };
 		1EE4C75C24EB7ADC0038C1E2 /* UIHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EE4C75B24EB7ADC0038C1E2 /* UIHelper.swift */; };
 		1EEB0D4E24CF3780008F5B4B /* ColorHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EEB0D4D24CF3780008F5B4B /* ColorHelper.swift */; };
@@ -137,6 +138,7 @@
 		1EC2788C2585ACC600F6A5EB /* Player.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Player.swift; sourceTree = "<group>"; };
 		1EC2B8842536A86C001B0A1F /* Checks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Checks.swift; sourceTree = "<group>"; };
 		1EC86B1225AABDE000DA434A /* HPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HPicker.swift; sourceTree = "<group>"; };
+		1EDAE0DE260814EC006173B4 /* MessageHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageHelper.swift; sourceTree = "<group>"; };
 		1EDDE18F24FAC70800B7742C /* Board.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Board.swift; sourceTree = "<group>"; };
 		1EE4C75B24EB7ADC0038C1E2 /* UIHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIHelper.swift; sourceTree = "<group>"; };
 		1EEB0D4D24CF3780008F5B4B /* ColorHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorHelper.swift; sourceTree = "<group>"; };
@@ -206,6 +208,7 @@
 				1E7B117C2586B33400A0CD9F /* NotificationHelper.swift */,
 				1EEB0D4D24CF3780008F5B4B /* ColorHelper.swift */,
 				1E68179224CC973B001713E7 /* AppDelegate.swift */,
+				1EDAE0DE260814EC006173B4 /* MessageHelper.swift */,
 				1E68179424CC973B001713E7 /* SceneDelegate.swift */,
 				1E68179D24CC973D001713E7 /* LaunchScreen.storyboard */,
 			);
@@ -432,6 +435,7 @@
 				1E636FC6258A8A06005B8D4F /* Common.swift in Sources */,
 				1EE4C75C24EB7ADC0038C1E2 /* UIHelper.swift in Sources */,
 				1E9E9FBE24CDEB4700002500 /* SceneHelper.swift in Sources */,
+				1EDAE0DF260814EC006173B4 /* MessageHelper.swift in Sources */,
 				1EB693982599A14D0025B080 /* Tyrant.swift in Sources */,
 				1EAEE3BB24D9DA1400490530 /* FriendsView.swift in Sources */,
 				1EC2788D2585ACC600F6A5EB /* Player.swift in Sources */,

@@ -7,10 +7,11 @@
 //
 
 import SwiftUI
+import MessageUI
 
 struct PlayView: View {
     @Binding var view: ViewStates
-    @State var selected = [1,1,0]
+    @Binding var selected: [Int]
     let game: Game
     let menuText = [[("local",false),("online",false),("invite",false)],
                     [("first",false),("random",false),("second",false)],
@@ -23,16 +24,19 @@ struct PlayView: View {
         } else if view == .playMenu {
             VStack(spacing: 0) {
                 Spacer()
-                HPicker(content: menuText, dim: (90, 55), selected: $selected, action: {_,_ in })
+                HPicker(content: menuText, dim: (90, 55), selected: $selected, action: onSelection)
                     .frame(height: 180)
                     .opacity(view == .playMenu ? 1 : 0)
             }
         }
     }
+    
+    func onSelection(row: Int, component: Int) {
+    }
 }
 
 struct PlayView_Previews: PreviewProvider {
     static var previews: some View {
-        PlayView(view: .constant(.main), game: Game())
+        PlayView(view: .constant(.main), selected: .constant([0,0,0]), game: Game())
     }
 }

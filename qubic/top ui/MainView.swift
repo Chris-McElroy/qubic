@@ -12,8 +12,13 @@ struct MainView: View {
     @EnvironmentObject var screen: ScreenObserver
     @State var heights: Heights = Heights()
     @State var halfBack: Bool = false
+    @State var playSelection = [1,1,0]
     
     @ObservedObject var game = Game()
+    
+    
+    // The delegate required by `MFMessageComposeViewController`
+    let messageComposeDelegate = MessageDelegate()
     
     var body: some View {
         VStack(alignment: .center, spacing: 0) {
@@ -72,9 +77,12 @@ struct MainView: View {
                     Circle().frame(width: 24, height: 24).foregroundColor(heights.view == .solveMenu ? .secondary(0) : .primary(0)).zIndex(2).offset(x: 88, y: -25)
                 }
             }
-            PlayView(view: $heights.view, game: game)
+            PlayView(view: $heights.view, selected: $playSelection, game: game)
                 .frame(height: heights.get(heights.playView), alignment: .bottom)
-            mainButton(view: $heights.view, views: [.playMenu, .play], text: playText, color: .primary(0), action: switchView)
+            mainButton(view: $heights.view, views: [.playMenu, .play], text: playText, color: .primary(0)) { v1,v2 in
+                if heights.view == .playMenu && playSelection[0] == 2 { presentMessageCompose() }
+                else { switchView(to: v1, or: v2) }
+            }
         }
     }
     
