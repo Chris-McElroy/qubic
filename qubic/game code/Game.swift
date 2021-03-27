@@ -17,7 +17,7 @@ struct WinLine {
 enum GameMode {
     case novice, defender, warrior, tyrant, oracle, cubist
     case daily, simple, common, tricky
-    case play
+    case local, online, invite
 }
 
 enum HintValue {
@@ -39,7 +39,7 @@ class Game: ObservableObject {
     var myTurn: Int = 0
     var player: [Player] = [Player(b: Board(), n: 0), Player(b: Board(), n: 0)]
     var preset: [Int] = []
-    var mode: GameMode = .play
+    var mode: GameMode = .local
     var dayInt: Int? = nil
     var winner: Int? = nil
     var replayMode: Bool = false
@@ -65,6 +65,8 @@ class Game: ObservableObject {
         case .cubist:   return Cubist(b: b, n: n)
         case .daily:    return Daily(b: b, n: n)
         case .tricky:   return Tricky(b: b, n: n, num: num)
+        case .local:    return User(b: b, n: n, name: "friend")
+        case .online:   return Online(b: b, n: n)
         default:        return Daily(b: b, n: n)
         }
     }

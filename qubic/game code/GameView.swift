@@ -129,7 +129,9 @@ struct GameView: View {
     struct PlayerName: View {
         let turn: Int
         @ObservedObject var game: Game
+        // TODO why are these vars?
         var color: Color { .primary(game.player[turn].color) }
+        var rounded: Bool { game.player[turn].rounded }
         var glow: Color {
             if let winner = game.winner {
                 return winner == turn ? color : .clear
@@ -147,7 +149,7 @@ struct GameView: View {
                     .foregroundColor(.white)
                     .frame(minWidth: 140, maxWidth: 160, minHeight: 40)
                     .background(Rectangle().foregroundColor(color))
-                    .cornerRadius(100)
+                    .cornerRadius(rounded ? 100 : 4)
                     .shadow(color: glow, radius: 8, y: 0)
                     .animation(.easeIn(duration: 0.3))
                     .rotation3DEffect(game.newStreak != nil && game.winner != turn ? .radians(.pi/2) : .zero, axis: (x: 1, y: 0, z: 0), anchor: .top)

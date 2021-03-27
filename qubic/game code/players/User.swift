@@ -16,7 +16,7 @@ class User: Player {
         if let name = name {
             username = name
         }
-        super.init(b: b, n: n, name: username, color: 0, lineP: [:], dirStats: [], depth: 0, w2BlockP: 0, lineScore: [], bucketP: 0)
+        super.init(b: b, n: n, name: username, color: 0, rounded: true, lineP: [:], dirStats: [], depth: 0, w2BlockP: 0, lineScore: [], bucketP: 0)
     }
     
     override func move(with process: @escaping (Int, UInt64) -> Void) {

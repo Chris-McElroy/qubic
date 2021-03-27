@@ -14,6 +14,7 @@ class Player {
     let o: Int
     let name: String
     var color: Int
+    let rounded: Bool
     
     let lineP: [Int: Double]
     let dirStats: [Double]
@@ -28,6 +29,7 @@ class Player {
         o = 0
         name = ""
         color = 0
+        rounded = false
         
         lineP = [:]
         dirStats = []
@@ -37,12 +39,13 @@ class Player {
         bucketP = 0
     }
     
-    init(b: Board, n: Int, name: String, color: Int, lineP: [Int: Double], dirStats: [Double], depth: Int, w2BlockP: Double, lineScore: [Double], bucketP: Double) {
+    init(b: Board, n: Int, name: String, color: Int, rounded: Bool = false, lineP: [Int: Double], dirStats: [Double], depth: Int, w2BlockP: Double, lineScore: [Double], bucketP: Double) {
         self.b = b
         self.n = n
         self.o = n^1
         self.name = name
         self.color = color
+        self.rounded = rounded
         
         self.lineP = lineP
         self.dirStats = dirStats
