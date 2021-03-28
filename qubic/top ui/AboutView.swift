@@ -27,7 +27,7 @@ struct AboutView: View {
                     LinkView(site: "https://xno.store/about", text: "about me")
                     LinkView(site: "https://xno.store/contact", text: "contact me")
                     LinkView(site: "http://xno.store/privacy-policy", text: "privacy policy")
-                    Text("©2020 XNO LLC")
+                    Text("©2021 XNO LLC")
                 }.zIndex(2)
             }
             Spacer()
