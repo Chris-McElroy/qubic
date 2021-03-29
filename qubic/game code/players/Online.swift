@@ -12,7 +12,7 @@ class Online: Player {
     override init(b: Board, n: Int) {
         let bot = Online.bots.randomElement() ?? Bot("o", 0, 0)
         let squaredSkill = (2-bot.skill)*bot.skill
-        
+        DatabaseHelper().postOnlineInvite(time: -1)
         
         super.init(b: b, n: n, name: bot.name, color: bot.color,
                    // TODO keep toyin
