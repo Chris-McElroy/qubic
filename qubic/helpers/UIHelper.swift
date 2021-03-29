@@ -21,6 +21,8 @@ let dotKey = "dotKey"
 let usernameKey = "username"
 let notificationKey = "notifications"
 
+var myUUID: UUID { UIDevice.current.identifierForVendor ?? UUID() }
+
 extension Sequence where Element: AdditiveArithmetic {
     func sum() -> Element { reduce(.zero, +) }
 }
@@ -41,6 +43,10 @@ extension Date {
     
     static var now: TimeInterval {
         timeIntervalSinceReferenceDate
+    }
+    
+    static var ms: Int {
+        Int(now*1000)
     }
 }
 

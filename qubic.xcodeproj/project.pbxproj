@@ -21,6 +21,8 @@
 		1E3335D2253400FD00966EA6 /* Cubist.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E3335D1253400FD00966EA6 /* Cubist.swift */; };
 		1E3A697F24CE1F02000930A4 /* Oligopoly Regular.otf in Resources */ = {isa = PBXBuildFile; fileRef = 1E3A697E24CE1F02000930A4 /* Oligopoly Regular.otf */; };
 		1E5A5AAE24CD077900F31124 /* TrainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E5A5AAD24CD077900F31124 /* TrainView.swift */; };
+		1E5D60D526116B80006BEF58 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 1E5D60D426116B80006BEF58 /* GoogleService-Info.plist */; };
+		1E5D60D626116B80006BEF58 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 1E5D60D426116B80006BEF58 /* GoogleService-Info.plist */; };
 		1E636FBB258A8687005B8D4F /* Daily.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E636FBA258A8687005B8D4F /* Daily.swift */; };
 		1E636FC0258A882B005B8D4F /* Tricky.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E636FBF258A882B005B8D4F /* Tricky.swift */; };
 		1E636FC3258A8995005B8D4F /* Simple.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E636FC2258A8995005B8D4F /* Simple.swift */; };
@@ -49,7 +51,7 @@
 		1E7B959224D34015004B3C80 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E7B959124D34015004B3C80 /* SettingsView.swift */; };
 		1E883EFB24EE3B14002686C8 /* HeightHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E883EFA24EE3B14002686C8 /* HeightHelper.swift */; };
 		1E8C554725365E3400C9A556 /* Game.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E8C554625365E3400C9A556 /* Game.swift */; };
-		1E9A545A26112F90001FC204 /* Firebase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E9A545926112F90001FC204 /* Firebase.swift */; };
+		1E9A545A26112F90001FC204 /* DatabaseHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E9A545926112F90001FC204 /* DatabaseHelper.swift */; };
 		1E9E9FBE24CDEB4700002500 /* SceneHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E9E9FBD24CDEB4700002500 /* SceneHelper.swift */; };
 		1EA0CABA2580468D00C200E8 /* HPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EA0CAB92580468D00C200E8 /* HPicker.swift */; };
 		1EAEE3BB24D9DA1400490530 /* FriendsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EAEE3BA24D9DA1400490530 /* FriendsView.swift */; };
@@ -66,6 +68,8 @@
 		1EDDE19024FAC70800B7742C /* Board.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EDDE18F24FAC70800B7742C /* Board.swift */; };
 		1EE4C75C24EB7ADC0038C1E2 /* UIHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EE4C75B24EB7ADC0038C1E2 /* UIHelper.swift */; };
 		1EEB0D4E24CF3780008F5B4B /* ColorHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EEB0D4D24CF3780008F5B4B /* ColorHelper.swift */; };
+		AED83640B64C9C248C88B0B2 /* Pods_qubic.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 535B31542F05D481FEF1F34D /* Pods_qubic.framework */; };
+		BB6FF8713E0CED8099A31C90 /* Pods_qubicMessage.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6C1736A142026CE63D5C6A44 /* Pods_qubicMessage.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -108,6 +112,7 @@
 		1E3335D1253400FD00966EA6 /* Cubist.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Cubist.swift; sourceTree = "<group>"; };
 		1E3A697E24CE1F02000930A4 /* Oligopoly Regular.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Oligopoly Regular.otf"; sourceTree = "<group>"; };
 		1E5A5AAD24CD077900F31124 /* TrainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrainView.swift; sourceTree = "<group>"; };
+		1E5D60D426116B80006BEF58 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		1E636FBA258A8687005B8D4F /* Daily.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Daily.swift; sourceTree = "<group>"; };
 		1E636FBF258A882B005B8D4F /* Tricky.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tricky.swift; sourceTree = "<group>"; };
 		1E636FC2258A8995005B8D4F /* Simple.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Simple.swift; sourceTree = "<group>"; };
@@ -131,7 +136,7 @@
 		1E7B959124D34015004B3C80 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		1E883EFA24EE3B14002686C8 /* HeightHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeightHelper.swift; sourceTree = "<group>"; };
 		1E8C554625365E3400C9A556 /* Game.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Game.swift; sourceTree = "<group>"; };
-		1E9A545926112F90001FC204 /* Firebase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Firebase.swift; sourceTree = "<group>"; };
+		1E9A545926112F90001FC204 /* DatabaseHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatabaseHelper.swift; sourceTree = "<group>"; };
 		1E9E9FBD24CDEB4700002500 /* SceneHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneHelper.swift; sourceTree = "<group>"; };
 		1EA0CAB92580468D00C200E8 /* HPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HPicker.swift; sourceTree = "<group>"; };
 		1EAEE3BA24D9DA1400490530 /* FriendsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendsView.swift; sourceTree = "<group>"; };
@@ -148,6 +153,12 @@
 		1EDDE18F24FAC70800B7742C /* Board.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Board.swift; sourceTree = "<group>"; };
 		1EE4C75B24EB7ADC0038C1E2 /* UIHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIHelper.swift; sourceTree = "<group>"; };
 		1EEB0D4D24CF3780008F5B4B /* ColorHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorHelper.swift; sourceTree = "<group>"; };
+		459B7FD80A3A13653BECEE17 /* Pods-qubicMessage.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-qubicMessage.debug.xcconfig"; path = "Target Support Files/Pods-qubicMessage/Pods-qubicMessage.debug.xcconfig"; sourceTree = "<group>"; };
+		535B31542F05D481FEF1F34D /* Pods_qubic.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_qubic.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		5DC77619BC5F3E17EA2BE49E /* Pods-qubicMessage.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-qubicMessage.release.xcconfig"; path = "Target Support Files/Pods-qubicMessage/Pods-qubicMessage.release.xcconfig"; sourceTree = "<group>"; };
+		6879A8EEBEC33D9109AC1250 /* Pods-qubic.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-qubic.debug.xcconfig"; path = "Target Support Files/Pods-qubic/Pods-qubic.debug.xcconfig"; sourceTree = "<group>"; };
+		6B441894D8B41D6051A20601 /* Pods-qubic.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-qubic.release.xcconfig"; path = "Target Support Files/Pods-qubic/Pods-qubic.release.xcconfig"; sourceTree = "<group>"; };
+		6C1736A142026CE63D5C6A44 /* Pods_qubicMessage.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_qubicMessage.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -156,6 +167,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				1E3170F425AA0C7500FCCEA4 /* Messages.framework in Frameworks */,
+				BB6FF8713E0CED8099A31C90 /* Pods_qubicMessage.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -163,6 +175,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AED83640B64C9C248C88B0B2 /* Pods_qubic.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -173,6 +186,8 @@
 			isa = PBXGroup;
 			children = (
 				1E3170F325AA0C7500FCCEA4 /* Messages.framework */,
+				535B31542F05D481FEF1F34D /* Pods_qubic.framework */,
+				6C1736A142026CE63D5C6A44 /* Pods_qubicMessage.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -209,7 +224,7 @@
 			children = (
 				1EE4C75B24EB7ADC0038C1E2 /* UIHelper.swift */,
 				1E6C428F24FCE1F20065BDF5 /* BoardHelper.swift */,
-				1E9A545926112F90001FC204 /* Firebase.swift */,
+				1E9A545926112F90001FC204 /* DatabaseHelper.swift */,
 				1EB1CB50260ECC6300A2DCDC /* BotList.swift */,
 				1EA0CAB92580468D00C200E8 /* HPicker.swift */,
 				1E9E9FBD24CDEB4700002500 /* SceneHelper.swift */,
@@ -267,6 +282,7 @@
 				1E3170F525AA0C7500FCCEA4 /* qubicMessage */,
 				1E3170F225AA0C7500FCCEA4 /* Frameworks */,
 				1E68179024CC973B001713E7 /* Products */,
+				912820B05808BCCA15D5C4B0 /* Pods */,
 			);
 			sourceTree = "<group>";
 		};
@@ -288,6 +304,7 @@
 				1E68179824CC973D001713E7 /* Assets.xcassets */,
 				1E3A697E24CE1F02000930A4 /* Oligopoly Regular.otf */,
 				1E6817A024CC973D001713E7 /* Info.plist */,
+				1E5D60D426116B80006BEF58 /* GoogleService-Info.plist */,
 				1E6E46B3253CCB4400DEC992 /* qubic.entitlements */,
 				1E68179A24CC973D001713E7 /* Preview Content */,
 			);
@@ -302,6 +319,17 @@
 			path = "Preview Content";
 			sourceTree = "<group>";
 		};
+		912820B05808BCCA15D5C4B0 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				6879A8EEBEC33D9109AC1250 /* Pods-qubic.debug.xcconfig */,
+				6B441894D8B41D6051A20601 /* Pods-qubic.release.xcconfig */,
+				459B7FD80A3A13653BECEE17 /* Pods-qubicMessage.debug.xcconfig */,
+				5DC77619BC5F3E17EA2BE49E /* Pods-qubicMessage.release.xcconfig */,
+			);
+			path = Pods;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -309,6 +337,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 1E31710425AA0C7800FCCEA4 /* Build configuration list for PBXNativeTarget "qubicMessage" */;
 			buildPhases = (
+				4F63AD0382FCE938DB3A7354 /* [CP] Check Pods Manifest.lock */,
 				1E3170ED25AA0C7500FCCEA4 /* Sources */,
 				1E3170EE25AA0C7500FCCEA4 /* Frameworks */,
 				1E3170EF25AA0C7500FCCEA4 /* Resources */,
@@ -326,10 +355,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 1E6817A324CC973D001713E7 /* Build configuration list for PBXNativeTarget "qubic" */;
 			buildPhases = (
+				88C1508527B8341C26120C1A /* [CP] Check Pods Manifest.lock */,
 				1E68178B24CC973B001713E7 /* Sources */,
 				1E68178C24CC973B001713E7 /* Frameworks */,
 				1E68178D24CC973B001713E7 /* Resources */,
 				1E31710125AA0C7800FCCEA4 /* Embed App Extensions */,
+				5E6AF0F38C65419D7A905D5E /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -385,6 +416,7 @@
 			files = (
 				1E3170FC25AA0C7800FCCEA4 /* Assets.xcassets in Resources */,
 				1E3170FA25AA0C7500FCCEA4 /* MainInterface.storyboard in Resources */,
+				1E5D60D626116B80006BEF58 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -394,12 +426,77 @@
 			files = (
 				1E3A697F24CE1F02000930A4 /* Oligopoly Regular.otf in Resources */,
 				1E68179F24CC973D001713E7 /* LaunchScreen.storyboard in Resources */,
+				1E5D60D526116B80006BEF58 /* GoogleService-Info.plist in Resources */,
 				1E68179C24CC973D001713E7 /* Preview Assets.xcassets in Resources */,
 				1E68179924CC973D001713E7 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		4F63AD0382FCE938DB3A7354 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-qubicMessage-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		5E6AF0F38C65419D7A905D5E /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-qubic/Pods-qubic-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-qubic/Pods-qubic-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-qubic/Pods-qubic-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		88C1508527B8341C26120C1A /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-qubic-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		1E3170ED25AA0C7500FCCEA4 /* Sources */ = {
@@ -428,7 +525,7 @@
 				1E22E0F2260C21EB007F627A /* Online.swift in Sources */,
 				1E636FC3258A8995005B8D4F /* Simple.swift in Sources */,
 				1EAEE3BD24D9DCBA00490530 /* ReplaysView.swift in Sources */,
-				1E9A545A26112F90001FC204 /* Firebase.swift in Sources */,
+				1E9A545A26112F90001FC204 /* DatabaseHelper.swift in Sources */,
 				1E02D59B24CE5696001BF62B /* AboutView.swift in Sources */,
 				1E6C429024FCE1F20065BDF5 /* BoardHelper.swift in Sources */,
 				1E713370258184B600059BC3 /* Novice.swift in Sources */,
@@ -499,6 +596,7 @@
 /* Begin XCBuildConfiguration section */
 		1E31710225AA0C7800FCCEA4 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 459B7FD80A3A13653BECEE17 /* Pods-qubicMessage.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = "iMessage App Icon";
 				CODE_SIGN_ENTITLEMENTS = qubicMessage/qubicMessage.entitlements;
@@ -524,6 +622,7 @@
 		};
 		1E31710325AA0C7800FCCEA4 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 5DC77619BC5F3E17EA2BE49E /* Pods-qubicMessage.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = "iMessage App Icon";
 				CODE_SIGN_ENTITLEMENTS = qubicMessage/qubicMessage.entitlements;
@@ -669,6 +768,7 @@
 		};
 		1E6817A424CC973D001713E7 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 6879A8EEBEC33D9109AC1250 /* Pods-qubic.debug.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -698,6 +798,7 @@
 		};
 		1E6817A524CC973D001713E7 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 6B441894D8B41D6051A20601 /* Pods-qubic.release.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
