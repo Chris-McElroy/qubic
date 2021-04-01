@@ -7,7 +7,7 @@
 //
 
 import Foundation
-import FirebaseDatabase
+import Firebase
 
 class DatabaseHelper {
     var ref = Database.database().reference()
@@ -17,6 +17,20 @@ class DatabaseHelper {
     var gameRef: DatabaseReference?
     var playerList: [UUID: PlayerData] = [:]
     var currentGame: GameData? = nil
+    
+    func signIn() {
+        Auth.auth().addStateDidChangeListener { (auth, user) in
+            if let user = user {
+                UserDefaults.standard.setValue(user.uid, forKey: uuidKey)
+            } else {
+                Auth.auth().signInAnonymously() { (authResult, error) in
+                    if let error = error {
+                        print("Sign in error:", error)
+                    }
+                }
+            }
+        }
+    }
     
     func observePlayers() {
         let playersRef = ref.child("players")
@@ -46,7 +60,7 @@ class DatabaseHelper {
             "created": data.created,
             "myTurn": data.myTurn,
             "time": data.time,
-            "accepted": [myUUID.uuidString: 0]
+            "accepted": [myUUID: 0]
         ]
         
         self.ref.child("onlineInvites/\(myUUID)").setValue(dict)

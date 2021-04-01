@@ -22,7 +22,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             trickyKey: [0],
             usernameKey: "new player",
             dotKey: 0,
-            notificationKey: 1
+            notificationKey: 1,
+            uuidKey: "00000000-0000-0000-0000-000000000000"
         ])
         
         FirebaseApp.configure()

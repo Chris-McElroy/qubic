@@ -20,8 +20,9 @@ let cubistKey = "cubist"
 let dotKey = "dotKey"
 let usernameKey = "username"
 let notificationKey = "notifications"
+let uuidKey = "uuidKey"
 
-var myUUID: UUID { UIDevice.current.identifierForVendor ?? UUID() }
+var myUUID: String { UserDefaults.standard.string(forKey: uuidKey) ?? "00000000-0000-0000-0000-000000000000" }
 
 extension Sequence where Element: AdditiveArithmetic {
     func sum() -> Element { reduce(.zero, +) }
