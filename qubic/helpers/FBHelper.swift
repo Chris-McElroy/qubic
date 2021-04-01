@@ -1,5 +1,5 @@
 //
-//  DatabaseHelper.swift
+//  FBHelper.swift
 //  qubic
 //
 //  Created by Chris McElroy on 3/28/21.
@@ -9,14 +9,23 @@
 import Foundation
 import Firebase
 
-class DatabaseHelper {
+class FBHelper {
+    static let main = FBHelper()
+    
     var ref = Database.database().reference()
     
     var playerObserver: UInt?
     var gameObserver: UInt?
     var gameRef: DatabaseReference?
     var playerList: [UUID: PlayerData] = [:]
-    var currentGame: GameData? = nil
+    var myGameData: GameData? = nil
+    var opGameData: GameData? = nil
+    var op: PlayerData? = nil
+    
+    func start() {
+        signIn()
+        observePlayers()
+    }
     
     func signIn() {
         Auth.auth().addStateDidChangeListener { (auth, user) in
@@ -42,7 +51,7 @@ class DatabaseHelper {
     func observeGame(op: UUID, created: Int) {
         let gameRef = ref.child("games/\(myUUID)/\(created)")
         gameObserver = gameRef.observe(DataEventType.value, with: { (snapshot) in
-            self.currentGame = snapshot.value as? GameData
+            self.myGameData = snapshot.value as? GameData
         })
     }
     

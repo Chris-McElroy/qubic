@@ -16,8 +16,6 @@ struct MainView: View {
     
     @ObservedObject var game = Game()
     
-    let db = DatabaseHelper()
-    
     // The delegate required by `MFMessageComposeViewController`
     let messageComposeDelegate = MessageDelegate()
     
@@ -35,7 +33,7 @@ struct MainView: View {
                 .zIndex(10)
         }
         .onAppear {
-            db.signIn()
+            FBHelper.main.start()
             heights = Heights(newScreen: self.screen)
             heights.view = .main
             game.goBack = goBack

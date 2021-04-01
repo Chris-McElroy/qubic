@@ -9,19 +9,43 @@
 import Foundation
 
 class Online: Player {
+    let op: FBHelper.PlayerData?
+    let bot: Bot?
+    
     override init(b: Board, n: Int) {
-        let bot = Online.bots.randomElement() ?? Bot("o", 0, 0)
-        let squaredSkill = (2-bot.skill)*bot.skill
-        DatabaseHelper().postOnlineInvite(time: -1)
-        
-        super.init(b: b, n: n, name: bot.name, color: bot.color,
-                   // TODO keep toyin
-                   lineP: [3: squaredSkill, -3: squaredSkill, 2: squaredSkill],
-                   dirStats: Array(repeating: squaredSkill, count: 76),
-                   depth: Int(bot.skill*10),
-                   w2BlockP: bot.skill,
-                   lineScore: [0,2,5-bot.skill*7,1+bot.skill*4,1,2+bot.skill*5,2-bot.skill*10+squaredSkill*10,2,0], // my points on the left
-                   bucketP: bot.skill)
+        if let op = FBHelper.main.op, FBHelper.main.myGameData != nil && FBHelper.main.opGameData != nil {
+            self.op = op
+            self.bot = nil
+            
+            super.init(b: b, n: n, name: op.name, color: op.color, rounded: true)
+        } else {
+            let bot = Online.bots.randomElement() ?? Bot("o", 0, 0)
+            let squaredSkill = (2-bot.skill)*bot.skill
+            FBHelper.main.postOnlineInvite(time: -1)
+            
+            self.op = nil
+            self.bot = bot
+            
+            super.init(b: b, n: n, name: bot.name, color: bot.color,
+                       // TODO keep toyin
+                       lineP: [3: squaredSkill, -3: squaredSkill, 2: squaredSkill],
+                       dirStats: Array(repeating: squaredSkill, count: 76),
+                       depth: Int(bot.skill*10),
+                       w2BlockP: bot.skill,
+                       // my points on the left
+                       lineScore: [0,2,5-bot.skill*7,1+bot.skill*4,1,2+bot.skill*5,2-bot.skill*10+squaredSkill*10,2,0],
+                       bucketP: bot.skill
+            )
+        }
+    }
+    
+    override func move(with process: @escaping (Int, UInt64) -> Void) {
+        if let op = self.op {
+            // getMove
+            print(op)
+        } else {
+            super.move(with: process)
+        }
     }
     
     override func getPause() -> Double {

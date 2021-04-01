@@ -25,11 +25,27 @@ class Player {
     
     init(b: Board, n: Int) {
         self.b = b
-        self.n = 0
-        o = 0
-        name = ""
-        color = 0
-        rounded = false
+        self.n = n
+        self.o = n^1
+        self.name = ""
+        self.color = 0
+        self.rounded = false
+        
+        lineP = [:]
+        dirStats = []
+        depth = 0
+        w2BlockP = 0
+        lineScore = []
+        bucketP = 0
+    }
+    
+    init(b: Board, n: Int, name: String = "", color: Int = 0, rounded: Bool = false) {
+        self.b = b
+        self.n = n
+        self.o = n^1
+        self.name = name
+        self.color = color
+        self.rounded = rounded
         
         lineP = [:]
         dirStats = []
