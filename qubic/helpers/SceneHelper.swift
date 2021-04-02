@@ -65,7 +65,7 @@ class SceneHelper {
     
     static func makeDot(color: UIColor = UIColor.null, size: CGFloat = 1.0) -> SCNNode {
         var dotNode = getSpace(size: 0.86-3*lineWidth)
-        let dotType = UserDefaults.standard.integer(forKey: dotKey)
+        let dotType = UserDefaults.standard.integer(forKey: Key.dot)
         if dotType == 1 {
             dotNode = getBlankCube(size: 0.52)
         } else if dotType == 2 {

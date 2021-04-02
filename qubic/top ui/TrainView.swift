@@ -10,9 +10,9 @@ import SwiftUI
 
 struct TrainView: View {
     @Binding var view: ViewStates
-    @State var selected: [Int] = [UserDefaults.standard.integer(forKey: lastTrainKey),1,0]
+    @State var selected: [Int] = [UserDefaults.standard.integer(forKey: Key.lastTrain),1,0]
     let game: Game
-    let beaten = UserDefaults.standard.array(forKey: trainKey) as? [Int] ?? [0,0,0,0,0,0]
+    let beaten = UserDefaults.standard.array(forKey: Key.train) as? [Int] ?? [0,0,0,0,0,0]
     
     var body: some View {
         if view == .train {
@@ -30,7 +30,7 @@ struct TrainView: View {
     
     func onSelection(row: Int, component: Int) {
         if component == 2 {
-            UserDefaults.standard.setValue(row, forKey: lastTrainKey)
+            UserDefaults.standard.setValue(row, forKey: Key.lastTrain)
         }
     }
     

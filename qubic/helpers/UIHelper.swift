@@ -8,21 +8,8 @@
 
 import SwiftUI
 
-// UserInfo
-let streakKey = "DCStreak"
-let lastDCKey = "LastDC"
-let defaultLastDC = 737764
-let badgeKey = "qubic badge notification"
-let trickyKey = "tricky"
-let trainKey = "train"
-let lastTrainKey = "lastTrain"
-let cubistKey = "cubist"
-let dotKey = "dotKey"
-let usernameKey = "username"
-let notificationKey = "notifications"
-let uuidKey = "uuidKey"
-
-var myUUID: String { UserDefaults.standard.string(forKey: uuidKey) ?? "00000000-0000-0000-0000-000000000000" }
+//00000000-0000-0000-0000-000000000000
+var myUUID: String { UserDefaults.standard.string(forKey: Key.uuid) ?? "00000000000000000000000000000000" }
 
 extension Sequence where Element: AdditiveArithmetic {
     func sum() -> Element { reduce(.zero, +) }

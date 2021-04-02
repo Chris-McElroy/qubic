@@ -14,16 +14,18 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
+        
+        let defaultLastDC = 737764 // in de past
         UserDefaults.standard.register(defaults: [
-            streakKey: 0,
-            lastDCKey: defaultLastDC,
-            trainKey: [0,0,0,0,0,0,0],
-            lastTrainKey: 0,
-            trickyKey: [0],
-            usernameKey: "new player",
-            dotKey: 0,
-            notificationKey: 1,
-            uuidKey: "00000000-0000-0000-0000-000000000000"
+            Key.streak: 0,
+            Key.lastDC: defaultLastDC,
+            Key.train: [0,0,0,0,0,0,0],
+            Key.lastTrain: 0,
+            Key.tricky: [0],
+            Key.name: "new player",
+            Key.dot: 0,
+            Key.notification: 1,
+            Key.uuid: "00000000000000000000000000000000"
         ])
         
         FirebaseApp.configure()

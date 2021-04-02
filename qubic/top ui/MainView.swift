@@ -33,7 +33,7 @@ struct MainView: View {
                 .zIndex(10)
         }
         .onAppear {
-            FBHelper.main.start()
+            FB.main.start()
             heights = Heights(newScreen: self.screen)
             heights.view = .main
             game.goBack = goBack
@@ -73,7 +73,7 @@ struct MainView: View {
                 .frame(height: heights.get(heights.solveView), alignment: .bottom)
             ZStack {
                 mainButton(view: $heights.view, views: [.solveMenu, .solve], text: " solve ", color: .secondary(0), action: switchView)
-                if UserDefaults.standard.integer(forKey: lastDCKey) != Date().getInt() {
+                if UserDefaults.standard.integer(forKey: Key.lastDC) != Date().getInt() {
                     Circle().frame(width: 24, height: 24).foregroundColor(heights.view == .solveMenu ? .secondary(0) : .primary(0)).zIndex(2).offset(x: 88, y: -25)
                 }
             }

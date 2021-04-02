@@ -11,9 +11,9 @@ import SwiftUI
 struct SettingsView: View {
     @Binding var view: ViewStates
     var mainButtonAction: () -> Void
-    @State var style = [UserDefaults.standard.integer(forKey: dotKey)]
-    @State var notifications = [UserDefaults.standard.integer(forKey: notificationKey)]
-    @State var username = UserDefaults.standard.string(forKey: usernameKey) ?? "me"
+    @State var style = [UserDefaults.standard.integer(forKey: Key.dot)]
+    @State var notifications = [UserDefaults.standard.integer(forKey: Key.notification)]
+    @State var username = UserDefaults.standard.string(forKey: Key.name) ?? "me"
     @State var showNotificationAlert = false
 //    @State var lineSize = lineWidth
     
@@ -31,7 +31,7 @@ struct SettingsView: View {
                         .frame(height: 40)
                         .onAppear { Notifications.ifDenied {
                             notifications = [1]
-                            UserDefaults.standard.setValue(1, forKey: notificationKey)
+                            UserDefaults.standard.setValue(1, forKey: Key.notification)
                         }}
                     Fill(102)
                     HPicker(content: SettingsView.boardStyleContent,
@@ -69,7 +69,8 @@ struct SettingsView: View {
                         Text("edit username")
                         Fill(7)
                         TextField("enter name", text: $username, onCommit: {
-                            UserDefaults.standard.setValue(username, forKey: usernameKey)
+                            UserDefaults.standard.setValue(username, forKey: Key.name)
+                            FB.main.updateMyData()
                         })
                             .multilineTextAlignment(.center)
                             .disableAutocorrection(true)
@@ -86,7 +87,7 @@ struct SettingsView: View {
     }
     
     func setDots(row: Int, component: Int) -> Void {
-        UserDefaults.standard.setValue(row, forKey: dotKey)
+        UserDefaults.standard.setValue(row, forKey: Key.dot)
     }
     
     func setNotifications(row: Int, component: Int) -> Void {

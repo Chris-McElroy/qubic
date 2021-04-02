@@ -90,7 +90,7 @@ struct SolveView: View {
     
     func getStreakView() -> UIView {
         Notifications.setBadge(justSolved: false)
-        let streak = UserDefaults.standard.integer(forKey: streakKey)
+        let streak = UserDefaults.standard.integer(forKey: Key.streak)
         return getLabel(for: "daily\n\(streak)")
         
     //    if text.contains("\n") {
@@ -106,7 +106,7 @@ struct SolveView: View {
     }
     
     func getTrickyView() -> UIView {
-        let tricky = UserDefaults.standard.array(forKey: trickyKey) as? [Int] ?? [0]
+        let tricky = UserDefaults.standard.array(forKey: Key.tricky) as? [Int] ?? [0]
         return getLabel(for: "tricky\n\(tricky.sum())")
     }
     
@@ -128,13 +128,13 @@ struct SolveView: View {
     func getDailyBoard() -> [(String, Bool)] {
         let format = DateFormatter()
         format.dateStyle = .short
-        let solved = Date().getInt() == UserDefaults.standard.integer(forKey: lastDCKey)
+        let solved = Date().getInt() == UserDefaults.standard.integer(forKey: Key.lastDC)
         return [(format.string(from: Date()), solved)]
     }
     
     func getTrickyBoards() -> [(String, Bool)] {
         var boardArray: [(String, Bool)] = []
-        guard let trickyBoards = UserDefaults.standard.array(forKey: trickyKey) as? [Int] else {
+        guard let trickyBoards = UserDefaults.standard.array(forKey: Key.tricky) as? [Int] else {
             return []
         }
         for (i, solved) in trickyBoards.enumerated() {

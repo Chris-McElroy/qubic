@@ -34,6 +34,8 @@ struct PlayView: View {
                         .animation(.linear(duration: 0.15))
                     Blank(120)
                 }
+            }.onAppear {
+                FB.main.op = nil
             }
         }
     }

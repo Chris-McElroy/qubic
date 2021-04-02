@@ -9,11 +9,11 @@
 import Foundation
 
 class Online: Player {
-    let op: FBHelper.PlayerData?
+    let op: FB.PlayerData?
     let bot: Bot?
     
     override init(b: Board, n: Int) {
-        if let op = FBHelper.main.op, FBHelper.main.myGameData != nil && FBHelper.main.opGameData != nil {
+        if let op = FB.main.op {
             self.op = op
             self.bot = nil
             
@@ -21,7 +21,7 @@ class Online: Player {
         } else {
             let bot = Online.bots.randomElement() ?? Bot("o", 0, 0)
             let squaredSkill = (2-bot.skill)*bot.skill
-            FBHelper.main.postOnlineInvite(time: -1)
+            FB.main.postOnlineInvite(time: -1)
             
             self.op = nil
             self.bot = bot
@@ -40,15 +40,16 @@ class Online: Player {
     }
     
     override func move(with process: @escaping (Int, UInt64) -> Void) {
-        if let op = self.op {
-            // getMove
-            print(op)
+        if self.op != nil {
+            FB.main.move(on: b, n: n, with: process)
         } else {
             super.move(with: process)
         }
     }
     
     override func getPause() -> Double {
+        if self.op != nil { return 0 }
+        
         let skill = w2BlockP
         
         if b.move[0].count < 2 {

@@ -256,23 +256,23 @@ class Game: ObservableObject {
     }
     
     func updateWins() {
-        if mode == .daily && dayInt != UserDefaults.standard.integer(forKey: lastDCKey) {
+        if mode == .daily && dayInt != UserDefaults.standard.integer(forKey: Key.lastDC) {
             Notifications.ifUndetermined {
                 DispatchQueue.main.async {
                     self.showDCAlert = true
                 }
             }
             Notifications.setBadge(justSolved: true, dayInt: dayInt ?? Date().getInt())
-            withAnimation { newStreak = UserDefaults.standard.integer(forKey: streakKey) }
+            withAnimation { newStreak = UserDefaults.standard.integer(forKey: Key.streak) }
             Timer.scheduledTimer(withTimeInterval: 2.4, repeats: false, block: { _ in
                 withAnimation { self.newStreak = nil }
             })
         } else if mode == .tricky {
-            UserDefaults.standard.setValue([1], forKey: trickyKey)
+            UserDefaults.standard.setValue([1], forKey: Key.train)
         } else if let index = [.novice, .defender, .warrior, .tyrant, .oracle, .cubist].firstIndex(of: mode), undoOpacity == 0 {
-            var beaten = UserDefaults.standard.array(forKey: trainKey) as? [Int] ??  [0,0,0,0,0,0]
+            var beaten = UserDefaults.standard.array(forKey: Key.train) as? [Int] ??  [0,0,0,0,0,0]
             beaten[index] = 1
-            UserDefaults.standard.setValue(beaten, forKey: trainKey)
+            UserDefaults.standard.setValue(beaten, forKey: Key.train)
         }
     }
     

@@ -91,7 +91,7 @@ class BoardScene {
     func showMove(_ move: Int) {
 //        let delay = moveCube(move: move, color: game.colors[turn]) + 0.1
         spinDots([])
-        if UserDefaults.standard.integer(forKey: dotKey) == 0 {
+        if UserDefaults.standard.integer(forKey: Key.dot) == 0 {
             placeCube(move: move, color: .primary(game.player[game.turn].color))
         } else {
             addCube(move: move, color: .primary(game.player[game.turn].color))
@@ -103,7 +103,7 @@ class BoardScene {
         spinDots([])
         let color = UIColor.primary(game.player[game.turn].color)
         
-        if UserDefaults.standard.integer(forKey: dotKey) == 0 {
+        if UserDefaults.standard.integer(forKey: Key.dot) == 0 {
             placeCube(move: move, color: color, opacity: 0.7)
         } else {
             addCube(move: move, color: color, opacity: 0.7)

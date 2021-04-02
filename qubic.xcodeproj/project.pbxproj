@@ -20,6 +20,8 @@
 		1E31710025AA0C7800FCCEA4 /* qubicMessage.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 1E3170F125AA0C7500FCCEA4 /* qubicMessage.appex */; platformFilter = ios; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		1E3335D2253400FD00966EA6 /* Cubist.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E3335D1253400FD00966EA6 /* Cubist.swift */; };
 		1E3A697F24CE1F02000930A4 /* Oligopoly Regular.otf in Resources */ = {isa = PBXBuildFile; fileRef = 1E3A697E24CE1F02000930A4 /* Oligopoly Regular.otf */; };
+		1E4645F52616970500862260 /* KeyHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E4645F42616970500862260 /* KeyHelper.swift */; };
+		1E4645FA261697FD00862260 /* KeyHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E4645F42616970500862260 /* KeyHelper.swift */; };
 		1E5A5AAE24CD077900F31124 /* TrainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E5A5AAD24CD077900F31124 /* TrainView.swift */; };
 		1E5D60D526116B80006BEF58 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 1E5D60D426116B80006BEF58 /* GoogleService-Info.plist */; };
 		1E5D60D626116B80006BEF58 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 1E5D60D426116B80006BEF58 /* GoogleService-Info.plist */; };
@@ -111,6 +113,7 @@
 		1E3170FD25AA0C7800FCCEA4 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		1E3335D1253400FD00966EA6 /* Cubist.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Cubist.swift; sourceTree = "<group>"; };
 		1E3A697E24CE1F02000930A4 /* Oligopoly Regular.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Oligopoly Regular.otf"; sourceTree = "<group>"; };
+		1E4645F42616970500862260 /* KeyHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyHelper.swift; sourceTree = "<group>"; };
 		1E5A5AAD24CD077900F31124 /* TrainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrainView.swift; sourceTree = "<group>"; };
 		1E5D60D426116B80006BEF58 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		1E636FBA258A8687005B8D4F /* Daily.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Daily.swift; sourceTree = "<group>"; };
@@ -223,6 +226,7 @@
 			isa = PBXGroup;
 			children = (
 				1EE4C75B24EB7ADC0038C1E2 /* UIHelper.swift */,
+				1E4645F42616970500862260 /* KeyHelper.swift */,
 				1E6C428F24FCE1F20065BDF5 /* BoardHelper.swift */,
 				1E9A545926112F90001FC204 /* FBHelper.swift */,
 				1EB1CB50260ECC6300A2DCDC /* BotList.swift */,
@@ -507,6 +511,7 @@
 				1E3170F725AA0C7500FCCEA4 /* MessagesViewController.swift in Sources */,
 				1E74FA0525AA41070049BE6B /* BoardView.swift in Sources */,
 				1E74FA1F25AA41A80049BE6B /* Board.swift in Sources */,
+				1E4645FA261697FD00862260 /* KeyHelper.swift in Sources */,
 				1E74FA1925AA41870049BE6B /* ColorHelper.swift in Sources */,
 				1E74FA1325AA417C0049BE6B /* BoardHelper.swift in Sources */,
 				1EC86B1325AABDE000DA434A /* HPicker.swift in Sources */,
@@ -533,6 +538,7 @@
 				1E017BA024CDB71A00CF979A /* PlayView.swift in Sources */,
 				1E8C554725365E3400C9A556 /* Game.swift in Sources */,
 				1EA0CABA2580468D00C200E8 /* HPicker.swift in Sources */,
+				1E4645F52616970500862260 /* KeyHelper.swift in Sources */,
 				1EC2B8852536A86C001B0A1F /* Checks.swift in Sources */,
 				1EB1CB51260ECC6300A2DCDC /* BotList.swift in Sources */,
 				1E68179324CC973B001713E7 /* AppDelegate.swift in Sources */,
