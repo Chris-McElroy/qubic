@@ -14,8 +14,6 @@ struct MainView: View {
     @State var halfBack: Bool = false
     @State var playSelection = [1,1,0]
     
-    @ObservedObject var game = Game()
-    
     // The delegate required by `MFMessageComposeViewController`
     let messageComposeDelegate = MessageDelegate()
     
@@ -36,8 +34,8 @@ struct MainView: View {
             FB.main.start()
             heights = Heights(newScreen: self.screen)
             heights.view = .main
-            game.goBack = goBack
-            game.cancelBack = cancelBack
+            Game.main.goBack = goBack
+            Game.main.cancelBack = cancelBack
         }
         .frame(height: heights.total)
         .background(Fill())
@@ -65,11 +63,11 @@ struct MainView: View {
         let playText = "  \u{2009}\u{2009}\u{2009}play\u{2009}\u{2009}\u{2009}  "
         
         return VStack(spacing: 0) {
-            TrainView(view: $heights.view, game: game)
+            TrainView(view: $heights.view)
                 .frame(height: heights.get(heights.trainView), alignment: .bottom)
             mainButton(view: $heights.view, views: [.trainMenu, .train], text: "  train  ", color: .tertiary(0), action: switchView)
                 .zIndex(5)
-            SolveView(view: $heights.view, game: game)
+            SolveView(view: $heights.view)
                 .frame(height: heights.get(heights.solveView), alignment: .bottom)
             ZStack {
                 mainButton(view: $heights.view, views: [.solveMenu, .solve], text: " solve ", color: .secondary(0), action: switchView)
@@ -77,7 +75,7 @@ struct MainView: View {
                     Circle().frame(width: 24, height: 24).foregroundColor(heights.view == .solveMenu ? .secondary(0) : .primary(0)).zIndex(2).offset(x: 88, y: -25)
                 }
             }
-            PlayView(view: $heights.view, selected: $playSelection, game: game)
+            PlayView(view: $heights.view, selected: $playSelection)
                 .frame(height: heights.get(heights.playView), alignment: .bottom)
             mainButton(view: $heights.view, views: [.playMenu, .play], text: playText, color: .primary(0)) { v1,v2 in
                 if heights.view == .playMenu && playSelection[0] == 2 { presentMessageCompose() }
@@ -120,14 +118,14 @@ struct MainView: View {
     
     private var backButton: some View {
         HStack {
-            Button(action: game.undoMove) {
+            Button(action: Game.main.undoMove) {
                 Text("undo")
                     .font(.custom("Oligopoly Regular", size: 15.5))
                     .accentColor(.label)
                     .padding(.leading, 40)
                     .padding(.bottom, 52)
             }
-            .opacity([.train, .solve, .play].contains(heights.view) ? game.undoOpacity : 0)
+            .opacity([.train, .solve, .play].contains(heights.view) ? Game.main.undoOpacity : 0)
             Spacer()
             Button(action: goBack ) {
                 VStack {
@@ -144,14 +142,14 @@ struct MainView: View {
             }
             .buttonStyle(Solid())
             Spacer()
-            Button(action: game.redoMove) {
+            Button(action: Game.main.redoMove) {
                 Text("redo")
                     .font(.custom("Oligopoly Regular", size: 15.5))
                     .accentColor(.label)
                     .padding(.trailing, 40)
                     .padding(.bottom, 52)
             }
-            .opacity([.train, .solve, .play].contains(heights.view) ? game.redoOpacity : 0)
+            .opacity([.train, .solve, .play].contains(heights.view) ? Game.main.redoOpacity : 0)
         }.background(Rectangle().foregroundColor(.systemBackground))
     }
     
@@ -182,7 +180,7 @@ struct MainView: View {
     }
     
     func goBack() {
-        if game.hideHintCard() { return }
+        if Game.main.hideHintCard() { return }
         let back: [ViewStates: ViewStates] = [
             .more: .main,
             .trainMenu: .main,
@@ -203,7 +201,7 @@ struct MainView: View {
     }
     
     func cancelBack() -> Bool {
-        if game.hideHintCard() { return false }
+        if Game.main.hideHintCard() { return false }
         if halfBack {
             UIImpactFeedbackGenerator(style: .light).impactOccurred()
             halfBack = false

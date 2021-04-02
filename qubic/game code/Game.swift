@@ -26,6 +26,8 @@ enum HintValue {
 }
 
 class Game: ObservableObject {
+    static let main = Game()
+    
     @Published var turn: Int = 0
     @Published var hintCard: Bool = false
     @Published var hintText: [[String]]? = nil
@@ -109,6 +111,9 @@ class Game: ObservableObject {
         pendingMove = nil
         guard key == board.board[turn] else { print("Invalid turn!"); return }
         guard let wins = board.processMove(move) else { print("Invalid move!"); return }
+        if player[turn].rounded {
+            UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+        }
         boardScene?.showMove(move)
         turn = board.getTurn()
         hintText = nil

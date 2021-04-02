@@ -24,7 +24,6 @@ class User: Player {
     }
     
     func move(at p: Int) {
-        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
         if let processMove = process {
             process = nil
             processMove(p, b.board[n])

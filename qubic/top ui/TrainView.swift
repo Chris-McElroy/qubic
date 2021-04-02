@@ -11,13 +11,12 @@ import SwiftUI
 struct TrainView: View {
     @Binding var view: ViewStates
     @State var selected: [Int] = [UserDefaults.standard.integer(forKey: Key.lastTrain),1,0]
-    let game: Game
     let beaten = UserDefaults.standard.array(forKey: Key.train) as? [Int] ?? [0,0,0,0,0,0]
     
     var body: some View {
         if view == .train {
-            GameView(game: game)
-                .onAppear { game.load(mode: mode, turn: turn, hints: hints) }
+            GameView()
+                .onAppear { Game.main.load(mode: mode, turn: turn, hints: hints) }
         } else if view == .trainMenu {
             VStack(spacing: 0) {
                 Spacer()
@@ -87,6 +86,6 @@ struct TrainView: View {
 
 struct TrainView_Previews: PreviewProvider {
     static var previews: some View {
-        TrainView(view: .constant(.solveMenu), game: Game())
+        TrainView(view: .constant(.solveMenu))
     }
 }

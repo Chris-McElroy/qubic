@@ -10,7 +10,7 @@ import SwiftUI
 import SceneKit
 
 struct GameView: View {
-    @ObservedObject var game: Game
+    @ObservedObject var game: Game = Game.main
     @State var cubeHeight: CGFloat = 10
     @State var rotateMe = false
     @State var isRotated = false

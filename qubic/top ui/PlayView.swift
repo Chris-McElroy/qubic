@@ -12,15 +12,14 @@ import MessageUI
 struct PlayView: View {
     @Binding var view: ViewStates
     @Binding var selected: [Int]
-    let game: Game
     var menuText = [[("local",false),("online",false),("invite",false)],
                     [("first",false),("random",false),("second",false)],
                     [("sandbox",false),("challenge",false)]]
     
     var body: some View {
         if view == .play {
-            GameView(game: game)
-                .onAppear { game.load(mode: mode, turn: turn, hints: hints) }
+            GameView()
+                .onAppear { Game.main.load(mode: mode, turn: turn, hints: hints) }
         } else if view == .playMenu {
             ZStack {
                 VStack(spacing: 0) {
@@ -67,6 +66,6 @@ struct PlayView: View {
 
 struct PlayView_Previews: PreviewProvider {
     static var previews: some View {
-        PlayView(view: .constant(.main), selected: .constant([0,0,0]), game: Game())
+        PlayView(view: .constant(.main), selected: .constant([0,0,0]))
     }
 }
