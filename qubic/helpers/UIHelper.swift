@@ -9,7 +9,7 @@
 import SwiftUI
 
 //00000000-0000-0000-0000-000000000000
-var myUUID: String { UserDefaults.standard.string(forKey: Key.uuid) ?? "00000000000000000000000000000000" }
+var myID: String { UserDefaults.standard.string(forKey: Key.uuid) ?? "00000000000000000000000000000000" }
 
 extension Sequence where Element: AdditiveArithmetic {
     func sum() -> Element { reduce(.zero, +) }

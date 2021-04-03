@@ -78,7 +78,8 @@ struct MainView: View {
             PlayView(view: $heights.view, selected: $playSelection)
                 .frame(height: heights.get(heights.playView), alignment: .bottom)
             mainButton(view: $heights.view, views: [.playMenu, .play], text: playText, color: .primary(0)) { v1,v2 in
-                if heights.view == .playMenu && playSelection[0] == 2 { presentMessageCompose() }
+                if heights.view == .playMenu && playSelection[0] == 1 { FB.main.getOnlineMatch(timeLimit: -1) }
+                else if heights.view == .playMenu && playSelection[0] == 2 { presentMessageCompose() }
                 else { switchView(to: v1, or: v2) }
             }
         }

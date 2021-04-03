@@ -23,14 +23,16 @@ struct Key {
     static let uuid = "uuidKey"
     
     static let myTurn = "myTurn"
-    static let op = "op"
+    static let myID = "myID"
+    static let opID = "opID"
     static let hints = "hints"
-    static let time = "time"
+    static let timeLimit = "timeLimit"
     static let state = "state"
     static let lastMove = "lastMove"
     static let myTime  = "myTime"
     static let opTime = "opTime"
     static let moves = "moves"
-    static let created = "created"
+    static let myGameID = "myGameID"
+    static let opGameID = "opGameID"
 }
 

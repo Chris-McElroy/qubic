@@ -15,26 +15,25 @@ class Online: Player {
     override init(b: Board, n: Int) {
         if let op = FB.main.op {
             self.op = op
-            self.bot = nil
+            bot = nil
             
             super.init(b: b, n: n, name: op.name, color: op.color, rounded: true)
         } else {
-            let bot = Online.bots.randomElement() ?? Bot("o", 0, 0)
-            let squaredSkill = (2-bot.skill)*bot.skill
-            FB.main.postOnlineInvite(time: -1)
+            op = nil
+            bot = Online.bots.randomElement() ?? Bot("o", 0, 0)
             
-            self.op = nil
-            self.bot = bot
+            let skill = bot?.skill ?? 0
+            let squaredSkill = (2-skill)*skill
             
-            super.init(b: b, n: n, name: bot.name, color: bot.color,
+            super.init(b: b, n: n, name: bot?.name ?? "o", color: bot?.color ?? 0,
                        // TODO keep toyin
                        lineP: [3: squaredSkill, -3: squaredSkill, 2: squaredSkill],
                        dirStats: Array(repeating: squaredSkill, count: 76),
-                       depth: Int(bot.skill*10),
-                       w2BlockP: bot.skill,
+                       depth: Int(skill*10),
+                       w2BlockP: skill,
                        // my points on the left
-                       lineScore: [0,2,5-bot.skill*7,1+bot.skill*4,1,2+bot.skill*5,2-bot.skill*10+squaredSkill*10,2,0],
-                       bucketP: bot.skill
+                       lineScore: [0,2,5-skill*7,1+skill*4,1,2+skill*5,2-skill*10+squaredSkill*10,2,0],
+                       bucketP: skill
             )
         }
     }

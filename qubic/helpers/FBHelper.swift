@@ -23,15 +23,11 @@ class FB {
     var op: PlayerData? = nil
     
     func start() {
-        signIn()
-        observePlayers()
-        updateMyData()
-    }
-    
-    func signIn() {
         Auth.auth().addStateDidChangeListener { (auth, user) in
             if let user = user {
                 UserDefaults.standard.setValue(user.uid, forKey: Key.uuid)
+                self.observePlayers()
+                self.updateMyData()
             } else {
                 Auth.auth().signInAnonymously() { (authResult, error) in
                     if let error = error {
@@ -47,44 +43,120 @@ class FB {
         playerObserver = playersRef.observe(DataEventType.value, with: { (snapshot) in
             if let dict = snapshot.value as? [String: [String: Any]] {
                 for entry in dict {
-                    self.playerDict[entry.key] = PlayerData(from: entry.value, uuid: entry.key)
+                    self.playerDict[entry.key] = PlayerData(from: entry.value)
                 }
             }
         })
     }
     
     func updateMyData() {
-        let myPlayerRef = ref.child("players/\(myUUID)")
+        let myPlayerRef = ref.child("players/\(myID)")
         let name = UserDefaults.standard.string(forKey: Key.name) ?? ""
         let color = 0
         myPlayerRef.setValue([Key.name: name, Key.color: color])
     }
     
     func observeGame(op: UUID, created: Int) {
-        let gameRef = ref.child("games/\(myUUID)/\(created)")
+        let gameRef = ref.child("games/\(myID)/\(created)")
         gameObserver = gameRef.observe(DataEventType.value, with: { (snapshot) in
             self.myGameData = snapshot.value as? GameData
+            
+            // TODO it should look like this
+            if let dict = snapshot.value as? [String: [String: Any]] {
+                for entry in dict {
+                    self.playerDict[entry.key] = PlayerData(from: entry.value)
+                }
+            }
+            
+            
         })
     }
     
-    func stopObservingGame() {
-        if let handle = gameObserver {
+    func detatch(observer: inout UInt?, from ref: DatabaseReference) {
+        if let handle = observer {
+            print("detaching")
             ref.removeObserver(withHandle: handle)
-            gameObserver = nil
+            observer = nil
         }
     }
     
-    func postOnlineInvite(time: Int) {
-        let myInvite: [String: Any] = [
-            Key.created: Date.ms,
-            Key.myTurn: Int.random(in: 0...1),
-            Key.time: time
-        ]
+    func getOnlineMatch(timeLimit: Int) {
+        enum MatchingState {
+            case invited, offered, matched
+        }
         
-        self.ref.child("onlineInvites/\(myUUID)").setValue(myInvite)
+        var possOp: Set<String> = []
+        var state: MatchingState = .invited
+        var myData = OnlineInviteData(timeLimit: timeLimit)
         
-        // TODO REMOVE
-        op = PlayerData(from: ["name": "succ", "color": 5], uuid: "")
+        let onlineRef = ref.child("onlineInvites")
+        onlineRef.removeAllObservers()
+        
+        // send invite
+        onlineRef.child(myID).setValue(myData.toDict())
+        
+        // check for others
+        onlineRef.observe(DataEventType.value, with: { (snapshot) in
+            guard let dict = snapshot.value as? [String: [String: Any]] else { return }
+            switch state {
+            case .invited:
+                for entry in dict where entry.key != myID {
+                    let opData = OnlineInviteData(from: entry.value)
+                    if opData.valid && opData.timeLimit == timeLimit {
+                        if opData.opID != myID { possOp.insert(entry.key) }
+                        if newer(opData: opData, opID: entry.key) {
+                            state = .offered
+                            myData.opID = entry.key
+                            onlineRef.child(myID).setValue(myData.toDict())
+                            break
+                        } else if opData.opID == myID && possOp.contains(entry.key) {
+                            state = .matched
+                            myData.opID = entry.key
+                            onlineRef.child(myID).setValue(myData.toDict())
+                            onlineRef.child(myID + "/timeLimit").setValue(42)
+                            break
+                        }
+                    }
+                }
+                break
+            case .offered:
+                for entry in dict where entry.key != myID {
+                    let opData = OnlineInviteData(from: entry.value)
+                    if opData.valid && opData.timeLimit == timeLimit &&
+                        opData.opID == myID && (myData.opID == entry.key || myData.opID == "") &&
+                        possOp.contains(entry.key) {
+                        // TODO do i need to check for newer hear? think out 4 person example
+                            state = .matched
+                            myData.opID = entry.key
+                            onlineRef.child(myID).setValue(myData.toDict())
+                            onlineRef.child(myID + "/timeLimit").setValue(42)
+                            break
+                    }
+                }
+                let offeredOp = OnlineInviteData(from: dict[myData.opID] ?? [:])
+                if !offeredOp.valid || offeredOp.timeLimit != timeLimit || offeredOp.opID != "" {
+                    state = .invited
+                    myData.opID = ""
+                    onlineRef.child(myID).setValue(myData.toDict())
+                }
+                break
+            case .matched:
+                break
+            }
+            
+        })
+        
+        func startGame(with opID: String, data: OnlineInviteData) {
+            // call this when matched
+        }
+        
+        func newer(opData: OnlineInviteData, opID: String) -> Bool {
+            if opData.myGameID == myData.myGameID {
+                return opID > myID
+            } else {
+                return opData.myGameID > myData.myGameID
+            }
+        }
         
         // TODO keep adding code here to do out the whole invite process
         
@@ -112,24 +184,25 @@ class FB {
 
     struct GameData {
         let myTurn: Int     // 0 for moves first
-        let op: String      // op uuid
+        let opID: String    // op id
+        let opGameID: Int   // op gameID
         let hints: Bool     // true for sandbox mode
-        let time: Int       // time mode in ms
+        let timeLimit: Int  // time mode in ms
         let state: Int      // current state of the game
         let lastMove: Int   // time of last move in ms
         var myTime: [Int]   // times remaining on my clock after each of my moves
         var opTime: [Int]   // times remaining on op clock after each of their moves
         var moves: [Int]    // moves
-        let created: Int    // time the invite was created in ms
         
         let valid: Bool     // whether the given dict was valid
         
-        init(from dict: [String: Any], created: Int) {
+        init(from dict: [String: Any]) {
             valid = (
                 dict[Key.myTurn] as? Int != nil &&
-                    dict[Key.op] as? String != nil &&
+                    dict[Key.opID] as? String != nil &&
+                    dict[Key.opGameID] as? String != nil &&
                     dict[Key.hints] as? Int != nil &&
-                    dict[Key.time] as? Int != nil &&
+                    dict[Key.timeLimit] as? Int != nil &&
                     dict[Key.state] as? Int != nil &&
                     dict[Key.lastMove] as? Int != nil &&
                     dict[Key.myTime] as? [Int] != nil &&
@@ -137,11 +210,11 @@ class FB {
                     dict[Key.moves] as? String != nil
             )
             
-            self.created = created
             myTurn = dict[Key.myTurn] as? Int ?? 0
-            op = dict[Key.op] as? String ?? ""
+            opID = dict[Key.opID] as? String ?? ""
+            opGameID = dict[Key.opGameID] as? Int ?? 0
             hints = 1 == dict[Key.hints] as? Int ?? 0
-            time = dict[Key.time] as? Int ?? 0
+            timeLimit = dict[Key.timeLimit] as? Int ?? 0
             state = dict[Key.state] as? Int ?? 0
             lastMove = dict[Key.lastMove] as? Int ?? 0
             myTime = dict[Key.myTime] as? [Int] ?? []
@@ -151,35 +224,46 @@ class FB {
     }
     
     struct PlayerData {
-        let uuid: String
         let name: String
         let color: Int
         
-        init(from dict: [String: Any], uuid: String) {
-            self.uuid = uuid
+        init(from dict: [String: Any]) {
             name = dict[Key.name] as? String ?? "no name"
             color = dict[Key.color] as? Int ?? 0
         }
     }
     
-    struct onlineInviteData {
-        let uuid: String
-        let created: Int
-        let myTurn: Int
-        let time: Int
+    struct OnlineInviteData {
+        let myGameID: Int
+        let timeLimit: Int
+        var opID: String
         let valid: Bool
         
-        init(from dict: [String: Any], uuid: String) {
+        init(from dict: [String: Any]) {
             valid = (
-                dict[Key.created] as? Int != nil &&
-                    dict[Key.myTurn] as? Int != nil &&
-                    dict[Key.time] as? Int != nil
+                dict[Key.myGameID] as? Int != nil &&
+                    dict[Key.timeLimit] as? Int != nil &&
+                    dict[Key.opID] as? String != nil
             )
             
-            self.uuid = uuid
-            created = dict[Key.created] as? Int ?? 0
-            myTurn = dict[Key.myTurn] as? Int ?? 0
-            time = dict[Key.time] as? Int ?? 0
+            myGameID = dict[Key.myGameID] as? Int ?? 0
+            timeLimit = dict[Key.timeLimit] as? Int ?? 0
+            opID = dict[Key.opID] as? String ?? ""
+        }
+        
+        init(timeLimit: Int) {
+            myGameID = Date.ms
+            self.timeLimit = timeLimit
+            opID = ""
+            valid = true
+        }
+        
+        func toDict() -> [String: Any] {
+            [
+                Key.myGameID: myGameID,
+                Key.timeLimit: timeLimit,
+                Key.opID: opID
+            ]
         }
     }
 }
