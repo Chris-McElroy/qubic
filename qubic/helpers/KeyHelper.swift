@@ -28,11 +28,11 @@ struct Key {
     static let hints = "hints"
     static let timeLimit = "timeLimit"
     static let state = "state"
-    static let lastMove = "lastMove"
-    static let myTime  = "myTime"
-    static let opTime = "opTime"
-    static let moves = "moves"
-    static let myGameID = "myGameID"
+    static let myTimes  = "myTimes"
+    static let opTimes = "opTimes"
+    static let myMoves = "myMoves"
+    static let opMoves = "opMoves"
+    static let gameID = "gameID"
     static let opGameID = "opGameID"
 }
 

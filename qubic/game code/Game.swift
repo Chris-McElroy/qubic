@@ -107,10 +107,14 @@ class Game: ObservableObject {
     }
     
     func processMove(_ move: Int, on key: UInt64) {
+        print("got it")
         guard !hintCard else { pendingMove = (move, key); return }
+        print("a")
         pendingMove = nil
         guard key == board.board[turn] else { print("Invalid turn!"); return }
+        print("b")
         guard let wins = board.processMove(move) else { print("Invalid move!"); return }
+        print("c")
         if player[turn].rounded {
             UIImpactFeedbackGenerator(style: .medium).impactOccurred()
         }

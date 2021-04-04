@@ -40,15 +40,18 @@ class Online: Player {
     
     override func move(with process: @escaping (Int, UInt64) -> Void) {
         if self.op != nil {
-            FB.main.move(on: b, n: n, with: process)
+            guard let lastMove = b.move[o].last else { return }
+            FB.main.sendOnlineMove(p: lastMove, time: -1)
+            FB.main.gotOnlineMove = { move, time in
+                print("trying to move!")
+                process(move, self.b.board[self.n])
+            }
         } else {
             super.move(with: process)
         }
     }
     
     override func getPause() -> Double {
-        if self.op != nil { return 0 }
-        
         let skill = w2BlockP
         
         if b.move[0].count < 2 {

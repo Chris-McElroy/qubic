@@ -48,6 +48,8 @@ struct PlayView: View {
     }
     
     var turn: Int {
+        if mode == .online { return FB.main.myGameData?.myTurn ?? 0 }
+        
         switch selected[1] {
         case 0: return 0
         case 2: return 1
