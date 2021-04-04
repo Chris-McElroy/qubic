@@ -26,7 +26,7 @@ struct SettingsView: View {
                 // HPickers
                 VStack(spacing: 0) {
                     Fill(77)
-                    HPicker(content: SettingsView.notificationContent,
+                    HPicker(content: .constant(SettingsView.notificationContent),
                             dim: (50,30), selected: $notifications, action: setNotifications)
                         .frame(height: 40)
                         .onAppear { Notifications.ifDenied {
@@ -34,7 +34,7 @@ struct SettingsView: View {
                             UserDefaults.standard.setValue(1, forKey: Key.notification)
                         }}
                     Fill(102)
-                    HPicker(content: SettingsView.boardStyleContent,
+                    HPicker(content: .constant(SettingsView.boardStyleContent),
                             dim: (80,30), selected: $style, action: setDots)
                         .frame(height: 40)
                     Spacer()

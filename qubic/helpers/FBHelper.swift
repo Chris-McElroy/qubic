@@ -19,6 +19,7 @@ class FB {
     var op: PlayerData? = nil
     var onlineInviteState: MatchingState = .stopped
     var gotOnlineMove: ((Int, Int) -> Void)? = nil
+    var cancelOnlineSearch: (() -> Void)? = nil
     
     func start() {
         Auth.auth().addStateDidChangeListener { (auth, user) in
@@ -26,6 +27,7 @@ class FB {
                 UserDefaults.standard.setValue(user.uid, forKey: Key.uuid)
                 self.observePlayers()
                 self.updateMyData()
+                self.finishedOnlineGame(with: .error)
             } else {
                 // should only happen once, when they first use the app
                 Auth.auth().signInAnonymously() { (authResult, error) in
@@ -55,8 +57,11 @@ class FB {
         myPlayerRef.setValue([Key.name: name, Key.color: color])
     }
     
-    func getOnlineMatch(timeLimit: Int, openGameView: @escaping () -> Void) {
+    func getOnlineMatch(timeLimit: Int, humansOnly: Bool, onMatch: @escaping () -> Void, onCancel: @escaping () -> Void) {
         onlineInviteState = .invited
+        myGameData = nil
+        opGameData = nil
+        
         var possOp: Set<String> = []
         var myInvite = OnlineInviteData(timeLimit: timeLimit)
         
@@ -65,6 +70,30 @@ class FB {
         
         // send invite
         onlineRef.child(myID).setValue(myInvite.toDict())
+        
+        // set end time
+        var botTimer: Timer? = nil
+        if !humansOnly {
+            botTimer = Timer.scheduledTimer(withTimeInterval: 4, repeats: false, block: { _ in
+                if self.onlineInviteState == .invited || self.onlineInviteState == .offered {
+                    self.finishedOnlineGame(with: .error)
+                    self.onlineInviteState = .stopped
+                    onlineRef.child(myID).removeValue()
+                    onlineRef.removeAllObservers()
+                    onMatch()
+                }
+            })
+        }
+        
+        // set cancel func
+        cancelOnlineSearch = {
+            self.onlineInviteState = .stopped
+            botTimer?.invalidate()
+            onlineRef.removeAllObservers()
+            onlineRef.child(myID).removeValue()
+            onCancel()
+            self.cancelOnlineSearch = nil
+        }
         
         // check for others
         onlineRef.observe(DataEventType.value, with: { snapshot in
@@ -87,7 +116,7 @@ class FB {
                             self.onlineInviteState = .matched
                             myInvite.opID = entry.key
                             onlineRef.child(myID).setValue(myInvite.toDict())
-                            startGame(opInvite: opInvite)
+                            playGame(opInvite: opInvite)
                             break
                         }
                     }
@@ -103,25 +132,27 @@ class FB {
                         self.onlineInviteState = .matched
                         myInvite.opID = opInvite.ID
                         onlineRef.child(myID).setValue(myInvite.toDict())
-                        startGame(opInvite: opInvite)
+                        playGame(opInvite: opInvite)
                         break
                     }
                 }
                 let offeredOp = OnlineInviteData(from: dict[myInvite.opID] ?? [:], ID: myInvite.opID)
-                if !offeredOp.valid || offeredOp.timeLimit != timeLimit || offeredOp.opID != "" {
+                if !offeredOp.valid || offeredOp.timeLimit != timeLimit || !["", myID].contains(offeredOp.opID) {
                     self.onlineInviteState = .invited
                     myInvite.opID = ""
                     onlineRef.child(myID).setValue(myInvite.toDict())
                 }
                 break
             case .matched:
-                if self.opGameData?.state == .active {
-                    // finished inviting
-                    self.onlineInviteState = .stopped
-                    onlineRef.child(myID).removeValue()
-                    onlineRef.removeAllObservers()
-                } else if self.myGameData?.state == .new {
-                    // TODO check that they haven't gone with someone else
+                if self.myGameData?.state == .new {
+                    let offeredOp = OnlineInviteData(from: dict[myInvite.opID] ?? [:], ID: myInvite.opID)
+                    if !offeredOp.valid || offeredOp.timeLimit != timeLimit || !["", myID].contains(offeredOp.opID) {
+                        self.onlineInviteState = .invited
+                        self.myGameData = nil
+                        self.opGameData = nil
+                        myInvite.opID = ""
+                        onlineRef.child(myID).setValue(myInvite.toDict())
+                    }
                 }
                 break
             case .stopped:
@@ -129,77 +160,85 @@ class FB {
                 onlineRef.removeAllObservers()
                 break
             }
-            
         })
         
-        func startGame(opInvite: OnlineInviteData) {
-            var myData = GameData(myInvite: myInvite, opInvite: opInvite)
-            myGameData = myData
-            
+        func playGame(opInvite: OnlineInviteData) {
             // post game
+            let myData = GameData(myInvite: myInvite, opInvite: opInvite)
             let myGameRef = ref.child("games/\(myID)/\(myData.gameID)")
+            myGameData = myData
             myGameRef.setValue(myData.toDict())
             
             // search for their post
             let opGameRef = ref.child("games/\(myData.opID)/\(myData.opGameID)")
             opGameRef.removeAllObservers()
             opGameRef.observe(DataEventType.value, with: { snapshot in
+                guard var myData = self.myGameData else {
+                    myGameRef.child(Key.state).setValue(GameData.GameState.error.rawValue)
+                    self.myGameData = nil
+                    self.opGameData = nil
+                    opGameRef.removeAllObservers()
+                    return
+                }
                 guard let dict = snapshot.value as? [String: Any] else { return }
                 let opData = GameData(from: dict, gameID: myData.opGameID)
-                guard let op = self.playerDict[myData.opID] else { return }
                 if opData.valid && opData.opID == myID && opData.opGameID == myData.gameID {
-                    // TODO handle what happens if you receive the game and they've already moved once
-                    print("success")
-                    self.opGameData = opData
-                    self.op = op
-                    myData.state = .active
-                    self.myGameData = myData
-                    myGameRef.setValue(myData.toDict())
-                    self.playGame()
-                    openGameView() // TODO i might need to change this or do something else
-                } else {
-                    print("failed", opData.valid, opData.opID == myID, opData.opGameID == myData.gameID)
-                    print(opData)
-                    print(myData)
+                    if opData.state == .active && self.onlineInviteState != .stopped {
+                        // they've seen your game post so you can take down your invite
+                        self.onlineInviteState = .stopped
+                        onlineRef.child(myID).removeValue()
+                        onlineRef.removeAllObservers()
+                    }
+                    if myData.state == .new {
+                        guard let op = self.playerDict[myData.opID] else { return }
+                        myData.state = .active
+                        self.myGameData = myData
+                        self.opGameData = opData
+                        self.op = op
+                        myGameRef.setValue(myData.toDict())
+                        botTimer?.invalidate()
+                        onMatch()
+                    }
+                    if myData.state == .active {
+                        self.opGameData = opData
+                        let nextCount = myData.opMoves.count + 1
+                        if opData.state == .error || opData.state == .myLeave {
+                            self.finishedOnlineGame(with: opData.state.mirror())
+                        } else if opData.myMoves.count == nextCount && opData.myTimes.count == nextCount {
+                            guard let newMove = opData.myMoves.last else { return }
+                            guard let newTime = opData.myTimes.last else { return }
+                            
+                            myData.opMoves.append(newMove)
+                            myData.opTimes.append(newTime)
+                            self.myGameData = myData
+                            myGameRef.setValue(myData.toDict())
+                            
+                            self.gotOnlineMove?(newMove, newTime)
+                        }
+                    }
                 }
             })
         }
     }
     
-    // TODO decide where to put this function and make a better name
-    func playGame() {
+    func sendOnlineMove(p: Int, time: Int) {
         guard var myData = myGameData else { return }
         let myGameRef = ref.child("games/\(myID)/\(myData.gameID)")
-        
-        // capture op game updates
-        let opGameRef = ref.child("games/\(myData.opID)/\(myData.opGameID)")
-        opGameRef.removeAllObservers()
-        opGameRef.observe(DataEventType.value, with: { snapshot in
-            guard let oldOpData = self.opGameData else { return }
-            guard let dict = snapshot.value as? [String: Any] else { return }
-            let opData = GameData(from: dict, gameID: myData.opGameID)
-            if opData.valid && opData.opID == myID && opData.opGameID == myData.gameID {
-                if opData.myTimes != oldOpData.myTimes && opData.myMoves != oldOpData.myMoves {
-                    self.opGameData = opData
-                        
-                    myData.opTimes = opData.myTimes
-                    myData.opMoves = opData.myMoves
-                    self.myGameData = myData
-                    myGameRef.setValue(myData.toDict())
-                    
-                    self.gotOnlineMove?(myData.opMoves.last ?? -1, myData.opTimes.last ?? -1)
-                }
-            }
-        })
-    }
-    
-    func sendOnlineMove(p: Int, time: Int) {
-        print("sending move")
-        guard var myData = myGameData else { return }
         myData.myMoves.append(p)
         myData.myTimes.append(time)
         self.myGameData = myData
+        myGameRef.setValue(myData.toDict())
+    }
+    
+    func finishedOnlineGame(with state: GameData.GameState) {
+        guard var myData = myGameData else { return }
         let myGameRef = ref.child("games/\(myID)/\(myData.gameID)")
+        let opGameRef = ref.child("games/\(myData.opID)/\(myData.opGameID)")
+        myData.state = state
+        op = nil
+        myGameData = nil
+        opGameData = nil
+        opGameRef.removeAllObservers()
         myGameRef.setValue(myData.toDict())
     }
 
@@ -228,17 +267,6 @@ class FB {
                     dict[Key.myMoves] as? [Int] != nil &&
                     dict[Key.opMoves] as? [Int] != nil
             )
-            
-            print("validity", dict[Key.myTurn] as? Int != nil ,
-                      dict[Key.opID] as? String != nil ,
-                      dict[Key.opGameID] as? Int != nil ,
-                      dict[Key.hints] as? Int != nil ,
-                      dict[Key.state] as? Int != nil ,
-                      dict[Key.myTimes] as? [Int] != nil ,
-                      dict[Key.opTimes] as? [Int] != nil ,
-                      dict[Key.myMoves] as? [Int] != nil ,
-                      dict[Key.opMoves] as? [Int] != nil)
-            
             
             self.gameID = gameID
             myTurn = dict[Key.myTurn] as? Int ?? 0
@@ -282,7 +310,20 @@ class FB {
         
         enum GameState: Int {
             // each one is 1 more
-            case error = 0, new, active, myWin, opWin, myTimeout, opTimeout, draw
+            case error = 0, new, active, myWin, opWin, myTimeout, opTimeout, myLeave, opLeave, draw
+            
+            func mirror() -> GameState {
+                switch self {
+                case .myWin: return .opWin
+                case .opWin: return .myWin
+                case .myTimeout: return .opTimeout
+                case .opTimeout: return .myTimeout
+                case .myLeave: return .opLeave
+                case .opLeave: return .myLeave
+                case .draw: return .draw
+                default: return .error
+                }
+            }
         }
     }
     

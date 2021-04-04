@@ -12,9 +12,13 @@ import MessageUI
 struct PlayView: View {
     @Binding var view: ViewStates
     @Binding var selected: [Int]
-    var menuText = [[("local",false),("online",false),("invite",false)],
-                    [("first",false),("random",false),("second",false)],
-                    [("sandbox",false),("challenge",false)]]
+    static let onlineMenuText = [[("local",false),("online",false),("invite",false)],
+                                 [("bots",false),("auto",false),("humans",false)],
+                                 [("sandbox",false),("challenge",false)]]
+    static let altMenuText = [[("local",false),("online",false),("invite",false)],
+                              [("first",false),("random",false),("second",false)],
+                              [("sandbox",false),("challenge",false)]]
+    @State var menuText: [[Any]] = PlayView.onlineMenuText
     
     var body: some View {
         if view == .play {
@@ -24,17 +28,17 @@ struct PlayView: View {
             ZStack {
                 VStack(spacing: 0) {
                     Spacer()
-                    HPicker(content: menuText, dim: (90, 55), selected: $selected, action: onSelection)
+                    HPicker(content: $menuText, dim: (90, 55), selected: $selected, action: onSelection)
                         .frame(height: 180)
                 }
                 VStack {
                     Fill()
-                        .opacity(selected[0] == 1 ? 0.8 : 0.0)
+                        .opacity(mode == .local ? 0.0 : 0.8)
                         .animation(.linear(duration: 0.15))
                     Blank(120)
                 }
             }.onAppear {
-                FB.main.op = nil
+                FB.main.finishedOnlineGame(with: .error)
             }
         }
     }
@@ -48,7 +52,7 @@ struct PlayView: View {
     }
     
     var turn: Int {
-        if mode == .online { return FB.main.myGameData?.myTurn ?? 0 }
+        if mode == .online { return FB.main.myGameData?.myTurn ?? Int.random(in: 0...1) }
         
         switch selected[1] {
         case 0: return 0
@@ -62,8 +66,12 @@ struct PlayView: View {
     }
     
     func onSelection(row: Int, component: Int) {
-        // use this to make the hidey box go up and down?
+        FB.main.cancelOnlineSearch?()
+        if component == 0 {
+            menuText = mode == .online ? PlayView.onlineMenuText : PlayView.altMenuText
+        }
     }
+    
 }
 
 struct PlayView_Previews: PreviewProvider {

@@ -107,16 +107,15 @@ class Game: ObservableObject {
     }
     
     func processMove(_ move: Int, on key: UInt64) {
-        print("got it")
         guard !hintCard else { pendingMove = (move, key); return }
-        print("a")
         pendingMove = nil
         guard key == board.board[turn] else { print("Invalid turn!"); return }
-        print("b")
         guard let wins = board.processMove(move) else { print("Invalid move!"); return }
-        print("c")
         if player[turn].rounded {
             UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+        }
+        if player[turn^1] as? Online != nil {
+            FB.main.sendOnlineMove(p: move, time: -1)
         }
         boardScene?.showMove(move)
         turn = board.getTurn()
@@ -134,6 +133,9 @@ class Game: ObservableObject {
                     undoOpacity = 1.0
                     redoOpacity = 0.3
                 }
+            }
+            if player[turn] as? Online != nil {
+                FB.main.finishedOnlineGame(with: winner == myTurn ? .myWin : .opWin)
             }
             Timer.scheduledTimer(withTimeInterval: 0.2, repeats: false, block: { _ in
                 self.boardScene?.showWin(wins)

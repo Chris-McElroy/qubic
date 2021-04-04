@@ -11,7 +11,7 @@ import UIKit
 import CoreGraphics
 
 struct HPicker : UIViewRepresentable {
-    @State var content: [[Any]]
+    @Binding var content: [[Any]]
     @State var dim: (CGFloat,CGFloat)
     @Binding var selected: [Int]
     var action: (Int, Int) -> Void
@@ -35,9 +35,9 @@ struct HPicker : UIViewRepresentable {
         guard let picker = uiView as? UIPickerView else { return }
         for c in 0..<content.count {
             for r in 0..<content[c].count {
-                if let string = content[c][r] as? String {
+                if let new = content[c][r] as? (String, Bool) {
                     if let label = picker.view(forRow: r, forComponent: c) as? UILabel {
-                        if label.text != string {
+                        if label.text != new.0 {
                             picker.reloadComponent(c)
                             break
                         }

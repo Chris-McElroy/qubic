@@ -13,6 +13,7 @@ struct MainView: View {
     @State var heights: Heights = Heights()
     @State var halfBack: Bool = false
     @State var playSelection = [1,1,0]
+    @State var searching: Bool = false
     
     // The delegate required by `MFMessageComposeViewController`
     let messageComposeDelegate = MessageDelegate()
@@ -60,29 +61,52 @@ struct MainView: View {
     }
     
     private var mainStack: some View {
-        let playText = "  \u{2009}\u{2009}\u{2009}play\u{2009}\u{2009}\u{2009}  "
+        var trainText: String {
+            heights.view == .trainMenu ? "  start  " : "  train  "
+        }
+        
+        var solveText: String {
+            heights.view == .solveMenu ? "  start  " : " solve "
+        }
+        
+        var playText: String {
+            if searching {
+                return "\u{2009}            "
+            } else {
+                return heights.view == .playMenu ? "  start  " : "  \u{2009}\u{2009}\u{2009}play\u{2009}\u{2009}\u{2009}  "
+            }
+        }
         
         return VStack(spacing: 0) {
             TrainView(view: $heights.view)
                 .frame(height: heights.get(heights.trainView), alignment: .bottom)
-            mainButton(view: $heights.view, views: [.trainMenu, .train], text: "  train  ", color: .tertiary(0), action: switchView)
+            mainButton(view: $heights.view, views: [.trainMenu, .train], text: trainText, color: .tertiary(0), action: switchView)
                 .zIndex(5)
             SolveView(view: $heights.view)
                 .frame(height: heights.get(heights.solveView), alignment: .bottom)
             ZStack {
-                mainButton(view: $heights.view, views: [.solveMenu, .solve], text: " solve ", color: .secondary(0), action: switchView)
+                mainButton(view: $heights.view, views: [.solveMenu, .solve], text: solveText, color: .secondary(0), action: switchView)
                 if UserDefaults.standard.integer(forKey: Key.lastDC) != Date().getInt() {
                     Circle().frame(width: 24, height: 24).foregroundColor(heights.view == .solveMenu ? .secondary(0) : .primary(0)).zIndex(2).offset(x: 88, y: -25)
                 }
             }
             PlayView(view: $heights.view, selected: $playSelection)
                 .frame(height: heights.get(heights.playView), alignment: .bottom)
-            mainButton(view: $heights.view, views: [.playMenu, .play], text: playText, color: .primary(0)) { v1,v2 in
-                if heights.view == .playMenu && playSelection[0] == 1 {
-                    FB.main.getOnlineMatch(timeLimit: -1, openGameView: { heights.view = .play })
-                } else if heights.view == .playMenu && playSelection[0] == 2 {
-                    presentMessageCompose()
-                } else { switchView(to: v1, or: v2) }
+            ZStack {
+                mainButton(view: $heights.view, views: [.playMenu, .play], text: playText, color: .primary(0)) { v1,v2 in
+                    if heights.view == .playMenu && playSelection[0] == 1 && playSelection[1] != 0 {
+                        searching = true
+                        FB.main.getOnlineMatch(timeLimit: -1, humansOnly: playSelection[1] == 2, onMatch: {
+                            searching = false
+                            heights.view = .play
+                        }, onCancel: { searching = false })
+                    } else if heights.view == .playMenu && playSelection[0] == 2 {
+                        presentMessageCompose()
+                    } else { switchView(to: v1, or: v2) }
+                }
+                ActivityIndicator()
+                    .offset(x: 1, y: 1)
+                    .opacity(searching ? 1 : 0)
             }
         }
     }
@@ -97,7 +121,7 @@ struct MainView: View {
         var body: some View {
             ZStack {
                 Fill().frame(height: mainButtonHeight)
-                Button(action: { action(views[0], views[1]) }, label: { Text(views.contains(view) ? "  start  " : text) })
+                Button(action: { action(views[0], views[1]) }, label: { Text(text) })
                     .buttonStyle(MainStyle(color: views.contains(view) ? .primary(0) : color))
             }
         }
@@ -197,6 +221,8 @@ struct MainView: View {
         if halfBack {
             UIImpactFeedbackGenerator(style: .rigid).impactOccurred()
         } else {
+            FB.main.cancelOnlineSearch?()
+            FB.main.finishedOnlineGame(with: .myLeave)
             withAnimation(.easeInOut(duration: 0.4)) { //0.4
                 heights.view = back[heights.view, default: .more]
             }

@@ -40,10 +40,7 @@ class Online: Player {
     
     override func move(with process: @escaping (Int, UInt64) -> Void) {
         if self.op != nil {
-            guard let lastMove = b.move[o].last else { return }
-            FB.main.sendOnlineMove(p: lastMove, time: -1)
             FB.main.gotOnlineMove = { move, time in
-                print("trying to move!")
                 process(move, self.b.board[self.n])
             }
         } else {

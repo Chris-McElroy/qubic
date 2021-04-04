@@ -25,7 +25,7 @@ struct SolveView: View {
                 GameView()
                     .onAppear { Game.main.load(mode: mode, boardNum: boardNum) }
             } else if view == .solveMenu {
-                HPicker(content: getPickerText(), dim: (90, 40), selected: $selected, action: hPickerAction)
+                HPicker(content: .constant(getPickerText()), dim: (90, 40), selected: $selected, action: hPickerAction)
                     .frame(height: 80)
                     .opacity(view == .solveMenu ? 1 : 0)
                 Blank(3)
@@ -79,6 +79,7 @@ struct SolveView: View {
 //        }
 //    }
     
+    // TODO make this a state var so that you can update it when the day changes etc
     func getPickerText() -> [[Any]] {
         let streak = getStreakView
         let tricky = getTrickyView

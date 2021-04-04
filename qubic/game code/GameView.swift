@@ -72,7 +72,7 @@ struct GameView: View {
                 // HPickers
                 VStack(spacing: 0) {
                     Spacer()
-                    HPicker(content: [[("blocks", text[0][0] != "no wins"), ("wins", text[1][0] != "no wins")],[("on",false),("off",false)]], dim: (60, 50), selected: $hintSelection, action: onSelection)
+                    HPicker(content: .constant([[("blocks", text[0][0] != "no wins"), ("wins", text[1][0] != "no wins")],[("on",false),("off",false)]]), dim: (60, 50), selected: $hintSelection, action: onSelection)
                         .frame(height: 100)
                 }
                 // Mask
