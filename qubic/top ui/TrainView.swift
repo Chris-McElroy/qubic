@@ -9,7 +9,7 @@
 import SwiftUI
 
 struct TrainView: View {
-    @Binding var view: ViewStates
+    @Binding var view: ViewState
     @State var selected: [Int] = [UserDefaults.standard.integer(forKey: Key.lastTrain),1,0]
     let beaten = UserDefaults.standard.array(forKey: Key.train) as? [Int] ?? [0,0,0,0,0,0]
     

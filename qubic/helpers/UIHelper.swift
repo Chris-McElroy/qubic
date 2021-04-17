@@ -11,6 +11,12 @@ import SwiftUI
 //00000000-0000-0000-0000-000000000000
 var myID: String { UserDefaults.standard.string(forKey: Key.uuid) ?? "00000000000000000000000000000000" }
 
+enum Opacity: Double {
+    case clear = 0
+    case half = 0.3
+    case full = 1
+}
+
 extension Sequence where Element: AdditiveArithmetic {
     func sum() -> Element { reduce(.zero, +) }
 }

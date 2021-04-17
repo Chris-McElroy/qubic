@@ -9,7 +9,7 @@
 import SwiftUI
 
 struct SettingsView: View {
-    @Binding var view: ViewStates
+    @Binding var view: ViewState
     var mainButtonAction: () -> Void
     @State var style = [UserDefaults.standard.integer(forKey: Key.dot)]
     @State var notifications = [UserDefaults.standard.integer(forKey: Key.notification)]

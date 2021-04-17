@@ -28,13 +28,13 @@ struct GameView: View {
                 .padding(.top, 20)
                 .padding(.bottom, 10)
                 .zIndex(1.0)
-                BoardView(boardScene: game.boardScene!)
+                BoardView()
                     .gesture(DragGesture()
                         .onEnded { drag in
                             let h = drag.predictedEndTranslation.height
                             let w = drag.predictedEndTranslation.width
                             if abs(w)/abs(h) > 1 {
-                                game.boardScene?.rotate(right: w > 0)
+                                BoardScene.main.rotate(right: w > 0)
                             } else if h > 0 {
                                 game.goBack()
                             } else {
@@ -67,12 +67,48 @@ struct GameView: View {
     }
     
     var hintContent: some View {
-        ZStack {
-            if let text = game.hintText {
+        var myText: [String]
+        switch game.currentMove?.myHint {
+        case .w0:   myText = ["4 in a row", "Your opponent won the game, better luck next time!"]
+        case .w1:   myText = ["3 in a row","Your opponent has 3 in a row, so now they can fill in the last move in that line and win!"]
+        case .w2d1: myText = ["checkmate", "Your opponent can get two checks with their next move, and you can’t block both!"]
+        case .w2:   myText = ["second order win", "Your opponent can get to a checkmate using a series of checks!"]
+        case .c1:   myText = ["check", "Your opponent has 3 in a row, so you should block their line to prevent them from winning!"]
+        case .cm1:  myText = ["checkmate", "Your opponent has more than one check, and you can’t block them all!"]
+        case .cm2:  myText = ["second order checkmate", "Your opponent has more than one second order check, and you can’t block them all!"]
+        case .c2d1: myText = ["second order check", "Your opponent can get checkmate next move if you don’t stop them!"]
+        case .c2:   myText = ["second order check", "Your opponent can get checkmate through a series of checks if you don’t stop them!"]
+        case .noW:  myText = ["no wins", "Your opponent doesn't have any forced wins right now, keep it up!"]
+        case nil:   myText = ["loading...", ""]
+        }
+        
+        var opText: [String]
+        switch game.currentMove?.opHint {
+        case .w0:   opText = ["4 in a row", "You won the game, great job!"]
+        case .w1:   opText = ["3 in a row","You have 3 in a row, so now you can fill in the last move in that line and win!"]
+        case .w2d1: opText = ["checkmate", "You can get two checks with your next move, and your opponent can’t block both!"]
+        case .w2:   opText = ["second order win", "You can get to a checkmate using a series of checks!"]
+        case .c1:   opText = ["check", "You have 3 in a row, so you can win next turn unless it’s blocked!"]
+        case .cm1:  opText = ["checkmate", "You have more than one check, and your opponent can’t block them all!"]
+        case .cm2:  opText = ["second order checkmate", "You have more than one second order check, and your opponent can’t block them all!"]
+        case .c2d1: opText = ["second order check", "You can get checkmate next move if your opponent doesn’t stop you!"]
+        case .c2:   opText = ["second order check", "You can get checkmate through a series of checks if your opponent doesn’t stop you!"]
+        case .noW:  opText = ["no wins", "You don't have any forced wins right now, keep working to set one up!"]
+        case nil:   opText = ["loading...",""]
+        }
+        
+        let text = [opText, myText]
+        
+        return ZStack {
+            if game.hints {
                 // HPickers
                 VStack(spacing: 0) {
                     Spacer()
-                    HPicker(content: .constant([[("blocks", text[0][0] != "no wins"), ("wins", text[1][0] != "no wins")],[("on",false),("off",false)]]), dim: (60, 50), selected: $hintSelection, action: onSelection)
+                    HPicker(content: .constant([
+                        [("blocks", game.currentMove?.opHint != nil),
+                         ("wins", game.currentMove?.myHint != nil)],
+                        [("on",false),("off",false)]
+                    ]), dim: (60, 50), selected: $hintSelection, action: onSelection)
                         .frame(height: 100)
                 }
                 // Mask
@@ -96,18 +132,14 @@ struct GameView: View {
                     Blank(36)
                 }.padding(.horizontal, 40)
             } else {
-                if game.undoOpacity == 0 {
-                    if [.daily, .simple, .common, .tricky].contains(game.mode) {
-                        Text("hints are not available on solve boards until they are solved!")
-                            .multilineTextAlignment(.center)
-                            .padding(.horizontal, 40)
-                    } else {
-                        Text("hints are only available in sandbox mode or after games!")
-                            .multilineTextAlignment(.center)
-                            .padding(.horizontal, 40)
-                    }
+                if game.mode.solve {
+                    Text("hints are not available on solve boards until they are solved!")
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 40)
                 } else {
-                    Text("loading...")
+                    Text("hints are only available in sandbox mode or after games!")
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 40)
                 }
             }
         }

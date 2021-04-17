@@ -87,11 +87,11 @@ class Board {
         }
     }
     
-    func processMove(_ p: Int) -> [WinLine]? {
-        guard (0..<64).contains(p) else { return nil }
-        guard pointEmpty(p) else { return nil }
-        let n = getTurn()
-        addMove(p, for: n)
+    func processMove(_ p: Int) -> Bool {
+        guard (0..<64).contains(p) else { return false }
+        guard pointEmpty(p) else { return false }
+        addMove(p, for: getTurn())
+        return true
         
 //        var printed = false
 //        for d in 1..<10 {
@@ -104,11 +104,13 @@ class Board {
 //        }
 //        if !printed { print("nothing") }
         
-        var winLines: [WinLine] = []
-        for line in getW0(for: n) {
-            let points = Board.pointsInLine[line]
-            winLines.append(WinLine(start: points[0], end: points[3], line: line))
-        }
-        return winLines
+    }
+    
+    func getWinLines() -> [Int?] {
+        var wins: [Int?] = Array(repeating: nil, count: 76)
+        getW0(for: 0).forEach { wins[$0] = 0 }
+        getW0(for: 1).forEach { wins[$0] = 1 }
+        
+        return wins
     }
 }

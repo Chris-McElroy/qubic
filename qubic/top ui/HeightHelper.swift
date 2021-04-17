@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-enum ViewStates {
+enum ViewState {
     case main
     case more
     case trainMenu
@@ -21,6 +21,20 @@ enum ViewStates {
     case settings
 //    case replays
 //    case friends
+    
+    var gameView: Bool { [.play, .solve, .train].contains(self) }
+    
+    var back: ViewState {
+        switch self {
+        case .main: return .more
+        case .train: return .trainMenu
+        case .solve: return .solveMenu
+        case .play: return .playMenu
+        case .about: return .more
+        case .settings: return .more
+        default: return .main
+        }
+    }
 }
 
 extension MainView {
@@ -38,7 +52,7 @@ extension MainView {
 //        let friends   = SubView(id: 10, df: moreButtonHeight)
         let moreFill  = SubView(id: 9, df: moreButtonHeight)
         
-        var view: ViewStates = .main
+        var view: ViewState = .main
         var total: CGFloat
         var topSpacer: CGFloat { 2*screen - subViews[0..<display.top.id].sum() }
         var cube: CGFloat

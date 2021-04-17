@@ -10,7 +10,7 @@ import SwiftUI
 import MessageUI
 
 struct PlayView: View {
-    @Binding var view: ViewStates
+    @Binding var view: ViewState
     @Binding var selected: [Int]
     static let onlineMenuText = [[("local",false),("online",false),("invite",false)],
                                  [("bots",false),("auto",false),("humans",false)],

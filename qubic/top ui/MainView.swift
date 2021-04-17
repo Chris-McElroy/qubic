@@ -10,6 +10,7 @@ import SwiftUI
 
 struct MainView: View {
     @EnvironmentObject var screen: ScreenObserver
+    @ObservedObject var game: Game = Game.main
     @State var heights: Heights = Heights()
     @State var halfBack: Bool = false
     @State var playSelection = [1,1,0]
@@ -35,8 +36,8 @@ struct MainView: View {
             FB.main.start()
             heights = Heights(newScreen: self.screen)
             heights.view = .main
-            Game.main.goBack = goBack
-            Game.main.cancelBack = cancelBack
+            game.goBack = goBack
+            game.cancelBack = cancelBack
         }
         .frame(height: heights.total)
         .background(Fill())
@@ -112,11 +113,11 @@ struct MainView: View {
     }
     
     private struct mainButton: View {
-        @Binding var view: ViewStates
-        let views: [ViewStates]
+        @Binding var view: ViewState
+        let views: [ViewState]
         let text: String
         let color: Color
-        let action: (ViewStates, ViewStates) -> Void
+        let action: (ViewState, ViewState) -> Void
         
         var body: some View {
             ZStack {
@@ -144,15 +145,17 @@ struct MainView: View {
     }
     
     private var backButton: some View {
-        HStack {
-            Button(action: Game.main.undoMove) {
+        HStack(spacing: 0) {
+            Spacer().frame(width: 10)
+            Button(action: game.undoMove) {
                 Text("undo")
                     .font(.custom("Oligopoly Regular", size: 15.5))
                     .accentColor(.label)
-                    .padding(.leading, 40)
                     .padding(.bottom, 52)
             }
-            .opacity([.train, .solve, .play].contains(heights.view) ? Game.main.undoOpacity : 0)
+            .frame(width: 100)
+            .opacity(game.undoOpacity.rawValue)
+            Spacer().frame(width: 20)
             Spacer()
             Button(action: goBack ) {
                 VStack {
@@ -162,22 +165,32 @@ struct MainView: View {
                     Text("↓")
                         .rotationEffect(Angle(degrees: heights.view == .main ? 0 : 180))
                 }
+                .padding(.horizontal, halfBack ? 0 : 20)
                 .padding(.bottom, 35)
-                .padding(.horizontal, 20)
                 .padding(.top, 5)
                 .background(Fill())
             }
-            .buttonStyle(Solid())
             Spacer()
-            Button(action: Game.main.redoMove) {
-                Text("redo")
-                    .font(.custom("Oligopoly Regular", size: 15.5))
+            Button(action: game.prevMove) {
+                Text("←")
+                    .font(.custom("Oligopoly Regular", size: 25))
                     .accentColor(.label)
-                    .padding(.trailing, 40)
-                    .padding(.bottom, 52)
+                    .padding(.bottom, 45)
             }
-            .opacity([.train, .solve, .play].contains(heights.view) ? Game.main.redoOpacity : 0)
+            .frame(width: 40)
+            .opacity(game.prevOpacity.rawValue)
+            Spacer().frame(width: 20)
+            Button(action: game.nextMove) {
+                Text("→")
+                    .font(.custom("Oligopoly Regular", size: 25))
+                    .accentColor(.label)
+                    .padding(.bottom, 45)
+            }
+            .frame(width: 40)
+            .opacity(game.nextOpacity.rawValue)
+            Spacer().frame(width: 30)
         }.background(Rectangle().foregroundColor(.systemBackground))
+        .buttonStyle(Solid())
     }
     
     var scrollGestures: some Gesture {
@@ -198,7 +211,7 @@ struct MainView: View {
             }
     }
     
-    func switchView(to newView: ViewStates, or otherView: ViewStates? = nil) {
+    func switchView(to newView: ViewState, or otherView: ViewState? = nil) {
         if let nextView = (heights.view != newView) ? newView : otherView {
             withAnimation(.easeInOut(duration: 0.4)) { //0.4
                 heights.view = nextView
@@ -207,30 +220,22 @@ struct MainView: View {
     }
     
     func goBack() {
-        if Game.main.hideHintCard() { return }
-        let back: [ViewStates: ViewStates] = [
-            .more: .main,
-            .trainMenu: .main,
-            .solveMenu: .main,
-            .playMenu: .main,
-            .train: .trainMenu,
-            .solve: .solveMenu,
-            .play: .playMenu
-        ]
-        if [.play,.solve,.train].contains(heights.view) { halfBack.toggle() }
+        if game.hideHintCard() { return }
+        if heights.view.gameView { halfBack.toggle() }
         if halfBack {
             UIImpactFeedbackGenerator(style: .rigid).impactOccurred()
         } else {
+            game.turnOff()
             FB.main.cancelOnlineSearch?()
             FB.main.finishedOnlineGame(with: .myLeave)
             withAnimation(.easeInOut(duration: 0.4)) { //0.4
-                heights.view = back[heights.view, default: .more]
+                heights.view = heights.view.back
             }
         }
     }
     
     func cancelBack() -> Bool {
-        if Game.main.hideHintCard() { return false }
+        if game.hideHintCard() { return false }
         if halfBack {
             UIImpactFeedbackGenerator(style: .light).impactOccurred()
             halfBack = false

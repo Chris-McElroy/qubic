@@ -38,11 +38,11 @@ class MessagesViewController: MSMessagesAppViewController {
         view.addSubview(loadButton)
         
         game.sendMessage = sendMessage
-        gameView.addSubview(game.boardScene?.view ?? UIView())
+        gameView.addSubview(BoardScene.main.view)
         print(view.bounds.height-200, view.bounds.height-230, view.bounds.height)
 //        368.0 338.0 568.0
 //        644.0 614.0 844.0
-        game.boardScene?.view.frame = CGRect(x: 0, y: 80, width: view.bounds.width, height: view.bounds.height*0.9-145)
+        BoardScene.main.view.frame = CGRect(x: 0, y: 80, width: view.bounds.width, height: view.bounds.height*0.9-145)
         gameView.frame = CGRect(x: 0, y: 0, width: view.bounds.width, height: view.bounds.height)
         
         sentLabel.frame = CGRect(x: gameView.center.x-40, y: gameView.center.y, width: 80, height: 40)

@@ -9,7 +9,7 @@
 import SwiftUI
 
 struct AboutView: View {
-    @Binding var view: ViewStates
+    @Binding var view: ViewState
     var mainButtonAction: () -> Void
     
     var body: some View {

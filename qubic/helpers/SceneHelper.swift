@@ -56,10 +56,9 @@ class SceneHelper {
         return ambiLightNode
     }
     
-    static func makeBox(color: UIColor = UIColor.null, size: CGFloat = 1.0) -> SCNNode {
+    static func makeBox(size: CGFloat = 1.0) -> SCNNode {
         let box = SCNBox(width: size, height: size, length: size, chamferRadius: 0)
         let boxNode = SCNNode(geometry: box)
-        boxNode.setColor(color)
         return boxNode
     }
     
@@ -253,7 +252,7 @@ class SceneHelper {
 //        return node
 //    }
     
-    static func makeLine(from start: SIMD3<Float>, to end: SIMD3<Float>, color: UIColor) -> SCNNode {
+    static func makeLine(from start: SIMD3<Float>, to end: SIMD3<Float>) -> SCNNode {
         let yAxisSIMD = SIMD3<Float>(0,1,0)
         let vector = end - start
         let line = SCNCylinder(radius: 0.05, height: CGFloat(simd_length(vector)))
@@ -263,7 +262,6 @@ class SceneHelper {
         let qw = simd_length(yAxisSIMD) * simd_length(vector) + simd_dot(yAxisSIMD, vector)
         let q = simd_quatf(ix: vector_cross.x, iy: vector_cross.y, iz: vector_cross.z, r: qw)
         lineNode.simdRotate(by: q.normalized, aroundTarget: lineNode.simdPosition)
-        lineNode.setColor(color)
         return lineNode
     }
 }

@@ -9,7 +9,7 @@
 import SwiftUI
 
 struct SolveView: View {
-    @Binding var view: ViewStates
+    @Binding var view: ViewState
     @State var selected: [Int] = [0,0]
     var mode: GameMode {
         switch selected[1] {

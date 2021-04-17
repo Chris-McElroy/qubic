@@ -27,6 +27,8 @@ enum HintValue {
 }
 
 class Game: ObservableObject {
+    static let main = Game()
+    
     @Published var turn: Int = 0
     @Published var hintCard: Bool = false
     @Published var hintText: [[String]]? = nil
@@ -49,13 +51,12 @@ class Game: ObservableObject {
 //    var hints: Bool = false
     var leaving: Bool = false
     private var board = Board()
-    var boardScene: BoardScene? = nil
+//    var boardScene: BoardScene? = nil
     var pendingMove: (Int, UInt64)? = nil
     var replayMoveCount: Int = 0
     var undoneMoveStack: [Int] = []
     
     init() {
-        boardScene = BoardScene(game: self)
     }
     
     func load(from url: URL?) {
@@ -84,7 +85,7 @@ class Game: ObservableObject {
 //        print(selfCreated, myTurn, uuid, moved)
         
         board = Board()
-        boardScene?.reset()
+        BoardScene.main.reset()
         undoOpacity = 0
         redoOpacity = 0
         winner = nil
@@ -106,18 +107,17 @@ class Game: ObservableObject {
     }
     
     func loadMove(_ move: Int) {
-        guard let wins = board.processMove(move) else { print("Invalid load move!"); return }
-        boardScene?.addCube(move: move, color: .primary(player[turn].color))
+        guard board.processMove(move) else { print("Invalid load move!"); return }
         turn = board.getTurn()
         if undoOpacity == 0.3 { undoOpacity = 1 }
-        if !wins.isEmpty {
+        if board.hasW0(turn^1) {
             winner = turn^1
             if winner == myTurn { updateWins() }
             undoOpacity = 1.0
             redoOpacity = 0.3
-            Timer.scheduledTimer(withTimeInterval: 0.2, repeats: false, block: { _ in
-                self.boardScene?.showWin(wins)
-            })
+            BoardScene.main.showMove(move, wins: board.getWinLines())
+        } else {
+            BoardScene.main.addCube(move: move, color: .primary(player[turn].color))
         }
     }
     
@@ -127,33 +127,30 @@ class Game: ObservableObject {
         guard !hintCard else { pendingMove = (move, key); return }
         pendingMove = nil
         guard key == board.board[turn] else { print("Invalid turn!"); return }
-        guard let wins = board.processMove(move) else { print("Invalid move!"); return }
-        boardScene?.showMove(move)
+        guard board.processMove(move) else { print("Invalid move!"); return }
+        BoardScene.main.showMove(move, wins: board.getWinLines())
         turn = board.getTurn()
         moved = true
         hintText = nil
         if undoOpacity == 0.3 { undoOpacity = 1 }
-        if wins.isEmpty {
-            Timer.scheduledTimer(withTimeInterval: 0.2, repeats: false, block: { _ in
-                self.player[self.turn].move(with: self.processMove)
-            })
-        } else {
+        if board.hasW0(turn^1) {
             winner = turn^1
             if winner == myTurn { updateWins() }
             if ![.daily, .simple, .common, .tricky].contains(mode) || winner == myTurn {
                 undoOpacity = 1.0
                 redoOpacity = 0.3
             }
+        } else {
             Timer.scheduledTimer(withTimeInterval: 0.2, repeats: false, block: { _ in
-                self.boardScene?.showWin(wins)
+                self.player[self.turn].move(with: self.processMove)
             })
         }
         sendMessage(moveStringMap[move])
     }
     
     func processReplayMove(_ move: Int, on key: UInt64) {
-        guard board.processMove(move) != nil else { print("Invalid move!"); return }
-        boardScene?.showReplayMove(move)
+        guard board.processMove(move) else { print("Invalid move!"); return }
+        BoardScene.main.showMove(move, wins: board.getWinLines())
         turn = board.getTurn()
         replayMoveCount += 1
         hintText = nil
@@ -203,7 +200,7 @@ class Game: ObservableObject {
         if winner != nil { replayMode = true }
         guard let move = board.move[turn^1].last else { return }
         board.undoMove(for: turn^1)
-        boardScene?.undoMove(move)
+        BoardScene.main.undoMove(move, wins: board.getWinLines())
         turn = board.getTurn()
         hintText = nil
         let emptyBoard = (board.board[0] + board.board[1] == 0)
@@ -229,22 +226,17 @@ class Game: ObservableObject {
         while replayMoveCount != 0 {
             let move = board.move[turn^1].last ?? 0
             board.undoMove(for: turn^1)
-            boardScene?.remove(move)
+            BoardScene.main.remove(move)
             turn = board.getTurn()
             replayMoveCount -= 1
         }
         hintText = nil
         if let move = undoneMoveStack.popLast() {
-            guard let wins = board.processMove(move) else { print("Invalid redo!"); return }
-            boardScene?.showMove(move)
+            guard board.processMove(move) else { print("Invalid redo!"); return }
+            BoardScene.main.showMove(move, wins: board.getWinLines())
             turn = board.getTurn()
             hintText = nil
             undoOpacity = 1
-            if !wins.isEmpty && undoneMoveStack.isEmpty && replayMoveCount == 0 {
-                Timer.scheduledTimer(withTimeInterval: 0.2, repeats: false, block: { _ in
-                    self.boardScene?.showWin(wins)
-                })
-            }
         }
         let fullBoard = undoneMoveStack.isEmpty
         redoOpacity = fullBoard ? 0.3 : 1
@@ -327,6 +319,6 @@ class Game: ObservableObject {
                 }
             }
         }
-        boardScene?.spinDots(list)
+        BoardScene.main.spinDots(list)
     }
 }
