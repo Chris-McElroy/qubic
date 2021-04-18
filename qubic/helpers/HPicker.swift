@@ -33,18 +33,7 @@ struct HPicker : UIViewRepresentable {
     
     func updateUIView(_ uiView: UIViewType, context: Context) {
         guard let picker = uiView as? UIPickerView else { return }
-        for c in 0..<content.count {
-            for r in 0..<content[c].count {
-                if let new = content[c][r] as? (String, Bool) {
-                    if let label = picker.view(forRow: r, forComponent: c) as? UILabel {
-                        if label.text != new.0 {
-                            picker.reloadComponent(c)
-                            break
-                        }
-                    }
-                }
-            }
-        }
+        picker.reloadAllComponents()
         for (c,r) in selected.enumerated() {
             if picker.selectedRow(inComponent: c) != r {
                 picker.selectRow(r, inComponent: c, animated: true)

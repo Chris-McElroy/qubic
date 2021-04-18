@@ -38,13 +38,13 @@ class Online: Player {
         }
     }
     
-    override func move(with process: @escaping (Int, UInt64) -> Void) {
+    override func move() {
         if self.op != nil {
             FB.main.gotOnlineMove = { move, time in
-                process(move, self.b.board[self.n])
+                Game.main.processMove(move, for: self.n, num: self.b.numMoves())
             }
         } else {
-            super.move(with: process)
+            super.move()
         }
     }
     

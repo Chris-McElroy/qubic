@@ -9,8 +9,6 @@
 import SwiftUI
 
 class User: Player {
-    var process: ((Int, UInt64) -> Void)? = nil
-    
     init(b: Board, n: Int, name: String? = nil) {
         var username = UserDefaults.standard.string(forKey: Key.name) ?? "you"
         if let name = name {
@@ -19,14 +17,13 @@ class User: Player {
         super.init(b: b, n: n, name: username, color: 0, rounded: true)
     }
     
-    override func move(with process: @escaping (Int, UInt64) -> Void) {
-        self.process = process
-    }
+    override func move() {}
     
     func move(at p: Int) {
-        if let processMove = process {
-            process = nil
-            processMove(p, b.board[n])
+        if Game.main.replayMode {
+            Game.main.processGhostMove(p)
+        } else if Game.main.turn == n && Game.main.winner == nil {
+            Game.main.processMove(p, for: n, num: b.numMoves())
         }
     }
 }

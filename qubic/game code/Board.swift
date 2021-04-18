@@ -16,6 +16,7 @@ class Board {
     
     func getTurn() -> Int { move[0].count - move[1].count }
     func nextTurn() -> Int {  1 - move[0].count + move[1].count }
+    func numMoves() -> Int { move[0].count + move[1].count }
     
     func pointEmpty(_ p: Int) -> Bool { (((board[0] | board[1]) &>> p) & 1) == 0 }
     func pointFull(_ p: Int) -> Bool { (((board[0] | board[1]) &>> p) & 1) == 1 }
@@ -34,6 +35,10 @@ class Board {
         board = other.board
         open = other.open
         status = other.status
+    }
+    
+    func addMove(_ p: Int) {
+        addMove(p, for: getTurn())
     }
     
     func addMove(_ p: Int, for n: Int) {
@@ -87,11 +92,11 @@ class Board {
         }
     }
     
-    func processMove(_ p: Int) -> Bool {
-        guard (0..<64).contains(p) else { return false }
-        guard pointEmpty(p) else { return false }
-        addMove(p, for: getTurn())
-        return true
+//    func processMove(_ p: Int) -> Bool {
+//        guard (0..<64).contains(p) else { return false }
+//        guard pointEmpty(p) else { return false }
+//        addMove(p, for: getTurn())
+//        return true
         
 //        var printed = false
 //        for d in 1..<10 {
@@ -103,8 +108,7 @@ class Board {
 //            }
 //        }
 //        if !printed { print("nothing") }
-        
-    }
+//    }
     
     func getWinLines() -> [Int?] {
         var wins: [Int?] = Array(repeating: nil, count: 76)

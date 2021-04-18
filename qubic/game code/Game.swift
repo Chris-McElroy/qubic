@@ -27,7 +27,7 @@ enum HintValue {
     case noW
 }
 
-class Move {
+class Move: Equatable {
     let p: Int
     var myHint: HintValue?
     var opHint: HintValue?
@@ -37,12 +37,15 @@ class Move {
         myHint = nil
         opHint = nil
     }
+    
+    static func == (lhs: Move, rhs: Move) -> Bool {
+        lhs.p == rhs.p
+    }
 }
 
 class Game: ObservableObject {
     static let main = Game()
     
-//    @Published var turn: Int = 0
     @Published var hintCard: Bool = false
     @Published var currentMove: Move? = nil
     @Published var showDCAlert: Bool = false
@@ -50,6 +53,7 @@ class Game: ObservableObject {
     @Published var undoOpacity: Opacity = .clear
     @Published var prevOpacity: Opacity = .clear
     @Published var nextOpacity: Opacity = .clear
+    @Published var moves: [Move] = []
     
     var turn: Int { board.getTurn() }
     var goBack: () -> Void = {}
@@ -64,34 +68,29 @@ class Game: ObservableObject {
     var hints: Bool = false
     var leaving: Bool = false
     private var board = Board()
-//    var boardScene: BoardScene? = nil
-    var pendingMove: (Int, UInt64)? = nil
-    var moves: [Move] = []
+    let hintQueue = DispatchQueue(label: "hint queue", qos: .userInitiated)
     var movesBack: Int = 0
     var ghostMoveStart: Int = 0
     var ghostMoveCount: Int = 0
-//    var replayMoveCount: Int = 0
-//    var undoneMoveStack: [Int] = []
+    var newHints: () -> Void = {}
     
     init() { }
     
-    func turnOff() {
-        guard mode != .off else { return }
+//    func turnOff() {
+//        guard mode != .off else { return }
+//        undoOpacity = .clear
+//        prevOpacity = .clear
+//        nextOpacity = .clear
+//        self.mode = .off
+//    }
+    
+    func load(mode: GameMode, boardNum: Int = 0, turn: Int? = nil, hints: Bool = false) {
         board = Board()
         BoardScene.main.reset()
         undoOpacity = .clear
         prevOpacity = .clear
         nextOpacity = .clear
-        self.mode = .off
-    }
-    
-    func load(mode: GameMode, boardNum: Int = 0, turn: Int? = nil, hints: Bool = false) {
-        board = Board()
-        undoOpacity = .clear
-        prevOpacity = .clear
-        nextOpacity = .clear
         winner = nil
-        pendingMove = nil
         currentMove = nil
         moves = []
         movesBack = 0
@@ -102,7 +101,6 @@ class Game: ObservableObject {
         preset = Game.getPreset(boardNum, for: mode)
         dayInt = Date().getInt()
         myTurn = turn != nil ? turn! : preset.count % 2
-//        self.turn = 0
         self.mode = mode
         self.hints = hints
         let me = User(b: board, n: myTurn)
@@ -123,7 +121,8 @@ class Game: ObservableObject {
         if me.color == op.color { op.color = Game.getDefaultColor(for: me.color) }
         player = myTurn == 0 ? [me, op] : [op, me]
         for p in preset { loadMove(p) }
-        player[self.turn].move(with: processMove)
+        newHints()
+        player[self.turn].move()
         withAnimation {
             undoOpacity = hints ? .half : .clear
             prevOpacity = .half
@@ -131,48 +130,55 @@ class Game: ObservableObject {
         }
     }
     
-    func loadMove(_ move: Int) {
+    func loadMove(_ p: Int) {
         // Assumes no wins!
-        guard board.processMove(move) else { print("Invalid load move!"); return }
-        BoardScene.main.addCube(move: move, color: .primary(player[turn].color))
-//        turn = board.getTurn()
+        let move = Move(p)
+        guard !moves.contains(move) && (0..<64).contains(move.p) else { return }
+        board.addMove(move.p)
+        moves.append(move)
+        currentMove = move
+        BoardScene.main.addCube(move: move.p, color: .primary(player[turn^1].color))
     }
     
-    func processMove(_ move: Int, on key: UInt64) {
-        guard movesBack == 0 && ghostMoveCount == 0 else { return }
-        guard !hintCard else { pendingMove = (move, key); return }
-        pendingMove = nil
-        guard key == board.board[turn] else { print("Invalid turn!"); return }
-        guard board.processMove(move) else { print("Invalid move!"); return }
-        moves.append(Move(move))
-        currentMove = moves.last
+    func processMove(_ p: Int, for turn: Int, num: Int) {
+        let move = Move(p)
+        guard winner == nil else { return }
+        guard turn == moves.count % 2 && num == moves.count else { print("Invalid turn!"); return }
+        guard !moves.contains(move) && (0..<64).contains(move.p) else { return }
+        moves.append(move)
+        if movesBack != 0 { movesBack += 1 }
         if player[turn].rounded {
             UIImpactFeedbackGenerator(style: .medium).impactOccurred()
         }
         if player[turn^1] as? Online != nil {
-            FB.main.sendOnlineMove(p: move, time: -1)
+            FB.main.sendOnlineMove(p: move.p, time: -1)
         }
-        BoardScene.main.showMove(move, wins: board.getWinLines())
-        // TODO add async hint text shit
-        // also i should make the next process move async as well
-//        turn = board.getTurn()
-        withAnimation { prevOpacity = .full }
-        if board.hasW0(turn^1) {
-            winner = turn^1
+        getHints(for: moves)
+        guard !hintCard && movesBack == 0 else { return }
+        board.addMove(move.p)
+        if board.hasW0(turn) {
+            winner = turn
+            print("updating wins")
             updateWins()
             if !mode.solve || winner == myTurn { hints = true }
             withAnimation { undoOpacity = .clear }
         } else {
-            if undoOpacity == .half { withAnimation { undoOpacity = .full } }
             Timer.scheduledTimer(withTimeInterval: 0.2, repeats: false, block: { _ in
-                self.player[self.turn].move(with: self.processMove)
+                self.player[turn^1].move()
             })
         }
+        currentMove = move
+        newHints()
+        BoardScene.main.showMove(move.p, wins: board.getWinLines())
+        if undoOpacity == .half { withAnimation { undoOpacity = .full } }
+        withAnimation { prevOpacity = .full }
     }
     
-    func processGhostMove(_ move: Int, on key: UInt64) {
-        guard board.processMove(move) else { print("Invalid move!"); return }
-        guard winner != nil else { return }
+    func processGhostMove(_ p: Int) {
+        let move = Move(p)
+        guard board.pointEmpty(move.p) && (0..<64).contains(move.p) else { return }
+        guard replayMode else { return }
+        board.addMove(move.p)
         if ghostMoveCount == 0 {
             ghostMoveStart = moves.count - movesBack
         }
@@ -181,17 +187,16 @@ class Game: ObservableObject {
             movesBack -= 1
             moves.remove(at: ghostMoveStart+ghostMoveCount)
         }
-        moves.insert(Move(move), at: ghostMoveStart+ghostMoveCount)
-        currentMove = moves[ghostMoveStart+ghostMoveCount]
+        moves.insert(move, at: ghostMoveStart+ghostMoveCount)
+        currentMove = move
+        newHints()
         ghostMoveCount += 1
-        // TODO add async hints shit here too
-//        turn = board.getTurn()
-        BoardScene.main.showMove(move, wins: board.getWinLines(), ghost: true)
+        getHints(for: moves.dropLast(movesBack))
+        BoardScene.main.showMove(move.p, wins: board.getWinLines(), ghost: true)
         withAnimation {
             prevOpacity = .full
             nextOpacity = .half
         }
-        player[myTurn].move(with: self.processGhostMove)
     }
     
     func showHintCard() -> Bool {
@@ -209,13 +214,8 @@ class Game: ObservableObject {
         withAnimation {
             hintCard = false
             let emptyBoard = (board.board[0] + board.board[1] == 0)
-            if undoOpacity == .half && !emptyBoard {
+            if undoOpacity == .half && !emptyBoard && movesBack == 0 {
                 undoOpacity = .full
-            }
-        }
-        if let move = pendingMove {
-            Timer.scheduledTimer(withTimeInterval: 0.5, repeats: false) { _ in
-                self.processMove(move.0, on: move.1)
             }
         }
         return true
@@ -227,63 +227,58 @@ class Game: ObservableObject {
         guard winner == nil else { return }
         guard !hintCard else { return }
         guard let move = moves.popLast() else { return }
+        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
         currentMove = moves.last
+        newHints()
         board.undoMove(for: turn^1)
         BoardScene.main.undoMove(move.p, wins: board.getWinLines())
-//        turn = board.getTurn()
-        let emptyBoard = (board.board[0] + board.board[1] == 0)
-        if emptyBoard {
+        if moves.count == preset.count {
             withAnimation {
                 undoOpacity = .half
                 prevOpacity = .half
             }
         }
         Timer.scheduledTimer(withTimeInterval: 0.5, repeats: false, block: { _ in
-            self.player[self.turn].move(with: self.processMove)
+            self.player[self.turn].move()
         })
     }
     
     func prevMove() {
         guard prevOpacity == .full else { return }
         let i = moves.count - movesBack - 1
-        guard i >= 0 else { return }
+        guard i >= ((!hints && mode.solve) ? preset.count : 0) else { return }
+        UIImpactFeedbackGenerator(style: .light).impactOccurred()
         movesBack += 1
         if winner != nil { replayMode = true }
         board.undoMove(for: turn^1)
-        BoardScene.main.undoMove(currentMove!.p, wins: board.getWinLines())
+        BoardScene.main.undoMove(moves[i].p, wins: board.getWinLines())
         currentMove = i > 0 ? moves[i-1] : nil
-//        turn = board.getTurn()
+        newHints()
         if i-1 < ghostMoveStart {
             moves.removeSubrange(ghostMoveStart..<(ghostMoveStart+ghostMoveCount))
             movesBack -= ghostMoveCount
             ghostMoveCount = 0
         }
-        let emptyBoard = (board.board[0] + board.board[1] == 0)
         withAnimation {
             nextOpacity = movesBack > 0 ? .full : .half
             if undoOpacity == .full { undoOpacity = .half }
-            if emptyBoard { prevOpacity = .half }
-        }
-        if replayMode {
-            player[myTurn].move(with: processGhostMove)
+            let minMoves = winner == myTurn ? 0 : preset.count
+            if moves.count - movesBack == minMoves { prevOpacity = .half }
         }
     }
     
     func nextMove() {
         guard nextOpacity == .full else { return }
         guard movesBack > 0 else { return }
-        guard ghostMoveCount == 0 || ghostMoveStart + ghostMoveCount > moves.count - movesBack else {
-            print("stopping at end of ghost moves")
-            return
-        }
+        guard ghostMoveCount == 0 || ghostMoveStart + ghostMoveCount > moves.count - movesBack else { return }
         let i = moves.count - movesBack
-        guard board.processMove(moves[i].p) else { print("Invalid redo!"); return }
+        guard board.pointEmpty(moves[i].p) && (0..<64).contains(moves[i].p) else { return }
+        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+        board.addMove(moves[i].p)
         movesBack -= 1
         currentMove = moves[i]
-        BoardScene.main.showMove(currentMove!.p, wins: board.getWinLines(), ghost: ghostMoveCount != 0)
-//        turn = board.getTurn()
-        // TODO remove replay mode
-        if winner != nil { replayMode = true }
+        newHints()
+        BoardScene.main.showMove(moves[i].p, wins: board.getWinLines(), ghost: ghostMoveCount != 0)
         withAnimation {
             prevOpacity = .full
             if movesBack == 0 {
@@ -291,10 +286,8 @@ class Game: ObservableObject {
                 nextOpacity = .half
             }
         }
-        if replayMode {
-            player[myTurn].move(with: processGhostMove)
-        } else if movesBack == 0 {
-            player[turn].move(with: processMove)
+        if winner == nil && movesBack == 0 {
+            player[turn].move()
         }
     }
     
@@ -322,7 +315,9 @@ class Game: ObservableObject {
             FB.main.finishedOnlineGame(with: winner == myTurn ? .myWin : .opWin)
         }
         if winner == myTurn {
+            print("I won")
             if mode == .daily && dayInt != UserDefaults.standard.integer(forKey: Key.lastDC) {
+                print("glug")
                 Notifications.ifUndetermined {
                     DispatchQueue.main.async {
                         self.showDCAlert = true
@@ -343,28 +338,39 @@ class Game: ObservableObject {
         }
     }
     
-    func getHints() {
-        var nHint: HintValue = .noW
-        if board.hasW0(turn) { nHint = .w0 }
-        else if board.hasW1(turn) { nHint = .w1 }
-        else if board.hasW2(turn, depth: 1) == true { nHint = .w2d1 }
-        else if board.hasW2(turn) == true { nHint = .w2 }
-        
-        if myTurn == turn { currentMove?.myHint = nHint }
-        else { currentMove?.opHint = nHint }
-        
-        var oHint: HintValue = .noW
-        if board.hasW0(turn^1) { oHint = .w0 }
-        else if board.getW1(for: turn^1).count > 1 { oHint = .cm1 }
-        else if board.hasW1(turn^1) { oHint = .c1 }
-        else if board.hasW2(turn^1) == true {
-            if board.getW2Blocks(for: turn) == nil { oHint = .cm2 }
-            else if board.hasW2(turn^1, depth: 1) == true { oHint = .c2d1 }
-            else { oHint = .c2 }
+    func getHints(for moves: [Move]) {
+        hintQueue.async {
+            let b = Board()
+            for move in moves { b.addMove(move.p) }
+            let turn = b.getTurn()
+            var nHint: HintValue = .noW
+            if b.hasW0(turn) { nHint = .w0 }
+            else if b.hasW1(turn) { nHint = .w1 }
+            else if b.hasW2(turn, depth: 1) == true { nHint = .w2d1 }
+            else if b.hasW2(turn) == true { nHint = .w2 }
+            
+            if self.myTurn == turn { moves.last?.myHint = nHint }
+            else { moves.last?.opHint = nHint }
+            DispatchQueue.main.async { self.newHints() }
+            
+            var oHint: HintValue = .noW
+            if b.hasW0(turn^1) { oHint = .w0 }
+            else if b.getW1(for: turn^1).count > 1 { oHint = .cm1 }
+            else if b.hasW1(turn^1) { oHint = .c1 }
+            else if b.hasW2(turn^1) == true {
+                if b.getW2Blocks(for: turn) == nil { oHint = .cm2 }
+                else if b.hasW2(turn^1, depth: 1) == true { oHint = .c2d1 }
+                else { oHint = .c2 }
+            }
+            
+            if self.myTurn == turn { moves.last?.opHint = oHint }
+            else { moves.last?.myHint = oHint }
+            DispatchQueue.main.async { self.newHints() }
         }
-        
-        if myTurn == turn { currentMove?.opHint = oHint }
-        else { currentMove?.myHint = oHint }
+    }
+    
+    func requestHints() {
+        getHints(for: moves.dropLast(movesBack))
     }
     
     func showMoves(for n: Int?) {

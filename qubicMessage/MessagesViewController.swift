@@ -17,7 +17,6 @@ class MessagesViewController: MSMessagesAppViewController {
     let sentLabel = UILabel()
     let playerView: [UIView] = [UIView(), UIView()]
     let playerText: [UILabel] = [UILabel(), UILabel()]
-    let game = Game()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -37,7 +36,7 @@ class MessagesViewController: MSMessagesAppViewController {
         loadButton.addTarget(self, action: #selector(pressedStart), for: .touchUpInside)
         view.addSubview(loadButton)
         
-        game.sendMessage = sendMessage
+        Game.main.sendMessage = sendMessage
         gameView.addSubview(BoardScene.main.view)
         print(view.bounds.height-200, view.bounds.height-230, view.bounds.height)
 //        368.0 338.0 568.0
@@ -145,28 +144,28 @@ class MessagesViewController: MSMessagesAppViewController {
         selected = message
         loadButton.isHidden = true
         gameView.isHidden = false
-        game.load(from: message.url)
+        Game.main.load(from: message.url)
         
         for p in stride(from: 0, through: 1, by: 1) {
-            playerView[p].backgroundColor = .primary(game.player[p].color)
-            playerText[p].text = game.player[p].name
-            playerView[p].layer.shadowColor = UIColor.primary(game.player[p].color).cgColor
+            playerView[p].backgroundColor = .primary(Game.main.player[p].color)
+            playerText[p].text = Game.main.player[p].name
+            playerView[p].layer.shadowColor = UIColor.primary(Game.main.player[p].color).cgColor
             playerView[p].layer.shadowRadius = 12
 //                playerView[p].layer.shadowOffset = .init(width: 10, height: 10)
             playerView[p].layer.shadowPath = UIBezierPath(rect: playerView[p].bounds.inset(by: .init(top: 8, left: 0, bottom: 0, right: 0))).cgPath
-            if let winner = game.winner {
+            if let winner = Game.main.winner {
                 playerView[p].layer.shadowOpacity = winner == p ? 1 : 0
             } else {
-                playerView[p].layer.shadowOpacity = game.turn == p ? 1 : 0
+                playerView[p].layer.shadowOpacity = Game.main.turn == p ? 1 : 0
             }
         }
     }
     
     func sendMessage(move: Character) {
 //        print("sending move!")
-        if game.winner == nil {
-            playerView[0].layer.shadowOpacity = game.turn == 0 ? 1 : 0
-            playerView[1].layer.shadowOpacity = game.turn == 1 ? 1 : 0
+        if Game.main.winner == nil {
+            playerView[0].layer.shadowOpacity = Game.main.turn == 0 ? 1 : 0
+            playerView[1].layer.shadowOpacity = Game.main.turn == 1 ? 1 : 0
         }
         
         let message = MSMessage(session: selected?.session ?? MSSession())

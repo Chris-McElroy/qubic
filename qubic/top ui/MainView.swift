@@ -154,7 +154,7 @@ struct MainView: View {
                     .padding(.bottom, 52)
             }
             .frame(width: 100)
-            .opacity(game.undoOpacity.rawValue)
+            .opacity(heights.view.gameView ? game.undoOpacity.rawValue : 0)
             Spacer().frame(width: 20)
             Spacer()
             Button(action: goBack ) {
@@ -178,7 +178,7 @@ struct MainView: View {
                     .padding(.bottom, 45)
             }
             .frame(width: 40)
-            .opacity(game.prevOpacity.rawValue)
+            .opacity(heights.view.gameView ? game.prevOpacity.rawValue : 0)
             Spacer().frame(width: 20)
             Button(action: game.nextMove) {
                 Text("→")
@@ -187,7 +187,7 @@ struct MainView: View {
                     .padding(.bottom, 45)
             }
             .frame(width: 40)
-            .opacity(game.nextOpacity.rawValue)
+            .opacity(heights.view.gameView ? game.nextOpacity.rawValue : 0)
             Spacer().frame(width: 30)
         }.background(Rectangle().foregroundColor(.systemBackground))
         .buttonStyle(Solid())
@@ -225,7 +225,6 @@ struct MainView: View {
         if halfBack {
             UIImpactFeedbackGenerator(style: .rigid).impactOccurred()
         } else {
-            game.turnOff()
             FB.main.cancelOnlineSearch?()
             FB.main.finishedOnlineGame(with: .myLeave)
             withAnimation(.easeInOut(duration: 0.4)) { //0.4
