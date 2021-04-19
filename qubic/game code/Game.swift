@@ -137,6 +137,7 @@ class Game: ObservableObject {
         board.addMove(move.p)
         moves.append(move)
         currentMove = move
+        getHints(for: moves)
         BoardScene.main.addCube(move: move.p, color: .primary(player[turn^1].color))
     }
     
@@ -315,9 +316,7 @@ class Game: ObservableObject {
             FB.main.finishedOnlineGame(with: winner == myTurn ? .myWin : .opWin)
         }
         if winner == myTurn {
-            print("I won")
             if mode == .daily && dayInt != UserDefaults.standard.integer(forKey: Key.lastDC) {
-                print("glug")
                 Notifications.ifUndetermined {
                     DispatchQueue.main.async {
                         self.showDCAlert = true
@@ -391,6 +390,6 @@ class Game: ObservableObject {
                 }
             }
         }
-        BoardScene.main.spinDots(list)
+        BoardScene.main.spinSpaces(list)
     }
 }

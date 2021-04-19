@@ -23,8 +23,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             Key.lastTrain: 0,
             Key.tricky: [0],
             Key.name: "new player",
-            Key.dot: 0,
             Key.notification: 1,
+            Key.arrowSide: 1,
             Key.uuid: "00000000000000000000000000000000"
         ])
         

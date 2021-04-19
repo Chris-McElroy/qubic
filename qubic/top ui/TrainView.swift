@@ -9,20 +9,20 @@
 import SwiftUI
 
 struct TrainView: View {
-    @Binding var view: ViewState
+    @ObservedObject var layout = Layout.main
     @State var selected: [Int] = [UserDefaults.standard.integer(forKey: Key.lastTrain),1,0]
     let beaten = UserDefaults.standard.array(forKey: Key.train) as? [Int] ?? [0,0,0,0,0,0]
     
     var body: some View {
-        if view == .train {
+        if layout.view == .train {
             GameView()
                 .onAppear { Game.main.load(mode: mode, turn: turn, hints: hints) }
-        } else if view == .trainMenu {
+        } else if layout.view == .trainMenu {
             VStack(spacing: 0) {
                 Spacer()
                 HPicker(content: .constant(pickerText), dim: (90, 55), selected: $selected, action: onSelection)
                     .frame(height: 180)
-                    .opacity(view == .trainMenu ? 1 : 0)
+                    .opacity(layout.view == .trainMenu ? 1 : 0)
             }
         }
     }
@@ -86,6 +86,6 @@ struct TrainView: View {
 
 struct TrainView_Previews: PreviewProvider {
     static var previews: some View {
-        TrainView(view: .constant(.solveMenu))
+        TrainView()
     }
 }

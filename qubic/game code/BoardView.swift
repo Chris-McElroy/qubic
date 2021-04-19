@@ -22,7 +22,7 @@ class BoardScene {
     let view =  SCNView()
     let scene = SCNScene()
     let base = SCNNode()
-    var dots: [SCNNode] = (0..<64).map { _ in SceneHelper.makeDot(color: .primary(33), size: 0.68) } // was let
+    let spaces: [SCNNode] = (0..<64).map { _ in SceneHelper.getSpace(size: 0.86-3*lineWidth) } // size was color: .primary(33), size: 0.68
     let moves: [SCNNode] = (0..<64).map { _ in SceneHelper.makeBox(size: 0.86) }
     let winLines: [SCNNode] = (0..<76).map {
         let start = SIMD3<Float>(coords(for: Board.pointsInLine[$0][0]))
@@ -34,9 +34,9 @@ class BoardScene {
         scene.rootNode.addChildNode(SceneHelper.makeCamera())
         scene.rootNode.addChildNode(SceneHelper.makeOmniLight())
         scene.rootNode.addChildNode(SceneHelper.makeAmbiLight())
-        for (p, dot) in dots.enumerated() {
-            dot.position = BoardScene.coords(for: p)
-            base.addChildNode(dot)
+        for (p, space) in spaces.enumerated() {
+            space.position = BoardScene.coords(for: p)
+            base.addChildNode(space)
         }
         scene.rootNode.addChildNode(base)
         SceneHelper.prepSCNView(view: view, scene: scene)
@@ -46,8 +46,8 @@ class BoardScene {
     func updateColors(for colorScheme: ColorScheme) {
         // TODO fix this shit
         let color: UIColor = colorScheme == .dark ? .white : .black
-        for dot in dots {
-            for child in dot.childNodes {
+        for space in spaces {
+            for child in space.childNodes {
                 if child.geometry?.name != "clear" {
                     child.setColor(color)
                 }
@@ -59,14 +59,15 @@ class BoardScene {
         for move in moves {
             move.removeFromParentNode()
         }
-        for dot in dots {
-            dot.removeFromParentNode()
+        for space in spaces {
+            space.opacity = 1
+//            dot.removeFromParentNode()
         }
-        dots = (0..<64).map { _ in SceneHelper.makeDot(color: .primary(33), size: 0.68) }
-        for (p, dot) in dots.enumerated() {
-            dot.position = BoardScene.coords(for: p)
-            base.addChildNode(dot)
-        }
+//        dots = (0..<64).map { _ in SceneHelper.makeDot(color: .primary(33), size: 0.68) }
+//        for (p, dot) in dots.enumerated() {
+//            dot.position = BoardScene.coords(for: p)
+//            base.addChildNode(dot)
+//        }
         for l in 0..<76 {
             winLines[l].removeFromParentNode()
         }
@@ -82,7 +83,7 @@ class BoardScene {
         let hit = gestureRecognize.location(in: view)
         let hitResults = view.hitTest(hit, options: [:])
         guard let result = hitResults.first?.node else { return }
-        if let p = dots.firstIndex(where: { $0.childNodes.contains(result) || $0 == result }) {
+        if let p = spaces.firstIndex(where: { $0.childNodes.contains(result) || $0 == result }) {
             let turn = Game.main.winner == nil ? Game.main.turn : Game.main.myTurn
             if let user = Game.main.player[turn] as? User {
                 user.move(at: p)
@@ -94,18 +95,17 @@ class BoardScene {
     
     func showMove(_ move: Int, wins: [Int?], ghost: Bool = false) {
 //        let delay = moveCube(move: move, color: game.colors[turn]) + 0.1
-        spinDots([])
+        spinSpaces([])
         let turn = Game.main.turn^1
         let color = UIColor.primary(Game.main.player[turn].color)
-        
-        if UserDefaults.standard.integer(forKey: Key.dot) == 0 {
-            placeCube(move: move, color: color, opacity: ghost ? 0.7 : 1)
-        } else {
-            addCube(move: move, color: color, opacity: ghost ? 0.7 : 1)
-            moves.last?.runAction(SceneHelper.getHalfRotate())
-        }
-        
+        placeCube(move: move, color: color, opacity: ghost ? 0.7 : 1)
         showWins(wins, spin: !ghost)
+        
+//        if UserDefaults.standard.integer(forKey: Key.dot) == 0 {
+//        } else {
+//            addCube(move: move, color: color, opacity: ghost ? 0.7 : 1)
+//            moves.last?.runAction(SceneHelper.getHalfRotate())
+//        }
     }
     
     private func showWins(_ wins: [Int?], spin: Bool = false) {
@@ -144,40 +144,41 @@ class BoardScene {
         base.runAction(rotateAction)
     }
     
-    func moveCube(move: Int, color: UIColor) -> TimeInterval {
-        let cube = moves[move]
-        cube.setColor(color)
-        base.addChildNode(cube)
-        let pos = dots[move].simdPosition
-        let time = TimeInterval(distance(pos, cube.simdPosition)/40.0 + 0.2)
-        let translate = SCNAction.move(to: SCNVector3(pos), duration: time)
-        translate.timingMode = .easeIn
-        let fade = SCNAction.fadeOut(duration: time)
-        fade.timingMode = .easeIn
-        cube.runAction(translate)
-        dots[move].runAction(fade)
-        return time
-    }
+//    func moveCube(move: Int, color: UIColor) -> TimeInterval {
+//        let cube = moves[move]
+//        cube.setColor(color)
+//        base.addChildNode(cube)
+//        let pos = spaces[move].simdPosition
+//        let time = TimeInterval(distance(pos, cube.simdPosition)/40.0 + 0.2)
+//        let translate = SCNAction.move(to: SCNVector3(pos), duration: time)
+//        translate.timingMode = .easeIn
+//        let fade = SCNAction.fadeOut(duration: time)
+//        fade.timingMode = .easeIn
+//        cube.runAction(translate)
+//        spaces[move].runAction(fade)
+//        return time
+//    }
     
     func addCube(move: Int, color: UIColor, opacity: CGFloat = 1.0) {
         let cube = moves[move]
         cube.setColor(color)
         base.addChildNode(cube)
-        cube.position = dots[move].position
+        cube.position = spaces[move].position
+        cube.rotation = SCNVector4(x: 0, y: 0, z: 0, w: 0)
         cube.opacity = opacity
-        dots[move].opacity = 0
+        spaces[move].opacity = 0
     }
     
     func placeCube(move: Int, color: UIColor, opacity: CGFloat = 1.0) {
         let cube = moves[move]
         cube.setColor(color)
         base.addChildNode(cube)
-        var newPos = dots[move].position
+        var newPos = spaces[move].position
         newPos.y += 0.4
         cube.opacity = 0.3
         cube.position = newPos
         cube.rotation = SCNVector4(.random(in: -1...1), 0, .random(in: -1...1), .random(in: 0.20...0.4))
-        let translate = SCNAction.move(to: dots[move].position, duration: 0.16)
+        let translate = SCNAction.move(to: spaces[move].position, duration: 0.16)
         let rotate = SCNAction.rotate(toAxisAngle: SCNVector4(x: 0, y: 0, z: 0, w: 0), duration: 0.16)
         let fade = SCNAction.fadeOpacity(to: opacity, duration: 0.15)
         rotate.timingMode = .easeIn
@@ -186,14 +187,14 @@ class BoardScene {
         cube.runAction(placeAction)
         let dotFade = SCNAction.fadeOut(duration: 0.21)
         dotFade.timingFunction = { time in time > 0.2 ? 0 : 1 }
-        dots[move].runAction(dotFade)
+        spaces[move].runAction(dotFade)
     }
     
     func undoMove(_ move: Int, wins: [Int?]) {
         let cube = moves[move]
-        spinDots([])
-        let dot = dots[move]
-        dot.opacity = 1
+        spinSpaces([])
+        let space = spaces[move]
+        space.opacity = 1
         var upPos = cube.position
         upPos.y += 0.4
         let newRot = SCNVector4(.random(in: -1...1), 0, .random(in: -1...1), .random(in: 0.20...0.4))
@@ -213,22 +214,22 @@ class BoardScene {
     
     func remove(_ move: Int) {
         let cube = moves[move]
-        let dot = dots[move]
-        dot.opacity = 1
+        let space = spaces[move]
+        space.opacity = 1
         cube.opacity = 0
         cube.removeFromParentNode()
     }
     
-    func spinDots(_ list: Set<Int>) {
+    func spinSpaces(_ list: Set<Int>) {
         let spin = SCNAction.rotate(by: .pi*2, around: SCNVector3(0,1,0), duration: 1.0)
         let spinBack = SCNAction.rotate(toAxisAngle: SCNVector4(0,1,0,0), duration: 0.1)
         let longSpin = SCNAction.repeatForever(spin)
-        for (i,d) in dots.enumerated() {
+        for (i, space) in spaces.enumerated() {
             if list.contains(i) {
-                d.runAction(longSpin)
+                space.runAction(longSpin)
             } else {
-                d.removeAllActions()
-                d.runAction(spinBack)
+                space.removeAllActions()
+                space.runAction(spinBack)
             }
         }
     }

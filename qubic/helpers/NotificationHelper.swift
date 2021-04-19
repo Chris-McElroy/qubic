@@ -47,11 +47,15 @@ struct Notifications {
             if let error = error { print(error.localizedDescription) }
             UserDefaults.standard.setValue(success ? 0 : 1, forKey: Key.notification)
             callBack(success)
+            DispatchQueue.main.async {
+                setBadge(justSolved: false)
+            }
         }
     }
     
     static func turnOff() {
         UserDefaults.standard.setValue(1, forKey: Key.notification)
+        UIApplication.shared.applicationIconBadgeNumber = 0
         UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: [Key.badge])
         UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [Key.badge])
     }

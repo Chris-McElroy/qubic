@@ -51,7 +51,7 @@
 		1E7A91942584B0A800AE3BE7 /* Defender.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E7A91932584B0A800AE3BE7 /* Defender.swift */; };
 		1E7B117D2586B33400A0CD9F /* NotificationHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E7B117C2586B33400A0CD9F /* NotificationHelper.swift */; };
 		1E7B959224D34015004B3C80 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E7B959124D34015004B3C80 /* SettingsView.swift */; };
-		1E883EFB24EE3B14002686C8 /* HeightHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E883EFA24EE3B14002686C8 /* HeightHelper.swift */; };
+		1E883EFB24EE3B14002686C8 /* LayoutHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E883EFA24EE3B14002686C8 /* LayoutHelper.swift */; };
 		1E8C554725365E3400C9A556 /* Game.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E8C554625365E3400C9A556 /* Game.swift */; };
 		1E92D5F7261A608500D0D19C /* ActivityIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E92D5F6261A608500D0D19C /* ActivityIndicator.swift */; };
 		1E9A545A26112F90001FC204 /* FBHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E9A545926112F90001FC204 /* FBHelper.swift */; };
@@ -138,7 +138,7 @@
 		1E7A91932584B0A800AE3BE7 /* Defender.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Defender.swift; sourceTree = "<group>"; };
 		1E7B117C2586B33400A0CD9F /* NotificationHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationHelper.swift; sourceTree = "<group>"; };
 		1E7B959124D34015004B3C80 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
-		1E883EFA24EE3B14002686C8 /* HeightHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeightHelper.swift; sourceTree = "<group>"; };
+		1E883EFA24EE3B14002686C8 /* LayoutHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayoutHelper.swift; sourceTree = "<group>"; };
 		1E8C554625365E3400C9A556 /* Game.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Game.swift; sourceTree = "<group>"; };
 		1E92D5F6261A608500D0D19C /* ActivityIndicator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityIndicator.swift; sourceTree = "<group>"; };
 		1E9A545926112F90001FC204 /* FBHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FBHelper.swift; sourceTree = "<group>"; };
@@ -229,6 +229,7 @@
 			children = (
 				1EE4C75B24EB7ADC0038C1E2 /* UIHelper.swift */,
 				1E4645F42616970500862260 /* KeyHelper.swift */,
+				1E883EFA24EE3B14002686C8 /* LayoutHelper.swift */,
 				1E6C428F24FCE1F20065BDF5 /* BoardHelper.swift */,
 				1E9A545926112F90001FC204 /* FBHelper.swift */,
 				1E92D5F6261A608500D0D19C /* ActivityIndicator.swift */,
@@ -252,7 +253,6 @@
 				1E5A5AAD24CD077900F31124 /* TrainView.swift */,
 				1E017B9D24CDB70D00CF979A /* SolveView.swift */,
 				1E017B9F24CDB71A00CF979A /* PlayView.swift */,
-				1E883EFA24EE3B14002686C8 /* HeightHelper.swift */,
 				1E6D2E4A24CE9729001EFE85 /* CubeView.swift */,
 				1E02D59A24CE5696001BF62B /* AboutView.swift */,
 				1E7B959124D34015004B3C80 /* SettingsView.swift */,
@@ -548,7 +548,7 @@
 				1E6817A724CC977B001713E7 /* MainView.swift in Sources */,
 				1E92D5F7261A608500D0D19C /* ActivityIndicator.swift in Sources */,
 				1E7A91942584B0A800AE3BE7 /* Defender.swift in Sources */,
-				1E883EFB24EE3B14002686C8 /* HeightHelper.swift in Sources */,
+				1E883EFB24EE3B14002686C8 /* LayoutHelper.swift in Sources */,
 				1E2E74BC24E86AA600218E55 /* GameView.swift in Sources */,
 				1EDDE19024FAC70800B7742C /* Board.swift in Sources */,
 				1E636FC6258A8A06005B8D4F /* Common.swift in Sources */,

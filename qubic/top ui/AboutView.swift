@@ -9,7 +9,7 @@
 import SwiftUI
 
 struct AboutView: View {
-    @Binding var view: ViewState
+    @ObservedObject var layout = Layout.main
     var mainButtonAction: () -> Void
     
     var body: some View {
@@ -21,7 +21,7 @@ struct AboutView: View {
                 }
                 .buttonStyle(MoreStyle())
             }.zIndex(4)
-            if view == .about {
+            if layout.view == .about {
                 VStack(spacing: 20) {
                     LinkView(site: "https://en.wikipedia.org/wiki/3D_tic-tac-toe", text: "about qubic")
                     LinkView(site: "https://xno.store/about", text: "about me")
@@ -53,6 +53,6 @@ struct AboutView: View {
 
 struct AboutView_Previews: PreviewProvider {
     static var previews: some View {
-        AboutView(view: .constant(.about)) {}
+        AboutView() {}
     }
 }

@@ -62,69 +62,69 @@ class SceneHelper {
         return boxNode
     }
     
-    static func makeDot(color: UIColor = UIColor.null, size: CGFloat = 1.0) -> SCNNode {
-        var dotNode = getSpace(size: 0.86-3*lineWidth)
-        let dotType = UserDefaults.standard.integer(forKey: Key.dot)
-        if dotType == 1 {
-            dotNode = getBlankCube(size: 0.52)
-        } else if dotType == 2 {
-            dotNode = SCNNode(geometry: SCNBox(width: size, height: size, length: size, chamferRadius: 0))
-            dotNode.setColor(color)
-        } else if dotType == 3 {
-            dotNode = SCNNode(geometry: SCNSphere(radius: 0.45))
-            dotNode.setColor(color)
-        } else if dotType == 4 {
-            dotNode = getAxesPoint(size: 0.6)
-        }
-        return dotNode
-    }
+//    static func makeDot(color: UIColor = UIColor.null, size: CGFloat = 1.0) -> SCNNode {
+//        var dotNode = getSpace(size: 0.86-3*lineWidth)
+//        let dotType = UserDefaults.standard.integer(forKey: Key.dot)
+//        if dotType == 1 {
+//            dotNode = getBlankCube(size: 0.52)
+//        } else if dotType == 2 {
+//            dotNode = SCNNode(geometry: SCNBox(width: size, height: size, length: size, chamferRadius: 0))
+//            dotNode.setColor(color)
+//        } else if dotType == 3 {
+//            dotNode = SCNNode(geometry: SCNSphere(radius: 0.45))
+//            dotNode.setColor(color)
+//        } else if dotType == 4 {
+//            dotNode = getAxesPoint(size: 0.6)
+//        }
+//        return dotNode
+//    }
     
-    static func getAxesPoint(size: CGFloat) -> SCNNode {
-        let line = SCNCylinder(radius: lineWidth, height: size)
-        line.firstMaterial?.diffuse.contents = UIColor.label
-        let xNode = SCNNode(geometry: line)
-        let yNode = SCNNode(geometry: line)
-        let zNode = SCNNode(geometry: line)
-        xNode.rotation = SCNVector4(0,0,1,CGFloat.pi/2)
-        zNode.rotation = SCNVector4(1,0,0,CGFloat.pi/2)
-        let base = SCNNode(geometry: SCNSphere(radius: 0.45))
-        base.geometry?.firstMaterial?.diffuse.contents = UIColor.clear
-//        let core = SCNNode(geometry: SCNSphere(radius: 0.04))
-//        core.setColor(.black)
-        base.addChildNode(xNode)
-        base.addChildNode(yNode)
-        base.addChildNode(zNode)
-//        base.addChildNode(core)
-        return base
-    }
-    
-    static func getBlankCube(size: CGFloat) -> SCNNode {
-        let line = SCNCylinder(radius: lineWidth, height: size)
-        let xNodes = (0..<4).map { _ in SCNNode(geometry: line) }
-        let yNodes = (0..<4).map { _ in SCNNode(geometry: line) }
-        let zNodes = (0..<4).map { _ in SCNNode(geometry: line) }
-        let offsets = [(-size/2,-size/2),(size/2,-size/2),(-size/2,size/2),(size/2,size/2)]
-        xNodes.forEach { $0.rotation = SCNVector4(0,0,1,CGFloat.pi/2) }
-        zNodes.forEach { $0.rotation = SCNVector4(1,0,0,CGFloat.pi/2) }
-        xNodes.forEach { $0.setColor(.label) }
-        yNodes.forEach { $0.setColor(.label) }
-        zNodes.forEach { $0.setColor(.label) }
-        let base = SCNNode(geometry: SCNSphere(radius: 0.45))
-        base.setColor(.clear)
-        xNodes.forEach { base.addChildNode($0) }
-        yNodes.forEach { base.addChildNode($0) }
-        zNodes.forEach { base.addChildNode($0) }
-        for (i,node) in xNodes.enumerated() {
-            node.position = SCNVector3(0,offsets[i].0,offsets[i].1)
-        }
-        for (i,node) in yNodes.enumerated() {
-            node.position = SCNVector3(offsets[i].0,0,offsets[i].1)
-        }
-        for (i,node) in zNodes.enumerated() {
-            node.position = SCNVector3(offsets[i].0,offsets[i].1,0)
-        }
-        return base
-    }
+//    static func getAxesPoint(size: CGFloat) -> SCNNode {
+//        let line = SCNCylinder(radius: lineWidth, height: size)
+//        line.firstMaterial?.diffuse.contents = UIColor.label
+//        let xNode = SCNNode(geometry: line)
+//        let yNode = SCNNode(geometry: line)
+//        let zNode = SCNNode(geometry: line)
+//        xNode.rotation = SCNVector4(0,0,1,CGFloat.pi/2)
+//        zNode.rotation = SCNVector4(1,0,0,CGFloat.pi/2)
+//        let base = SCNNode(geometry: SCNSphere(radius: 0.45))
+//        base.geometry?.firstMaterial?.diffuse.contents = UIColor.clear
+////        let core = SCNNode(geometry: SCNSphere(radius: 0.04))
+////        core.setColor(.black)
+//        base.addChildNode(xNode)
+//        base.addChildNode(yNode)
+//        base.addChildNode(zNode)
+////        base.addChildNode(core)
+//        return base
+//    }
+//
+//    static func getBlankCube(size: CGFloat) -> SCNNode {
+//        let line = SCNCylinder(radius: lineWidth, height: size)
+//        let xNodes = (0..<4).map { _ in SCNNode(geometry: line) }
+//        let yNodes = (0..<4).map { _ in SCNNode(geometry: line) }
+//        let zNodes = (0..<4).map { _ in SCNNode(geometry: line) }
+//        let offsets = [(-size/2,-size/2),(size/2,-size/2),(-size/2,size/2),(size/2,size/2)]
+//        xNodes.forEach { $0.rotation = SCNVector4(0,0,1,CGFloat.pi/2) }
+//        zNodes.forEach { $0.rotation = SCNVector4(1,0,0,CGFloat.pi/2) }
+//        xNodes.forEach { $0.setColor(.label) }
+//        yNodes.forEach { $0.setColor(.label) }
+//        zNodes.forEach { $0.setColor(.label) }
+//        let base = SCNNode(geometry: SCNSphere(radius: 0.45))
+//        base.setColor(.clear)
+//        xNodes.forEach { base.addChildNode($0) }
+//        yNodes.forEach { base.addChildNode($0) }
+//        zNodes.forEach { base.addChildNode($0) }
+//        for (i,node) in xNodes.enumerated() {
+//            node.position = SCNVector3(0,offsets[i].0,offsets[i].1)
+//        }
+//        for (i,node) in yNodes.enumerated() {
+//            node.position = SCNVector3(offsets[i].0,0,offsets[i].1)
+//        }
+//        for (i,node) in zNodes.enumerated() {
+//            node.position = SCNVector3(offsets[i].0,offsets[i].1,0)
+//        }
+//        return base
+//    }
     
     static func getSpace(size: CGFloat) -> SCNNode {
         let line = SCNCylinder(radius: lineWidth, height: size)

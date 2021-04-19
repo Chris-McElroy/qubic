@@ -77,8 +77,6 @@ struct GameView: View {
         let myHint: HintValue? = game.currentMove == nil ? .noW : game.currentMove?.myHint
         let opHint: HintValue? = game.currentMove == nil ? .noW : game.currentMove?.opHint
         
-        if game.currentMove?.myHint == nil && game.currentMove?.opHint == nil { game.requestHints() }
-        
         hintPickerContent = [
             [("blocks", opHint ?? .noW != .noW),
              ("wins", myHint ?? .noW != .noW)],

@@ -9,7 +9,7 @@
 import SwiftUI
 
 struct SolveView: View {
-    @Binding var view: ViewState
+    @ObservedObject var layout = Layout.main
     @State var selected: [Int] = [0,0]
     var mode: GameMode {
         switch selected[1] {
@@ -21,13 +21,13 @@ struct SolveView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            if view == .solve {
+            if layout.view == .solve {
                 GameView()
                     .onAppear { Game.main.load(mode: mode, boardNum: boardNum) }
-            } else if view == .solveMenu {
+            } else if layout.view == .solveMenu {
                 HPicker(content: .constant(getPickerText()), dim: (90, 40), selected: $selected, action: hPickerAction)
                     .frame(height: 80)
-                    .opacity(view == .solveMenu ? 1 : 0)
+                    .opacity(layout.view == .solveMenu ? 1 : 0)
                 Blank(3)
             }
         }
@@ -147,6 +147,6 @@ struct SolveView: View {
 
 struct SolveView_Previews: PreviewProvider {
     static var previews: some View {
-        SolveView(view: .constant(.solveMenu))
+        SolveView()
     }
 }

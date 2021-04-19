@@ -16,10 +16,10 @@ struct Key {
     static let train = "train"
     static let lastTrain = "lastTrain"
     static let cubist = "cubist"
-    static let dot = "dotKey"
     static let name = "name"
     static let color = "color"
     static let notification = "notifications"
+    static let arrowSide = "arrowSide"
     static let uuid = "uuidKey"
     
     static let myTurn = "myTurn"

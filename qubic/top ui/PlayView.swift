@@ -10,7 +10,7 @@ import SwiftUI
 import MessageUI
 
 struct PlayView: View {
-    @Binding var view: ViewState
+    @ObservedObject var layout = Layout.main
     @Binding var selected: [Int]
     static let onlineMenuText = [[("local",false),("online",false),("invite",false)],
                                  [("bots",false),("auto",false),("humans",false)],
@@ -21,10 +21,10 @@ struct PlayView: View {
     @State var menuText: [[Any]] = PlayView.onlineMenuText
     
     var body: some View {
-        if view == .play {
+        if layout.view == .play {
             GameView()
                 .onAppear { Game.main.load(mode: mode, turn: turn, hints: hints) }
-        } else if view == .playMenu {
+        } else if layout.view == .playMenu {
             ZStack {
                 VStack(spacing: 0) {
                     Spacer()
@@ -76,6 +76,6 @@ struct PlayView: View {
 
 struct PlayView_Previews: PreviewProvider {
     static var previews: some View {
-        PlayView(view: .constant(.main), selected: .constant([0,0,0]))
+        PlayView(selected: .constant([0,0,0]))
     }
 }
