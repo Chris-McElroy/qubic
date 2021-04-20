@@ -22,7 +22,7 @@ class User: Player {
     func move(at p: Int) {
         if Game.main.replayMode {
             Game.main.processGhostMove(p)
-        } else if Game.main.turn == n && Game.main.winner == nil {
+        } else if Game.main.winner == nil {
             Game.main.processMove(p, for: n, num: b.numMoves())
         }
     }

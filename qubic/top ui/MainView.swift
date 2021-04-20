@@ -146,6 +146,7 @@ struct MainView: View {
     
     private var bottomButtons: some View {
         HStack(spacing: 0) {
+            Spacer().frame(width: 15)
             if layout.leftArrows { arrowButtons }
             else { undoButton }
             Spacer()
@@ -153,8 +154,10 @@ struct MainView: View {
             Spacer()
             if layout.leftArrows { undoButton }
             else { arrowButtons }
+            Spacer().frame(width: 15)
         }.background(Rectangle().foregroundColor(.systemBackground))
         .buttonStyle(Solid())
+        .frame(width: layout.bottomWidth)
     }
     
     private var backButton: some View {
@@ -166,31 +169,34 @@ struct MainView: View {
                 Text("↓")
                     .rotationEffect(Angle(degrees: layout.view == .main ? 0 : 180))
             }
-            .padding(.horizontal, halfBack ? 0 : 20)
+            .padding(.horizontal, 0)// halfBack ? 0 : 20)
             .padding(.bottom, 35)
             .padding(.top, 5)
+            .frame(width: 110)
             .background(Fill())
         }
     }
     
     private var undoButton: some View {
         HStack(spacing: 0) {
-            Spacer().frame(width: layout.leftArrows ? 20 : 10)
+//            Spacer().frame(width: layout.leftArrows ? 20 : 10)
             Button(action: game.undoMove) {
                 Text("undo")
-                    .font(.custom("Oligopoly Regular", size: 15.5))
+                    .font(.custom("Oligopoly Regular", size: 16))
                     .accentColor(.label)
                     .padding(.bottom, 52)
+//                    .multilineTextAlignment(layout.leftArrows ? .trailing : .leading)
             }
-            .frame(width: 100)
+            .frame(width: 75, alignment: layout.leftArrows ? .trailing : .leading)
+            .padding(.horizontal, 10)
             .opacity(layout.view.gameView ? game.undoOpacity.rawValue : 0)
-            Spacer().frame(width: layout.leftArrows ? 10 : 20)
+//            Spacer().frame(width: layout.leftArrows ? 10 : 20)
         }
     }
     
     private var arrowButtons: some View {
         HStack(spacing: 0) {
-            Spacer().frame(width: layout.leftArrows ? 30 : 0)
+//            Spacer().frame(width: layout.leftArrows ? 30 : 0)
             Button(action: game.prevMove) {
                 Text("←")
                     .font(.custom("Oligopoly Regular", size: 25))
@@ -199,7 +205,7 @@ struct MainView: View {
             }
             .frame(width: 40)
             .opacity(layout.view.gameView ? game.prevOpacity.rawValue : 0)
-            Spacer().frame(width: 20)
+            Spacer().frame(width: 15)
             Button(action: game.nextMove) {
                 Text("→")
                     .font(.custom("Oligopoly Regular", size: 25))
@@ -208,7 +214,7 @@ struct MainView: View {
             }
             .frame(width: 40)
             .opacity(layout.view.gameView ? game.nextOpacity.rawValue : 0)
-            Spacer().frame(width: layout.leftArrows ? 0 : 30)
+//            Spacer().frame(width: layout.leftArrows ? 0 : 30)
         }
     }
     

@@ -53,6 +53,7 @@ class Game: ObservableObject {
     var preset: [Int] = []
     var mode: GameMode = .local
     var replayMode: Bool = false
+    var nextOpacity: Opacity = .clear
     var winner: Int? = nil
     private var board = Board()
     var moves: [Move] = []

@@ -61,6 +61,7 @@ class BoardScene {
         }
         for space in spaces {
             space.opacity = 1
+            space.removeAllActions()
 //            dot.removeFromParentNode()
         }
 //        dots = (0..<64).map { _ in SceneHelper.makeDot(color: .primary(33), size: 0.68) }
@@ -85,6 +86,17 @@ class BoardScene {
         guard let result = hitResults.first?.node else { return }
         if let p = spaces.firstIndex(where: { $0.childNodes.contains(result) || $0 == result }) {
             let turn = Game.main.winner == nil ? Game.main.turn : Game.main.myTurn
+            if Game.main.winner == nil && Game.main.nextOpacity == .full {
+                UINotificationFeedbackGenerator().notificationOccurred(.error)
+                for delay in stride(from: 0.0, to: 0.4, by: 0.3) {
+                    Timer.scheduledTimer(withTimeInterval: delay, repeats: false, block: { _ in
+                        Game.main.nextOpacity = .half
+                    })
+                    Timer.scheduledTimer(withTimeInterval: delay + 0.15, repeats: false, block: { _ in
+                        Game.main.nextOpacity = .full
+                    })
+                }
+            }
             if let user = Game.main.player[turn] as? User {
                 user.move(at: p)
             }
@@ -127,6 +139,7 @@ class BoardScene {
                 for p in Board.pointsInLine[line] {
                     if self.moves[p].opacity < 1 {
                         ghost = true
+                        print(self.moves[p].opacity)
                     }
                 }
                 self.winLines[line].opacity = ghost ? 0.3 : 1
