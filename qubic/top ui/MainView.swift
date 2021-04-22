@@ -132,10 +132,14 @@ struct MainView: View {
         VStack(spacing: 0) {
             AboutView() { self.switchView(to: .about) }
                 .frame(height: layout.get(layout.about), alignment: .top)
-                .zIndex(2)
+                .zIndex(3)
             SettingsView() { self.switchView(to: .settings) }
                 .frame(height: layout.get(layout.settings), alignment: .top)
+                .zIndex(2)
+            FeedbackView() { self.switchView(to: .feedback) }
+                .frame(height: layout.get(layout.feedback), alignment: .top)
                 .zIndex(1)
+            
 //            ReplaysView() { self.switchView(to: .replays) }
 //                .frame(height: heights.get(heights.replays), alignment: .top)
 //            FriendsView() { self.switchView(to: .friends) }

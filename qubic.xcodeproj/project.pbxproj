@@ -57,6 +57,7 @@
 		1E9A545A26112F90001FC204 /* FBHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E9A545926112F90001FC204 /* FBHelper.swift */; };
 		1E9E9FBE24CDEB4700002500 /* SceneHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E9E9FBD24CDEB4700002500 /* SceneHelper.swift */; };
 		1EA0CABA2580468D00C200E8 /* HPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EA0CAB92580468D00C200E8 /* HPicker.swift */; };
+		1EAE5F6A263121D6000C8270 /* FeedbackView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EAE5F69263121D6000C8270 /* FeedbackView.swift */; };
 		1EAEE3BB24D9DA1400490530 /* FriendsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EAEE3BA24D9DA1400490530 /* FriendsView.swift */; };
 		1EAEE3BD24D9DCBA00490530 /* ReplaysView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EAEE3BC24D9DCBA00490530 /* ReplaysView.swift */; };
 		1EB1CB51260ECC6300A2DCDC /* BotList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EB1CB50260ECC6300A2DCDC /* BotList.swift */; };
@@ -144,6 +145,7 @@
 		1E9A545926112F90001FC204 /* FBHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FBHelper.swift; sourceTree = "<group>"; };
 		1E9E9FBD24CDEB4700002500 /* SceneHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneHelper.swift; sourceTree = "<group>"; };
 		1EA0CAB92580468D00C200E8 /* HPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HPicker.swift; sourceTree = "<group>"; };
+		1EAE5F69263121D6000C8270 /* FeedbackView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedbackView.swift; sourceTree = "<group>"; };
 		1EAEE3BA24D9DA1400490530 /* FriendsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendsView.swift; sourceTree = "<group>"; };
 		1EAEE3BC24D9DCBA00490530 /* ReplaysView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReplaysView.swift; sourceTree = "<group>"; };
 		1EB1CB50260ECC6300A2DCDC /* BotList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BotList.swift; sourceTree = "<group>"; };
@@ -256,6 +258,7 @@
 				1E6D2E4A24CE9729001EFE85 /* CubeView.swift */,
 				1E02D59A24CE5696001BF62B /* AboutView.swift */,
 				1E7B959124D34015004B3C80 /* SettingsView.swift */,
+				1EAE5F69263121D6000C8270 /* FeedbackView.swift */,
 				1EAEE3BA24D9DA1400490530 /* FriendsView.swift */,
 				1EAEE3BC24D9DCBA00490530 /* ReplaysView.swift */,
 			);
@@ -565,6 +568,7 @@
 				1EB693952599A1470025B080 /* Warrior.swift in Sources */,
 				1E7B117D2586B33400A0CD9F /* NotificationHelper.swift in Sources */,
 				1E3335D2253400FD00966EA6 /* Cubist.swift in Sources */,
+				1EAE5F6A263121D6000C8270 /* FeedbackView.swift in Sources */,
 				1E636FBB258A8687005B8D4F /* Daily.swift in Sources */,
 				1E636FC0258A882B005B8D4F /* Tricky.swift in Sources */,
 				1E017B9E24CDB70D00CF979A /* SolveView.swift in Sources */,

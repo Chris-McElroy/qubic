@@ -19,6 +19,7 @@ enum ViewState {
     case play
     case about
     case settings
+    case feedback
 //    case replays
 //    case friends
     
@@ -33,6 +34,7 @@ enum ViewState {
         case .play: return .playMenu
         case .about: return .more
         case .settings: return .more
+        case .feedback: return .more
         default: return .main
         }
     }
@@ -50,9 +52,10 @@ class Layout: ObservableObject {
     let play      = SubView(id: 6,  df: mainButtonHeight)
     let about     = SubView(id: 7,  df: moreButtonHeight)
     let settings  = SubView(id: 8,  df: moreButtonHeight)
+    let feedback  = SubView(id: 9,  df: moreButtonHeight)
 //        let replays   = SubView(id: 9,  df: moreButtonHeight)
 //        let friends   = SubView(id: 10, df: moreButtonHeight)
-    let moreFill  = SubView(id: 9, df: moreButtonHeight)
+    let moreFill  = SubView(id: 10, df: moreButtonHeight)
     
     @Published var view: ViewState = .main
     @Published var leftArrows: Bool = UserDefaults.standard.integer(forKey: Key.arrowSide) == 0
@@ -64,7 +67,7 @@ class Layout: ObservableObject {
     var bottomWidth: CGFloat = 0
     let backButton: CGFloat = 60
     var backButtonOffset: CGFloat = -800
-    private var subViews: [CGFloat] = Array(repeating: 0, count: 9)
+    private var subViews: [CGFloat] = Array(repeating: 0, count: 10)
     private var screen: CGFloat = 800
     private var bottomGap: CGFloat = 80
     
@@ -84,7 +87,7 @@ class Layout: ObservableObject {
         if screenHeight < 600 { cube = 140 }
         fillOffset = -3*self.screen + 83 - 2*topGap
         backButtonOffset = -2*self.screen - 10 + topGap
-        subViews = [top.df, trainView.df, train.df, solveView.df, solve.df, playView.df, play.df, about.df, settings.df, moreFill.df]
+        subViews = [top.df, trainView.df, train.df, solveView.df, solve.df, playView.df, play.df, about.df, settings.df, feedback.df, moreFill.df]
     }
     
     private var display: Display {
@@ -98,7 +101,8 @@ class Layout: ObservableObject {
         case .play:      return Display(top: playView,  focus: playView,  bottom: playView)
         case .more:      return Display(top: train,     focus: moreFill,  bottom: moreFill)
         case .about:     return Display(top: about,     focus: about,     bottom: about)
-        case .settings:  return Display(top: settings,     focus: settings,  bottom: settings)
+        case .settings:  return Display(top: settings,  focus: settings,  bottom: settings)
+        case .feedback:  return Display(top: feedback,  focus: feedback,  bottom: feedback)
 //            case .replays:   return Display(top: about,     focus: replays,   bottom: friends)
 //            case .friends:   return Display(top: about,     focus: friends,   bottom: friends)
         }
