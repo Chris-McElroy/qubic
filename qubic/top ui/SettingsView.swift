@@ -36,9 +36,9 @@ struct SettingsView: View {
             if layout.view == .settings {
                 // HPickers
                 VStack(spacing: 0) {
-                    Fill(77)
-                    HPicker(content: .constant(pickerContent), dim: (50,55), selected: $selected, action: onSelection)
-                        .frame(height: 165)
+                    Fill(70)
+                    HPicker(content: .constant(pickerContent), dim: (50,65), selected: $selected, action: onSelection)
+                        .frame(height: 195)
                         .onAppear {
                             Notifications.ifDenied {
                                 selected[2] = 1
@@ -77,11 +77,11 @@ struct SettingsView: View {
                     VStack(spacing: 0) {
                         Fill(10)
                         Text("notifications").frame(height: 20)
-                        Blank(40)
+                        Blank(50)
                         Text("arrow side").frame(height: 20)
-                        Blank(40)
+                        Blank(50)
                         Text("color").frame(height: 20)
-                        Blank(40)
+                        Blank(50)
                         Text("username").frame(height: 20)
                         Fill(7)
                         TextField("enter name", text: $username, onCommit: {
@@ -98,7 +98,13 @@ struct SettingsView: View {
             }
             .alert(isPresented: $showNotificationAlert, content: { Notifications.notificationAlert })
         }
-        .background(Fill())
+        .background(Fill().onTapGesture {
+            hideKeyboard()
+            if username != UserDefaults.standard.string(forKey: Key.name) {
+                UserDefaults.standard.setValue(username, forKey: Key.name)
+                FB.main.updateMyData()
+            }
+        })
     }
     
 //    func setDots(row: Int, component: Int) -> Void {
@@ -125,6 +131,10 @@ struct SettingsView: View {
             selected[2] = 1
             showNotificationAlert = true
         }
+    }
+    
+    func hideKeyboard() {
+        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
     }
 }
 

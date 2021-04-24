@@ -11,7 +11,10 @@ import SwiftUI
 struct FeedbackView: View {
     var mainButtonAction: () -> Void
     @ObservedObject var layout = Layout.main
-    @State var text = "enter feedback"
+    @State var name = ""
+    @State var email = ""
+    @State var feedback = ""
+    @State var sendLabel = "send"
     
     var body: some View {
         VStack {
@@ -21,19 +24,72 @@ struct FeedbackView: View {
                     .buttonStyle(MoreStyle())
             }.zIndex(4)
             if layout.view == .feedback {
-                Text("your name (optional)")
-                TextField("enter name", text: $text)
-                Text("your email (optional—for replies)")
-                TextField("enter email", text: $text)
-                    .lineLimit(5)
-                Text("your feedback")
-                if #available(iOS 14.0, *) {
-                    TextEditor(text: $text)
-                } else {
-                    // what the fuck i'm going to have to use some really jank ass shit
-                    // https://www.appcoda.com/swiftui-textview-uiviewrepresentable/
+                Spacer()
+                Blank(5)
+                VStack(spacing: 5) {
+                    Text("your name (optional)")
+                    TextField("enter name", text: $name)
+                        .multilineTextAlignment(.center)
+                        .autocapitalization(.words)
+                    Text("your email (optional—for replies)")
+                    TextField("enter email", text: $email)
+                        .multilineTextAlignment(.center)
+                        .autocapitalization(.none)
+                        .keyboardType(.emailAddress)
+                    Text("your feedback or ideas")
+                    VStack {
+                        if #available(iOS 14.0, *) {
+                            TextEditor(text: $feedback)
+                        } else {
+                            OldTextEditor(text: $feedback, textStyle: UIFont.TextStyle.body)
+                        }
+                    }
+                    .frame(maxWidth: 300, maxHeight: min(layout.feedbackTextSize, 300))
+                    .padding(10)
+                    .border(Color.primary)
+                    .padding(.horizontal, 20)
                 }
+                Blank(10)
+                Button(sendLabel) {
+                    hideKeyboard()
+                    if feedback != "" {
+                        FB.main.postFeedback(name: name, email: email, feedback: feedback)
+                        sendLabel = "thanks for your feedback!"
+                        UINotificationFeedbackGenerator().notificationOccurred(.success)
+                        Timer.scheduledTimer(withTimeInterval: 2.0, repeats: false, block: { _ in
+                            self.sendLabel = "send"
+                        })
+                    }
+                    name = ""
+                    email = ""
+                    feedback = ""
+                }
+                Blank(15)
+                LinkView(site: "mailto:chris@xno.store", text: "send as email\n(for attachments)")
+                    .multilineTextAlignment(.center)
+                Blank(layout.feedbackSpacerSize)
+            }
+        }.background(Fill().onTapGesture {
+            hideKeyboard()
+        })
+    }
+    
+    struct LinkView: View {
+        let site: String
+        let text: String
+        
+        var body: some View {
+            Button(action: {
+                if let url = URL(string: site) {
+                   UIApplication.shared.open(url)
+               }
+            }) {
+                Text(text).accentColor(.blue)
             }
         }
+    }
+    
+    func hideKeyboard() {
+        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
     }
 }

@@ -90,11 +90,11 @@ class Game: ObservableObject {
             print("couldn't parse parts")
             return
         }
-        guard let uuid = UIDevice.current.identifierForVendor?.uuidString else {
-            print("no uuid")
-            return
-        }
-        let selfCreated = data.queryItems?[2].value ?? "" == uuid
+//        guard let uuid = UIDevice.current.identifierForVendor?.uuidString else {
+//            print("no uuid")
+//            return
+//        }
+        let selfCreated = data.queryItems?[2].value ?? "" == messagesID
         myTurn = selfCreated == (data.queryItems?[3].value ?? "" == "me") ? 0 : 1
         
         load(mode: .local, turn: myTurn, hints: false)
@@ -123,6 +123,7 @@ class Game: ObservableObject {
         guard !moved else { return }
         guard turn == self.turn && num == moves.count else { print("Invalid turn!"); return }
         guard !moves.map({ $0.p }).contains(move) && (0..<64).contains(move) else { return }
+        moved = true
         board.addMove(move, for: turn)
         moves.append(Move(move))
         if player[turn].rounded {

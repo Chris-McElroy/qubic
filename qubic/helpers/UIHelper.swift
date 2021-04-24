@@ -10,6 +10,15 @@ import SwiftUI
 
 //00000000-0000-0000-0000-000000000000
 var myID: String { UserDefaults.standard.string(forKey: Key.uuid) ?? "00000000000000000000000000000000" }
+var messagesID: String {
+    if let id = UserDefaults.standard.string(forKey: Key.messagesID) {
+        return id
+    } else {
+        let id = UIDevice.current.identifierForVendor?.uuidString ?? ""
+        UserDefaults.standard.setValue(id, forKey: Key.messagesID)
+        return id
+    }
+}
 
 enum Opacity: Double {
     case clear = 0

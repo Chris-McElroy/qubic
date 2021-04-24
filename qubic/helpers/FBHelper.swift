@@ -7,7 +7,8 @@
 //
 
 import SwiftUI
-import Firebase
+import FirebaseDatabase
+import FirebaseAuth
 
 class FB {
     static let main = FB()
@@ -55,6 +56,11 @@ class FB {
         let name = UserDefaults.standard.string(forKey: Key.name) ?? ""
         let color = 0
         myPlayerRef.setValue([Key.name: name, Key.color: color])
+    }
+    
+    func postFeedback(name: String, email: String, feedback: String) {
+        let feedbackRef = ref.child("feedback/\(myID)/\(Date.ms)")
+        feedbackRef.setValue([Key.name: name, Key.email: email, Key.feedback: feedback])
     }
     
     func getOnlineMatch(timeLimit: Int, humansOnly: Bool, onMatch: @escaping () -> Void, onCancel: @escaping () -> Void) {

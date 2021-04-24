@@ -58,6 +58,7 @@ struct PlayView: View {
                 }
             }.onAppear {
                 FB.main.finishedOnlineGame(with: .error)
+                tip = PlayView.tips.filter({ $0 != tip }).randomElement() ?? ""
             }
         }
     }

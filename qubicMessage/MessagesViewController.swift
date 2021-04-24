@@ -198,8 +198,7 @@ class MessagesViewController: MSMessagesAppViewController {
         layout.image = UIImage(named: "icon1024half")
         layout.caption = "4Play"
         message.layout = layout
-        let uuid = UIDevice.current.identifierForVendor?.uuidString ?? ""
-        
+//        let uuid = UIDevice.current.identifierForVendor?.uuidString ?? ""
         var first: Bool = 0 == .random(in: 0...1)
         if picker.selected[0] == 0 { first = true }
         if picker.selected[0] == 2 { first = false }
@@ -209,7 +208,7 @@ class MessagesViewController: MSMessagesAppViewController {
         urlComponents.queryItems = [
             URLQueryItem(name: "game", value: "."),
             URLQueryItem(name: "type", value: "default"),
-            URLQueryItem(name: "me", value: uuid),
+            URLQueryItem(name: "me", value: messagesID),
             URLQueryItem(name: "p1", value: first ? "me" : "op")
         ]
         message.url = urlComponents.url

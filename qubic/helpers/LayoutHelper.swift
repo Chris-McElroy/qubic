@@ -67,6 +67,8 @@ class Layout: ObservableObject {
     var bottomWidth: CGFloat = 0
     let backButton: CGFloat = 60
     var backButtonOffset: CGFloat = -800
+    var feedbackTextSize: CGFloat = 90
+    var feedbackSpacerSize: CGFloat = 15
     private var subViews: [CGFloat] = Array(repeating: 0, count: 10)
     private var screen: CGFloat = 800
     private var bottomGap: CGFloat = 80
@@ -87,6 +89,8 @@ class Layout: ObservableObject {
         if screenHeight < 600 { cube = 140 }
         fillOffset = -3*self.screen + 83 - 2*topGap
         backButtonOffset = -2*self.screen - 10 + topGap
+        feedbackTextSize = (screenHeight-568)/1.65+90
+        feedbackSpacerSize = (screenHeight-568)/4.5+15
         subViews = [top.df, trainView.df, train.df, solveView.df, solve.df, playView.df, play.df, about.df, settings.df, feedback.df, moreFill.df]
     }
     

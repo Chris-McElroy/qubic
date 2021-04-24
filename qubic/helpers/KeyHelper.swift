@@ -21,6 +21,9 @@ struct Key {
     static let notification = "notifications"
     static let arrowSide = "arrowSide"
     static let uuid = "uuidKey"
+    static let messagesID = "messagesID"
+    static let email = "email"
+    static let feedback = "feedback"
     
     static let myTurn = "myTurn"
     static let myID = "myID"

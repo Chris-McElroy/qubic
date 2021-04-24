@@ -38,6 +38,7 @@ struct MainView: View {
             layout.view = .main
             game.goBack = goBack
             game.cancelBack = cancelBack
+            print(self.screen.height)
         }
         .frame(height: layout.total)
         .background(Fill())

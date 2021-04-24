@@ -38,8 +38,6 @@ extension MainView {
         layout.image = UIImage(named: "icon1024half")
         layout.caption = "4Play"
         message.layout = layout
-        let uuid = UIDevice.current.identifierForVendor?.uuidString ?? ""
-        
         let first: Bool = playSelection[1] == 1 ? 0 == .random(in: 0...1) : playSelection[1] == 0
         
         var urlComponents = URLComponents()
@@ -47,7 +45,7 @@ extension MainView {
         urlComponents.queryItems = [
             URLQueryItem(name: "game", value: "."),
             URLQueryItem(name: "type", value: "default"),
-            URLQueryItem(name: "me", value: uuid),
+            URLQueryItem(name: "me", value: messagesID),
             URLQueryItem(name: "p1", value: first ? "me" : "op")
         ]
         message.url = urlComponents.url
