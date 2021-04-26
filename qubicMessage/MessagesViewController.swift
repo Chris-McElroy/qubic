@@ -38,7 +38,7 @@ class MessagesViewController: MSMessagesAppViewController {
         
         Game.main.sendMessage = sendMessage
         gameView.addSubview(BoardScene.main.view)
-        print(view.bounds.height-200, view.bounds.height-230, view.bounds.height)
+//        print(view.bounds.height-200, view.bounds.height-230, view.bounds.height)
 //        368.0 338.0 568.0
 //        644.0 614.0 844.0
         BoardScene.main.view.frame = CGRect(x: 0, y: 80, width: view.bounds.width, height: view.bounds.height*0.9-145)
@@ -73,7 +73,7 @@ class MessagesViewController: MSMessagesAppViewController {
     
     override func willSelect(_ message: MSMessage, conversation: MSConversation) {
         if selected == nil {
-            newMessage(message)
+            newMessage(message, movable: message.senderParticipantIdentifier != conversation.localParticipantIdentifier)
         }
     }
     
@@ -82,9 +82,8 @@ class MessagesViewController: MSMessagesAppViewController {
         // This will happen when the extension is about to present UI.
         
         // Use this method to configure the extension and restore previously stored state.
-        
         if let message = conversation.selectedMessage {
-            newMessage(message)
+            newMessage(message, movable: message.senderParticipantIdentifier != conversation.localParticipantIdentifier)
 //            selected = newMessage
 //            loadButton.isHidden = true
 //            gameView.isHidden = false
@@ -140,12 +139,11 @@ class MessagesViewController: MSMessagesAppViewController {
         // Use this method to finalize any behaviors associated with the change in presentation style.
     }
     
-    func newMessage(_ message: MSMessage) {
+    func newMessage(_ message: MSMessage, movable: Bool) {
         selected = message
         loadButton.isHidden = true
         gameView.isHidden = false
-        Game.main.load(from: message.url)
-        
+        let turn = Game.main.load(from: message.url, movable: movable)
         for p in stride(from: 0, through: 1, by: 1) {
             playerView[p].backgroundColor = .primary(Game.main.player[p].color)
             playerText[p].text = Game.main.player[p].name
@@ -156,7 +154,7 @@ class MessagesViewController: MSMessagesAppViewController {
             if let winner = Game.main.winner {
                 playerView[p].layer.shadowOpacity = winner == p ? 1 : 0
             } else {
-                playerView[p].layer.shadowOpacity = Game.main.turn == p ? 1 : 0
+                playerView[p].layer.shadowOpacity = turn == p ? 1 : 0
             }
         }
     }
@@ -178,17 +176,16 @@ class MessagesViewController: MSMessagesAppViewController {
         guard var urlComponents = URLComponents(url: url, resolvingAgainstBaseURL: true) else { print("url failed"); return }
         let gameString = (urlComponents.queryItems?[0].value ?? "") + String(move)
         urlComponents.queryItems?[0] = URLQueryItem(name: "game", value: gameString)
-        
         message.url = urlComponents.url
         
         activeConversation?.send(message)
         
-        Timer.scheduledTimer(withTimeInterval: 0.3, repeats: false, block: { _ in
+        Timer.after(0.3) {
             self.sentLabel.isHidden = false
-        })
-        Timer.scheduledTimer(withTimeInterval: 1.2, repeats: false, block: { _ in
+        }
+        Timer.after(1.2) {
             self.sentLabel.isHidden = true
-        })
+        }
     }
     
     @objc func pressedStart() {
@@ -206,17 +203,17 @@ class MessagesViewController: MSMessagesAppViewController {
         var urlComponents = URLComponents()
         urlComponents.host = "qubic"
         urlComponents.queryItems = [
-            URLQueryItem(name: "game", value: "."),
-            URLQueryItem(name: "type", value: "default"),
-            URLQueryItem(name: "me", value: messagesID),
-            URLQueryItem(name: "p1", value: first ? "me" : "op")
+            URLQueryItem(name: "game", value: ".")
+//            URLQueryItem(name: "type", value: "default"),
+//            URLQueryItem(name: "me", value: messagesID),
+//            URLQueryItem(name: "p1", value: first ? "me" : "op")
         ]
         message.url = urlComponents.url
 //        print(message.url)
         
         if first {
             requestPresentationStyle(.expanded)
-            newMessage(message)
+            newMessage(message, movable: true)
         } else {
             activeConversation?.insert(message)
         }

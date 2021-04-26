@@ -105,13 +105,13 @@ class BoardScene {
         }
     }
     
-    func showMove(_ move: Int, wins: [Int?], ghost: Bool = false) {
+    func showMove(_ move: Int, wins: [Int], ghost: Bool = false) {
 //        let delay = moveCube(move: move, color: game.colors[turn]) + 0.1
         spinSpaces([])
         let turn = Game.main.turn^1
         let color = UIColor.primary(Game.main.player[turn].color)
         placeCube(move: move, color: color, opacity: ghost ? 0.7 : 1)
-        showWins(wins, spin: !ghost)
+        showWins(wins, color: color, ghost: ghost)
         
 //        if UserDefaults.standard.integer(forKey: Key.dot) == 0 {
 //        } else {
@@ -120,35 +120,24 @@ class BoardScene {
 //        }
     }
     
-    private func showWins(_ wins: [Int?], spin: Bool = false) {
-        let colors: [UIColor] = [.primary(Game.main.player[0].color), .primary(Game.main.player[1].color)]
-        var linesToAdd: [Int] = []
-        for line in 0..<76 {
-            if let turn = wins[line] {
-                winLines[line].setColor(colors[turn])
-                if winLines[line].opacity == 0 { winLines[line].opacity = 1 }
-                linesToAdd.append(line)
-            } else {
-                winLines[line].opacity = 0
-                winLines[line].removeFromParentNode()
-            }
-        }
+    private func showWins(_ lines: [Int], color: UIColor, ghost: Bool = false) {
         Timer.scheduledTimer(withTimeInterval: 0.2, repeats: false, block: { _ in
-            for line in linesToAdd where self.winLines[line].opacity != 0 {
-                var ghost = false
-                for p in Board.pointsInLine[line] {
-                    if self.moves[p].opacity < 1 {
-                        ghost = true
-                        print(self.moves[p].opacity)
-                    }
-                }
+            for line in lines {
+                self.winLines[line].setColor(color)
                 self.winLines[line].opacity = ghost ? 0.3 : 1
                 self.base.addChildNode(self.winLines[line])
             }
-            if spin && !linesToAdd.isEmpty {
+            if !ghost && !lines.isEmpty {
                 self.base.runAction(SceneHelper.getFullRotate(1.45))
             }
         })
+    }
+    
+    private func hideWins(_ lines: [Int]) {
+        for line in lines {
+            winLines[line].opacity = 0
+            winLines[line].removeFromParentNode()
+        }
     }
     
     func rotate(right: Bool) {
@@ -203,7 +192,7 @@ class BoardScene {
         spaces[move].runAction(dotFade)
     }
     
-    func undoMove(_ move: Int, wins: [Int?]) {
+    func undoMove(_ move: Int) {
         let cube = moves[move]
         spinSpaces([])
         let space = spaces[move]
@@ -222,7 +211,7 @@ class BoardScene {
             cube.removeFromParentNode()
         })
         
-        showWins(wins)
+        hideWins(Board.linesThruPoint[move])
     }
     
     func remove(_ move: Int) {

@@ -53,6 +53,12 @@ extension Date {
     }
 }
 
+extension Timer {
+    static func after(_ delay: TimeInterval, run: @escaping () -> Void) {
+        scheduledTimer(withTimeInterval: delay, repeats: false, block: { _ in run() })
+    }
+}
+
 struct Fill: View {
     let height: CGFloat?
     

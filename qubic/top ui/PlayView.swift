@@ -54,7 +54,10 @@ struct PlayView: View {
                     Fill(100)
                         .opacity(mode == .local ? 0.0 : 0.8)
                         .animation(.linear(duration: 0.15))
-                    Blank(120)
+                    Fill(60)
+                        .opacity(mode != .invite ? 0.0 : 0.8)
+                        .animation(.linear(duration: 0.15))
+                    Blank(60)
                 }
             }.onAppear {
                 FB.main.finishedOnlineGame(with: .error)

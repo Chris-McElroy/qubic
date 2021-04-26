@@ -110,11 +110,7 @@ class Board {
 //        if !printed { print("nothing") }
 //    }
     
-    func getWinLines() -> [Int?] {
-        var wins: [Int?] = Array(repeating: nil, count: 76)
-        getW0(for: 0).forEach { wins[$0] = 0 }
-        getW0(for: 1).forEach { wins[$0] = 1 }
-        
-        return wins
+    func getWinLines(for p: Int) -> [Int] {
+        Board.linesThruPoint[p].filter({ status[$0] == 8 || status[$0] == 0 })
     }
 }

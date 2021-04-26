@@ -38,7 +38,6 @@ struct MainView: View {
             layout.view = .main
             game.goBack = goBack
             game.cancelBack = cancelBack
-            print(self.screen.height)
         }
         .frame(height: layout.total)
         .background(Fill())
@@ -162,7 +161,7 @@ struct MainView: View {
             Spacer().frame(width: 15)
         }.background(Rectangle().foregroundColor(.systemBackground))
         .buttonStyle(Solid())
-        .frame(width: layout.bottomWidth)
+        .frame(width: layout.width)
     }
     
     private var backButton: some View {

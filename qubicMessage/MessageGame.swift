@@ -67,53 +67,55 @@ class Game: ObservableObject {
         self.mode = .off
     }
     
-    func load(mode: GameMode, boardNum: Int = 0, turn: Int? = nil, hints: Bool = false) {
+    func load(mode: GameMode, boardNum: Int = 0, turn: Int, hints: Bool = false) {
+        BoardScene.main.reset()
         board = Board()
         winner = nil
         moves = []
-        myTurn = turn != nil ? turn! : preset.count % 2
+        myTurn = turn
         self.mode = mode
         let me = User(b: board, n: myTurn)
         let op = User(b: board, n: myTurn^1, name: "friend")
         if me.color == op.color { op.color = Game.getDefaultColor(for: me.color) }
         player = myTurn == 0 ? [me, op] : [op, me]
-        for p in preset { loadMove(p) }
         player[self.turn].move()
     }
     
-    func load(from url: URL?) {
+    func load(from url: URL?, movable: Bool) -> Int {
         guard let solidUrl = url else {
             print("no url")
-            return
+            return 0
         }
         guard let data = URLComponents(url: solidUrl, resolvingAgainstBaseURL: false) else {
-            print("couldn't parse parts")
-            return
+            print("couldn't parse url")
+            return 0
         }
 //        guard let uuid = UIDevice.current.identifierForVendor?.uuidString else {
 //            print("no uuid")
 //            return
 //        }
-        let selfCreated = data.queryItems?[2].value ?? "" == messagesID
-        myTurn = selfCreated == (data.queryItems?[3].value ?? "" == "me") ? 0 : 1
-        
-        load(mode: .local, turn: myTurn, hints: false)
-        
+//        let selfCreated = data.queryItems?[2].value ?? "" == messagesID
+//        myTurn = selfCreated == (data.queryItems?[3].value ?? "" == "me") ? 0 : 1
+        moved = !movable
         let gameString = String(data.queryItems?[0].value?.dropFirst() ?? "")
-        print(gameString)
         preset = expandMoves(gameString)
-        for p in preset { loadMove(p) }
-        moved = preset.count % 2 != myTurn
+        let currentTurn = preset.count % 2
+        load(mode: .local, turn: movable ? currentTurn : currentTurn^1, hints: false)
+        for p in preset.dropLast() { loadMove(p) }
+        if let p = preset.last { loadMove(p, animated: true) }
+        return currentTurn
 //        if winner == nil { (player[self.turn] as? User)?.game = self }
     }
     
-    func loadMove(_ move: Int) {
+    func loadMove(_ move: Int, animated: Bool = false) {
         guard !moves.map({ $0.p }).contains(move) && (0..<64).contains(move) else { return }
         board.addMove(move, for: turn)
         moves.append(Move(move))
-        if board.hasW0(turn^1) {
-            winner = turn^1
-            BoardScene.main.showMove(move, wins: board.getWinLines())
+        if board.hasW0(turn^1) { winner = turn^1 }
+        if animated {
+            Timer.after(0.8, run: {
+                BoardScene.main.showMove(move, wins: self.board.getWinLines(for: move))
+            })
         } else {
             BoardScene.main.addCube(move: move, color: .primary(player[turn^1].color))
         }
@@ -129,7 +131,7 @@ class Game: ObservableObject {
         if player[turn].rounded {
             UIImpactFeedbackGenerator(style: .medium).impactOccurred()
         }
-        BoardScene.main.showMove(move, wins: board.getWinLines())
+        BoardScene.main.showMove(move, wins: board.getWinLines(for: move))
         // TODO add async hint text shit
         // also i should make the next process move async as well
         if board.hasW0(turn^1) {

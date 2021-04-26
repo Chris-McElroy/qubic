@@ -157,7 +157,7 @@ class Game: ObservableObject {
         board.addMove(move.p)
         currentMove = move
         newHints()
-        BoardScene.main.showMove(move.p, wins: board.getWinLines())
+        BoardScene.main.showMove(move.p, wins: board.getWinLines(for: move.p))
         if undoOpacity == .half { withAnimation { undoOpacity = .full } }
         withAnimation { prevOpacity = .full }
     }
@@ -180,7 +180,7 @@ class Game: ObservableObject {
         newHints()
         ghostMoveCount += 1
         getHints(for: moves.dropLast(movesBack))
-        BoardScene.main.showMove(move.p, wins: board.getWinLines(), ghost: true)
+        BoardScene.main.showMove(move.p, wins: board.getWinLines(for: move.p), ghost: true)
         withAnimation {
             prevOpacity = .full
             nextOpacity = .half
@@ -219,7 +219,7 @@ class Game: ObservableObject {
         currentMove = moves.last
         newHints()
         board.undoMove(for: turn^1)
-        BoardScene.main.undoMove(move.p, wins: board.getWinLines())
+        BoardScene.main.undoMove(move.p)
         if moves.count == preset.count {
             withAnimation {
                 undoOpacity = .half
@@ -239,7 +239,7 @@ class Game: ObservableObject {
         movesBack += 1
         if winner != nil { replayMode = true }
         board.undoMove(for: turn^1)
-        BoardScene.main.undoMove(moves[i].p, wins: board.getWinLines())
+        BoardScene.main.undoMove(moves[i].p)
         currentMove = i > 0 ? moves[i-1] : nil
         newHints()
         if i-1 < ghostMoveStart {
@@ -279,7 +279,7 @@ class Game: ObservableObject {
         movesBack -= 1
         currentMove = moves[i]
         newHints()
-        BoardScene.main.showMove(moves[i].p, wins: board.getWinLines(), ghost: ghostMoveCount != 0)
+        BoardScene.main.showMove(moves[i].p, wins: board.getWinLines(for: moves[i].p), ghost: ghostMoveCount != 0)
         withAnimation {
             prevOpacity = .full
             if movesBack == 0 {

@@ -43,10 +43,10 @@ extension MainView {
         var urlComponents = URLComponents()
         urlComponents.host = "qubic"
         urlComponents.queryItems = [
-            URLQueryItem(name: "game", value: "."),
-            URLQueryItem(name: "type", value: "default"),
-            URLQueryItem(name: "me", value: messagesID),
-            URLQueryItem(name: "p1", value: first ? "me" : "op")
+            URLQueryItem(name: "game", value: ".")
+//            URLQueryItem(name: "type", value: "default"),
+//            URLQueryItem(name: "me", value: messagesID),
+//            URLQueryItem(name: "p1", value: first ? "me" : "op")
         ]
         message.url = urlComponents.url
         

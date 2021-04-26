@@ -64,7 +64,7 @@ class Layout: ObservableObject {
     var cube: CGFloat = 0
     let fill: CGFloat = 40
     var fillOffset: CGFloat = 0
-    var bottomWidth: CGFloat = 0
+    var width: CGFloat = 0
     let backButton: CGFloat = 60
     var backButtonOffset: CGFloat = -800
     var feedbackTextSize: CGFloat = 90
@@ -79,7 +79,7 @@ class Layout: ObservableObject {
         let screenHeight = screen.height
         let small = screenHeight < 700
         let topGap: CGFloat = small ? 10 : 30
-        bottomWidth = screen.width
+        width = screen.width
         bottomGap = 80 - topGap
         self.screen = screenHeight - 2*topGap
         setLineWidth(screenHeight)
