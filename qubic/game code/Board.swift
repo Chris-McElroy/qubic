@@ -113,4 +113,12 @@ class Board {
     func getWinLines(for p: Int) -> [Int] {
         Board.linesThruPoint[p].filter({ status[$0] == 8 || status[$0] == 0 })
     }
+    
+    func getMoveString() -> String {
+        var string = ""
+        for i in 0..<numMoves() {
+            string.append(moveStringMap[move[i%2][i/2]])
+        }
+        return string
+    }
 }

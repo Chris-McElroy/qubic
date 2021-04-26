@@ -118,7 +118,7 @@ struct AboutView: View {
             Fill()
             LinkView(text: "about xno", site: "https://xno.store/about")
             LinkView(text: "contact xno", site: "https://xno.store/contact")
-            LinkView(text: "privacy policy", site: "http://xno.store/privacy-policy")
+            LinkView(text: "privacy policy", site: "https://xno.store/privacy-policy")
             LinkView(text: "game history", site: "https://en.wikipedia.org/wiki/3D_tic-tac-toe")
             LinkView(text: "join the discord", site: "https://discord.gg/7J48ms5")
             Text("©2021 XNO LLC")

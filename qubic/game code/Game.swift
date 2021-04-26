@@ -27,15 +27,21 @@ enum HintValue {
     case noW
 }
 
+enum SolveType {
+    case d1, d2, d3, d4, tr, no
+}
+
 class Move: Equatable {
     let p: Int
     var myHint: HintValue?
     var opHint: HintValue?
+    var solveType: SolveType?
     
     init(_ p: Int) {
         self.p = p
         myHint = nil
         opHint = nil
+        solveType = nil
     }
     
     static func == (lhs: Move, rhs: Move) -> Bool {
@@ -83,6 +89,7 @@ class Game: ObservableObject {
 //        nextOpacity = .clear
 //        self.mode = .off
 //    }
+    
     
     func load(mode: GameMode, boardNum: Int = 0, turn: Int? = nil, hints: Bool = false) {
         board = Board()
@@ -328,7 +335,7 @@ class Game: ObservableObject {
                     withAnimation { self.newStreak = nil }
                 })
             } else if mode == .tricky {
-                UserDefaults.standard.setValue([1], forKey: Key.train) // TODO WHAT WHY IS THIS ALSO TRAIN
+                UserDefaults.standard.setValue([1], forKey: Key.tricky)
             } else if mode.train && !hints {
                 var beaten = UserDefaults.standard.array(forKey: Key.train) as? [Int] ?? [0,0,0,0,0,0]
                 beaten[mode.trainValue] = 1
@@ -364,6 +371,25 @@ class Game: ObservableObject {
             
             if self.myTurn == turn { moves.last?.myHint = nHint }
             else { moves.last?.opHint = nHint }
+            
+            // all solve stuff to remove later
+            if nHint == .w1 {
+                moves.last?.solveType = .d1
+            } else if nHint == .w2d1 {
+                moves.last?.solveType = .d2
+            } else if nHint == .w2 {
+                if b.hasW2(turn, depth: 2) == true {
+                    moves.last?.solveType = .d3
+                } else if b.hasW2(turn, depth: 3) == true {
+                    moves.last?.solveType = .d4
+                } else if b.hasW2(turn, depth: 5) == false {
+                    moves.last?.solveType = .tr
+                }
+            } else {
+                moves.last?.solveType = .no
+            }
+            // end solve stuff
+            
             DispatchQueue.main.async { self.newHints() }
             
             var oHint: HintValue = .noW
@@ -401,5 +427,10 @@ class Game: ObservableObject {
             }
         }
         BoardScene.main.spinSpaces(list)
+    }
+    
+    func uploadSolveBoard(_ key: String) {
+        FB.main.uploadSolveBoard(board.getMoveString(), key: key)
+        UINotificationFeedbackGenerator().notificationOccurred(.success)
     }
 }

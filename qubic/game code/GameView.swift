@@ -21,6 +21,7 @@ struct GameView: View {
         [("on",false),("off",false)]
     ]
     @State var hintText: [[String]?] = [nil, nil]
+    @State var currentSolveType: SolveType? = nil
     
     var body: some View {
         ZStack {
@@ -33,6 +34,7 @@ struct GameView: View {
                 .padding(.top, 20)
                 .padding(.bottom, 10)
                 .zIndex(1.0)
+                if game.hints { solveButtons }
                 BoardView()
                     .gesture(DragGesture()
                         .onEnded { drag in
@@ -73,9 +75,29 @@ struct GameView: View {
         }
     }
     
+    var solveButtons: some View {
+        HStack {
+            Button("daily1") { if currentSolveType == .d1 { Game.main.uploadSolveBoard("d1") } }
+                .opacity(currentSolveType == .d1 ? 1.0 : 0.3)
+            Spacer()
+            Button("daily2") { if currentSolveType == .d2 { Game.main.uploadSolveBoard("d2") } }
+                .opacity(currentSolveType == .d2 ? 1.0 : 0.3)
+            Spacer()
+            Button("daily3") { if currentSolveType == .d3 { Game.main.uploadSolveBoard("d3") } }
+                .opacity(currentSolveType == .d3 ? 1.0 : 0.3)
+            Spacer()
+            Button("daily4") { if currentSolveType == .d4 { Game.main.uploadSolveBoard("d4") } }
+                .opacity(currentSolveType == .d4 ? 1.0 : 0.3)
+            Spacer()
+            Button("tricky") { if currentSolveType == .tr { Game.main.uploadSolveBoard("tr") } }
+                .opacity(currentSolveType == .tr ? 1.0 : 0.3)
+        }.padding(.horizontal, 30)
+    }
+    
     func refreshHintPickerContent() {
         let myHint: HintValue? = game.currentMove == nil ? .noW : game.currentMove?.myHint
         let opHint: HintValue? = game.currentMove == nil ? .noW : game.currentMove?.opHint
+        currentSolveType = game.currentMove?.solveType
         
         hintPickerContent = [
             [("blocks", opHint ?? .noW != .noW),

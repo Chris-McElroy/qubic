@@ -63,6 +63,11 @@ class FB {
         feedbackRef.setValue([Key.name: name, Key.email: email, Key.feedback: feedback])
     }
     
+    func uploadSolveBoard(_ string: String, key: String) {
+        let solveRef = ref.child("solveBoards/\(myID)/\(key)/\(Date.ms)")
+        solveRef.setValue(string)
+    }
+    
     func getOnlineMatch(timeLimit: Int, humansOnly: Bool, onMatch: @escaping () -> Void, onCancel: @escaping () -> Void) {
         onlineInviteState = .invited
         myGameData = nil

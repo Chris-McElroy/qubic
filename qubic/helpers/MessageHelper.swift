@@ -38,7 +38,7 @@ extension MainView {
         layout.image = UIImage(named: "icon1024half")
         layout.caption = "4Play"
         message.layout = layout
-        let first: Bool = playSelection[1] == 1 ? 0 == .random(in: 0...1) : playSelection[1] == 0
+//        let first: Bool = playSelection[1] == 1 ? 0 == .random(in: 0...1) : playSelection[1] == 0
         
         var urlComponents = URLComponents()
         urlComponents.host = "qubic"
