@@ -11,7 +11,7 @@ import Foundation
 // TODO make this harder (but realistic)
 class Common: Player {
     init(b: Board, n: Int, num: Int) {
-        super.init(b: b, n: n, name: "commmon \(num+1)", color: 3,
+        super.init(b: b, n: n, name: num == commonBoards.count ? "common ?" : "common \(num+1)", color: 3,
                    lineP: [3: 1.0, -3: 1.0, 2: 1.0],
                    dirStats: Array(repeating: 1.0, count: 76),
                    depth: 6,

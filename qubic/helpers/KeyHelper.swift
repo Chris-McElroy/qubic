@@ -12,6 +12,8 @@ struct Key {
     static let streak = "DCStreak"
     static let lastDC = "LastDC"
     static let badge = "qubic badge notification"
+    static let simple = "simple"
+    static let common = "common"
     static let tricky = "tricky"
     static let train = "train"
     static let lastTrain = "lastTrain"

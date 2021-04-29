@@ -69,6 +69,7 @@ class Game: ObservableObject {
     var preset: [Int] = []
     var mode: GameMode = .local
     var dayInt: Int? = nil
+    var solveBoard: Int = 0
     var winner: Int? = nil
     var replayMode: Bool = false
     var hints: Bool = false
@@ -107,6 +108,7 @@ class Game: ObservableObject {
         replayMode = false
         preset = Game.getPreset(boardNum, for: mode)
         dayInt = Date().getInt()
+        solveBoard = boardNum
         myTurn = turn != nil ? turn! : preset.count % 2
         self.mode = mode
         self.hints = hints
@@ -120,6 +122,8 @@ class Game: ObservableObject {
         case .oracle:   op = Oracle(b: board, n: myTurn^1)
         case .cubist:   op = Cubist(b: board, n: myTurn^1)
         case .daily:    op = Daily(b: board, n: myTurn^1)
+        case .simple:   op = Simple(b: board, n: myTurn^1, num: boardNum)
+        case .common:   op = Common(b: board, n: myTurn^1, num: boardNum)
         case .tricky:   op = Tricky(b: board, n: myTurn^1, num: boardNum)
         case .local:    op = User(b: board, n: myTurn^1, name: "friend")
         case .online:   op = Online(b: board, n: myTurn^1)
@@ -144,7 +148,7 @@ class Game: ObservableObject {
         board.addMove(move.p)
         moves.append(move)
         currentMove = move
-        getHints(for: moves)
+        getHints(for: moves, loading: true)
         BoardScene.main.addCube(move: move.p, color: .primary(player[turn^1].color))
     }
     
@@ -304,11 +308,27 @@ class Game: ObservableObject {
             let day = Calendar.current.component(.day, from: Date())
             let month = Calendar.current.component(.month, from: Date())
             let year = Calendar.current.component(.year, from: Date())
-            let total = allSolveBoards.count
+            let total = dailyBoards.count
             let offset = (year+month+day) % (total/31 + (total%31 > day ? 1 : 0))
-            return expandMoves(allSolveBoards[31*offset + day])
+            return expandMoves(dailyBoards[31*offset + day])
+        } else if mode == .simple {
+            if board < simpleBoards.count {
+                return expandMoves(simpleBoards[board])
+            } else {
+                return Board.getAutomorphism(for: expandMoves(simpleBoards.randomElement() ?? ""))
+            }
+        } else if mode == .common {
+            if board < commonBoards.count {
+                return expandMoves(commonBoards[board])
+            } else {
+                return Board.getAutomorphism(for: expandMoves(commonBoards.randomElement() ?? ""))
+            }
         } else if mode == .tricky {
-            return expandMoves(allSolveBoards[21])
+            if board < trickyBoards.count {
+                return expandMoves(trickyBoards[board])
+            } else {
+                return Board.getAutomorphism(for: expandMoves(trickyBoards.randomElement() ?? ""))
+            }
         } else {
             return []
         }
@@ -334,8 +354,18 @@ class Game: ObservableObject {
                 Timer.scheduledTimer(withTimeInterval: 2.4, repeats: false, block: { _ in
                     withAnimation { self.newStreak = nil }
                 })
-            } else if mode == .tricky {
-                UserDefaults.standard.setValue([1], forKey: Key.tricky)
+            } else if mode == .simple && solveBoard < simpleBoards.count {
+                guard var solves = UserDefaults.standard.array(forKey: Key.simple) as? [Int] else { return }
+                solves[solveBoard] = 1
+                UserDefaults.standard.setValue(solves, forKey: Key.simple)
+            } else if mode == .common && solveBoard < commonBoards.count {
+                guard var solves = UserDefaults.standard.array(forKey: Key.common) as? [Int] else { return }
+                solves[solveBoard] = 1
+                UserDefaults.standard.setValue(solves, forKey: Key.common)
+            } else if mode == .tricky && solveBoard < trickyBoards.count {
+                guard var solves = UserDefaults.standard.array(forKey: Key.tricky) as? [Int] else { return }
+                solves[solveBoard] = 1
+                UserDefaults.standard.setValue(solves, forKey: Key.tricky)
             } else if mode.train && !hints {
                 var beaten = UserDefaults.standard.array(forKey: Key.train) as? [Int] ?? [0,0,0,0,0,0]
                 beaten[mode.trainValue] = 1
@@ -344,7 +374,7 @@ class Game: ObservableObject {
         }
     }
     
-    func getHints(for moves: [Move]) {
+    func getHints(for moves: [Move], loading: Bool = false) {
         let b = Board()
         for move in moves { b.addMove(move.p) }
         let turn = b.getTurn()
@@ -355,7 +385,7 @@ class Game: ObservableObject {
                 updateWins()
                 if !mode.solve || winner == myTurn { hints = true }
                 withAnimation { undoOpacity = .clear }
-            } else {
+            } else if !loading {
                 Timer.scheduledTimer(withTimeInterval: 0.2, repeats: false, block: { _ in
                     self.player[turn].move()
                 })

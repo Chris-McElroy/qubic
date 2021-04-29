@@ -38,6 +38,7 @@ struct MainView: View {
             layout.view = .main
             game.goBack = goBack
             game.cancelBack = cancelBack
+            setSolveArrays()
         }
         .frame(height: layout.total)
         .background(Fill())

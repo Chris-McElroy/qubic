@@ -13,11 +13,20 @@ struct SolveView: View {
     @State var selected: [Int] = [0,0]
     var mode: GameMode {
         switch selected[1] {
-        case 1: return .tricky
-        default: return .daily
+        case 0: return .daily
+        case 1: return .simple
+        case 2: return .common
+        default: return .tricky
         }
     }
-    var boardNum: Int { selected[0]-[0,1][selected[1]] }
+    var boardNum: Int {
+        switch selected[1] {
+        case 0: return selected[0] - 0
+        case 1: return selected[0] - 1
+        case 2: return selected[0] - (simpleBoards.count + 2)
+        default: return selected[0] - (simpleBoards.count + commonBoards.count + 3)
+        }
+    }
     
     var body: some View {
         VStack(spacing: 0) {
@@ -35,10 +44,137 @@ struct SolveView: View {
     
     func hPickerAction(row: Int, component: Int) {
         if component == 1 {
-            selected[0] = [0,1][row]
+            switch row {
+            case 0: selected[0] = 0; break
+            case 1: selected[0] = 1 + firstSimple; break
+            case 2: selected[0] = simpleBoards.count + 2 + firstCommon; break
+            default: selected[0] = simpleBoards.count + commonBoards.count + 3 + firstTricky; break
+            }
         } else {
-            selected[1] = [0,1][row]
+            if row < 1 { selected[1] = 0 }
+            else if row < simpleBoards.count + 2 { selected[1] = 1 }
+            else if row < simpleBoards.count + commonBoards.count + 3 { selected[1] = 2 }
+            else { selected[1] = 3 }
         }
+    }
+    
+    var firstSimple: Int {
+        let simple = UserDefaults.standard.array(forKey: Key.simple) as? [Int] ?? [0]
+        return simple.enumerated().first(where: { $0.element == 0 })?.offset ?? simple.count
+    }
+    
+    var firstCommon: Int {
+        let common = UserDefaults.standard.array(forKey: Key.common) as? [Int] ?? [0]
+        return common.enumerated().first(where: { $0.element == 0 })?.offset ?? common.count
+    }
+    
+    var firstTricky: Int {
+        let tricky = UserDefaults.standard.array(forKey: Key.tricky) as? [Int] ?? [0]
+        return tricky.enumerated().first(where: { $0.element == 0 })?.offset ?? tricky.count
+    }
+    
+    
+    // TODO make this a state var so that you can update it when the day changes etc
+    func getPickerText() -> [[Any]] {
+        let streak = getStreakView
+        let simple = getSimpleView
+        let common = getCommonView
+        let tricky = getTrickyView
+        var boardNames = getDailyNames()
+        boardNames += getSimpleNames()
+        boardNames += getCommonNames()
+        boardNames += getTrickyNames()
+        return [boardNames, [streak, simple, common, tricky]]
+    }
+    
+    func getStreakView() -> UIView {
+        Notifications.setBadge(justSolved: false)
+        let streak = UserDefaults.standard.integer(forKey: Key.streak)
+        return getLabel(for: "daily\n\(streak)")
+        
+    //    if text.contains("\n") {
+    //    } else {
+    //        if solveMode(is: "daily") { text = row == 0 ? getDateText() : "" }
+        
+//        if lastDC >= Date().getInt() - 1 && streak > 0 {
+//            streak = "streak: \(streak)"
+//        } else {
+//            streakText = ""
+//            UserDefaults.standard.setValue(0, forKey: DCStreakKey)
+//        }
+    }
+    
+    func getSimpleView() -> UIView {
+        let simple = UserDefaults.standard.array(forKey: Key.simple) as? [Int] ?? [0]
+        return getLabel(for: "simple\n\(simple.sum())")
+    }
+    
+    func getCommonView() -> UIView {
+        let common = UserDefaults.standard.array(forKey: Key.common) as? [Int] ?? [0]
+        return getLabel(for: "common\n\(common.sum())")
+    }
+    
+    func getTrickyView() -> UIView {
+        let tricky = UserDefaults.standard.array(forKey: Key.tricky) as? [Int] ?? [0]
+        return getLabel(for: "tricky\n\(tricky.sum())")
+    }
+    
+    func getLabel(for string: String) -> UILabel {
+        let label = UILabel()
+        let loc = NSString(string: string).range(of: "\n").location
+        let text = NSMutableAttributedString.init(string: string)
+        text.setAttributes([NSAttributedString.Key.font: UIFont.systemFont(ofSize: 15),
+                            NSAttributedString.Key.foregroundColor: UIColor.gray],
+                           range: NSRange(location: loc, length: string.count-loc))
+        label.attributedText = text
+        label.lineBreakMode = .byWordWrapping
+        label.numberOfLines = 0
+        label.textAlignment = .center
+        label.transform = CGAffineTransform(rotationAngle: .pi/2)
+        return label
+    }
+    
+    func getDailyNames() -> [(String, Bool)] {
+        let format = DateFormatter()
+        format.dateStyle = .short
+        let solved = Date().getInt() == UserDefaults.standard.integer(forKey: Key.lastDC)
+        return [(format.string(from: Date()), solved)]
+    }
+    
+    func getSimpleNames() -> [(String, Bool)] {
+        guard let solves = UserDefaults.standard.array(forKey: Key.simple) as? [Int] else {
+            return []
+        }
+        var boardArray: [(String, Bool)] = []
+        for (i, solved) in solves.enumerated() {
+            boardArray.append(("simple \(i+1)",solved == 1))
+        }
+        boardArray.append(("simple ?", false))
+        return boardArray
+    }
+    
+    func getCommonNames() -> [(String, Bool)] {
+        guard let solves = UserDefaults.standard.array(forKey: Key.common) as? [Int] else {
+            return []
+        }
+        var boardArray: [(String, Bool)] = []
+        for (i, solved) in solves.enumerated() {
+            boardArray.append(("common \(i+1)",solved == 1))
+        }
+        boardArray.append(("common ?", false))
+        return boardArray
+    }
+    
+    func getTrickyNames() -> [(String, Bool)] {
+        guard let solves = UserDefaults.standard.array(forKey: Key.tricky) as? [Int] else {
+            return []
+        }
+        var boardArray: [(String, Bool)] = []
+        for (i, solved) in solves.enumerated() {
+            boardArray.append(("tricky \(i+1)",solved == 1))
+        }
+        boardArray.append(("tricky ?", false))
+        return boardArray
     }
     
 //    var difficultyPicker: some View {
@@ -72,76 +208,12 @@ struct SolveView: View {
 //        .frame(width: 300, height: 40)
 //
 //    }
-//    
+//
 //    func select(_ n: Int) {
 //        withAnimation(.easeInOut(duration: 0.3)) {
 //            type = n
 //        }
 //    }
-    
-    // TODO make this a state var so that you can update it when the day changes etc
-    func getPickerText() -> [[Any]] {
-        let streak = getStreakView
-        let tricky = getTrickyView
-        let dailyBoard = getDailyBoard()
-        let trickyBoards = getTrickyBoards()
-        return [dailyBoard + trickyBoards,[streak,tricky]]
-    }
-    
-    func getStreakView() -> UIView {
-        Notifications.setBadge(justSolved: false)
-        let streak = UserDefaults.standard.integer(forKey: Key.streak)
-        return getLabel(for: "daily\n\(streak)")
-        
-    //    if text.contains("\n") {
-    //    } else {
-    //        if solveMode(is: "daily") { text = row == 0 ? getDateText() : "" }
-        
-//        if lastDC >= Date().getInt() - 1 && streak > 0 {
-//            streak = "streak: \(streak)"
-//        } else {
-//            streakText = ""
-//            UserDefaults.standard.setValue(0, forKey: DCStreakKey)
-//        }
-    }
-    
-    func getTrickyView() -> UIView {
-        let tricky = UserDefaults.standard.array(forKey: Key.tricky) as? [Int] ?? [0]
-        return getLabel(for: "tricky\n\(tricky.sum())")
-    }
-    
-    func getLabel(for string: String) -> UILabel {
-        let label = UILabel()
-        let loc = NSString(string: string).range(of: "\n").location
-        let text = NSMutableAttributedString.init(string: string)
-        text.setAttributes([NSAttributedString.Key.font: UIFont.systemFont(ofSize: 15),
-                            NSAttributedString.Key.foregroundColor: UIColor.gray],
-                           range: NSRange(location: loc, length: string.count-loc))
-        label.attributedText = text
-        label.lineBreakMode = .byWordWrapping
-        label.numberOfLines = 0
-        label.textAlignment = .center
-        label.transform = CGAffineTransform(rotationAngle: .pi/2)
-        return label
-    }
-    
-    func getDailyBoard() -> [(String, Bool)] {
-        let format = DateFormatter()
-        format.dateStyle = .short
-        let solved = Date().getInt() == UserDefaults.standard.integer(forKey: Key.lastDC)
-        return [(format.string(from: Date()), solved)]
-    }
-    
-    func getTrickyBoards() -> [(String, Bool)] {
-        var boardArray: [(String, Bool)] = []
-        guard let trickyBoards = UserDefaults.standard.array(forKey: Key.tricky) as? [Int] else {
-            return []
-        }
-        for (i, solved) in trickyBoards.enumerated() {
-            boardArray.append(("tricky \(i+1)",solved == 1))
-        }
-        return boardArray
-    }
     
 }
 

@@ -74,6 +74,7 @@ class Player {
     func getPause() -> Double { return 0 }
     
     func move() {
+        print("started move")
         var move = 0
         let numMoves = b.numMoves()
         

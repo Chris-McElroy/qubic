@@ -21,6 +21,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             Key.lastDC: defaultLastDC,
             Key.train: [0,0,0,0,0,0,0],
             Key.lastTrain: 0,
+            Key.simple: [0],
+            Key.common: [0],
             Key.tricky: [0],
             Key.name: "new player",
             Key.notification: 1,
