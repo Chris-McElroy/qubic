@@ -48,11 +48,13 @@ func setSolveArrays() {
 
 let dailyBoards = ["dZsf-RvH", "QR9v-HMCh_", "-vHRD9ojCMh", "RmDO9zvh-siL", "sRdGC1hQ", "dZsf-RvH", "QR9v-HMCh_", "-vHRD9ojCMh", "RmDO9zvh-siL",  "vmDHQ9khV-q", "RHvu96Dh-MPU", "mR9vDdH-VlhQ", "9R-vDHojqMC",  "dsqtRF9hMmVD", "Hd-yvqVjhRms", "dsVqHhC4M9", "RmvCsqJj", "VdMqhs-RDe", "VdMZhRmqs6Db9v-z", "RQj9hgX-s0_E", "mRHCVh90Wq", "Vqhsv9dHtRCD", "RHtqvu9hj27C",  "pmD93VvMqhRs",  "m-DQCMsdqVZU3vjY", "DQvMRhPU9-Cd", "jCdhqVbmH", "sdqMVvCQmD", "mdvnqVsHh",  "m-DQvdRsCjhq", "QW9X-C0_BRjmhDMPUOHt",  "m-CDrMbQvnRj", "-qm8hjVRs", "sdMCqhRHvbDW0a_", "vQJHY-yCjkR3VM", "9V-j_0RdfBQMJuc",  "mRD9vM-qVh",  "hVMsjqTD-", "jhVdCqvQ-nG_RBt9H", "sdMCqj9Hv1R"]
 
-let simpleBoards = ["oij"]
+let simpleBoards = ["DQvqm-jRbnMdF"]
 
-let commonBoards = ["H9R-mDQvhj"]
+let daily1Boards = ["DQvqm-jRbnMdF"]
 
-let trickyBoards = ["Vqhsv9dHtRCD", "HRhQdmplvs9j", "-h9jm0Hkgs"]
+let commonBoards = ["H9R-mDQvhj","CsMqhVdD"]
+
+let trickyBoards = ["Vqhsv9dHtRCD", "HRhQdmplvs9j", "-h9jm0Hkgs","DQvqm-jR"]
 
 extension Board {
     static func getAutomorphism(for moves: [Int]) -> [Int] {

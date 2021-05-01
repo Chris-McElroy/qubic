@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-enum ViewState {
+enum ViewState: CaseIterable {
     case main
     case more
     case trainMenu
@@ -20,11 +20,9 @@ enum ViewState {
     case about
     case settings
     case feedback
-//    case replays
-//    case friends
     
-    var gameView: Bool { [.play, .solve, .train].contains(self) }
-    var menuView: Bool { [.playMenu, .solveMenu, .trainMenu].contains(self) }
+    var gameView: Bool { self == .play || self == .solve || self == .train }
+    var menuView: Bool { self == .playMenu || self == .solveMenu || self == .trainMenu }
     
     var back: ViewState {
         switch self {
@@ -38,97 +36,259 @@ enum ViewState {
         default: return .main
         }
     }
+    
+    var top: LayoutView {
+        ViewState.viewsDict[self]?.top ?? .title
+    }
+    
+    var focus: LayoutView {
+        ViewState.viewsDict[self]?.focus ?? .mainSpacer
+    }
+    
+    var bottom: LayoutView {
+        ViewState.viewsDict[self]?.bottom ?? .playButton
+    }
+    
+    private static let viewsDict: [ViewState: (top: LayoutView, focus: LayoutView, bottom: LayoutView)] = [
+        .main: (top: .title, focus: .mainSpacer, bottom: .playButton),
+        .trainMenu: (top: .title, focus: .trainView, bottom: .trainButton),
+        .train: (top: .trainView, focus: .trainView, bottom: .trainView),
+        .solveMenu: (top: .title, focus: .solveView, bottom: .solveButton),
+        .solve: (top: .solveView, focus: .solveView, bottom: .solveView),
+        .playMenu: (top: .playView, focus: .playView, bottom: .playButton),
+        .play: (top: .playView, focus: .playView, bottom: .playView),
+        .more: (top: .trainView, focus: .moreSpacer, bottom: .moreSpacer),
+        .about: (top: .about, focus: .about, bottom: .about),
+        .settings: (top: .settings, focus: .settings, bottom: .settings),
+        .feedback: (top: .feedback, focus: .feedback, bottom: .feedback),
+    ]
+}
+
+enum LayoutView: Int, Comparable {
+    case topSpacer
+    case title, cube, mainSpacer
+    case trainView, trainButton, solveView, solveButton, playView, playButton
+    case about, settings, feedback, moreSpacer
+    case bottomButtons
+    
+    static func < (lhs: LayoutView, rhs: LayoutView) -> Bool {
+        lhs.rawValue < rhs.rawValue
+    }
+}
+
+struct LayoutModifier: ViewModifier {
+    let top: CGFloat
+    let main: CGFloat
+    let bottom: CGFloat
+    
+    init(for view: LayoutView) {
+        top = Layout.main.topOf(view)
+        main = Layout.main.heightOf(view)
+        bottom = Layout.main.bottomOf(view)
+        
+        if main < 0 { print(view, main) }
+    }
+    
+    func body(content: Content) -> some View {
+        VStack(spacing: 0) {
+            Spacer().frame(height: top)
+            content.frame(height: main)
+            Spacer().frame(height: bottom)
+        }
+    }
 }
 
 class Layout: ObservableObject {
     static var main = Layout()
     
-    var top       = SubView(id: 0,  df: 0)
-    let trainView = SubView(id: 1,  df: 0)
-    let train     = SubView(id: 2,  df: mainButtonHeight)
-    let solveView = SubView(id: 3,  df: 0)
-    let solve     = SubView(id: 4,  df: mainButtonHeight)
-    let playView  = SubView(id: 5,  df: 0)
-    let play      = SubView(id: 6,  df: mainButtonHeight)
-    let about     = SubView(id: 7,  df: moreButtonHeight)
-    let settings  = SubView(id: 8,  df: moreButtonHeight)
-    let feedback  = SubView(id: 9,  df: moreButtonHeight)
-//        let replays   = SubView(id: 9,  df: moreButtonHeight)
-//        let friends   = SubView(id: 10, df: moreButtonHeight)
-    let moreFill  = SubView(id: 10, df: moreButtonHeight)
+    private var defaultHeight: [LayoutView: CGFloat] = [
+        .topSpacer: 0,
+        .title: 50,
+        .cube: 200,
+        .mainSpacer: 0,
+        .trainView: 0,
+        .trainButton: mainButtonHeight,
+        .solveView: 0,
+        .solveButton: mainButtonHeight,
+        .playView: 0,
+        .playButton: mainButtonHeight,
+        .about: moreButtonHeight,
+        .settings: moreButtonHeight,
+        .feedback: moreButtonHeight,
+        .moreSpacer: 0,
+        .bottomButtons: 50
+    ]
     
-    @Published var view: ViewState = .main
+    private var focusHeight: [ViewState: CGFloat] = [:]
+    private var topSpacerHeight: [ViewState: CGFloat] = [:]
+    
+    @Published var current: ViewState = .main
     @Published var leftArrows: Bool = UserDefaults.standard.integer(forKey: Key.arrowSide) == 0
     var total: CGFloat = 2400
-    var topSpacer: CGFloat { 2*screen - subViews[0..<display.top.id].sum() }
-    var cube: CGFloat = 0
-    let fill: CGFloat = 40
-    var fillOffset: CGFloat = 0
+//    var cube: CGFloat = 0
+//    let fill: CGFloat = 40
+//    var fillOffset: CGFloat = 0
+    var fullHeight: CGFloat = 800
+    var mainHeight: CGFloat = 800
     var width: CGFloat = 0
-    let backButton: CGFloat = 60
-    var backButtonOffset: CGFloat = -800
+    private var topGap: CGFloat = 80
+    private var bottomGap: CGFloat = 80
+//    let backButton: CGFloat = 60
+    var bottomButtonsOffset: CGFloat = -800
     var feedbackTextSize: CGFloat = 90
     var feedbackSpacerSize: CGFloat = 15
-    private var subViews: [CGFloat] = Array(repeating: 0, count: 10)
-    private var screen: CGFloat = 800
-    private var bottomGap: CGFloat = 80
+//    private var subViews: [CGFloat] = Array(repeating: 0, count: 10)
     
     init() {}
     
-    func load(for screen: ScreenObserver) {
-        let screenHeight = screen.height
-        let small = screenHeight < 700
-        let topGap: CGFloat = small ? 10 : 30
-        width = screen.width
-        bottomGap = 80 - topGap
-        self.screen = screenHeight - 2*topGap
-        setLineWidth(screenHeight)
-        top.df = self.screen - 3*mainButtonHeight - bottomGap
-        total = 5*self.screen
-        cube = small ? 200 : 280
-        if screenHeight < 600 { cube = 140 }
-        fillOffset = -3*self.screen + 83 - 2*topGap
-        backButtonOffset = -2*self.screen - 10 + topGap
-        feedbackTextSize = (screenHeight-568)/1.65+90
-        feedbackSpacerSize = (screenHeight-568)/4.5+15
-        subViews = [top.df, trainView.df, train.df, solveView.df, solve.df, playView.df, play.df, about.df, settings.df, feedback.df, moreFill.df]
-    }
-    
-    private var display: Display {
+    func heightOf(_ view: LayoutView) -> CGFloat {
         switch view {
-        case .main:      return Display(top: top,       focus: top,       bottom: play)
-        case .trainMenu: return Display(top: top,       focus: trainView, bottom: train)
-        case .train:     return Display(top: trainView, focus: trainView, bottom: trainView)
-        case .solveMenu: return Display(top: top,       focus: solveView, bottom: solve)
-        case .solve:     return Display(top: solveView, focus: solveView, bottom: solveView)
-        case .playMenu:  return Display(top: playView,  focus: playView,  bottom: play)
-        case .play:      return Display(top: playView,  focus: playView,  bottom: playView)
-        case .more:      return Display(top: train,     focus: moreFill,  bottom: moreFill)
-        case .about:     return Display(top: about,     focus: about,     bottom: about)
-        case .settings:  return Display(top: settings,  focus: settings,  bottom: settings)
-        case .feedback:  return Display(top: feedback,  focus: feedback,  bottom: feedback)
-//            case .replays:   return Display(top: about,     focus: replays,   bottom: friends)
-//            case .friends:   return Display(top: about,     focus: friends,   bottom: friends)
+        case .topSpacer:    return topSpacerHeight[current] ?? 0
+        case current.focus: return focusHeight[current] ?? 0
+        default:            return defaultHeight[view] ?? 0
         }
     }
     
-    func get(_ subView: SubView) -> CGFloat {
-        if display.focus.id != subView.id { return subView.df }
-        else {
-            let space = screen - bottomGap + subView.df
-            return space - subViews[display.top.id...display.bottom.id].sum()
+    func topOf(_ view: LayoutView) -> CGFloat {
+//        if current.gameView { return 0 }
+        return current.top == view ? topGap : 0
+    }
+    
+    func bottomOf(_ view: LayoutView) -> CGFloat {
+//        if current.gameView { return 0 }
+        return current.bottom == view ? bottomGap : 0
+    }
+    
+    func load(for screen: ScreenObserver) {
+        fullHeight = screen.height
+        width = screen.width
+        topGap = screen.window?.safeAreaInsets.top ?? 0 // fullHeight < 700 ? 10 : 30
+        bottomGap = 65 + (screen.window?.safeAreaInsets.bottom ?? 0)/2
+        mainHeight = fullHeight - topGap - bottomGap
+        total = 5*fullHeight
+        setLineWidth()
+        setCube()
+        setFeedbackText()
+        setOffsets(topGap: topGap)
+        setFocusHeights()
+        setTopSpacerHeights()
+    }
+    
+    private func setLineWidth() {
+        if fullHeight < 650 {
+            lineWidth = 0.012
+        } else if fullHeight < 700 {
+            lineWidth = 0.009461
+        } else {
+            lineWidth = 0.01
         }
     }
     
-    struct SubView {
-        let id: Int
-        var df: CGFloat
+    private func setCube() {
+        var cube: CGFloat = fullHeight < 700 ? 200 : 280
+        if fullHeight < 600 { cube = 140 }
+        defaultHeight[.cube] = cube
     }
     
-    private struct Display {
-        let top: SubView
-        let focus: SubView
-        let bottom: SubView
+    private func setFeedbackText() {
+        if #available(iOS 14.0, *) {
+            feedbackTextSize = (fullHeight-568)/1.65+90
+        } else {
+            feedbackTextSize = (fullHeight-568)/2.0+50
+        }
+        feedbackSpacerSize = (fullHeight-568)/4.5+15
+    }
+    
+    private func setOffsets(topGap: CGFloat) {
+//        fillOffset = -3*mainHeight + 83 - 2*topGap
+        bottomButtonsOffset = -2*fullHeight
+    }
+    
+    private func setFocusHeights() {
+        // set default height of main spacer (this is fucking ONLY necessary for solveMenu)
+        var space = mainHeight
+        for v in LayoutView.title.rawValue...LayoutView.playButton.rawValue {
+            guard let view = LayoutView.init(rawValue: v) else { break }
+            space -= defaultHeight[view] ?? 0
+        }
+        defaultHeight[.mainSpacer] = space
+        
+        // use that to calculate everything else
+        for state in ViewState.allCases {
+            var space = mainHeight + (defaultHeight[state.focus] ?? 0)
+            for v in state.top.rawValue...state.bottom.rawValue {
+                guard let view = LayoutView.init(rawValue: v) else { break }
+                space -= defaultHeight[view] ?? 0
+            }
+            focusHeight[state] = space
+        }
+    }
+    
+    private func setTopSpacerHeights() {
+        for state in ViewState.allCases {
+            var space = 2*fullHeight
+            for v in 0..<state.top.rawValue {
+                guard let view = LayoutView.init(rawValue: v) else { break }
+                space -= defaultHeight[view] ?? 0
+            }
+            topSpacerHeight[state] = space
+        }
     }
 }
+
+
+
+//    var top       = SubView(id: 0,  df: 0)
+//    let trainView = SubView(id: 1,  df: 0)
+//    let train     = SubView(id: 2,  df: mainButtonHeight)
+//    let solveView = SubView(id: 3,  df: 0)
+//    let solve     = SubView(id: 4,  df: mainButtonHeight)
+//    let playView  = SubView(id: 5,  df: 0)
+//    let play      = SubView(id: 6,  df: mainButtonHeight)
+//    let about     = SubView(id: 7,  df: moreButtonHeight)
+//    let settings  = SubView(id: 8,  df: moreButtonHeight)
+//    let feedback  = SubView(id: 9,  df: moreButtonHeight)
+//    let moreFill  = SubView(id: 10, df: moreButtonHeight)
+
+//    var topSpacer: CGFloat { 2*mainHeight - subViews[0..<display.top.id].sum() }
+
+//        top.df = mainHeight - 3*mainButtonHeight - bottomGap
+
+//        subViews = [top.df, trainView.df, train.df, solveView.df, solve.df, playView.df, play.df, about.df, settings.df, feedback.df, moreFill.df]
+
+//    private var display: Display {
+//        switch current {
+//        case .main:      return Display(top: top,       focus: top,       bottom: play)
+//        case .trainMenu: return Display(top: top,       focus: trainView, bottom: train)
+//        case .train:     return Display(top: trainView, focus: trainView, bottom: trainView)
+//        case .solveMenu: return Display(top: top,       focus: solveView, bottom: solve)
+//        case .solve:     return Display(top: solveView, focus: solveView, bottom: solveView)
+//        case .playMenu:  return Display(top: playView,  focus: playView,  bottom: play)
+//        case .play:      return Display(top: playView,  focus: playView,  bottom: playView)
+//        case .more:      return Display(top: train,     focus: moreFill,  bottom: moreFill)
+//        case .about:     return Display(top: about,     focus: about,     bottom: about)
+//        case .settings:  return Display(top: settings,  focus: settings,  bottom: settings)
+//        case .feedback:  return Display(top: feedback,  focus: feedback,  bottom: feedback)
+//        }
+//    }
+//
+//
+//    func get(_ subView: SubView) -> CGFloat {
+//        if display.focus.id != subView.id { return subView.df }
+//        else {
+//            let space = mainHeight - bottomGap + subView.df
+//            return space - subViews[display.top.id...display.bottom.id].sum()
+//        }
+//    }
+//
+//    struct SubView {
+//        let id: Int
+//        var df: CGFloat
+//    }
+//
+//    private struct Display {
+//        let top: SubView
+//        let focus: SubView
+//        let bottom: SubView
+//    }
 

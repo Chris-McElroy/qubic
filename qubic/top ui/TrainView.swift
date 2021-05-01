@@ -14,15 +14,15 @@ struct TrainView: View {
     let beaten = UserDefaults.standard.array(forKey: Key.train) as? [Int] ?? [0,0,0,0,0,0]
     
     var body: some View {
-        if layout.view == .train {
+        if layout.current == .train {
             GameView()
                 .onAppear { Game.main.load(mode: mode, turn: turn, hints: hints) }
-        } else if layout.view == .trainMenu {
+        } else if layout.current == .trainMenu {
             VStack(spacing: 0) {
                 Spacer()
                 HPicker(content: .constant(pickerText), dim: (90, 55), selected: $selected, action: onSelection)
                     .frame(height: 180)
-                    .opacity(layout.view == .trainMenu ? 1 : 0)
+                    .opacity(layout.current == .trainMenu ? 1 : 0)
             }
         }
     }

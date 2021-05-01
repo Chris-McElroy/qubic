@@ -25,7 +25,7 @@ struct AboutView: View {
                 }
                 .buttonStyle(MoreStyle())
             }.zIndex(4)
-            if layout.view == .about {
+            if layout.current == .about {
                 ZStack {
                     VStack(spacing: 0) {
                         Spacer()

@@ -30,13 +30,13 @@ struct SolveView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            if layout.view == .solve {
+            if layout.current == .solve {
                 GameView()
                     .onAppear { Game.main.load(mode: mode, boardNum: boardNum) }
-            } else if layout.view == .solveMenu {
+            } else if layout.current == .solveMenu {
                 HPicker(content: .constant(getPickerText()), dim: (90, 40), selected: $selected, action: hPickerAction)
                     .frame(height: 80)
-                    .opacity(layout.view == .solveMenu ? 1 : 0)
+                    .opacity(layout.current == .solveMenu ? 1 : 0)
                 Blank(3)
             }
         }

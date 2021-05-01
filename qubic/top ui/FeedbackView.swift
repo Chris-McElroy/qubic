@@ -23,9 +23,11 @@ struct FeedbackView: View {
                 Button("feedback", action: mainButtonAction)
                     .buttonStyle(MoreStyle())
             }.zIndex(4)
-            if layout.view == .feedback {
-                Spacer()
-                Blank(5)
+            if layout.current == .feedback {
+                if #available(iOS 14.0, *) {
+                    Spacer()
+                    Blank(5)
+                }
                 VStack(spacing: 5) {
                     Text("your name (optional)")
                     TextField("enter name", text: $name)

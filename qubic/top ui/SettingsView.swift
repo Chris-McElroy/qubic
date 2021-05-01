@@ -33,7 +33,7 @@ struct SettingsView: View {
     
     var body: some View {
         ZStack {
-            if layout.view == .settings {
+            if layout.current == .settings {
                 // HPickers
                 VStack(spacing: 0) {
                     Fill(70)
@@ -73,7 +73,7 @@ struct SettingsView: View {
                     .buttonStyle(MoreStyle())
                 }
                 .zIndex(4)
-                if layout.view == .settings {
+                if layout.current == .settings {
                     VStack(spacing: 0) {
                         Fill(10)
                         Text("notifications").frame(height: 20)

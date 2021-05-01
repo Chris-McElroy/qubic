@@ -22,10 +22,10 @@ struct PlayView: View {
     @State var tip = tips.randomElement() ?? ""
     
     var body: some View {
-        if layout.view == .play {
+        if layout.current == .play {
             GameView()
                 .onAppear { Game.main.load(mode: mode, turn: turn, hints: hints) }
-        } else if layout.view == .playMenu {
+        } else if layout.current == .playMenu {
             ZStack {
                 VStack(spacing: 0) {
                     Spacer()
