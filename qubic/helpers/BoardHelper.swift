@@ -54,7 +54,7 @@ let daily1Boards = ["DQvqm-jRbnMdF"]
 
 let commonBoards = ["H9R-mDQvhj","CsMqhVdD"]
 
-let trickyBoards = ["Vqhsv9dHtRCD", "HRhQdmplvs9j", "-h9jm0Hkgs","DQvqm-jR"]
+let trickyBoards = ["Vqhsv9dHtRCD", "HRhQdmplvs9j", "-h9jm0Hkgs","DQvqm-jR", "m9-MhRQH"]
 
 extension Board {
     static func getAutomorphism(for moves: [Int]) -> [Int] {

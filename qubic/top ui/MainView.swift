@@ -26,8 +26,6 @@ struct MainView: View {
             mainStack.zIndex(1)
             moreStack.zIndex(0)
             Spacer()
-//            Fill(layout.fill).zIndex(10)
-//                .offset(y: layout.fillOffset)
             bottomButtons.modifier(LayoutModifier(for: .bottomButtons))
                 .offset(y: layout.bottomButtonsOffset)
                 .zIndex(10)
@@ -51,7 +49,7 @@ struct MainView: View {
         VStack(spacing: 0) {
             Text("4Play beta")
                 .font(.custom("Oligopoly Regular", size: 24))
-                .padding(.top, 20)
+                .padding(.top, 10)
                 .modifier(LayoutModifier(for: .title))
             cube
                 .onTapGesture(count: 2) { self.cube.resetCube() }
@@ -157,17 +155,21 @@ struct MainView: View {
     }
     
     private var bottomButtons: some View {
-        HStack(spacing: 0) {
-            Spacer().frame(width: 15)
-            if layout.leftArrows { arrowButtons }
-            else { undoButton }
+        VStack(spacing: 0) {
+            HStack(spacing: 0) {
+                Spacer().frame(width: 15)
+                if layout.leftArrows { arrowButtons }
+                else { undoButton.frame(alignment: .top) }
+                Spacer()
+                backButton
+                Spacer()
+                if layout.leftArrows { undoButton }
+                else { arrowButtons.frame(alignment: .top) }
+                Spacer().frame(width: 15)
+            }
             Spacer()
-            backButton
-            Spacer()
-            if layout.leftArrows { undoButton }
-            else { arrowButtons }
-            Spacer().frame(width: 15)
-        }.background(Rectangle().foregroundColor(.systemBackground))
+        }
+        .background(Fill())
         .buttonStyle(Solid())
         .frame(width: layout.width)
     }
@@ -181,10 +183,10 @@ struct MainView: View {
                 Text("↓")
                     .rotationEffect(Angle(degrees: layout.current == .main ? 0 : 180))
             }
-            .padding(.horizontal, 0)// halfBack ? 0 : 20)
-            .padding(.bottom, 35)
-            .padding(.top, 5)
-            .frame(width: 110)
+//            .padding(.horizontal, 0)// halfBack ? 0 : 20)
+//            .padding(.bottom, 10)
+//            .padding(.top, 5)
+            .frame(width: 110, height: bottomButtonHeight)
             .background(Fill())
         }
     }
@@ -193,13 +195,16 @@ struct MainView: View {
         HStack(spacing: 0) {
 //            Spacer().frame(width: layout.leftArrows ? 20 : 10)
             Button(action: game.undoMove) {
-                Text("undo")
-                    .font(.custom("Oligopoly Regular", size: 16))
-                    .accentColor(.label)
-                    .padding(.bottom, 52)
-//                    .multilineTextAlignment(layout.leftArrows ? .trailing : .leading)
+                VStack {
+                    Text("undo")
+                        .font(.custom("Oligopoly Regular", size: 16))
+                        .accentColor(.label)
+                    Text(" ")
+    //                    .padding(.bottom, 10)
+    //                    .multilineTextAlignment(layout.leftArrows ? .trailing : .leading)
+                }
             }
-            .frame(width: 75, alignment: layout.leftArrows ? .trailing : .leading)
+            .frame(width: 75, height: bottomButtonHeight, alignment: layout.leftArrows ? .trailing : .leading)
             .padding(.horizontal, 10)
             .opacity(layout.current.gameView ? game.undoOpacity.rawValue : 0)
 //            Spacer().frame(width: layout.leftArrows ? 10 : 20)
@@ -210,21 +215,27 @@ struct MainView: View {
         HStack(spacing: 0) {
 //            Spacer().frame(width: layout.leftArrows ? 30 : 0)
             Button(action: game.prevMove) {
-                Text("←")
-                    .font(.custom("Oligopoly Regular", size: 25))
-                    .accentColor(.label)
-                    .padding(.bottom, 45)
+                VStack {
+                    Text("←")
+                        .font(.custom("Oligopoly Regular", size: 25))
+                        .accentColor(.label)
+    //                    .padding(.bottom, 10)
+                    Blank(12)
+                }
             }
-            .frame(width: 40)
+            .frame(width: 40, height: bottomButtonHeight)
             .opacity(layout.current.gameView ? game.prevOpacity.rawValue : 0)
             Spacer().frame(width: 15)
             Button(action: game.nextMove) {
-                Text("→")
-                    .font(.custom("Oligopoly Regular", size: 25))
-                    .accentColor(.label)
-                    .padding(.bottom, 45)
+                VStack {
+                    Text("→")
+                        .font(.custom("Oligopoly Regular", size: 25))
+                        .accentColor(.label)
+    //                    .padding(.bottom, 10)
+                    Blank(12)
+                }
             }
-            .frame(width: 40)
+            .frame(width: 40, height: bottomButtonHeight)
             .opacity(layout.current.gameView ? game.nextOpacity.rawValue : 0)
 //            Spacer().frame(width: layout.leftArrows ? 0 : 30)
         }

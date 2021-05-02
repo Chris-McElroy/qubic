@@ -116,7 +116,7 @@ class Layout: ObservableObject {
         .settings: moreButtonHeight,
         .feedback: moreButtonHeight,
         .moreSpacer: 0,
-        .bottomButtons: 50
+        .bottomButtons: bottomButtonFrame
     ]
     
     private var focusHeight: [ViewState: CGFloat] = [:]
@@ -125,19 +125,15 @@ class Layout: ObservableObject {
     @Published var current: ViewState = .main
     @Published var leftArrows: Bool = UserDefaults.standard.integer(forKey: Key.arrowSide) == 0
     var total: CGFloat = 2400
-//    var cube: CGFloat = 0
-//    let fill: CGFloat = 40
-//    var fillOffset: CGFloat = 0
     var fullHeight: CGFloat = 800
-    var mainHeight: CGFloat = 800
+    var safeHeight: CGFloat = 800
+    var menuHeight: CGFloat = 800
     var width: CGFloat = 0
     private var topGap: CGFloat = 80
     private var bottomGap: CGFloat = 80
-//    let backButton: CGFloat = 60
     var bottomButtonsOffset: CGFloat = -800
     var feedbackTextSize: CGFloat = 90
     var feedbackSpacerSize: CGFloat = 15
-//    private var subViews: [CGFloat] = Array(repeating: 0, count: 10)
     
     init() {}
     
@@ -156,22 +152,63 @@ class Layout: ObservableObject {
     
     func bottomOf(_ view: LayoutView) -> CGFloat {
 //        if current.gameView { return 0 }
-        return current.bottom == view ? bottomGap : 0
+        return current.bottom == view ? 0 : 0 // I'm not convinced a bottom gap is useful in any cases
     }
     
     func load(for screen: ScreenObserver) {
         fullHeight = screen.height
         width = screen.width
-        topGap = screen.window?.safeAreaInsets.top ?? 0 // fullHeight < 700 ? 10 : 30
-        bottomGap = 65 + (screen.window?.safeAreaInsets.bottom ?? 0)/2
-        mainHeight = fullHeight - topGap - bottomGap
-        total = 5*fullHeight
+        topGap = screen.window?.safeAreaInsets.top ?? 0
+        bottomGap = screen.window?.safeAreaInsets.bottom ?? 0
+        safeHeight = fullHeight - topGap - bottomGap
+        menuHeight = safeHeight
+        total = 5*safeHeight
         setLineWidth()
         setCube()
         setFeedbackText()
-        setOffsets(topGap: topGap)
+        setOffsets()
         setFocusHeights()
         setTopSpacerHeights()
+        print(topSpacerHeight[.main] ?? 0)
+//        print(defaultHeight[.topSpacer])
+        print(fullHeight, topGap, bottomGap, safeHeight, total)
+    }
+    
+    private func setFocusHeights() {
+        // set default height of main spacer (this is fucking ONLY necessary for solveMenu)
+        var space = menuHeight - bottomButtonSpace
+        for v in LayoutView.title.rawValue...LayoutView.playButton.rawValue {
+            guard let view = LayoutView.init(rawValue: v) else { break }
+            space -= defaultHeight[view] ?? 0
+        }
+        defaultHeight[.mainSpacer] = space
+        
+        // use that to calculate everything else
+        for state in ViewState.allCases {
+            var space = (state.gameView ? safeHeight : menuHeight) - bottomButtonSpace + (defaultHeight[state.focus] ?? 0)
+            for v in state.top.rawValue...state.bottom.rawValue {
+                guard let view = LayoutView.init(rawValue: v) else { break }
+                space -= defaultHeight[view] ?? 0
+            }
+            focusHeight[state] = space
+        }
+    }
+    
+    private func setTopSpacerHeights() {
+        for state in ViewState.allCases {
+            var space = 2*safeHeight - topGap
+            for v in 0..<state.top.rawValue {
+                guard let view = LayoutView.init(rawValue: v) else { break }
+                space -= defaultHeight[view] ?? 0
+            }
+            topSpacerHeight[state] = space
+        }
+    }
+    
+    private func setOffsets() {
+//        fillOffset = -3*mainHeight + 83 - 2*topGap
+        bottomButtonSpace = bottomButtonHeight - bottomGap/2
+        bottomButtonsOffset = -2*safeHeight + (bottomButtonFrame - bottomButtonSpace)
     }
     
     private func setLineWidth() {
@@ -199,41 +236,6 @@ class Layout: ObservableObject {
         feedbackSpacerSize = (fullHeight-568)/4.5+15
     }
     
-    private func setOffsets(topGap: CGFloat) {
-//        fillOffset = -3*mainHeight + 83 - 2*topGap
-        bottomButtonsOffset = -2*fullHeight
-    }
-    
-    private func setFocusHeights() {
-        // set default height of main spacer (this is fucking ONLY necessary for solveMenu)
-        var space = mainHeight
-        for v in LayoutView.title.rawValue...LayoutView.playButton.rawValue {
-            guard let view = LayoutView.init(rawValue: v) else { break }
-            space -= defaultHeight[view] ?? 0
-        }
-        defaultHeight[.mainSpacer] = space
-        
-        // use that to calculate everything else
-        for state in ViewState.allCases {
-            var space = mainHeight + (defaultHeight[state.focus] ?? 0)
-            for v in state.top.rawValue...state.bottom.rawValue {
-                guard let view = LayoutView.init(rawValue: v) else { break }
-                space -= defaultHeight[view] ?? 0
-            }
-            focusHeight[state] = space
-        }
-    }
-    
-    private func setTopSpacerHeights() {
-        for state in ViewState.allCases {
-            var space = 2*fullHeight
-            for v in 0..<state.top.rawValue {
-                guard let view = LayoutView.init(rawValue: v) else { break }
-                space -= defaultHeight[view] ?? 0
-            }
-            topSpacerHeight[state] = space
-        }
-    }
 }
 
 

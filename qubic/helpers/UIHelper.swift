@@ -88,6 +88,9 @@ struct Blank: View {
 let mainButtonHeight: CGFloat = 92
 let moreButtonHeight: CGFloat = 50
 let nameButtonWidth: CGFloat = 180
+var bottomButtonSpace: CGFloat = 50
+let bottomButtonHeight: CGFloat = 50
+let bottomButtonFrame: CGFloat = 100
 
 struct MainStyle: ButtonStyle {
     let color: Color

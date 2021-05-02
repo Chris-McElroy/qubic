@@ -31,7 +31,7 @@ struct GameView: View {
                     Spacer().frame(minWidth: 15, maxWidth: 80)
                     PlayerName(turn: 1, game: game)
                 }.padding(.horizontal, 22)
-                .padding(.top, 20)
+                .padding(.top, 10)
                 .padding(.bottom, 10)
                 .zIndex(1.0)
                 if game.hints { solveButtons }
