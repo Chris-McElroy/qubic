@@ -14,7 +14,7 @@ struct AboutView: View {
     let pickerContent: [[Any]] = [[("how to play", false), ("using the app", false), ("developer bio", false), ("helpful links", false)]]
     @State var selected: [Int] = [0]
     @State var page: Int = 0
-    var width: CGFloat { min(385, layout.width) }
+    var width: CGFloat { min(500, layout.width) }
     
     var body: some View {
         VStack {
@@ -35,19 +35,19 @@ struct AboutView: View {
                     VStack(spacing: 0) {
                         ZStack {
                             HStack(spacing: 0) {
-                                Spacer().frame(width: CGFloat(3-page)*width)
-                                howToPlayPage.frame(width: width)
-                                usingTheAppPage.frame(width: width)
-                                developerBioPage.frame(width: width)
-                                linkPage.frame(width: width)
-                                Spacer().frame(width: CGFloat(page)*width)
+                                Spacer()
+                                if page == 0 {
+                                    howToPlayPage.frame(width: width)
+                                } else if page == 1 {
+                                    usingTheAppPage.frame(width: width)
+                                } else if page == 2 {
+                                    developerBioPage.frame(width: width)
+                                } else {
+                                    linkPage.frame(width: width)
+                                }
+                                Spacer()
                             }
                             .gesture(swipeGesture)
-                            HStack {
-                                Fill().opacity(0.7).frame(width: layout.width)
-                                Spacer().frame(width: width)
-                                Fill().opacity(0.7).frame(width: layout.width)
-                            }
                         }
                         Blank(60)
                     }

@@ -69,7 +69,11 @@ struct FeedbackView: View {
                 Blank(15)
                 LinkView(site: "mailto:chris@xno.store", text: "send as email\n(for attachments)")
                     .multilineTextAlignment(.center)
-                Blank(layout.feedbackSpacerSize)
+                if #available(iOS 14.0, *) {
+                    Blank(layout.feedbackSpacerSize)
+                } else {
+                    Spacer()
+                }
             }
         }.background(Fill().onTapGesture {
             hideKeyboard()

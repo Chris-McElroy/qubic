@@ -146,13 +146,13 @@ class Layout: ObservableObject {
     }
     
     func topOf(_ view: LayoutView) -> CGFloat {
-//        if current.gameView { return 0 }
-        return current.top == view ? topGap : 0
+        if current.gameView { return current.top == view ? topGap : 0 }
+        return current.top == view ? topGap + (safeHeight-menuHeight)/2 : 0
     }
     
     func bottomOf(_ view: LayoutView) -> CGFloat {
-//        if current.gameView { return 0 }
-        return current.bottom == view ? 0 : 0 // I'm not convinced a bottom gap is useful in any cases
+        if current.gameView { return 0 }  // I'm not convinced a bottom gap is useful in any cases
+        return current.bottom == view ? (safeHeight-menuHeight)/2 : 0
     }
     
     func load(for screen: ScreenObserver) {
@@ -161,7 +161,7 @@ class Layout: ObservableObject {
         topGap = screen.window?.safeAreaInsets.top ?? 0
         bottomGap = screen.window?.safeAreaInsets.bottom ?? 0
         safeHeight = fullHeight - topGap - bottomGap
-        menuHeight = safeHeight
+        menuHeight = min(800, safeHeight)
         total = 5*safeHeight
         setLineWidth()
         setCube()
@@ -169,12 +169,10 @@ class Layout: ObservableObject {
         setOffsets()
         setFocusHeights()
         setTopSpacerHeights()
-        print(topSpacerHeight[.main] ?? 0)
-//        print(defaultHeight[.topSpacer])
-        print(fullHeight, topGap, bottomGap, safeHeight, total)
     }
     
     private func setFocusHeights() {
+        defaultHeight[.mainSpacer] = 0
         // set default height of main spacer (this is fucking ONLY necessary for solveMenu)
         var space = menuHeight - bottomButtonSpace
         for v in LayoutView.title.rawValue...LayoutView.playButton.rawValue {
@@ -207,18 +205,42 @@ class Layout: ObservableObject {
     
     private func setOffsets() {
 //        fillOffset = -3*mainHeight + 83 - 2*topGap
-        bottomButtonSpace = bottomButtonHeight - bottomGap/2
+        bottomButtonSpace = bottomButtonHeight - bottomGap/3
         bottomButtonsOffset = -2*safeHeight + (bottomButtonFrame - bottomButtonSpace)
     }
     
     private func setLineWidth() {
-        if fullHeight < 650 {
-            lineWidth = 0.012
-        } else if fullHeight < 700 {
-            lineWidth = 0.009461
-        } else {
-            lineWidth = 0.01
+        switch safeHeight {
+        case 734: lineWidth = 0.01      // iPhone X, 11 Pro
+        case 814: lineWidth = 0.0072    // iPhone 11 (very light)
+        case 818: lineWidth = 0.0088    // iPhone 11 Pro Max
+        case 763: lineWidth = 0.0095    // iPhone 12, 12 Pro
+        case 845: lineWidth = 0.0087    // iPhone 12 Pro Max
+        case 728: lineWidth = 0.01      // iPhone 12 mini
+        case 647: lineWidth = 0.0088    // iPhone SE 2nd gen, 8
+        case 548: lineWidth = 0.0108    // iPhone SE 1st gen
+        case 716: lineWidth = 0.0096    // iPhone 8 Plus
+        
+        case 776: lineWidth = 0.0072    // hz iPad Air 4th gen
+        case 748: lineWidth = 0.008     // hz iPad Pro (9.7 in)
+        case 790: lineWidth = 0.0073    // hz iPad Pro (11 in)
+        
+        case 1060: lineWidth = 0.005    // iPad 8th gen
+        case 1136: lineWidth = 0.005    // iPad Air 4th gen
+        case 1004: lineWidth = 0.0054   // iPad Pro (9.7 in)
+        case 1150: lineWidth = 0.0045   // iPad Pro (11 in)
+        case 1322: lineWidth = 0.0039  // iPad Pro (12.9 in)
+        default: lineWidth = 0.01*734/safeHeight
         }
+        BoardScene.main.resetSpaces()
+//        print(safeHeight, width, lineWidth)
+//        if fullHeight < 650 {
+//            lineWidth = 0.012
+//        } else if fullHeight < 700 {
+//            lineWidth = 0.009461
+//        } else {
+//            lineWidth = 0.01
+//        }
     }
     
     private func setCube() {
@@ -229,11 +251,19 @@ class Layout: ObservableObject {
     
     private func setFeedbackText() {
         if #available(iOS 14.0, *) {
-            feedbackTextSize = (fullHeight-568)/1.65+90
+            if width > fullHeight { // ipads
+                feedbackTextSize = (fullHeight-568)/3.0+50
+            } else {
+                feedbackTextSize = (fullHeight-568)/1.65+90
+            }
         } else {
             feedbackTextSize = (fullHeight-568)/2.0+50
         }
-        feedbackSpacerSize = (fullHeight-568)/4.5+15
+        if width > fullHeight { // ipads
+            feedbackSpacerSize = 170 - (fullHeight-834)/10
+        } else {
+            feedbackSpacerSize = (fullHeight-568)/4.5+15
+        }
     }
     
 }

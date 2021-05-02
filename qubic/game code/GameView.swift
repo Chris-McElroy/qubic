@@ -22,19 +22,23 @@ struct GameView: View {
     ]
     @State var hintText: [[String]?] = [nil, nil]
     @State var currentSolveType: SolveType? = nil
+    @State var hideAll: Bool = true
+    @State var hideBoard: Bool = true
+    @State var centerNames: Bool = true
     
     var body: some View {
         ZStack {
             VStack(spacing: 0) {
                 HStack {
                     PlayerName(turn: 0, game: game)
-                    Spacer().frame(minWidth: 15, maxWidth: 80)
+                    Spacer().frame(minWidth: 15).frame(width: centerNames ? 15 : nil)
                     PlayerName(turn: 1, game: game)
                 }.padding(.horizontal, 22)
                 .padding(.top, 10)
                 .padding(.bottom, 10)
                 .zIndex(1.0)
-                if game.hints { solveButtons }
+                .offset(y: centerNames ? Layout.main.safeHeight/2 - 50 : 0)
+                if game.hints && solveButtonsEnabled { solveButtons }
                 BoardView()
                     .gesture(DragGesture()
                         .onEnded { drag in
@@ -60,6 +64,7 @@ struct GameView: View {
                               }),
                               secondaryButton: .cancel())
                     }
+                    .opacity(hideBoard ? 0 : 1)
             }
             VStack(spacing: 0) {
                 Spacer()
@@ -70,8 +75,37 @@ struct GameView: View {
                     
                 }.frame(height: 240)
             }.offset(y: game.hintCard ? 0 : 300)
-        }.onAppear {
+        }
+        .opacity(hideAll ? 0 : 1)
+        .onAppear {
             Game.main.newHints = refreshHintPickerContent
+            animateIntro()
+        }
+    }
+    
+    func animateIntro() {
+        hideAll = true
+        hideBoard = true
+        centerNames = true
+        BoardScene.main.rotate(right: true)
+        Timer.after(0.1) {
+            withAnimation {
+                hideAll = false
+            }
+        }
+        Timer.after(1) {
+            withAnimation {
+                centerNames = false
+            }
+        }
+        Timer.after(1.1) {
+            withAnimation {
+                hideBoard = false
+            }
+            BoardScene.main.rotate(right: false)
+        }
+        Timer.after(1.5) {
+            game.startGame()
         }
     }
     

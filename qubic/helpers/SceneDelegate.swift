@@ -31,8 +31,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         if let windowScene = scene as? UIWindowScene {
             screen.window = UIWindow(windowScene: windowScene)
             // Create the SwiftUI view that provides the window contents.
-            let mainView = MainView()
-                .environmentObject(screen)
+            let mainView = MainView(screen: screen)
             screen.window?.rootViewController = UIHostingController(rootView: mainView)
             screen.window?.makeKeyAndVisible()
         }

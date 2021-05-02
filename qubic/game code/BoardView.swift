@@ -22,7 +22,7 @@ class BoardScene {
     let view =  SCNView()
     let scene = SCNScene()
     let base = SCNNode()
-    let spaces: [SCNNode] = (0..<64).map { _ in SceneHelper.getSpace(size: 0.86-3*lineWidth) } // size was color: .primary(33), size: 0.68
+    var spaces: [SCNNode] = (0..<64).map { _ in SceneHelper.getSpace(size: 0.86-3*lineWidth) } // size was color: .primary(33), size: 0.68
     let moves: [SCNNode] = (0..<64).map { _ in SceneHelper.makeBox(size: 0.86) }
     let winLines: [SCNNode] = (0..<76).map {
         let start = SIMD3<Float>(coords(for: Board.pointsInLine[$0][0]))
@@ -71,6 +71,17 @@ class BoardScene {
 //        }
         for l in 0..<76 {
             winLines[l].removeFromParentNode()
+        }
+    }
+    
+    func resetSpaces() {
+        for space in spaces {
+            space.removeFromParentNode()
+        }
+        spaces = (0..<64).map { _ in SceneHelper.getSpace(size: 0.86-3*lineWidth) }
+        for (p, space) in spaces.enumerated() {
+            space.position = BoardScene.coords(for: p)
+            base.addChildNode(space)
         }
     }
     

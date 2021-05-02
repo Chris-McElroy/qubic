@@ -91,7 +91,6 @@ class Game: ObservableObject {
 //        self.mode = .off
 //    }
     
-    
     func load(mode: GameMode, boardNum: Int = 0, turn: Int? = nil, hints: Bool = false) {
         board = Board()
         BoardScene.main.reset()
@@ -133,12 +132,15 @@ class Game: ObservableObject {
         player = myTurn == 0 ? [me, op] : [op, me]
         for p in preset { loadMove(p) }
         newHints()
-        player[self.turn].move()
+    }
+    
+    func startGame() {
         withAnimation {
             undoOpacity = hints ? .half : .clear
             prevOpacity = .half
             nextOpacity = .half
         }
+        player[self.turn].move()
     }
     
     func loadMove(_ p: Int) {
@@ -402,23 +404,23 @@ class Game: ObservableObject {
             if self.myTurn == turn { moves.last?.myHint = nHint }
             else { moves.last?.opHint = nHint }
             
-            // all solve stuff to remove later
-            if nHint == .w1 {
-                moves.last?.solveType = .d1
-            } else if nHint == .w2d1 {
-                moves.last?.solveType = .d2
-            } else if nHint == .w2 {
-                if b.hasW2(turn, depth: 2) == true {
-                    moves.last?.solveType = .d3
-                } else if b.hasW2(turn, depth: 3) == true {
-                    moves.last?.solveType = .d4
-                } else if b.hasW2(turn, depth: 5) == false {
-                    moves.last?.solveType = .tr
+            if solveButtonsEnabled {
+                if nHint == .w1 {
+                    moves.last?.solveType = .d1
+                } else if nHint == .w2d1 {
+                    moves.last?.solveType = .d2
+                } else if nHint == .w2 {
+                    if b.hasW2(turn, depth: 2) == true {
+                        moves.last?.solveType = .d3
+                    } else if b.hasW2(turn, depth: 3) == true {
+                        moves.last?.solveType = .d4
+                    } else if b.hasW2(turn, depth: 5) == false {
+                        moves.last?.solveType = .tr
+                    }
+                } else {
+                    moves.last?.solveType = .no
                 }
-            } else {
-                moves.last?.solveType = .no
             }
-            // end solve stuff
             
             DispatchQueue.main.async { self.newHints() }
             

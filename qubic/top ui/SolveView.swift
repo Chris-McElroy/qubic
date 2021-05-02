@@ -8,6 +8,8 @@
 
 import SwiftUI
 
+let solveButtonsEnabled = false
+
 struct SolveView: View {
     @ObservedObject var layout = Layout.main
     @State var selected: [Int] = [0,0]

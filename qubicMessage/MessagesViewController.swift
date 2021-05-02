@@ -21,20 +21,16 @@ class MessagesViewController: MSMessagesAppViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        loadButton.frame = CGRect(x: view.center.x-40, y: 100, width: 80, height: 40)
-        loadButton.setTitle("load", for: .normal)
-        loadButton.setTitleColor(.label, for: .normal)
-        loadButton.addTarget(self, action: #selector(pressedStart), for: .touchUpInside)
-        view.addSubview(loadButton)
-        
-        picker.picker.frame = CGRect(x: view.center.x-200, y: 50, width: 400, height: 100)
-        view.addSubview(picker.picker)
-        
         loadButton.frame = CGRect(x: view.center.x-40, y: 130, width: 80, height: 40)
         loadButton.setTitle("load", for: .normal)
         loadButton.setTitleColor(.label, for: .normal)
         loadButton.addTarget(self, action: #selector(pressedStart), for: .touchUpInside)
+        loadButton.isHidden = true
         view.addSubview(loadButton)
+        
+        picker.picker.frame = CGRect(x: view.center.x-200, y: 50, width: 400, height: 100)
+        picker.picker.isHidden = true
+        view.addSubview(picker.picker)
         
         Game.main.sendMessage = sendMessage
         gameView.addSubview(BoardScene.main.view)
@@ -52,8 +48,8 @@ class MessagesViewController: MSMessagesAppViewController {
         sentLabel.backgroundColor = halfGray
         sentLabel.layer.cornerRadius = 12
         sentLabel.layer.masksToBounds = true
-        gameView.addSubview(sentLabel)
         sentLabel.isHidden = true
+        gameView.addSubview(sentLabel)
         
         for p in stride(from: 0, through: 1, by: 1) {
             let width = min(150, (gameView.bounds.width-60)/2)
@@ -68,6 +64,7 @@ class MessagesViewController: MSMessagesAppViewController {
             gameView.addSubview(playerText[p])
         }
         
+        gameView.isHidden = true
         view.addSubview(gameView)
     }
     
@@ -91,6 +88,7 @@ class MessagesViewController: MSMessagesAppViewController {
 //            game.load(from: newMessage.url)
         } else {
             loadButton.isHidden = false
+            picker.picker.isHidden = false
             gameView.isHidden = true
         }
     }
@@ -110,6 +108,11 @@ class MessagesViewController: MSMessagesAppViewController {
         // extension on a remote device.
         
         // Use this method to trigger UI updates in response to the message.
+//        if selected != nil {
+//            if selected?.session == message.session {
+//                newMessage(message, movable: message.senderParticipantIdentifier != conversation.localParticipantIdentifier)
+//            }
+//        }
     }
     
     override func didStartSending(_ message: MSMessage, conversation: MSConversation) {
@@ -129,6 +132,7 @@ class MessagesViewController: MSMessagesAppViewController {
         if selected != nil && presentationStyle == .compact {
             selected = nil
             loadButton.isHidden = false
+            picker.picker.isHidden = false
             gameView.isHidden = true
         }
     }
@@ -142,6 +146,7 @@ class MessagesViewController: MSMessagesAppViewController {
     func newMessage(_ message: MSMessage, movable: Bool) {
         selected = message
         loadButton.isHidden = true
+        picker.picker.isHidden = false
         gameView.isHidden = false
         let turn = Game.main.load(from: message.url, movable: movable)
         for p in stride(from: 0, through: 1, by: 1) {

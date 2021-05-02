@@ -9,7 +9,7 @@
 import SwiftUI
 
 struct MainView: View {
-    @EnvironmentObject var screen: ScreenObserver
+    @ObservedObject var screen: ScreenObserver
     @ObservedObject var game: Game = Game.main
     @ObservedObject var layout = Layout.main
     @State var halfBack: Bool = false
@@ -32,12 +32,13 @@ struct MainView: View {
         }
         .onAppear {
             FB.main.start()
-            layout.load(for: self.screen)
+            layout.load(for: screen)
             layout.current = .main
             game.goBack = goBack
             game.cancelBack = cancelBack
             setSolveArrays()
         }
+        .onReceive(screen.objectWillChange) { layout.load(for: screen) }
         .frame(height: layout.total)
         .background(Fill())
         .gesture(scrollGestures)
@@ -294,7 +295,7 @@ struct MainView: View {
 
 struct MainView_Previews: PreviewProvider {
     static var previews: some View {
-        MainView().environmentObject(ScreenObserver()).previewDevice("iPhone 8")
+        MainView(screen: ScreenObserver()).previewDevice("iPhone 8")
 //            .previewDevice("iPad Pro (12.9-inch) (4th generation)")
 //            .previewDevice(PreviewDevice(rawValue: "iPhone SE (2nd generation)"))
 //            .previewDevice("iPhone 11 Pro")
