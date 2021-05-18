@@ -54,7 +54,7 @@ extension Date {
 }
 
 extension Timer {
-    static func after(_ delay: TimeInterval, run: @escaping () -> Void) {
+    @discardableResult static func after(_ delay: TimeInterval, run: @escaping () -> Void) -> Timer {
         scheduledTimer(withTimeInterval: delay, repeats: false, block: { _ in run() })
     }
 }

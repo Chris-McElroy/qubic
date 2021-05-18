@@ -28,7 +28,7 @@ struct TrainView: View {
     }
     
     func onSelection(row: Int, component: Int) {
-        if component == 2 {
+        if component == 0 {
             UserDefaults.standard.setValue(row, forKey: Key.lastTrain)
         }
     }

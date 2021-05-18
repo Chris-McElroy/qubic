@@ -134,6 +134,7 @@ struct MainView: View {
     
     private var moreStack: some View {
         VStack(spacing: 0) {
+            Fill().modifier(LayoutModifier(for: .moreSpacer))
             AboutView() { self.switchLayout(to: .about) }
                 .frame(alignment: .top)
                 .modifier(LayoutModifier(for: .about))
@@ -151,7 +152,6 @@ struct MainView: View {
 //                .frame(height: heights.get(heights.replays), alignment: .top)
 //            FriendsView() { self.switchView(to: .friends) }
 //                .frame(height: heights.get(heights.friends), alignment: .top)
-            Fill().modifier(LayoutModifier(for: .moreSpacer))
         }
     }
     

@@ -12,7 +12,7 @@ class Oracle: Player {
     override init(b: Board, n: Int) {
         super.init(b: b, n: n, name: "oracle", color: 1,
                    lineP: [3: 1.96, -3: 2.2, 2: 0.20],
-                   dirStats: Player.setStats(hs: 1.0, vs: 1.0, hd: 0.9, vd: 0.9, md: 1.0),
+                   dirStats: Player.setStats(hs: 1.0, vs: 1.0, hd: 1.0, vd: 0.995, md: 1.0),
                    depth: 8,
                    w2BlockP: 0.6,
                    lineScore: [0,1,1,1,1,3,15,20,0], // my points on the left
@@ -29,5 +29,4 @@ class Oracle: Player {
         let top = 2.5 + moves/6
         return .random(in: bottom..<top)
     }
-    
 }

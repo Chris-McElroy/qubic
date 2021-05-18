@@ -57,7 +57,7 @@ enum ViewState: CaseIterable {
         .solve: (top: .solveView, focus: .solveView, bottom: .solveView),
         .playMenu: (top: .playView, focus: .playView, bottom: .playButton),
         .play: (top: .playView, focus: .playView, bottom: .playView),
-        .more: (top: .trainView, focus: .moreSpacer, bottom: .moreSpacer),
+        .more: (top: .trainView, focus: .moreSpacer, bottom: .feedback),
         .about: (top: .about, focus: .about, bottom: .about),
         .settings: (top: .settings, focus: .settings, bottom: .settings),
         .feedback: (top: .feedback, focus: .feedback, bottom: .feedback),
@@ -68,7 +68,7 @@ enum LayoutView: Int, Comparable {
     case topSpacer
     case title, cube, mainSpacer
     case trainView, trainButton, solveView, solveButton, playView, playButton
-    case about, settings, feedback, moreSpacer
+    case moreSpacer, about, settings, feedback
     case bottomButtons
     
     static func < (lhs: LayoutView, rhs: LayoutView) -> Bool {
@@ -112,10 +112,10 @@ class Layout: ObservableObject {
         .solveButton: mainButtonHeight,
         .playView: 0,
         .playButton: mainButtonHeight,
+        .moreSpacer: 0,
         .about: moreButtonHeight,
         .settings: moreButtonHeight,
         .feedback: moreButtonHeight,
-        .moreSpacer: 0,
         .bottomButtons: bottomButtonFrame
     ]
     
@@ -172,14 +172,24 @@ class Layout: ObservableObject {
     }
     
     private func setFocusHeights() {
-        defaultHeight[.mainSpacer] = 0
         // set default height of main spacer (this is fucking ONLY necessary for solveMenu)
+        defaultHeight[.mainSpacer] = 0
         var space = menuHeight - bottomButtonSpace
         for v in LayoutView.title.rawValue...LayoutView.playButton.rawValue {
             guard let view = LayoutView.init(rawValue: v) else { break }
             space -= defaultHeight[view] ?? 0
         }
         defaultHeight[.mainSpacer] = space
+        
+        
+        // set default height of more spacer
+        defaultHeight[.moreSpacer] = 0
+        space = menuHeight - bottomButtonSpace
+        for v in LayoutView.about.rawValue...LayoutView.feedback.rawValue {
+            guard let view = LayoutView.init(rawValue: v) else { break }
+            space -= defaultHeight[view] ?? 0
+        }
+        defaultHeight[.moreSpacer] = space
         
         // use that to calculate everything else
         for state in ViewState.allCases {

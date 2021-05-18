@@ -40,6 +40,7 @@ struct SettingsView: View {
                     HPicker(content: .constant(pickerContent), dim: (50,65), selected: $selected, action: onSelection)
                         .frame(height: 195)
                         .onAppear {
+                            selected[2] = UserDefaults.standard.integer(forKey: Key.notification)
                             Notifications.ifDenied {
                                 selected[2] = 1
                                 UserDefaults.standard.setValue(1, forKey: Key.notification)

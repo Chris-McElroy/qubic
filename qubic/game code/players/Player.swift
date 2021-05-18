@@ -23,6 +23,9 @@ class Player {
     let lineScore: [Double]
     let bucketP: Double
     
+    let moveQueue = DispatchQueue(label: "player move queue", qos: .userInitiated)
+    var moveTimer: Timer? = nil
+    
     init(b: Board, n: Int) {
         self.b = b
         self.n = n
@@ -74,18 +77,25 @@ class Player {
     func getPause() -> Double { return 0 }
     
     func move() {
-        print("started move")
-        var move = 0
-        let numMoves = b.numMoves()
+        moveTimer?.invalidate()
+        moveTimer = nil
         
-        if let m =      myW1() { move = m }
-        else if let m = opW1() { move = m }
-        else if let m = myW2() { print("got win"); move = m }
-        else { move = unforcedHeuristic() }
-        
-        Timer.scheduledTimer(withTimeInterval: getPause(), repeats: false, block: { _ in
-            Game.main.processMove(move, for: self.n, num: numMoves)
-        })
+        moveQueue.async { [self] in
+            let move: Int
+            let numMoves = b.numMoves()
+            
+            if let m =      myW1() { move = m }
+            else if let m = opW1() { move = m }
+            else if let m = myW2() { move = m }
+            else { move = unforcedHeuristic() }
+            let delay = getPause()
+            
+            DispatchQueue.main.async {
+                moveTimer = Timer.after(delay) {
+                    Game.main.processMove(move, for: self.n, num: numMoves)
+                }
+            }
+        }
     }
     
     func myW1() -> Int? { shouldMove(in: b.getW1(for: n), s: 3) }
