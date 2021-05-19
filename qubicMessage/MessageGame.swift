@@ -108,6 +108,33 @@ class Game: ObservableObject {
 //        if winner == nil { (player[self.turn] as? User)?.game = self }
     }
     
+    func newMove(from url: URL?) -> Int? {
+        guard let solidUrl = url else {
+            print("no url")
+            return nil
+        }
+        guard let data = URLComponents(url: solidUrl, resolvingAgainstBaseURL: false) else {
+            print("couldn't parse url")
+            return nil
+        }
+        guard moved else {
+            print("wrong turn", turn, myTurn, moved)
+            return nil
+        }
+        
+        let gameString = String(data.queryItems?[0].value?.dropFirst() ?? "")
+        let allMoves = expandMoves(gameString)
+        guard allMoves.dropLast() == preset else {
+            print("wrong moves", preset, allMoves.dropLast())
+            return nil
+        }
+        preset = allMoves
+        
+        let currentTurn = preset.count % 2
+        if let p = preset.last { loadMove(p, animated: true) }
+        return currentTurn
+    }
+    
     func loadMove(_ move: Int, animated: Bool = false) {
         guard !moves.map({ $0.p }).contains(move) && (0..<64).contains(move) else { return }
         board.addMove(move, for: turn)
@@ -123,8 +150,8 @@ class Game: ObservableObject {
     }
     
     func processMove(_ move: Int, for turn: Int, num: Int) {
-        guard !moved else { return }
-        guard turn == self.turn && num == moves.count else { print("Invalid turn!"); return }
+        guard !moved else { print("wrong turn!"); return }
+        guard turn == self.turn && num == moves.count else { print("invalid turn!"); return }
         guard !moves.map({ $0.p }).contains(move) && (0..<64).contains(move) else { return }
         moved = true
         board.addMove(move, for: turn)

@@ -72,7 +72,6 @@ struct GameView: View {
                     Fill()
                         .shadow(radius: 20)
                     hintContent
-                    
                 }.frame(height: 240)
             }.offset(y: game.hintCard ? 0 : 300)
         }
@@ -208,9 +207,19 @@ struct GameView: View {
                 }.padding(.horizontal, 40)
             } else {
                 if game.mode.solve {
-                    Text("hints are not available on solve boards until they are solved!")
-                        .multilineTextAlignment(.center)
-                        .padding(.horizontal, 40)
+                    if game.solved {
+                        VStack(spacing: 20) {
+                            Text("you previously solved this puzzle, do you want to enable hints?")
+                                .multilineTextAlignment(.center)
+                                .padding(.horizontal, 40)
+                            Button("enable") { game.hints = true }
+                                .buttonStyle(Solid())
+                        }
+                    } else {
+                        Text("hints are not available on solve boards until they are solved!")
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal, 40)
+                    }
                 } else {
                     Text("hints are only available in sandbox mode or after games!")
                         .multilineTextAlignment(.center)

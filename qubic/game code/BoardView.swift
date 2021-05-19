@@ -196,6 +196,9 @@ class BoardScene {
         translate.timingMode = .easeIn
         let placeAction = SCNAction.group([translate, rotate, fade])
         cube.runAction(placeAction)
+        
+        Game.main.timers.append(Timer.after(0.2, run: {  }))
+        
         let dotFade = SCNAction.fadeOut(duration: 0.21)
         dotFade.timingFunction = { time in time > 0.2 ? 0 : 1 }
         spaces[move].runAction(dotFade)

@@ -60,6 +60,7 @@ class Game: ObservableObject {
     @Published var prevOpacity: Opacity = .clear
     @Published var nextOpacity: Opacity = .clear
     @Published var moves: [Move] = []
+    @Published var hints: Bool = false
     
     var turn: Int { board.getTurn() }
     var goBack: () -> Void = {}
@@ -72,7 +73,7 @@ class Game: ObservableObject {
     var solveBoard: Int = 0
     var winner: Int? = nil
     var replayMode: Bool = false
-    var hints: Bool = false
+    var solved: Bool = false
     var leaving: Bool = false
     private var board = Board()
     let hintQueue = DispatchQueue(label: "hint queue", qos: .userInitiated)
@@ -116,30 +117,14 @@ class Game: ObservableObject {
         ghostMoveCount = 0
         hintCard = false
         replayMode = false
-        preset = Game.getPreset(boardNum, for: mode)
+        setPreset(boardNum, for: mode)
         dayInt = Date().getInt()
         solveBoard = boardNum
         myTurn = turn != nil ? turn! : preset.count % 2
         self.mode = mode
         self.hints = hints
         let me = User(b: board, n: myTurn)
-        let op: Player
-        switch mode {
-        case .novice:   op = Novice(b: board, n: myTurn^1)
-        case .defender: op = Defender(b: board, n: myTurn^1)
-        case .warrior:  op = Warrior(b: board, n: myTurn^1)
-        case .tyrant:   op = Tyrant(b: board, n: myTurn^1)
-        case .oracle:   op = Oracle(b: board, n: myTurn^1)
-        case .cubist:   op = Cubist(b: board, n: myTurn^1)
-        case .daily:    op = Daily(b: board, n: myTurn^1)
-        case .simple:   op = Simple(b: board, n: myTurn^1, num: boardNum)
-        case .common:   op = Common(b: board, n: myTurn^1, num: boardNum)
-        case .tricky:   op = Tricky(b: board, n: myTurn^1, num: boardNum)
-        case .local:    op = User(b: board, n: myTurn^1, name: "friend")
-        case .online:   op = Online(b: board, n: myTurn^1)
-        default:        op = Daily(b: board, n: myTurn^1)
-        }
-        if me.color == op.color { op.color = Game.getDefaultColor(for: me.color) }
+        let op = getOp(boardNum: boardNum, myColor: me.color)
         player = myTurn == 0 ? [me, op] : [op, me]
         for p in preset { loadMove(p) }
         newHints()
@@ -312,35 +297,60 @@ class Game: ObservableObject {
         }
     }
     
-    private static func getPreset(_ board: Int, for mode: GameMode) -> [Int] {
+    private func setPreset(_ board: Int, for mode: GameMode) {
         if mode == .daily {
             let day = Calendar.current.component(.day, from: Date())
             let month = Calendar.current.component(.month, from: Date())
             let year = Calendar.current.component(.year, from: Date())
             let total = dailyBoards.count
             let offset = (year+month+day) % (total/31 + (total%31 > day ? 1 : 0))
-            return expandMoves(dailyBoards[31*offset + day])
+            preset = expandMoves(dailyBoards[31*offset + day])
+            solved = Date().getInt() == UserDefaults.standard.integer(forKey: Key.lastDC)
         } else if mode == .simple {
-            if board < simpleBoards.count {
-                return expandMoves(simpleBoards[board])
-            } else {
-                return Board.getAutomorphism(for: expandMoves(simpleBoards.randomElement() ?? ""))
-            }
+            getInfo(from: simpleBoards, key: Key.simple)
         } else if mode == .common {
-            if board < commonBoards.count {
-                return expandMoves(commonBoards[board])
-            } else {
-                return Board.getAutomorphism(for: expandMoves(commonBoards.randomElement() ?? ""))
-            }
+            getInfo(from: commonBoards, key: Key.common)
         } else if mode == .tricky {
-            if board < trickyBoards.count {
-                return expandMoves(trickyBoards[board])
-            } else {
-                return Board.getAutomorphism(for: expandMoves(trickyBoards.randomElement() ?? ""))
-            }
+            getInfo(from: trickyBoards, key: Key.tricky)
         } else {
-            return []
+            preset = []
+            solved = false
         }
+        
+        func getInfo(from boards: [String], key: String) {
+            if board < boards.count {
+                preset = expandMoves(boards[board])
+                if let array = UserDefaults.standard.array(forKey: key) as? [Int] {
+                    solved = array[board] == 1
+                } else {
+                    solved = false
+                }
+            } else {
+                preset = Board.getAutomorphism(for: expandMoves(boards.randomElement() ?? ""))
+                solved = false
+            }
+        }
+    }
+    
+    private func getOp(boardNum: Int, myColor: Int) -> Player {
+        let op: Player
+        switch mode {
+        case .novice:   op = Novice(b: board, n: myTurn^1)
+        case .defender: op = Defender(b: board, n: myTurn^1)
+        case .warrior:  op = Warrior(b: board, n: myTurn^1)
+        case .tyrant:   op = Tyrant(b: board, n: myTurn^1)
+        case .oracle:   op = Oracle(b: board, n: myTurn^1)
+        case .cubist:   op = Cubist(b: board, n: myTurn^1)
+        case .daily:    op = Daily(b: board, n: myTurn^1)
+        case .simple:   op = Simple(b: board, n: myTurn^1, num: boardNum)
+        case .common:   op = Common(b: board, n: myTurn^1, num: boardNum)
+        case .tricky:   op = Tricky(b: board, n: myTurn^1, num: boardNum)
+        case .local:    op = User(b: board, n: myTurn^1, name: "friend")
+        case .online:   op = Online(b: board, n: myTurn^1)
+        default:        op = Daily(b: board, n: myTurn^1)
+        }
+        if myColor == op.color { op.color = Game.getDefaultColor(for: myColor) }
+        return op
     }
     
     private static func getDefaultColor(for n: Int) -> Int {
