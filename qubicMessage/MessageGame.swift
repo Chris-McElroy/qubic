@@ -57,6 +57,7 @@ class Game: ObservableObject {
     var winner: Int? = nil
     private var board = Board()
     var moves: [Move] = []
+    var timers: [Timer] = []
     
     init() { }
     

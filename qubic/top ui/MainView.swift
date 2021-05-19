@@ -207,7 +207,7 @@ struct MainView: View {
             }
             .frame(width: 75, height: bottomButtonHeight, alignment: layout.leftArrows ? .trailing : .leading)
             .padding(.horizontal, 10)
-            .opacity(layout.current.gameView ? game.undoOpacity.rawValue : 0)
+            .opacity(game.undoOpacity.rawValue)
 //            Spacer().frame(width: layout.leftArrows ? 10 : 20)
         }
     }
@@ -225,7 +225,7 @@ struct MainView: View {
                 }
             }
             .frame(width: 40, height: bottomButtonHeight)
-            .opacity(layout.current.gameView ? game.prevOpacity.rawValue : 0)
+            .opacity(game.prevOpacity.rawValue)
             Spacer().frame(width: 15)
             Button(action: game.nextMove) {
                 VStack {
@@ -237,7 +237,7 @@ struct MainView: View {
                 }
             }
             .frame(width: 40, height: bottomButtonHeight)
-            .opacity(layout.current.gameView ? game.nextOpacity.rawValue : 0)
+            .opacity(game.nextOpacity.rawValue)
 //            Spacer().frame(width: layout.leftArrows ? 0 : 30)
         }
     }
@@ -274,6 +274,7 @@ struct MainView: View {
         if halfBack {
             UIImpactFeedbackGenerator(style: .rigid).impactOccurred()
         } else {
+            game.turnOff()
             FB.main.cancelOnlineSearch?()
             FB.main.finishedOnlineGame(with: .myLeave)
             withAnimation(.easeInOut(duration: 0.4)) { //0.4

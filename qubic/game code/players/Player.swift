@@ -76,9 +76,13 @@ class Player {
     
     func getPause() -> Double { return 0 }
     
-    func move() {
+    func cancelMove() {
         moveTimer?.invalidate()
         moveTimer = nil
+    }
+    
+    func move() {
+        cancelMove()
         
         moveQueue.async { [self] in
             let move: Int

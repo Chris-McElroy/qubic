@@ -80,16 +80,27 @@ class Game: ObservableObject {
     var ghostMoveStart: Int = 0
     var ghostMoveCount: Int = 0
     var newHints: () -> Void = {}
+    var timers: [Timer] = []
     
     init() { }
     
-//    func turnOff() {
-//        guard mode != .off else { return }
-//        undoOpacity = .clear
-//        prevOpacity = .clear
-//        nextOpacity = .clear
-//        self.mode = .off
-//    }
+    func turnOff() {
+        guard mode != .off else { return }
+        
+        for timer in timers {
+            timer.invalidate()
+        }
+        timers = []
+        
+        player[0].cancelMove()
+        player[1].cancelMove()
+        
+        undoOpacity = .clear
+        prevOpacity = .clear
+        nextOpacity = .clear
+        
+        self.mode = .off
+    }
     
     func load(mode: GameMode, boardNum: Int = 0, turn: Int? = nil, hints: Bool = false) {
         board = Board()
@@ -158,7 +169,7 @@ class Game: ObservableObject {
         let move = Move(p)
         guard winner == nil else { return }
         guard turn == moves.count % 2 && num == moves.count else { print("Invalid turn!"); return }
-        guard !moves.contains(move) && (0..<64).contains(move.p) else { return }
+        guard !moves.contains(move) && (0..<64).contains(move.p) else { print("Invalid move!"); return }
         moves.append(move)
         if movesBack != 0 { movesBack += 1 }
         UIImpactFeedbackGenerator(style: .medium).impactOccurred()
@@ -166,7 +177,7 @@ class Game: ObservableObject {
             FB.main.sendOnlineMove(p: move.p, time: -1)
         }
         getHints(for: moves)
-        guard !hintCard && movesBack == 0 else { return }
+        guard movesBack == 0 else { return }
         board.addMove(move.p)
         currentMove = move
         newHints()
@@ -229,6 +240,8 @@ class Game: ObservableObject {
         guard !hintCard else { return }
         guard let move = moves.popLast() else { return }
         UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+        player[0].cancelMove()
+        player[1].cancelMove()
         currentMove = moves.last
         newHints()
         board.undoMove(for: turn^1)
@@ -239,9 +252,7 @@ class Game: ObservableObject {
                 prevOpacity = .half
             }
         }
-        Timer.scheduledTimer(withTimeInterval: 0.5, repeats: false, block: { _ in
-            self.player[self.turn].move()
-        })
+        timers.append(Timer.after(0.5, run: player[turn].move))
     }
     
     func prevMove() {
@@ -273,12 +284,8 @@ class Game: ObservableObject {
             if prevOpacity == .full && movesBack != 0 {
                 UINotificationFeedbackGenerator().notificationOccurred(.error)
                 for delay in stride(from: 0.0, to: 0.4, by: 0.3) {
-                    Timer.scheduledTimer(withTimeInterval: delay, repeats: false, block: { _ in
-                        self.prevOpacity = .half
-                    })
-                    Timer.scheduledTimer(withTimeInterval: delay + 0.15, repeats: false, block: { _ in
-                        self.prevOpacity = .full
-                    })
+                    timers.append(Timer.after(delay, run: { self.prevOpacity = .half }))
+                    timers.append(Timer.after(delay + 0.15, run: { self.prevOpacity = .full }))
                 }
             }
             return
@@ -353,9 +360,7 @@ class Game: ObservableObject {
                 }
                 Notifications.setBadge(justSolved: true, dayInt: dayInt ?? Date().getInt())
                 withAnimation { newStreak = UserDefaults.standard.integer(forKey: Key.streak) }
-                Timer.scheduledTimer(withTimeInterval: 2.4, repeats: false, block: { _ in
-                    withAnimation { self.newStreak = nil }
-                })
+                timers.append(Timer.after(2.4, run: { withAnimation { self.newStreak = nil } }))
             } else if mode == .simple && solveBoard < simpleBoards.count {
                 guard var solves = UserDefaults.standard.array(forKey: Key.simple) as? [Int] else { return }
                 solves[solveBoard] = 1
@@ -388,9 +393,7 @@ class Game: ObservableObject {
                 if !mode.solve || winner == myTurn { hints = true }
                 withAnimation { undoOpacity = .clear }
             } else if !loading {
-                Timer.scheduledTimer(withTimeInterval: 0.2, repeats: false, block: { _ in
-                    self.player[turn].move()
-                })
+                timers.append(Timer.after(0.2, run: player[turn].move))
             }
         }
         
@@ -421,7 +424,6 @@ class Game: ObservableObject {
                     moves.last?.solveType = .no
                 }
             }
-            
             DispatchQueue.main.async { self.newHints() }
             
             var oHint: HintValue = .noW

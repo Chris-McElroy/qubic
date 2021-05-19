@@ -88,25 +88,25 @@ struct GameView: View {
         hideBoard = true
         centerNames = true
         BoardScene.main.rotate(right: true)
-        Timer.after(0.1) {
+        Game.main.timers.append(Timer.after(0.1) {
             withAnimation {
                 hideAll = false
             }
-        }
-        Timer.after(1) {
+        })
+        Game.main.timers.append(Timer.after(1) {
             withAnimation {
                 centerNames = false
             }
-        }
-        Timer.after(1.1) {
+        })
+        Game.main.timers.append(Timer.after(1.1) {
             withAnimation {
                 hideBoard = false
             }
             BoardScene.main.rotate(right: false)
-        }
-        Timer.after(1.5) {
+        })
+        Game.main.timers.append(Timer.after(1.5) {
             game.startGame()
-        }
+        })
     }
     
     var solveButtons: some View {

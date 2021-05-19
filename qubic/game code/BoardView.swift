@@ -56,8 +56,10 @@ class BoardScene {
     }
     
     func reset() {
-        for move in moves {
+        for (p, move) in moves.enumerated() {
             move.removeFromParentNode()
+            move.rotation = SCNVector4(x: 0, y: 0, z: 0, w: 0)
+            move.position = spaces[p].position
         }
         for space in spaces {
             space.opacity = 1
@@ -100,12 +102,8 @@ class BoardScene {
             if Game.main.winner == nil && Game.main.nextOpacity == .full {
                 UINotificationFeedbackGenerator().notificationOccurred(.error)
                 for delay in stride(from: 0.0, to: 0.4, by: 0.3) {
-                    Timer.scheduledTimer(withTimeInterval: delay, repeats: false, block: { _ in
-                        Game.main.nextOpacity = .half
-                    })
-                    Timer.scheduledTimer(withTimeInterval: delay + 0.15, repeats: false, block: { _ in
-                        Game.main.nextOpacity = .full
-                    })
+                    Game.main.timers.append(Timer.after(delay, run: { Game.main.nextOpacity = .half }))
+                    Game.main.timers.append(Timer.after(delay + 0.15, run: { Game.main.nextOpacity = .full }))
                 }
             }
             if let user = Game.main.player[turn] as? User {
@@ -132,7 +130,7 @@ class BoardScene {
     }
     
     private func showWins(_ lines: [Int], color: UIColor, ghost: Bool = false) {
-        Timer.scheduledTimer(withTimeInterval: 0.2, repeats: false, block: { _ in
+        Game.main.timers.append(Timer.after(0.2, run: {
             for line in lines {
                 self.winLines[line].setColor(color)
                 self.winLines[line].opacity = ghost ? 0.3 : 1
@@ -141,7 +139,7 @@ class BoardScene {
             if !ghost && !lines.isEmpty {
                 self.base.runAction(SceneHelper.getFullRotate(1.45))
             }
-        })
+        }))
     }
     
     private func hideWins(_ lines: [Int]) {
@@ -218,10 +216,7 @@ class BoardScene {
         translate.timingMode = .easeIn
         let unPlaceAction = SCNAction.group([translate, rotate, fade])
         cube.runAction(unPlaceAction)
-        Timer.scheduledTimer(withTimeInterval: 0.2, repeats: false, block: { _ in
-            cube.removeFromParentNode()
-        })
-        
+        Game.main.timers.append(Timer.after(0.2, run: cube.removeFromParentNode))
         hideWins(Board.linesThruPoint[move])
     }
     

@@ -184,7 +184,7 @@ extension Board {
             undoMove(for: n)
             if Date.now > deadline { break }
         }
-        if blocks.isEmpty { print("threatmate") }
+//        if blocks.isEmpty { print("threatmate") }
         return blocks.isEmpty ? nil : blocks
     }
     
