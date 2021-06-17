@@ -27,6 +27,7 @@ struct CubeView : UIViewRepresentable {
     }
 
     func updateUIView(_ scnView: SCNView, context: Context) {
+        cube.setColor(.primary(0))
     }
     
     func rotate(right: Bool) {

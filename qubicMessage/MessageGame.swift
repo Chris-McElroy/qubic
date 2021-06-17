@@ -132,6 +132,7 @@ class Game: ObservableObject {
         
         let currentTurn = preset.count % 2
         if let p = preset.last { loadMove(p, animated: true) }
+        moved = false
         return currentTurn
     }
     
@@ -154,6 +155,7 @@ class Game: ObservableObject {
         guard turn == self.turn && num == moves.count else { print("invalid turn!"); return }
         guard !moves.map({ $0.p }).contains(move) && (0..<64).contains(move) else { return }
         moved = true
+        preset.append(move)
         board.addMove(move, for: turn)
         moves.append(Move(move))
         if player[turn].rounded {

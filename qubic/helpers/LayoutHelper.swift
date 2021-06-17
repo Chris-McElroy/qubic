@@ -124,6 +124,7 @@ class Layout: ObservableObject {
     
     @Published var current: ViewState = .main
     @Published var leftArrows: Bool = UserDefaults.standard.integer(forKey: Key.arrowSide) == 0
+//    @Published var hue: CGFloat = lowColor
     var total: CGFloat = 2400
     var fullHeight: CGFloat = 800
     var safeHeight: CGFloat = 800

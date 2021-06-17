@@ -1,22 +1,19 @@
 //
-//  ColorHelper.swift
+//  ColorHelperOld.swift
 //  qubic
 //
-//  Created by 4 on 7/27/20.
-//  Copyright © 2020 XNO LLC. All rights reserved.
+//  Created by Chris McElroy on 5/19/21.
+//  Copyright © 2021 XNO LLC. All rights reserved.
 //
 
 import SwiftUI
-
-//let lowColor: CGFloat =     0.062
-//let highColor: CGFloat =    0.067
 
 extension UIColor {
     public static var null: UIColor = UIColor(red: 0.95, green: 0.95, blue: 0.95, alpha: 0.95)
     
     static func primary(_ n: Int) -> UIColor {
         switch (n) {
-        case 0: return  UIColor(red: 0.15, green: 0.51, blue: 1.0, alpha: 1.0) // UIColor(hue: Layout.main.hue, saturation: 1.0, brightness: 1.0, alpha: 1.0) //
+        case 0: return UIColor(red: 0.15, green: 0.51, blue: 1.0, alpha: 1.0)
         case 1: return .magenta
         case 2: return .green
         case 3: return UIColor(red: 1.0, green: 0.8, blue: 0.0, alpha: 1.0)
@@ -26,21 +23,11 @@ extension UIColor {
         case 33: return UIColor.null.withAlphaComponent(0.5)
         default: return .white
         }
-        
-//        purple    0.749
-//        pink      0.842
-//        orange between 0.062 and 0.067
-//        gold
-//        blue
-//        lime
-//        green
-//        red
-//        cyan
     }
     
     static func secondary(_ n: Int) -> UIColor {
         switch (n) {
-        case 0: return UIColor(red: 0.094, green: 0.36, blue: 0.74, alpha: 1.0) // UIColor(hue: Layout.main.hue, saturation: 1.0, brightness: 0.75, alpha: 1.0) //
+        case 0: return UIColor(red: 0.094, green: 0.36, blue: 0.74, alpha: 1.0)
         case 1: return .magenta
         case 2: return .green
         case 3: return UIColor(red: 1.0, green: 0.8, blue: 0.0, alpha: 1.0)
@@ -54,7 +41,7 @@ extension UIColor {
     
     static func tertiary(_ n: Int) -> UIColor {
         switch (n) {
-        case 0: return UIColor(red: 0.051, green: 0.24, blue: 0.51, alpha: 1.0) // UIColor(hue: Layout.main.hue, saturation: 1.0, brightness: 0.5, alpha: 1.0) // 
+        case 0: return UIColor(red: 0.051, green: 0.24, blue: 0.51, alpha: 1.0)
         case 1: return .magenta
         case 2: return .green
         case 3: return UIColor(red: 1.0, green: 0.8, blue: 0.0, alpha: 1.0)
@@ -83,3 +70,4 @@ extension Color {
         return Color(UIColor.tertiary(n))
     }
 }
+

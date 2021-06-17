@@ -110,6 +110,7 @@ class MessagesViewController: MSMessagesAppViewController {
         // Use this method to trigger UI updates in response to the message.
         if selected != nil {
             if selected?.session == message.session {
+                selected = message
                 print("same session")
                 guard let turn = Game.main.newMove(from: message.url) else { print("error?"); return }
                 print("got turn!")

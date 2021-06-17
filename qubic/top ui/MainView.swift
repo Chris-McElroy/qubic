@@ -156,6 +156,10 @@ struct MainView: View {
     }
     
     private var bottomButtons: some View {
+//        VStack {
+//            Text("\(layout.hue)")
+//            Slider(value: $layout.hue, in: lowColor...highColor).padding(.horizontal, 20).offset(y: -30)
+//        }
         VStack(spacing: 0) {
             HStack(spacing: 0) {
                 Spacer().frame(width: 15)
@@ -196,7 +200,8 @@ struct MainView: View {
         HStack(spacing: 0) {
 //            Spacer().frame(width: layout.leftArrows ? 20 : 10)
             Button(action: game.undoMove) {
-                VStack {
+                VStack(spacing: 0) {
+                    Fill(20).cornerRadius(10)
                     Text("undo")
                         .font(.custom("Oligopoly Regular", size: 16))
                         .accentColor(.label)
@@ -206,6 +211,7 @@ struct MainView: View {
                 }
             }
             .frame(width: 75, height: bottomButtonHeight, alignment: layout.leftArrows ? .trailing : .leading)
+            .offset(y: -10)
             .padding(.horizontal, 10)
             .opacity(game.undoOpacity.rawValue)
 //            Spacer().frame(width: layout.leftArrows ? 10 : 20)
@@ -216,7 +222,8 @@ struct MainView: View {
         HStack(spacing: 0) {
 //            Spacer().frame(width: layout.leftArrows ? 30 : 0)
             Button(action: game.prevMove) {
-                VStack {
+                VStack(spacing: 0) {
+                    Fill(20).cornerRadius(10)
                     Text("←")
                         .font(.custom("Oligopoly Regular", size: 25))
                         .accentColor(.label)
@@ -225,10 +232,12 @@ struct MainView: View {
                 }
             }
             .frame(width: 40, height: bottomButtonHeight)
+            .offset(y: -10)
             .opacity(game.prevOpacity.rawValue)
             Spacer().frame(width: 15)
             Button(action: game.nextMove) {
-                VStack {
+                VStack(spacing: 0) {
+                    Fill(20).cornerRadius(10)
                     Text("→")
                         .font(.custom("Oligopoly Regular", size: 25))
                         .accentColor(.label)
@@ -237,6 +246,7 @@ struct MainView: View {
                 }
             }
             .frame(width: 40, height: bottomButtonHeight)
+            .offset(y: -10)
             .opacity(game.nextOpacity.rawValue)
 //            Spacer().frame(width: layout.leftArrows ? 0 : 30)
         }

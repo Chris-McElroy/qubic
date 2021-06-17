@@ -22,6 +22,7 @@
 		1E3A697F24CE1F02000930A4 /* Oligopoly Regular.otf in Resources */ = {isa = PBXBuildFile; fileRef = 1E3A697E24CE1F02000930A4 /* Oligopoly Regular.otf */; };
 		1E4645F52616970500862260 /* KeyHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E4645F42616970500862260 /* KeyHelper.swift */; };
 		1E4645FA261697FD00862260 /* KeyHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E4645F42616970500862260 /* KeyHelper.swift */; };
+		1E5920BE265600EB008AF18C /* ColorHelperOld.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E5920BC265600D6008AF18C /* ColorHelperOld.swift */; };
 		1E5A5AAE24CD077900F31124 /* TrainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E5A5AAD24CD077900F31124 /* TrainView.swift */; };
 		1E5D60D526116B80006BEF58 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 1E5D60D426116B80006BEF58 /* GoogleService-Info.plist */; };
 		1E5D60D626116B80006BEF58 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 1E5D60D426116B80006BEF58 /* GoogleService-Info.plist */; };
@@ -43,7 +44,6 @@
 		1E74FA0525AA41070049BE6B /* BoardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E2E74BD24E86B6500218E55 /* BoardView.swift */; };
 		1E74FA1025AA41400049BE6B /* UIHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EE4C75B24EB7ADC0038C1E2 /* UIHelper.swift */; };
 		1E74FA1325AA417C0049BE6B /* BoardHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E6C428F24FCE1F20065BDF5 /* BoardHelper.swift */; };
-		1E74FA1925AA41870049BE6B /* ColorHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EEB0D4D24CF3780008F5B4B /* ColorHelper.swift */; };
 		1E74FA1C25AA41930049BE6B /* Checks.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EC2B8842536A86C001B0A1F /* Checks.swift */; };
 		1E74FA1F25AA41A80049BE6B /* Board.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EDDE18F24FAC70800B7742C /* Board.swift */; };
 		1E74FA2425AA41FA0049BE6B /* Player.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EC2788C2585ACC600F6A5EB /* Player.swift */; };
@@ -117,6 +117,7 @@
 		1E3335D1253400FD00966EA6 /* Cubist.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Cubist.swift; sourceTree = "<group>"; };
 		1E3A697E24CE1F02000930A4 /* Oligopoly Regular.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Oligopoly Regular.otf"; sourceTree = "<group>"; };
 		1E4645F42616970500862260 /* KeyHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyHelper.swift; sourceTree = "<group>"; };
+		1E5920BC265600D6008AF18C /* ColorHelperOld.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorHelperOld.swift; sourceTree = "<group>"; };
 		1E5A5AAD24CD077900F31124 /* TrainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrainView.swift; sourceTree = "<group>"; };
 		1E5D60D426116B80006BEF58 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		1E636FBA258A8687005B8D4F /* Daily.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Daily.swift; sourceTree = "<group>"; };
@@ -207,6 +208,7 @@
 				1E74F9E125AA20FA0049BE6B /* qubicMessage.entitlements */,
 				1E3170F625AA0C7500FCCEA4 /* MessagesViewController.swift */,
 				1E74FA2C25AA438B0049BE6B /* MessageGame.swift */,
+				1E5920BC265600D6008AF18C /* ColorHelperOld.swift */,
 				1EC86B1225AABDE000DA434A /* HPicker.swift */,
 				1E3170F825AA0C7500FCCEA4 /* MainInterface.storyboard */,
 				1E3170FB25AA0C7800FCCEA4 /* Assets.xcassets */,
@@ -521,8 +523,8 @@
 				1E74FA0525AA41070049BE6B /* BoardView.swift in Sources */,
 				1E74FA1F25AA41A80049BE6B /* Board.swift in Sources */,
 				1E4645FA261697FD00862260 /* KeyHelper.swift in Sources */,
-				1E74FA1925AA41870049BE6B /* ColorHelper.swift in Sources */,
 				1E74FA1325AA417C0049BE6B /* BoardHelper.swift in Sources */,
+				1E5920BE265600EB008AF18C /* ColorHelperOld.swift in Sources */,
 				1EC86B1325AABDE000DA434A /* HPicker.swift in Sources */,
 				1E74FA1C25AA41930049BE6B /* Checks.swift in Sources */,
 				1E74FA2D25AA438B0049BE6B /* MessageGame.swift in Sources */,
@@ -620,7 +622,7 @@
 				CODE_SIGN_ENTITLEMENTS = qubicMessage/qubicMessage.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 17;
+				CURRENT_PROJECT_VERSION = 19;
 				DEVELOPMENT_TEAM = A44UN86BN6;
 				INFOPLIST_FILE = qubicMessage/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 14.3;
@@ -647,7 +649,7 @@
 				CODE_SIGN_ENTITLEMENTS = qubicMessage/qubicMessage.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 17;
+				CURRENT_PROJECT_VERSION = 19;
 				DEVELOPMENT_TEAM = A44UN86BN6;
 				INFOPLIST_FILE = qubicMessage/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 14.3;
@@ -795,7 +797,7 @@
 				CODE_SIGN_ENTITLEMENTS = qubic/qubic.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 17;
+				CURRENT_PROJECT_VERSION = 19;
 				DEVELOPMENT_ASSET_PATHS = "\"qubic/Preview Content\"";
 				DEVELOPMENT_TEAM = A44UN86BN6;
 				ENABLE_PREVIEWS = YES;
@@ -825,7 +827,7 @@
 				CODE_SIGN_ENTITLEMENTS = qubic/qubic.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 17;
+				CURRENT_PROJECT_VERSION = 19;
 				DEVELOPMENT_ASSET_PATHS = "\"qubic/Preview Content\"";
 				DEVELOPMENT_TEAM = A44UN86BN6;
 				ENABLE_PREVIEWS = YES;
