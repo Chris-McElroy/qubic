@@ -232,14 +232,18 @@ struct GameView: View {
     func onSelection(row: Int, component: Int) {
         if component == 1 { // changing show
             if row == 0 {
-                game.showMoves(for: hintSelection[0] == 1 ? game.myTurn : game.myTurn^1)
+                game.showHintFor = hintSelection[0]
+                if game.currentHintMoves?.isEmpty != false {
+                    hintSelection[1] = 1
+                }
             } else {
-                game.showMoves(for: nil)
+                game.showHintFor = nil
             }
         } else { // changing blocks/wins
             hintSelection[1] = 1
-            game.showMoves(for: nil)
+            game.showHintFor = nil
         }
+        BoardScene.main.spinMoves()
     }
     
     struct PlayerName: View {

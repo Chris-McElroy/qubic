@@ -58,12 +58,14 @@ class BoardScene {
     func reset() {
         for (p, move) in moves.enumerated() {
             move.removeFromParentNode()
+            move.removeAllActions()
             move.rotation = SCNVector4(x: 0, y: 0, z: 0, w: 0)
             move.position = spaces[p].position
         }
         for space in spaces {
             space.opacity = 1
             space.removeAllActions()
+            space.rotation = SCNVector4(x: 0, y: 0, z: 0, w: 0)
 //            dot.removeFromParentNode()
         }
 //        dots = (0..<64).map { _ in SceneHelper.makeDot(color: .primary(33), size: 0.68) }
@@ -106,8 +108,11 @@ class BoardScene {
                     Game.main.timers.append(Timer.after(delay + 0.15, run: { Game.main.nextOpacity = .full }))
                 }
             }
-            if let user = Game.main.player[turn] as? User {
+            if let user = Game.main.player[turn] as? User, Game.main.premoves.isEmpty {
                 user.move(at: p)
+            } else if Game.main.winner == nil && UserDefaults.standard.integer(forKey: Key.premoves) == 0 {
+                Game.main.premoves.append(p)
+                spinMoves()
             }
         } else if moves.contains(result) == true {
             result.runAction(SceneHelper.getFullRotate(1.0))
@@ -116,7 +121,7 @@ class BoardScene {
     
     func showMove(_ move: Int, wins: [Int], ghost: Bool = false) {
 //        let delay = moveCube(move: move, color: game.colors[turn]) + 0.1
-        spinSpaces([])
+        spinMoves()
         let turn = Game.main.turn^1
         let color = UIColor.primary(Game.main.player[turn].color)
         placeCube(move: move, color: color, opacity: ghost ? 0.7 : 1)
@@ -205,8 +210,8 @@ class BoardScene {
     }
     
     func undoMove(_ move: Int) {
+        spinMoves()
         let cube = moves[move]
-        spinSpaces([])
         let space = spaces[move]
         space.opacity = 1
         var upPos = cube.position
@@ -226,21 +231,28 @@ class BoardScene {
     func remove(_ move: Int) {
         let cube = moves[move]
         let space = spaces[move]
-        space.opacity = 1
+        space.opacity = 1 
         cube.opacity = 0
         cube.removeFromParentNode()
     }
     
-    func spinSpaces(_ list: Set<Int>) {
-        let spin = SCNAction.rotate(by: .pi*2, around: SCNVector3(0,1,0), duration: 1.0)
-        let spinBack = SCNAction.rotate(toAxisAngle: SCNVector4(0,1,0,0), duration: 0.1)
-        let longSpin = SCNAction.repeatForever(spin)
+    func spinMoves() {
+        let list: Set<Int> = Game.main.showHintFor == nil ? Set(Game.main.premoves) : Game.main.currentHintMoves ?? []
         for (i, space) in spaces.enumerated() {
-            if list.contains(i) {
-                space.runAction(longSpin)
-            } else {
-                space.removeAllActions()
-                space.runAction(spinBack)
+            if space.actionKeys.contains(Key.spin) != list.contains(i) {
+                if list.contains(i) {
+                    let spin = SCNAction.rotate(by: .pi*2, around: SCNVector3(0,1,0), duration: 1.0)
+                    let longSpin = SCNAction.repeatForever(spin)
+                    space.removeAllActions()
+                    space.runAction(longSpin, forKey: Key.spin)
+                } else {
+                    let dir: Float = space.rotation.y > 0 ? 1 : -1
+                    let next = dir*((dir*space.rotation.w/(.pi/2)).rounded(.up))*(.pi/2)
+                    let dist = abs(next - space.rotation.w)
+                    let spinBack = SCNAction.rotate(toAxisAngle: SCNVector4(0,dir,0,next), duration: Double(dist/(.pi*2)))
+                    space.removeAllActions()
+                    space.runAction(spinBack)
+                }
             }
         }
     }

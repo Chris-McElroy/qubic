@@ -11,13 +11,19 @@ import SwiftUI
 struct SettingsView: View {
     @ObservedObject var layout = Layout.main
     var mainButtonAction: () -> Void
-    @State var selected = [0, UserDefaults.standard.integer(forKey: Key.arrowSide), UserDefaults.standard.integer(forKey: Key.notification)]
+    @State var selected1 = [UserDefaults.standard.integer(forKey: Key.arrowSide), UserDefaults.standard.integer(forKey: Key.premoves), UserDefaults.standard.integer(forKey: Key.notification)]
+    @State var selected2 = [0]
     @State var username = UserDefaults.standard.string(forKey: Key.name) ?? "me"
     @State var showNotificationAlert = false
 //    @State var lineSize = lineWidth
     
-    let pickerContent: [[Any]] = [[cubeImage(0)], [("left", false), ("right", false)], [("on", false), ("off", false)]]
+    let picker1Content: [[Any]] = [[("left", false), ("right", false)], [("on", false), ("off", false)],  [("on", false), ("off", false)]]
+    let picker2Content: [[Any]] = [[cubeImage(0)]]
 //    static let boardStyleContent = [["spaces","blanks","cubes","spheres","points"].map { ($0, false) }]
+    let notificationComp = 2
+    let premovesComp = 1
+    let arrowSideComp = 0
+    let colorComp = 0
     
     static func cubeImage(_ color: Int) -> () -> UIView {
         {
@@ -37,15 +43,18 @@ struct SettingsView: View {
                 // HPickers
                 VStack(spacing: 0) {
                     Fill(70)
-                    HPicker(content: .constant(pickerContent), dim: (50,65), selected: $selected, action: onSelection)
+                    HPicker(content: .constant(picker1Content), dim: (50,65), selected: $selected1, action: onSelection1)
                         .frame(height: 195)
                         .onAppear {
-                            selected[2] = UserDefaults.standard.integer(forKey: Key.notification)
+                            selected1[notificationComp] = UserDefaults.standard.integer(forKey: Key.notification)
                             Notifications.ifDenied {
-                                selected[2] = 1
+                                selected1[notificationComp] = 1
                                 UserDefaults.standard.setValue(1, forKey: Key.notification)
                             }
                         }
+                    Fill(12)
+                    HPicker(content: .constant(picker2Content), dim: (50,65), selected: $selected2, action: onSelection2)
+                        .frame(height: 65)
 //                    Fill(102)
 //                    HPicker(content: .constant(SettingsView.boardStyleContent),
 //                            dim: (80,30), selected: $style, action: setDots)
@@ -77,12 +86,16 @@ struct SettingsView: View {
                 if layout.current == .settings {
                     VStack(spacing: 0) {
                         Fill(10)
-                        Text("notifications").frame(height: 20)
-                        Blank(50)
-                        Text("arrow side").frame(height: 20)
-                        Blank(50)
-                        Text("color").frame(height: 20)
-                        Blank(50)
+                        VStack(spacing: 0) {
+                            Text("notifications").frame(height: 20)
+                            Blank(50)
+                            Text("premoves").frame(height: 20)
+                            Blank(50)
+                            Text("arrow side").frame(height: 20)
+                            Blank(50)
+                            Text("color").frame(height: 20)
+                            Blank(50)
+                        }
                         Text("username").frame(height: 20)
                         Fill(7)
                         TextField("enter name", text: $username, onCommit: {
@@ -112,24 +125,30 @@ struct SettingsView: View {
 //        UserDefaults.standard.setValue(row, forKey: Key.dot)
 //    }
     
-    func onSelection(row: Int, component: Int) -> Void {
-        if component == 2 {
+    func onSelection1(row: Int, component: Int) -> Void {
+        if component == notificationComp {
             if row == 0 {
                 Notifications.turnOn(callBack: notificationsAllowed)
             } else {
                 Notifications.turnOff()
             }
-        } else if component == 1 {
+        } else if component == premovesComp {
+            UserDefaults.standard.setValue(row, forKey: Key.premoves)
+        } else if component == arrowSideComp {
             UserDefaults.standard.setValue(row, forKey: Key.arrowSide)
             layout.leftArrows = row == 0
-        } else {
-            // color stuff
+        }
+    }
+    
+    func onSelection2(row: Int, component: Int) -> Void {
+        if component == colorComp {
+            // TODO prolly a bunch
         }
     }
     
     func notificationsAllowed(success: Bool) {
         if !success {
-            selected[2] = 1
+            selected1[notificationComp] = 1
             showNotificationAlert = true
         }
     }

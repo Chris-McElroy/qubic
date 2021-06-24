@@ -17,13 +17,31 @@ class User: Player {
         super.init(b: b, n: n, name: username, color: 0, rounded: true)
     }
     
-    override func move() {}
+    override func move() {
+        premove()
+    }
     
     func move(at p: Int) {
         if Game.main.replayMode {
             Game.main.processGhostMove(p)
         } else if Game.main.winner == nil {
-            Game.main.processMove(p, for: n, num: b.numMoves())
+            if Game.main.premoves.isEmpty {
+                Game.main.processMove(p, for: n, num: b.numMoves())
+            }
+        }
+    }
+    
+    func premove() {
+        if Game.main.turn == n {
+            if !Game.main.premoves.isEmpty {
+                let p = Game.main.premoves.removeFirst()
+                if (b.hasW1(n) != b.getW1(for: n).contains(p)) || b.pointFull(p) {
+                    Game.main.premoves = []
+                } else {
+                    Game.main.processMove(p, for: n, num: b.numMoves())
+                }
+            }
+            BoardScene.main.spinMoves()
         }
     }
 }

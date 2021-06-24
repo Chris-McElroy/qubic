@@ -58,6 +58,9 @@ class Game: ObservableObject {
     private var board = Board()
     var moves: [Move] = []
     var timers: [Timer] = []
+    var premoves: [Int] = []
+    var showHintFor: Int? = nil
+    var currentHintMoves: Set<Int>? = []
     
     init() { }
     
@@ -73,6 +76,7 @@ class Game: ObservableObject {
         board = Board()
         winner = nil
         moves = []
+        premoves = []
         myTurn = turn
         self.mode = mode
         let me = User(b: board, n: myTurn)

@@ -26,6 +26,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             Key.tricky: [0],
             Key.name: "new player",
             Key.notification: 1,
+            Key.premoves: 1,
             Key.arrowSide: 1,
             Key.uuid: "00000000000000000000000000000000"
         ])

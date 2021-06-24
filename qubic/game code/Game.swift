@@ -35,6 +35,8 @@ class Move: Equatable {
     let p: Int
     var myHint: HintValue?
     var opHint: HintValue?
+    var myMoves: Set<Int>?
+    var opMoves: Set<Int>?
     var solveType: SolveType?
     
     init(_ p: Int) {
@@ -82,6 +84,16 @@ class Game: ObservableObject {
     var ghostMoveCount: Int = 0
     var newHints: () -> Void = {}
     var timers: [Timer] = []
+    var premoves: [Int] = []
+    var showHintFor: Int? = nil
+    var currentHintMoves: Set<Int>? {
+        if showHintFor == 1 {
+            return currentMove?.myMoves
+        } else if showHintFor == 0 {
+            return currentMove?.opMoves
+        }
+        return nil
+    }
     
     init() { }
     
@@ -117,6 +129,8 @@ class Game: ObservableObject {
         ghostMoveCount = 0
         hintCard = false
         replayMode = false
+        premoves = []
+        showHintFor = nil
         setPreset(boardNum, for: mode)
         dayInt = Date().getInt()
         solveBoard = boardNum
@@ -132,7 +146,7 @@ class Game: ObservableObject {
     
     func startGame() {
         withAnimation {
-            undoOpacity = hints ? .half : .clear
+            undoOpacity = hints || mode.solve ? .half : .clear
             prevOpacity = .half
             nextOpacity = .half
         }
@@ -229,6 +243,7 @@ class Game: ObservableObject {
         player[1].cancelMove()
         currentMove = moves.last
         newHints()
+        premoves = []
         board.undoMove(for: turn^1)
         BoardScene.main.undoMove(move.p)
         if moves.count == preset.count {
@@ -248,8 +263,8 @@ class Game: ObservableObject {
         movesBack += 1
         if winner != nil { replayMode = true }
         board.undoMove(for: turn^1)
-        BoardScene.main.undoMove(moves[i].p)
         currentMove = i > 0 ? moves[i-1] : nil
+        BoardScene.main.undoMove(moves[i].p)
         newHints()
         if i-1 < ghostMoveStart {
             moves.removeSubrange(ghostMoveStart..<(ghostMoveStart+ghostMoveCount))
@@ -399,6 +414,8 @@ class Game: ObservableObject {
         if winner == nil {
             if b.hasW0(turn^1) {
                 winner = turn^1
+                premoves = []
+                BoardScene.main.spinMoves()
                 updateWins()
                 if !mode.solve || winner == myTurn { hints = true }
                 withAnimation { undoOpacity = .clear }
@@ -449,28 +466,35 @@ class Game: ObservableObject {
             if self.myTurn == turn { moves.last?.opHint = oHint }
             else { moves.last?.myHint = oHint }
             DispatchQueue.main.async { self.newHints() }
-        }
-    }
-    
-    func showMoves(for n: Int?) {
-        var list: Set<Int> = []
-        if let t = n {
-            if t == turn {
-                if board.hasW0(t) { list = [] }
-                else if board.hasW1(t) { list = board.getW1(for: t) }
-                else if board.hasW2(t, depth: 1) == true { list = board.getW2(for: t, depth: 1) ?? [] }
-                else if board.hasW2(t) == true { list = board.getW2(for: t) ?? [] }
-            } else {
-                if board.hasW0(t) { list = [] }
-                else if board.hasW1(t) { list = board.getW1(for: t) }
-                else if board.hasW2(t, depth: 1) == true {
-                    list = board.getW2Blocks(for: t^1, depth: 1) ?? []
-                } else if board.hasW2(t) == true {
-                    list = board.getW2Blocks(for: t^1) ?? []
-                }
+            
+            var nMoves: Set<Int> = []
+            switch nHint {
+            case .w1: nMoves = b.getW1(for: turn)
+            case .w2: nMoves = b.getW2(for: turn) ?? []
+            case .w2d1: nMoves = b.getW2(for: turn, depth: 1) ?? []
+            default: break
+            }
+            
+            if self.myTurn == turn { moves.last?.myMoves = nMoves }
+            else { moves.last?.opMoves = nMoves }
+            if self.showHintFor == 1 {
+                DispatchQueue.main.async { BoardScene.main.spinMoves() }
+            }
+            
+            var oMoves: Set<Int> = []
+            switch oHint {
+            case .c1, .cm1: oMoves = b.getW1(for: turn^1)
+            case .c2d1: oMoves = b.getW2Blocks(for: turn, depth: 1) ?? []
+            case .c2: oMoves = b.getW2Blocks(for: turn) ?? []
+            default: break
+            }
+            
+            if self.myTurn == turn { moves.last?.opMoves = oMoves }
+            else { moves.last?.myMoves = oMoves }
+            if self.showHintFor == 0 {
+                DispatchQueue.main.async { BoardScene.main.spinMoves() }
             }
         }
-        BoardScene.main.spinSpaces(list)
     }
     
     func uploadSolveBoard(_ key: String) {
