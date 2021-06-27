@@ -12,28 +12,30 @@ struct SettingsView: View {
     @ObservedObject var layout = Layout.main
     var mainButtonAction: () -> Void
     @State var selected1 = [UserDefaults.standard.integer(forKey: Key.arrowSide), UserDefaults.standard.integer(forKey: Key.premoves), UserDefaults.standard.integer(forKey: Key.notification)]
-    @State var selected2 = [0]
+    @State var selected2 = [UserDefaults.standard.integer(forKey: Key.color)]
     @State var username = UserDefaults.standard.string(forKey: Key.name) ?? "me"
     @State var showNotificationAlert = false
 //    @State var lineSize = lineWidth
     
     let picker1Content: [[Any]] = [[("left", false), ("right", false)], [("on", false), ("off", false)],  [("on", false), ("off", false)]]
-    let picker2Content: [[Any]] = [[cubeImage(0)]]
+    let picker2Content: [[Any]] = [cubeImages()]
 //    static let boardStyleContent = [["spaces","blanks","cubes","spheres","points"].map { ($0, false) }]
     let notificationComp = 2
     let premovesComp = 1
     let arrowSideComp = 0
     let colorComp = 0
     
-    static func cubeImage(_ color: Int) -> () -> UIView {
-        {
-            let image = UIImage(named: "blueCube")
-            let view = UIImageView(image: image)
-            view.frame.size.height = 27
-            view.frame.size.width = 27
-            view.transform = CGAffineTransform(rotationAngle: .pi/2)
-            
-            return view
+    static func cubeImages() -> [() -> UIView] {
+        ["orangeCube", "redCube", "pinkCube", "purpleCube", "blueCube", "cyanCube", "limeCube", "greenCube", "goldCube"].map { name in
+            {
+                let image = UIImage(named: name)
+                let view = UIImageView(image: image)
+                view.frame.size.height = 27
+                view.frame.size.width = 27
+                view.transform = CGAffineTransform(rotationAngle: .pi/2)
+                
+                return view
+            }
         }
     }
     
@@ -104,7 +106,7 @@ struct SettingsView: View {
                         })
                             .multilineTextAlignment(.center)
                             .disableAutocorrection(true)
-                            .accentColor(.primary(0)) // TODO make this your color
+                            .accentColor(.primary())
                             .frame(width: 200, height: 43, alignment: .top)
                     }.zIndex(3)
                 }
@@ -142,7 +144,8 @@ struct SettingsView: View {
     
     func onSelection2(row: Int, component: Int) -> Void {
         if component == colorComp {
-            // TODO prolly a bunch
+            UserDefaults.standard.setValue(row, forKey: Key.color)
+            FB.main.updateMyData()
         }
     }
     

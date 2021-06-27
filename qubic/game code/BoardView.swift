@@ -56,6 +56,9 @@ class BoardScene {
     }
     
     func reset() {
+        base.removeAllActions()
+        base.rotation = SCNVector4(x: 0, y: 0, z: 0, w: 0)
+        
         for (p, move) in moves.enumerated() {
             move.removeFromParentNode()
             move.removeAllActions()
@@ -111,7 +114,11 @@ class BoardScene {
             if let user = Game.main.player[turn] as? User, Game.main.premoves.isEmpty {
                 user.move(at: p)
             } else if Game.main.winner == nil && UserDefaults.standard.integer(forKey: Key.premoves) == 0 {
-                Game.main.premoves.append(p)
+                if Game.main.premoves.contains(p) {
+                    Game.main.premoves = []
+                } else {
+                    Game.main.premoves.append(p)
+                }
                 spinMoves()
             }
         } else if moves.contains(result) == true {
@@ -123,7 +130,7 @@ class BoardScene {
 //        let delay = moveCube(move: move, color: game.colors[turn]) + 0.1
         spinMoves()
         let turn = Game.main.turn^1
-        let color = UIColor.primary(Game.main.player[turn].color)
+        let color = UIColor.of(n: Game.main.player[turn].color)
         placeCube(move: move, color: color, opacity: ghost ? 0.7 : 1)
         showWins(wins, color: color, ghost: ghost)
         

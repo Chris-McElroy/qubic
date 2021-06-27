@@ -14,7 +14,7 @@ class User: Player {
         if let name = name {
             username = name
         }
-        super.init(b: b, n: n, name: username, color: 0, rounded: true)
+        super.init(b: b, n: n, name: username, color: UserDefaults.standard.integer(forKey: Key.color), rounded: true)
     }
     
     override func move() {

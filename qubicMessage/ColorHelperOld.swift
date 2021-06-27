@@ -11,46 +11,24 @@ import SwiftUI
 extension UIColor {
     public static var null: UIColor = UIColor(red: 0.95, green: 0.95, blue: 0.95, alpha: 0.95)
     
-    static func primary(_ n: Int) -> UIColor {
-        switch (n) {
-        case 0: return UIColor(red: 0.15, green: 0.51, blue: 1.0, alpha: 1.0)
-        case 1: return .magenta
-        case 2: return .green
-        case 3: return UIColor(red: 1.0, green: 0.8, blue: 0.0, alpha: 1.0)
-        case 4: return .cyan
-        case 5: return .orange
-        case 6: return .red
-        case 33: return UIColor.null.withAlphaComponent(0.5)
-        default: return .white
-        }
+    static func of(n: Int) -> UIColor {
+        let nums = Color.playerColors[n]
+        return UIColor(hue: CGFloat(nums.h), saturation: CGFloat(nums.s), brightness: CGFloat(nums.b), alpha: 1)
     }
     
-    static func secondary(_ n: Int) -> UIColor {
-        switch (n) {
-        case 0: return UIColor(red: 0.094, green: 0.36, blue: 0.74, alpha: 1.0)
-        case 1: return .magenta
-        case 2: return .green
-        case 3: return UIColor(red: 1.0, green: 0.8, blue: 0.0, alpha: 1.0)
-        case 4: return .cyan
-        case 5: return .orange
-        case 6: return .red
-        case 33: return UIColor.null.withAlphaComponent(0.5)
-        default: return .white
-        }
+    static func primary() -> UIColor {
+        let nums = Color.playerColors[4]
+        return UIColor(hue: CGFloat(nums.h), saturation: CGFloat(nums.s), brightness: CGFloat(nums.b), alpha: 1)
     }
     
-    static func tertiary(_ n: Int) -> UIColor {
-        switch (n) {
-        case 0: return UIColor(red: 0.051, green: 0.24, blue: 0.51, alpha: 1.0)
-        case 1: return .magenta
-        case 2: return .green
-        case 3: return UIColor(red: 1.0, green: 0.8, blue: 0.0, alpha: 1.0)
-        case 4: return .cyan
-        case 5: return .orange
-        case 6: return .red
-        case 33: return UIColor.null.withAlphaComponent(0.5)
-        default: return .white
-        }
+    static func secondary() -> UIColor {
+        let nums = Color.playerColors[4]
+        return UIColor(hue: CGFloat(nums.h), saturation: CGFloat(nums.s), brightness: CGFloat(nums.b)*0.75, alpha: 1)
+    }
+    
+    static func tertiary() -> UIColor {
+        let nums = Color.playerColors[4]
+        return UIColor(hue: CGFloat(nums.h), saturation: CGFloat(nums.s), brightness: CGFloat(nums.b)*0.5, alpha: 1)
     }
 }
 
@@ -58,16 +36,37 @@ extension Color {
     public static var systemBackground: Color = Color(UIColor.systemBackground)
     public static var label: Color = Color(UIColor.label)
     
-    static func primary(_ n: Int) -> Color {
-        return Color(UIColor.primary(n))
+    static let playerColors: [(h: Double, s: Double, b: Double)] = [
+        (h: 0.075,  s: 1,       b: 1),      // orange
+        (h: 0,      s: 1,       b: 1),      // red
+        (h: 0.842,  s: 1,       b: 1),      // pink
+        (h: 0.749,  s: 1,       b: 1),      // purple
+        (h: 0.59,   s: 1,       b: 1),      // blue
+        (h: 0.56,   s: 0.71,    b: 1),      // cyan
+        (h: 0.33,   s: 1,       b: 1),      // lime
+        (h: 0.376,  s: 1,       b: 0.552),  // green
+        (h: 0.136,  s: 1,       b: 1),      // gold
+    ]
+    
+    static func of(n: Int) -> Color {
+        let nums = playerColors[n]
+        return Color(hue: nums.h, saturation: nums.s, brightness: nums.b)
+    }
+    
+    static func primary() -> Color {
+        let nums = playerColors[4]
+        return Color(hue: nums.h, saturation: nums.s, brightness: nums.b)
     }
 
-    static func secondary(_ n: Int) -> Color {
-        return Color(UIColor.secondary(n))
+    static func secondary() -> Color {
+        let nums = playerColors[4]
+        return Color(hue: nums.h, saturation: nums.s, brightness: nums.b*0.75)
     }
 
-    static func tertiary(_ n: Int) -> Color {
-        return Color(UIColor.tertiary(n))
+    static func tertiary() -> Color {
+        let nums = playerColors[4]
+        return Color(hue: nums.h, saturation: nums.s, brightness: nums.b*0.5)
     }
 }
+
 

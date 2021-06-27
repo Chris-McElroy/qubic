@@ -11,7 +11,7 @@ import Foundation
 // TODO make this better/harder
 class Simple: Player {
     init(b: Board, n: Int, num: Int) {
-        super.init(b: b, n: n, name: num == simpleBoards.count ? "simple ?" : "simple \(num+1)", color: 2,
+        super.init(b: b, n: n, name: num == simpleBoards.count ? "simple ?" : "simple \(num+1)", color: 7,
                    lineP: [3: 1.0, -3: 1.0, 2: 1.0],
                    dirStats: Array(repeating: 1.0, count: 76),
                    depth: 6,

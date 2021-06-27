@@ -25,6 +25,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             Key.common: [0],
             Key.tricky: [0],
             Key.name: "new player",
+            Key.color: 4,
             Key.notification: 1,
             Key.premoves: 1,
             Key.arrowSide: 1,

@@ -158,9 +158,9 @@ class MessagesViewController: MSMessagesAppViewController {
         let turn = Game.main.load(from: message.url, movable: movable)
         let shadowed = Game.main.winner ?? turn
         for p in stride(from: 0, through: 1, by: 1) {
-            playerView[p].backgroundColor = .primary(Game.main.player[p].color)
+            playerView[p].backgroundColor = .of(n: Game.main.player[p].color)
             playerText[p].text = Game.main.player[p].name
-            playerView[p].layer.shadowColor = UIColor.primary(Game.main.player[p].color).cgColor
+            playerView[p].layer.shadowColor = UIColor.of(n: Game.main.player[p].color).cgColor
             playerView[p].layer.shadowRadius = 12
 //                playerView[p].layer.shadowOffset = .init(width: 10, height: 10)
             playerView[p].layer.shadowPath = UIBezierPath(rect: playerView[p].bounds.inset(by: .init(top: 8, left: 0, bottom: 0, right: 0))).cgPath

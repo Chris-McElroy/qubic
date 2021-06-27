@@ -82,23 +82,23 @@ struct MainView: View {
         return VStack(spacing: 0) {
             TrainView()
                 .modifier(LayoutModifier(for: .trainView))
-            mainButton(views: [.trainMenu, .train], text: trainText, color: .tertiary(0), action: switchLayout)
+            mainButton(views: [.trainMenu, .train], text: trainText, color: .tertiary(), action: switchLayout)
                 .modifier(LayoutModifier(for: .trainButton))
                 .zIndex(5)
             SolveView()
                 .modifier(LayoutModifier(for: .solveView))//, alignment: .bottom)
                 .zIndex(0)
             ZStack {
-                mainButton(views: [.solveMenu, .solve], text: solveText, color: .secondary(0), action: switchLayout)
+                mainButton(views: [.solveMenu, .solve], text: solveText, color: .secondary(), action: switchLayout)
                 if UserDefaults.standard.integer(forKey: Key.lastDC) != Date().getInt() {
-                    Circle().frame(width: 24, height: 24).foregroundColor(layout.current == .solveMenu ? .secondary(0) : .primary(0)).zIndex(2).offset(x: 88, y: -25)
+                    Circle().frame(width: 24, height: 24).foregroundColor(layout.current == .solveMenu ? .secondary() : .primary()).zIndex(2).offset(x: 88, y: -25)
                 }
             }
             .modifier(LayoutModifier(for: .solveButton))
             PlayView(selected: $playSelection)
                 .modifier(LayoutModifier(for: .playView)) //, alignment: .bottom)
             ZStack {
-                mainButton(views: [.playMenu, .play], text: playText, color: .primary(0)) { v1,v2 in
+                mainButton(views: [.playMenu, .play], text: playText, color: .primary()) { v1,v2 in
                     if layout.current == .playMenu && playSelection[0] == 1 && playSelection[1] != 0 {
                         searching = true
                         FB.main.getOnlineMatch(timeLimit: -1, humansOnly: playSelection[1] == 2, onMatch: {
@@ -127,7 +127,7 @@ struct MainView: View {
             ZStack {
                 Fill().frame(height: mainButtonHeight)
                 Button(action: { action(views[0], views[1]) }, label: { Text(text) })
-                    .buttonStyle(MainStyle(color: views.contains(Layout.main.current) ? .primary(0) : color))
+                    .buttonStyle(MainStyle(color: views.contains(Layout.main.current) ? .primary() : color))
             }
         }
     }
@@ -156,27 +156,32 @@ struct MainView: View {
     }
     
     private var bottomButtons: some View {
-//        VStack {
-//            Text("\(layout.hue)")
-//            Slider(value: $layout.hue, in: lowColor...highColor).padding(.horizontal, 20).offset(y: -30)
-//        }
-        VStack(spacing: 0) {
-            HStack(spacing: 0) {
-                Spacer().frame(width: 15)
-                if layout.leftArrows { arrowButtons }
-                else { undoButton.frame(alignment: .top) }
+//        ZStack {
+            VStack(spacing: 0) {
+                HStack(spacing: 0) {
+                    Spacer().frame(width: 15)
+                    if layout.leftArrows { arrowButtons }
+                    else { undoButton.frame(alignment: .top) }
+                    Spacer()
+                    backButton
+                    Spacer()
+                    if layout.leftArrows { undoButton }
+                    else { arrowButtons.frame(alignment: .top) }
+                    Spacer().frame(width: 15)
+                }
                 Spacer()
-                backButton
-                Spacer()
-                if layout.leftArrows { undoButton }
-                else { arrowButtons.frame(alignment: .top) }
-                Spacer().frame(width: 15)
             }
-            Spacer()
-        }
-        .background(Fill())
-        .buttonStyle(Solid())
-        .frame(width: layout.width)
+            .background(Fill())
+            .buttonStyle(Solid())
+            .frame(width: layout.width)
+//            VStack {
+//                Text("\(layout.hue), \(layout.baseColor)").offset(y: -700)
+//                if #available(iOS 14.0, *) {
+//                    Slider(value: $layout.baseColor, in: 0.5...1).padding(.horizontal, 20).offset(y: -700)//.onChange(of: layout.baseColor, perform: { layout.hue = $0 })
+//                }
+//                Slider(value: $layout.hue, in: 0...1).padding(.horizontal, 20).offset(y: -70)
+//            }
+//        }
     }
     
     private var backButton: some View {

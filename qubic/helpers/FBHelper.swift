@@ -54,7 +54,7 @@ class FB {
     func updateMyData() {
         let myPlayerRef = ref.child("players/\(myID)")
         let name = UserDefaults.standard.string(forKey: Key.name) ?? ""
-        let color = 0
+        let color = UserDefaults.standard.integer(forKey: Key.color)
         myPlayerRef.setValue([Key.name: name, Key.color: color])
     }
     

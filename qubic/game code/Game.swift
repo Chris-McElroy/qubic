@@ -63,6 +63,7 @@ class Game: ObservableObject {
     @Published var nextOpacity: Opacity = .clear
     @Published var moves: [Move] = []
     @Published var hints: Bool = false
+    @Published var showHintFor: Int? = nil
     
     var turn: Int { board.getTurn() }
     var goBack: () -> Void = {}
@@ -85,7 +86,6 @@ class Game: ObservableObject {
     var newHints: () -> Void = {}
     var timers: [Timer] = []
     var premoves: [Int] = []
-    var showHintFor: Int? = nil
     var currentHintMoves: Set<Int>? {
         if showHintFor == 1 {
             return currentMove?.myMoves
@@ -161,7 +161,7 @@ class Game: ObservableObject {
         moves.append(move)
         currentMove = move
         getHints(for: moves, loading: true)
-        BoardScene.main.addCube(move: move.p, color: .primary(player[turn^1].color))
+        BoardScene.main.addCube(move: move.p, color: .of(n: player[turn^1].color))
     }
     
     func processMove(_ p: Int, for turn: Int, num: Int) {
@@ -210,24 +210,24 @@ class Game: ObservableObject {
         }
     }
     
-    func showHintCard() -> Bool {
+    @discardableResult func showHintCard() -> Bool {
         withAnimation {
             hintCard = true
-            if undoOpacity == .full {
-                undoOpacity = .half
-            }
+//            if undoOpacity == .full {
+//                undoOpacity = .half
+//            }
         }
         return false
     }
     
-    func hideHintCard() -> Bool {
+    @discardableResult func hideHintCard() -> Bool {
         if !hintCard { return false }
         withAnimation {
             hintCard = false
-            let emptyBoard = (board.board[0] + board.board[1] == 0)
-            if undoOpacity == .half && !emptyBoard && movesBack == 0 {
-                undoOpacity = .full
-            }
+//            let emptyBoard = (board.board[0] + board.board[1] == 0)
+//            if undoOpacity == .half && !emptyBoard && movesBack == 0 {
+//                undoOpacity = .full
+//            }
         }
         return true
     }
@@ -364,12 +364,8 @@ class Game: ObservableObject {
         case .online:   op = Online(b: board, n: myTurn^1)
         default:        op = Daily(b: board, n: myTurn^1)
         }
-        if myColor == op.color { op.color = Game.getDefaultColor(for: myColor) }
+        if myColor == op.color { op.color = [4, 4, 1, 4, 6, 7, 4, 5, 7][myColor] }
         return op
-    }
-    
-    private static func getDefaultColor(for n: Int) -> Int {
-        return n == 0 ? 2 : 0
     }
     
     func updateWins() {

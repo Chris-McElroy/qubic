@@ -150,7 +150,7 @@ class Game: ObservableObject {
                 BoardScene.main.showMove(move, wins: self.board.getWinLines(for: move))
             })
         } else {
-            BoardScene.main.addCube(move: move, color: .primary(player[turn^1].color))
+            BoardScene.main.addCube(move: move, color: .of(n: player[turn^1].color))
         }
     }
     

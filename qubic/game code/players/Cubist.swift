@@ -10,7 +10,7 @@ import Foundation
 
 class Cubist: Player {
     override init(b: Board, n: Int) {
-        super.init(b: b, n: n, name: "cubist", color: 3,
+        super.init(b: b, n: n, name: "cubist", color: 8,
                    lineP: [3: 1.0, -3: 1.0, 2: 1.0],
                    dirStats: Player.setStats(hs: 1.0, vs: 1.0, hd: 1.0, vd: 1.0, md: 1.0),
                    depth: 10,

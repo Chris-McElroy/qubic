@@ -11,7 +11,7 @@ import Foundation
 // TODO make this harder
 class Tricky: Player {
     init(b: Board, n: Int, num: Int) {
-        super.init(b: b, n: n, name: num == trickyBoards.count ? "tricky ?" : "tricky \(num+1)", color: 4,
+        super.init(b: b, n: n, name: num == trickyBoards.count ? "tricky ?" : "tricky \(num+1)", color: 1,
                    lineP: [3: 1.0, -3: 1.0, 2: 1.0],
                    dirStats: Array(repeating: 1.0, count: 76),
                    depth: 6,

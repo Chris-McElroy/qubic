@@ -25,14 +25,16 @@ struct GameView: View {
     @State var hideAll: Bool = true
     @State var hideBoard: Bool = true
     @State var centerNames: Bool = true
+    @State var opText: [String]?
+    @State var myText: [String]?
     
     var body: some View {
         ZStack {
             VStack(spacing: 0) {
                 HStack {
-                    PlayerName(turn: 0, game: game)
+                    PlayerName(turn: 0, game: game, text: game.myTurn == 0 ? $myText : $opText)
                     Spacer().frame(minWidth: 15).frame(width: centerNames ? 15 : nil)
-                    PlayerName(turn: 1, game: game)
+                    PlayerName(turn: 1, game: game, text: game.myTurn == 1 ? $myText : $opText)
                 }.padding(.horizontal, 22)
                 .padding(.top, 10)
                 .padding(.bottom, 10)
@@ -138,32 +140,30 @@ struct GameView: View {
             [("on",false),("off",false)]
         ]
         
-        let opText: [String]?
         switch opHint {
         case .w0:   opText = ["4 in a row", "Your opponent won the game, better luck next time!"]
         case .w1:   opText = ["3 in a row","Your opponent has 3 in a row, so now they can fill in the last move in that line and win!"]
         case .w2d1: opText = ["checkmate", "Your opponent can get two checks with their next move, and you can’t block both!"]
-        case .w2:   opText = ["second order win", "Your opponent can get to a checkmate using a series of checks!"]
+        case .w2:   opText = ["2nd order win", "Your opponent can get to a checkmate using a series of checks!"]
         case .c1:   opText = ["check", "Your opponent has 3 in a row, so you should block their line to prevent them from winning!"]
         case .cm1:  opText = ["checkmate", "Your opponent has more than one check, and you can’t block them all!"]
-        case .cm2:  opText = ["second order checkmate", "Your opponent has more than one second order check, and you can’t block them all!"]
-        case .c2d1: opText = ["second order check", "Your opponent can get checkmate next move if you don’t stop them!"]
-        case .c2:   opText = ["second order check", "Your opponent can get checkmate through a series of checks if you don’t stop them!"]
+        case .cm2:  opText = ["2nd order checkmate", "Your opponent has more than one second order check, and you can’t block them all!"]
+        case .c2d1: opText = ["2nd order check", "Your opponent can get checkmate next move if you don’t stop them!"]
+        case .c2:   opText = ["2nd order check", "Your opponent can get checkmate through a series of checks if you don’t stop them!"]
         case .noW:  opText = ["no wins", "Your opponent doesn't have any forced wins right now, keep it up!"]
         case nil:   opText = nil
         }
         
-        let myText: [String]?
         switch myHint {
         case .w0:   myText = ["4 in a row", "You won the game, great job!"]
         case .w1:   myText = ["3 in a row","You have 3 in a row, so now you can fill in the last move in that line and win!"]
         case .w2d1: myText = ["checkmate", "You can get two checks with your next move, and your opponent can’t block both!"]
-        case .w2:   myText = ["second order win", "You can get to a checkmate using a series of checks!"]
+        case .w2:   myText = ["2nd order win", "You can get to a checkmate using a series of checks!"]
         case .c1:   myText = ["check", "You have 3 in a row, so you can win next turn unless it’s blocked!"]
         case .cm1:  myText = ["checkmate", "You have more than one check, and your opponent can’t block them all!"]
-        case .cm2:  myText = ["second order checkmate", "You have more than one second order check, and your opponent can’t block them all!"]
-        case .c2d1: myText = ["second order check", "You can get checkmate next move if your opponent doesn’t stop you!"]
-        case .c2:   myText = ["second order check", "You can get checkmate through a series of checks if your opponent doesn’t stop you!"]
+        case .cm2:  myText = ["2nd order checkmate", "You have more than one second order check, and your opponent can’t block them all!"]
+        case .c2d1: myText = ["2nd order check", "You can get checkmate next move if your opponent doesn’t stop you!"]
+        case .c2:   myText = ["2nd order check", "You can get checkmate through a series of checks if your opponent doesn’t stop you!"]
         case .noW:  myText = ["no wins", "You don't have any forced wins right now, keep working to set one up!"]
         case nil:   myText = nil
         }
@@ -230,18 +230,18 @@ struct GameView: View {
     }
     
     func onSelection(row: Int, component: Int) {
-        if component == 1 { // changing show
-            if row == 0 {
-                game.showHintFor = hintSelection[0]
-                if game.currentHintMoves?.isEmpty != false {
-                    hintSelection[1] = 1
+        withAnimation {
+            if component == 1 { // changing show
+                if row == 0 {
+                    game.showHintFor = hintSelection[0]
+                    game.hideHintCard()
+                } else {
+                    game.showHintFor = nil
                 }
-            } else {
+            } else {            // changing blocks/wins
+                hintSelection[1] = 1
                 game.showHintFor = nil
             }
-        } else { // changing blocks/wins
-            hintSelection[1] = 1
-            game.showHintFor = nil
         }
         BoardScene.main.spinMoves()
     }
@@ -249,8 +249,8 @@ struct GameView: View {
     struct PlayerName: View {
         let turn: Int
         @ObservedObject var game: Game
-        // TODO why are these vars?
-        var color: Color { .primary(game.player[turn].color) }
+        @Binding var text: [String]?
+        var color: Color { .of(n: game.player[turn].color) }
         var rounded: Bool { game.player[turn].rounded }
         var glow: Color {
             if let winner = game.winner {
@@ -262,7 +262,10 @@ struct GameView: View {
         
         var body: some View {
             ZStack {
-                Text(game.newStreak != nil ? "\(game.newStreak ?? 0) day streak!" : "")
+                Text(game.newStreak != nil ? "\(game.newStreak ?? 0) day streak!" : (game.showHintFor == turn^game.myTurn^1 ? text?[0] ?? "loading..." : ""))
+                    .animation(.none)
+                    .multilineTextAlignment(.center)
+                    .frame(height: 50)
                 Text(game.player[turn].name)
                     .lineLimit(1)
                     .padding(.horizontal, 5)
@@ -272,7 +275,7 @@ struct GameView: View {
                     .cornerRadius(rounded ? 100 : 4)
                     .shadow(color: glow, radius: 8, y: 0)
                     .animation(.easeIn(duration: 0.3))
-                    .rotation3DEffect(game.newStreak != nil && game.winner != turn ? .radians(.pi/2) : .zero, axis: (x: 1, y: 0, z: 0), anchor: .top)
+                    .rotation3DEffect((game.newStreak != nil && game.winner != turn) || game.showHintFor == turn^game.myTurn^1 ? .radians(.pi/2) : .zero, axis: (x: 1, y: 0, z: 0), anchor: .top)
             }
         }
     }

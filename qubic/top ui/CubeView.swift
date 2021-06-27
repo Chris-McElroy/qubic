@@ -20,14 +20,14 @@ struct CubeView : UIViewRepresentable {
         scene.rootNode.addChildNode(SceneHelper.makeCamera(pos: pos, rot: rot, scale: 1))
         scene.rootNode.addChildNode(SceneHelper.makeOmniLight())
         scene.rootNode.addChildNode(SceneHelper.makeAmbiLight())
-        cube.setColor(.primary(0))
+        cube.setColor(.primary())
         scene.rootNode.addChildNode(cube)
         SceneHelper.prepSCNView(view: view, scene: scene)
         return view
     }
 
     func updateUIView(_ scnView: SCNView, context: Context) {
-        cube.setColor(.primary(0))
+        cube.setColor(.primary())
     }
     
     func rotate(right: Bool) {
