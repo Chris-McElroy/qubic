@@ -57,6 +57,10 @@ extension Timer {
     @discardableResult static func after(_ delay: TimeInterval, run: @escaping () -> Void) -> Timer {
         scheduledTimer(withTimeInterval: delay, repeats: false, block: { _ in run() })
     }
+    
+    @discardableResult static func every(_ delay: TimeInterval, run: @escaping () -> Void) -> Timer {
+        scheduledTimer(withTimeInterval: delay, repeats: true, block: { _ in run() })
+    }
 }
 
 struct Fill: View {

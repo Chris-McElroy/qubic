@@ -14,9 +14,11 @@ struct PlayView: View {
     @Binding var selected: [Int]
     static let onlineMenuText = [[("local",false),("online",false),("invite",false)],
                                  [("bots",false),("auto",false),("humans",false)],
+                                 [("untimed", false), ("1 min", false), ("5 min", false), ("10 min", false)],
                                  [("sandbox",false),("challenge",false)]]
     static let altMenuText = [[("local",false),("online",false),("invite",false)],
                               [("first",false),("random",false),("second",false)],
+                              [("untimed", false), ("1 min", false), ("5 min", false), ("10 min", false)],
                               [("sandbox",false),("challenge",false)]]
     @State var menuText: [[Any]] = PlayView.onlineMenuText
     @State var tip = tips.randomElement() ?? ""
@@ -24,15 +26,15 @@ struct PlayView: View {
     var body: some View {
         if layout.current == .play {
             GameView()
-                .onAppear { Game.main.load(mode: mode, turn: turn, hints: hints) }
+                .onAppear { Game.main.load(mode: mode, turn: turn, hints: hints, time: time) }
         } else if layout.current == .playMenu {
             ZStack {
                 VStack(spacing: 0) {
                     Spacer()
-                    HPicker(content: $menuText, dim: (90, 55), selected: $selected, action: onSelection)
-                        .frame(height: 180)
+                    HPicker(content: $menuText, dim: (90, 37), selected: $selected, action: onSelection)
+                        .frame(height: 148)
                 }
-                VStack {
+                VStack(spacing: 0) {
                     Spacer()
                     Spacer()
                     Button(action: { tip = PlayView.tips.filter({ $0 != tip }).randomElement() ?? "" }) {
@@ -54,10 +56,10 @@ struct PlayView: View {
                     Fill(100)
                         .opacity(mode == .local ? 0.0 : 0.8)
                         .animation(.linear(duration: 0.15))
-                    Fill(60)
+                    Fill(74)
                         .opacity(mode != .invite ? 0.0 : 0.8)
                         .animation(.linear(duration: 0.15))
-                    Blank(60)
+                    Blank(37)
                 }
             }.onAppear {
                 FB.main.finishedOnlineGame(with: .error)
@@ -74,6 +76,15 @@ struct PlayView: View {
         }
     }
     
+    var time: Double? {
+        switch selected[2] {
+        case 0: return nil
+        case 1: return 60
+        case 2: return 300
+        default: return 600
+        }
+    }
+    
     var turn: Int {
         if mode == .online { return FB.main.myGameData?.myTurn ?? Int.random(in: 0...1) }
         
@@ -85,7 +96,7 @@ struct PlayView: View {
     }
     
     var hints: Bool {
-        selected[2] == 0 && mode != .online
+        selected[3] == 0 && mode != .online
     }
     
     func onSelection(row: Int, component: Int) {

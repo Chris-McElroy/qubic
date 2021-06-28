@@ -41,8 +41,8 @@ class Online: Player {
     
     override func move() {
         if self.op != nil {
-            FB.main.gotOnlineMove = { move, time in
-                Game.main.processMove(move, for: self.n, num: self.b.numMoves())
+            FB.main.gotOnlineMove = { move, time, num in
+                Game.main.processMove(move, for: self.n, num: num, time: time)
             }
         } else {
             super.move()

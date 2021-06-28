@@ -13,7 +13,7 @@ struct MainView: View {
     @ObservedObject var game: Game = Game.main
     @ObservedObject var layout = Layout.main
     @State var halfBack: Bool = false
-    @State var playSelection = [1,1,0]
+    @State var playSelection = [1,1,0,0]
     @State var searching: Bool = false
     
     // The delegate required by `MFMessageComposeViewController`
@@ -101,8 +101,10 @@ struct MainView: View {
                 mainButton(views: [.playMenu, .play], text: playText, color: .primary()) { v1,v2 in
                     if layout.current == .playMenu && playSelection[0] == 1 && playSelection[1] != 0 {
                         searching = true
-                        FB.main.getOnlineMatch(timeLimit: -1, humansOnly: playSelection[1] == 2, onMatch: {
+                        print("searching", playSelection)
+                        FB.main.getOnlineMatch(timeLimit: [-1, 60, 300, 600][playSelection[2]], humansOnly: playSelection[1] == 2, onMatch: {
                             searching = false
+                            print("got match")
                             layout.current = .play
                         }, onCancel: { searching = false })
                     } else if layout.current == .playMenu && playSelection[0] == 2 {

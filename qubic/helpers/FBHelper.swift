@@ -19,7 +19,7 @@ class FB {
     var opGameData: GameData? = nil
     var op: PlayerData? = nil
     var onlineInviteState: MatchingState = .stopped
-    var gotOnlineMove: ((Int, Int) -> Void)? = nil
+    var gotOnlineMove: ((Int, Double, Int) -> Void)? = nil
     var cancelOnlineSearch: (() -> Void)? = nil
     
     func start() {
@@ -68,7 +68,7 @@ class FB {
         solveRef.setValue(string)
     }
     
-    func getOnlineMatch(timeLimit: Int, humansOnly: Bool, onMatch: @escaping () -> Void, onCancel: @escaping () -> Void) {
+    func getOnlineMatch(timeLimit: Double, humansOnly: Bool, onMatch: @escaping () -> Void, onCancel: @escaping () -> Void) {
         onlineInviteState = .invited
         myGameData = nil
         opGameData = nil
@@ -224,7 +224,7 @@ class FB {
                             self.myGameData = myData
                             myGameRef.setValue(myData.toDict())
                             
-                            self.gotOnlineMove?(newMove, newTime)
+                            self.gotOnlineMove?(newMove, newTime, myData.myMoves.count + myData.opMoves.count - 3)
                         }
                     }
                 }
@@ -232,7 +232,7 @@ class FB {
         }
     }
     
-    func sendOnlineMove(p: Int, time: Int) {
+    func sendOnlineMove(p: Int, time: Double) {
         guard var myData = myGameData else { return }
         let myGameRef = ref.child("games/\(myID)/\(myData.gameID)")
         myData.myMoves.append(p)
@@ -260,8 +260,8 @@ class FB {
         let opGameID: Int       // op gameID
         let hints: Bool         // true for sandbox mode
         var state: GameState    // current state of the game
-        var myTimes: [Int]       // times remaining on my clock after each of my moves
-        var opTimes: [Int]       // times remaining on op clock after each of their moves
+        var myTimes: [Double]       // times remaining on my clock after each of my moves
+        var opTimes: [Double]       // times remaining on op clock after each of their moves
         var myMoves: [Int]      // my moves
         var opMoves: [Int]      // op moves
         let valid: Bool         // whether the given dict was valid
@@ -273,8 +273,8 @@ class FB {
                     dict[Key.opGameID] as? Int != nil &&
                     dict[Key.hints] as? Int != nil &&
                     dict[Key.state] as? Int != nil &&
-                    dict[Key.myTimes] as? [Int] != nil &&
-                    dict[Key.opTimes] as? [Int] != nil &&
+                    dict[Key.myTimes] as? [Double] != nil &&
+                    dict[Key.opTimes] as? [Double] != nil &&
                     dict[Key.myMoves] as? [Int] != nil &&
                     dict[Key.opMoves] as? [Int] != nil
             )
@@ -285,8 +285,8 @@ class FB {
             opGameID = dict[Key.opGameID] as? Int ?? 0
             hints = 1 == dict[Key.hints] as? Int ?? 0
             state = GameState(rawValue: dict[Key.state] as? Int ?? 0) ?? .error
-            myTimes = dict[Key.myTimes] as? [Int] ?? []
-            opTimes = dict[Key.opTimes] as? [Int] ?? []
+            myTimes = dict[Key.myTimes] as? [Double] ?? []
+            opTimes = dict[Key.opTimes] as? [Double] ?? []
             myMoves = dict[Key.myMoves] as? [Int] ?? []
             opMoves = dict[Key.opMoves] as? [Int] ?? []
         }
@@ -351,7 +351,7 @@ class FB {
     struct OnlineInviteData: Comparable {
         let ID: String
         let gameID: Int
-        let timeLimit: Int
+        let timeLimit: Double
         var opID: String
         let valid: Bool
         
@@ -362,17 +362,17 @@ class FB {
         init(from dict: [String: Any], ID: String) {
             valid = (
                 dict[Key.gameID] as? Int != nil &&
-                    dict[Key.timeLimit] as? Int != nil &&
+                    dict[Key.timeLimit] as? Double != nil &&
                     dict[Key.opID] as? String != nil
             )
             
             self.ID = ID
             gameID = dict[Key.gameID] as? Int ?? 0
-            timeLimit = dict[Key.timeLimit] as? Int ?? 0
+            timeLimit = dict[Key.timeLimit] as? Double ?? 0
             opID = dict[Key.opID] as? String ?? ""
         }
         
-        init(timeLimit: Int) {
+        init(timeLimit: Double) {
             ID = myID
             gameID = Date.ms
             self.timeLimit = timeLimit

@@ -64,12 +64,17 @@ class Game: ObservableObject {
     @Published var moves: [Move] = []
     @Published var hints: Bool = false
     @Published var showHintFor: Int? = nil
+    @Published var currentTimes: [Int] = [0,0]
     
     var turn: Int { board.getTurn() }
+    var realTurn: Int { moves.count % 2 }
     var goBack: () -> Void = {}
     var cancelBack: () -> Bool = { true }
     var myTurn: Int = 0
     var player: [Player] = [Player(b: Board(), n: 0), Player(b: Board(), n: 0)]
+    var times: [[Double]] = [[], []]
+    var totalTime: Double? = nil
+    var lastStart: [Double] = [0,0]
     var preset: [Int] = []
     var mode: GameMode = .local
     var dayInt: Int? = nil
@@ -115,7 +120,7 @@ class Game: ObservableObject {
         self.mode = .off
     }
     
-    func load(mode: GameMode, boardNum: Int = 0, turn: Int? = nil, hints: Bool = false) {
+    func load(mode: GameMode, boardNum: Int = 0, turn: Int? = nil, hints: Bool = false, time: Double? = nil) {
         board = Board()
         BoardScene.main.reset()
         undoOpacity = .clear
@@ -124,6 +129,12 @@ class Game: ObservableObject {
         winner = nil
         currentMove = nil
         moves = []
+        totalTime = time
+        if let total = time {
+            currentTimes = [Int(total),Int(total)]
+            times = [[total],[total]]
+            lastStart = [0,0]
+        }
         movesBack = 0
         ghostMoveStart = 0
         ghostMoveCount = 0
@@ -150,7 +161,29 @@ class Game: ObservableObject {
             prevOpacity = .half
             nextOpacity = .half
         }
-        player[self.turn].move()
+        if totalTime != nil {
+            lastStart[turn] = Date.now+2
+            timers.append(Timer.every(0.1, run: getCurrentTime))
+        }
+        player[turn].move()
+    }
+    
+    func getCurrentTime() {
+        if winner == nil {
+            let newTime = max(0, Int((times[realTurn].last! + lastStart[realTurn] - Date.now).rounded()))
+            if newTime < currentTimes[realTurn] {
+                currentTimes[realTurn] = newTime
+                if newTime == 0 {
+                    winner = realTurn^1
+                    premoves = []
+                    BoardScene.main.spinMoves()
+                    updateWins()
+                    BoardScene.main.showWins(nil, color: .black)
+                    if !mode.solve || winner == myTurn { hints = true }
+                    withAnimation { undoOpacity = .clear }
+                }
+            }
+        }
     }
     
     func loadMove(_ p: Int) {
@@ -164,7 +197,7 @@ class Game: ObservableObject {
         BoardScene.main.addCube(move: move.p, color: .of(n: player[turn^1].color))
     }
     
-    func processMove(_ p: Int, for turn: Int, num: Int) {
+    func processMove(_ p: Int, for turn: Int, num: Int, time: Double? = nil) {
         let move = Move(p)
         guard winner == nil else { return }
         guard turn == moves.count % 2 && num == moves.count else { print("Invalid turn!"); return }
@@ -172,10 +205,10 @@ class Game: ObservableObject {
         moves.append(move)
         if movesBack != 0 { movesBack += 1 }
         UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+        getHints(for: moves, time: time)
         if player[turn^1] as? Online != nil {
-            FB.main.sendOnlineMove(p: move.p, time: -1)
+            FB.main.sendOnlineMove(p: move.p, time: times[turn].last!)
         }
-        getHints(for: moves)
         guard movesBack == 0 else { return }
         board.addMove(move.p)
         currentMove = move
@@ -245,6 +278,12 @@ class Game: ObservableObject {
         newHints()
         premoves = []
         board.undoMove(for: turn^1)
+        if totalTime != nil {
+            times[turn].removeLast()
+            currentTimes[turn] = max(0, Int((times[turn].last!).rounded()))
+            currentTimes[turn^1] = max(0, Int((times[turn^1].last!).rounded()))
+            lastStart[turn] = Date.now + 0.5
+        }
         BoardScene.main.undoMove(move.p)
         if moves.count == preset.count {
             withAnimation {
@@ -261,9 +300,14 @@ class Game: ObservableObject {
         guard i >= ((!hints && mode.solve) ? preset.count : 0) else { return }
         UIImpactFeedbackGenerator(style: .light).impactOccurred()
         movesBack += 1
-        if winner != nil { replayMode = true }
         board.undoMove(for: turn^1)
         currentMove = i > 0 ? moves[i-1] : nil
+        if winner != nil {
+            replayMode = true
+            if totalTime != nil && ghostMoveCount == 0 {
+                currentTimes[turn] = max(0, Int((times[turn][board.move[turn].count]).rounded()))
+            }
+        }
         BoardScene.main.undoMove(moves[i].p)
         newHints()
         if i-1 < ghostMoveStart {
@@ -298,6 +342,9 @@ class Game: ObservableObject {
         board.addMove(moves[i].p)
         movesBack -= 1
         currentMove = moves[i]
+        if winner != nil && totalTime != nil && ghostMoveCount == 0 {
+            currentTimes[turn^1] = max(0, Int((times[turn^1][board.move[turn^1].count]).rounded()))
+        }
         newHints()
         BoardScene.main.showMove(moves[i].p, wins: board.getWinLines(for: moves[i].p), ghost: ghostMoveCount != 0)
         withAnimation {
@@ -402,12 +449,18 @@ class Game: ObservableObject {
         }
     }
     
-    func getHints(for moves: [Move], loading: Bool = false) {
+    func getHints(for moves: [Move], loading: Bool = false, time: Double? = nil) {
         let b = Board()
         for move in moves { b.addMove(move.p) }
         let turn = b.getTurn()
         
         if winner == nil {
+            if let total = totalTime {
+                let timeLeft = time ?? (times[turn^1].last! + lastStart[turn^1] - Date.now)
+                times[turn^1].append(min(total, max(0, timeLeft)))
+                currentTimes[turn^1] = Int(min(total, max(timeLeft, 0)))
+                lastStart[turn] = Date.now + 0.2
+            }
             if b.hasW0(turn^1) {
                 winner = turn^1
                 premoves = []

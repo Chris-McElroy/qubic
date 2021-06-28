@@ -141,14 +141,14 @@ class BoardScene {
 //        }
     }
     
-    private func showWins(_ lines: [Int], color: UIColor, ghost: Bool = false) {
+    func showWins(_ lines: [Int]?, color: UIColor, ghost: Bool = false) {
         Game.main.timers.append(Timer.after(0.2, run: {
-            for line in lines {
+            for line in lines ?? [] {
                 self.winLines[line].setColor(color)
                 self.winLines[line].opacity = ghost ? 0.3 : 1
                 self.base.addChildNode(self.winLines[line])
             }
-            if !ghost && !lines.isEmpty {
+            if !ghost && lines != [] {
                 self.base.runAction(SceneHelper.getFullRotate(1.45))
             }
         }))

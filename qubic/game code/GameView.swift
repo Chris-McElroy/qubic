@@ -31,16 +31,7 @@ struct GameView: View {
     var body: some View {
         ZStack {
             VStack(spacing: 0) {
-                HStack {
-                    PlayerName(turn: 0, game: game, text: game.myTurn == 0 ? $myText : $opText)
-                    Spacer().frame(minWidth: 15).frame(width: centerNames ? 15 : nil)
-                    PlayerName(turn: 1, game: game, text: game.myTurn == 1 ? $myText : $opText)
-                }.padding(.horizontal, 22)
-                .padding(.top, 10)
-                .padding(.bottom, 10)
-                .zIndex(1.0)
-                .offset(y: centerNames ? Layout.main.safeHeight/2 - 50 : 0)
-                if game.hints && solveButtonsEnabled { solveButtons }
+                Fill(65)
                 BoardView()
                     .gesture(DragGesture()
                         .onEnded { drag in
@@ -69,13 +60,25 @@ struct GameView: View {
                     .opacity(hideBoard ? 0 : 1)
             }
             VStack(spacing: 0) {
+                HStack {
+                    PlayerName(turn: 0, game: game, text: game.myTurn == 0 ? $myText : $opText)
+                    Spacer().frame(minWidth: 15).frame(width: centerNames ? 15 : nil)
+                    PlayerName(turn: 1, game: game, text: game.myTurn == 1 ? $myText : $opText)
+                }
+                .padding(.horizontal, 22)
+                .padding(.top, 10)
+                .offset(y: centerNames ? Layout.main.safeHeight/2 - 50 : 0)
+                .zIndex(1.0)
+                if game.hints && solveButtonsEnabled { solveButtons }
                 Spacer()
                 ZStack {
                     Fill()
                         .shadow(radius: 20)
                     hintContent
-                }.frame(height: 240)
-            }.offset(y: game.hintCard ? 0 : 300)
+                }
+                .frame(height: 240)
+                .offset(y: game.hintCard ? 0 : 300)
+            }
         }
         .opacity(hideAll ? 0 : 1)
         .onAppear {
@@ -259,23 +262,36 @@ struct GameView: View {
                 return game.moves.count % 2 == turn ? color : .clear
             }
         }
+        var timerOpacity: Opacity {
+            if game.totalTime == nil {
+                return .clear
+            } else if let winner = game.winner {
+                return winner == turn ? .full : .half
+            } else {
+                return game.realTurn == turn ? .full : .half
+            }
+        }
         
         var body: some View {
-            ZStack {
-                Text(game.newStreak != nil ? "\(game.newStreak ?? 0) day streak!" : (game.showHintFor == turn^game.myTurn^1 ? text?[0] ?? "loading..." : ""))
-                    .animation(.none)
-                    .multilineTextAlignment(.center)
-                    .frame(height: 50)
-                Text(game.player[turn].name)
-                    .lineLimit(1)
-                    .padding(.horizontal, 5)
-                    .foregroundColor(.white)
-                    .frame(minWidth: 140, maxWidth: 160, minHeight: 40)
-                    .background(Rectangle().foregroundColor(color))
-                    .cornerRadius(rounded ? 100 : 4)
-                    .shadow(color: glow, radius: 8, y: 0)
-                    .animation(.easeIn(duration: 0.3))
-                    .rotation3DEffect((game.newStreak != nil && game.winner != turn) || game.showHintFor == turn^game.myTurn^1 ? .radians(.pi/2) : .zero, axis: (x: 1, y: 0, z: 0), anchor: .top)
+            VStack(spacing: 3) {
+                ZStack {
+                    Text(game.newStreak != nil ? "\(game.newStreak ?? 0) day streak!" : (game.showHintFor == turn^game.myTurn^1 ? text?[0] ?? "loading..." : ""))
+                        .animation(.none)
+                        .multilineTextAlignment(.center)
+                        .frame(height: 45)
+                    Text(game.player[turn].name)
+                        .lineLimit(1)
+                        .padding(.horizontal, 5)
+                        .foregroundColor(.white)
+                        .frame(minWidth: 140, maxWidth: 160, minHeight: 40)
+                        .background(Rectangle().foregroundColor(color))
+                        .cornerRadius(rounded ? 100 : 4)
+                        .shadow(color: glow, radius: 8, y: 0)
+                        .animation(.easeIn(duration: 0.3))
+                        .rotation3DEffect((game.newStreak != nil && game.winner != turn) || game.showHintFor == turn^game.myTurn^1 ? .radians(.pi/2) : .zero, axis: (x: 1, y: 0, z: 0), anchor: .top)
+                }
+                Text(String(format: "%01d:%02d", (game.currentTimes[turn]/60) % 100, game.currentTimes[turn] % 60))
+                    .opacity(timerOpacity.rawValue)
             }
         }
     }
