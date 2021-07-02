@@ -22,6 +22,32 @@ enum GameMode: Int {
     var trainValue: Int { self.rawValue - GameMode.novice.rawValue }
 }
 
+enum GameState: Int {
+    // each one is 1 more
+    case error = 0, new, active, myWin, opWin, myTimeout, opTimeout, myLeave, opLeave, draw
+    
+    func mirror() -> GameState {
+        switch self {
+        case .myWin: return .opWin
+        case .opWin: return .myWin
+        case .myTimeout: return .opTimeout
+        case .opTimeout: return .myTimeout
+        case .myLeave: return .opLeave
+        case .opLeave: return .myLeave
+        case .draw: return .draw
+        default: return .error
+        }
+    }
+    
+    var myWin: Bool {
+        self == .myWin || self == .opTimeout || self == .opLeave
+    }
+    
+    var opWin: Bool {
+        self == .opWin || self == .myTimeout || self == .myLeave
+    }
+}
+
 enum HintValue {
     case w0, w1, w2, w2d1
     case c1, cm1, cm2, c2d1, c2
@@ -46,6 +72,7 @@ class Game: ObservableObject {
     var moved: Bool = false
     
     var turn: Int { board.getTurn() }
+    var realTurn: Int { gameState == .active ? moves.count % 2 : (gameState.myWin ? myTurn : (gameState.opWin ? myTurn^1 : 2)) }
     var goBack: () -> Void = {}
     var cancelBack: () -> Bool = { true }
     var myTurn: Int = 0
@@ -54,7 +81,7 @@ class Game: ObservableObject {
     var mode: GameMode = .local
     var replayMode: Bool = false
     var nextOpacity: Opacity = .clear
-    var winner: Int? = nil
+    var gameState: GameState = .new
     private var board = Board()
     var moves: [Move] = []
     var timers: [Timer] = []
@@ -74,7 +101,7 @@ class Game: ObservableObject {
     func load(mode: GameMode, boardNum: Int = 0, turn: Int, hints: Bool = false) {
         BoardScene.main.reset()
         board = Board()
-        winner = nil
+        gameState = .active
         moves = []
         premoves = []
         myTurn = turn
@@ -86,14 +113,12 @@ class Game: ObservableObject {
         player[self.turn].move()
     }
     
-    func load(from url: URL?, movable: Bool) -> Int {
+    func load(from url: URL?, movable: Bool) {
         guard let solidUrl = url else {
-            print("no url")
-            return 0
+            print("no url"); return
         }
         guard let data = URLComponents(url: solidUrl, resolvingAgainstBaseURL: false) else {
-            print("couldn't parse url")
-            return 0
+            print("couldn't parse url"); return
         }
 //        guard let uuid = UIDevice.current.identifierForVendor?.uuidString else {
 //            print("no uuid")
@@ -108,43 +133,41 @@ class Game: ObservableObject {
         load(mode: .local, turn: movable ? currentTurn : currentTurn^1, hints: false)
         for p in preset.dropLast() { loadMove(p) }
         if let p = preset.last { loadMove(p, animated: true) }
-        return currentTurn
 //        if winner == nil { (player[self.turn] as? User)?.game = self }
     }
     
-    func newMove(from url: URL?) -> Int? {
+    func newMove(from url: URL?) -> Bool {
         guard let solidUrl = url else {
             print("no url")
-            return nil
+            return false
         }
         guard let data = URLComponents(url: solidUrl, resolvingAgainstBaseURL: false) else {
             print("couldn't parse url")
-            return nil
+            return false
         }
         guard moved else {
             print("wrong turn", turn, myTurn, moved)
-            return nil
+            return false
         }
         
         let gameString = String(data.queryItems?[0].value?.dropFirst() ?? "")
         let allMoves = expandMoves(gameString)
         guard allMoves.dropLast() == preset else {
             print("wrong moves", preset, allMoves.dropLast())
-            return nil
+            return false
         }
         preset = allMoves
         
-        let currentTurn = preset.count % 2
         if let p = preset.last { loadMove(p, animated: true) }
         moved = false
-        return currentTurn
+        return true
     }
     
     func loadMove(_ move: Int, animated: Bool = false) {
         guard !moves.map({ $0.p }).contains(move) && (0..<64).contains(move) else { return }
         board.addMove(move, for: turn)
         moves.append(Move(move))
-        if board.hasW0(turn^1) { winner = turn^1 }
+        if board.hasW0(turn^1) { gameState = turn^1 == myTurn ? .myWin : .opWin }
         if animated {
             Timer.after(0.8, run: {
                 BoardScene.main.showMove(move, wins: self.board.getWinLines(for: move))
@@ -169,7 +192,7 @@ class Game: ObservableObject {
         // TODO add async hint text shit
         // also i should make the next process move async as well
         if board.hasW0(turn^1) {
-            winner = turn^1
+            gameState = turn^1 == myTurn ? .myWin : .opWin
         } else {
             Timer.scheduledTimer(withTimeInterval: 0.2, repeats: false, block: { _ in
                 self.player[self.turn].move()
@@ -182,7 +205,7 @@ class Game: ObservableObject {
     }
     
     private static func getDefaultColor(for n: Int) -> Int {
-        return n == 0 ? 2 : 0
+        return n == 4 ? 6 : 4
     }
 }
 

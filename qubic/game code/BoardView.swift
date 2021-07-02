@@ -103,8 +103,8 @@ class BoardScene {
         let hitResults = view.hitTest(hit, options: [:])
         guard let result = hitResults.first?.node else { return }
         if let p = spaces.firstIndex(where: { $0.childNodes.contains(result) || $0 == result }) {
-            let turn = Game.main.winner == nil ? Game.main.turn : Game.main.myTurn
-            if Game.main.winner == nil && Game.main.nextOpacity == .full {
+            let turn = Game.main.gameState == .active ? Game.main.turn : Game.main.myTurn
+            if Game.main.gameState == .active && Game.main.nextOpacity == .full {
                 UINotificationFeedbackGenerator().notificationOccurred(.error)
                 for delay in stride(from: 0.0, to: 0.4, by: 0.3) {
                     Game.main.timers.append(Timer.after(delay, run: { Game.main.nextOpacity = .half }))
@@ -113,7 +113,7 @@ class BoardScene {
             }
             if let user = Game.main.player[turn] as? User, Game.main.premoves.isEmpty {
                 user.move(at: p)
-            } else if Game.main.winner == nil && UserDefaults.standard.integer(forKey: Key.premoves) == 0 {
+            } else if Game.main.gameState == .active && UserDefaults.standard.integer(forKey: Key.premoves) == 0 {
                 if Game.main.premoves.contains(p) {
                     Game.main.premoves = []
                 } else {
@@ -126,13 +126,16 @@ class BoardScene {
         }
     }
     
-    func showMove(_ move: Int, wins: [Int], ghost: Bool = false) {
+    func showMove(_ move: Int, wins: [Int]?, ghost: Bool = false) {
 //        let delay = moveCube(move: move, color: game.colors[turn]) + 0.1
         spinMoves()
         let turn = Game.main.turn^1
         let color = UIColor.of(n: Game.main.player[turn].color)
         placeCube(move: move, color: color, opacity: ghost ? 0.7 : 1)
-        showWins(wins, color: color, ghost: ghost)
+        
+        if let lines = wins {
+            showWins(lines, color: color, ghost: ghost)
+        }
         
 //        if UserDefaults.standard.integer(forKey: Key.dot) == 0 {
 //        } else {
@@ -141,14 +144,15 @@ class BoardScene {
 //        }
     }
     
-    func showWins(_ lines: [Int]?, color: UIColor, ghost: Bool = false) {
+    private func showWins(_ lines: [Int], color: UIColor, ghost: Bool = false) {
+        // TODO see if it's a draw
         Game.main.timers.append(Timer.after(0.2, run: {
-            for line in lines ?? [] {
+            for line in lines {
                 self.winLines[line].setColor(color)
                 self.winLines[line].opacity = ghost ? 0.3 : 1
                 self.base.addChildNode(self.winLines[line])
             }
-            if !ghost && lines != [] {
+            if !ghost {
                 self.base.runAction(SceneHelper.getFullRotate(1.45))
             }
         }))

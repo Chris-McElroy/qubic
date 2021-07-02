@@ -110,8 +110,9 @@ class Board {
 //        if !printed { print("nothing") }
 //    }
     
-    func getWinLines(for p: Int) -> [Int] {
-        Board.linesThruPoint[p].filter({ status[$0] == 8 || status[$0] == 0 })
+    func getWinLines(for p: Int) -> [Int]? {
+        let lines = Board.linesThruPoint[p].filter({ status[$0] == 8 || status[$0] == 0 })
+        return !lines.isEmpty || numMoves() == 64 ? lines : nil
     }
     
     func getMoveString() -> String {

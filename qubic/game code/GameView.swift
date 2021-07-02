@@ -33,10 +33,10 @@ struct GameView: View {
             VStack(spacing: 0) {
                 Fill(65)
                 BoardView()
-                    .gesture(DragGesture()
+                    .gesture(DragGesture(minimumDistance: 30)
                         .onEnded { drag in
-                            let h = drag.predictedEndTranslation.height
-                            let w = drag.predictedEndTranslation.width
+                            let h = drag.translation.height
+                            let w = drag.translation.width
                             if abs(w)/abs(h) > 1 {
                                 BoardScene.main.rotate(right: w > 0)
                             } else if h > 0 {
@@ -69,7 +69,6 @@ struct GameView: View {
                 .padding(.top, 10)
                 .offset(y: centerNames ? Layout.main.safeHeight/2 - 50 : 0)
                 .zIndex(1.0)
-                if game.hints && solveButtonsEnabled { solveButtons }
                 Spacer()
                 ZStack {
                     Fill()
@@ -208,6 +207,10 @@ struct GameView: View {
                     Text("hints for")
                     Blank(36)
                 }.padding(.horizontal, 40)
+                VStack {
+                    if solveButtonsEnabled { solveButtons }
+                    Spacer()
+                }
             } else {
                 if game.mode.solve {
                     if game.solved {
@@ -255,22 +258,8 @@ struct GameView: View {
         @Binding var text: [String]?
         var color: Color { .of(n: game.player[turn].color) }
         var rounded: Bool { game.player[turn].rounded }
-        var glow: Color {
-            if let winner = game.winner {
-                return winner == turn ? color : .clear
-            } else {
-                return game.moves.count % 2 == turn ? color : .clear
-            }
-        }
-        var timerOpacity: Opacity {
-            if game.totalTime == nil {
-                return .clear
-            } else if let winner = game.winner {
-                return winner == turn ? .full : .half
-            } else {
-                return game.realTurn == turn ? .full : .half
-            }
-        }
+        var glow: Color { game.realTurn == turn ? color : .clear }
+        var timerOpacity: Opacity { game.totalTime == nil ? .clear : (game.realTurn == turn ? .full : .half) }
         
         var body: some View {
             VStack(spacing: 3) {
@@ -288,7 +277,7 @@ struct GameView: View {
                         .cornerRadius(rounded ? 100 : 4)
                         .shadow(color: glow, radius: 8, y: 0)
                         .animation(.easeIn(duration: 0.3))
-                        .rotation3DEffect((game.newStreak != nil && game.winner != turn) || game.showHintFor == turn^game.myTurn^1 ? .radians(.pi/2) : .zero, axis: (x: 1, y: 0, z: 0), anchor: .top)
+                        .rotation3DEffect((game.newStreak != nil && game.myTurn != turn) || game.showHintFor == turn^game.myTurn^1 ? .radians(.pi/2) : .zero, axis: (x: 1, y: 0, z: 0), anchor: .top)
                 }
                 Text(String(format: "%01d:%02d", (game.currentTimes[turn]/60) % 100, game.currentTimes[turn] % 60))
                     .opacity(timerOpacity.rawValue)

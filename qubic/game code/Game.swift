@@ -21,6 +21,32 @@ enum GameMode: Int {
     var trainValue: Int { self.rawValue - GameMode.novice.rawValue }
 }
 
+enum GameState: Int {
+    // each one is 1 more
+    case error = 0, new, active, myWin, opWin, myTimeout, opTimeout, myLeave, opLeave, draw
+    
+    func mirror() -> GameState {
+        switch self {
+        case .myWin: return .opWin
+        case .opWin: return .myWin
+        case .myTimeout: return .opTimeout
+        case .opTimeout: return .myTimeout
+        case .myLeave: return .opLeave
+        case .opLeave: return .myLeave
+        case .draw: return .draw
+        default: return .error
+        }
+    }
+    
+    var myWin: Bool {
+        self == .myWin || self == .opTimeout || self == .opLeave
+    }
+    
+    var opWin: Bool {
+        self == .opWin || self == .myTimeout || self == .myLeave
+    }
+}
+
 enum HintValue {
     case w0, w1, w2, w2d1
     case c1, cm1, cm2, c2d1, c2
@@ -67,7 +93,7 @@ class Game: ObservableObject {
     @Published var currentTimes: [Int] = [0,0]
     
     var turn: Int { board.getTurn() }
-    var realTurn: Int { moves.count % 2 }
+    var realTurn: Int { gameState == .active ? moves.count % 2 : (gameState.myWin ? myTurn : (gameState.opWin ? myTurn^1 : 2)) }
     var goBack: () -> Void = {}
     var cancelBack: () -> Bool = { true }
     var myTurn: Int = 0
@@ -79,7 +105,7 @@ class Game: ObservableObject {
     var mode: GameMode = .local
     var dayInt: Int? = nil
     var solveBoard: Int = 0
-    var winner: Int? = nil
+    var gameState: GameState = .new
     var replayMode: Bool = false
     var solved: Bool = false
     var leaving: Bool = false
@@ -126,7 +152,7 @@ class Game: ObservableObject {
         undoOpacity = .clear
         prevOpacity = .clear
         nextOpacity = .clear
-        winner = nil
+        gameState = .active
         currentMove = nil
         moves = []
         totalTime = time
@@ -169,18 +195,12 @@ class Game: ObservableObject {
     }
     
     func getCurrentTime() {
-        if winner == nil {
+        if gameState == .active {
             let newTime = max(0, Int((times[realTurn].last! + lastStart[realTurn] - Date.now).rounded()))
             if newTime < currentTimes[realTurn] {
                 currentTimes[realTurn] = newTime
                 if newTime == 0 {
-                    winner = realTurn^1
-                    premoves = []
-                    BoardScene.main.spinMoves()
-                    updateWins()
-                    BoardScene.main.showWins(nil, color: .black)
-                    if !mode.solve || winner == myTurn { hints = true }
-                    withAnimation { undoOpacity = .clear }
+                    endGame(with: realTurn == myTurn ? .myTimeout : .opTimeout)
                 }
             }
         }
@@ -199,15 +219,15 @@ class Game: ObservableObject {
     
     func processMove(_ p: Int, for turn: Int, num: Int, time: Double? = nil) {
         let move = Move(p)
-        guard winner == nil else { return }
-        guard turn == moves.count % 2 && num == moves.count else { print("Invalid turn!"); return }
+        guard gameState == .active else { return }
+        guard turn == realTurn && num == moves.count else { print("Invalid turn!"); return }
         guard !moves.contains(move) && (0..<64).contains(move.p) else { print("Invalid move!"); return }
         moves.append(move)
         if movesBack != 0 { movesBack += 1 }
         UIImpactFeedbackGenerator(style: .medium).impactOccurred()
         getHints(for: moves, time: time)
         if player[turn^1] as? Online != nil {
-            FB.main.sendOnlineMove(p: move.p, time: times[turn].last!)
+            FB.main.sendOnlineMove(p: move.p, time: times[turn].last ?? -1)
         }
         guard movesBack == 0 else { return }
         board.addMove(move.p)
@@ -266,10 +286,16 @@ class Game: ObservableObject {
     }
     
     func undoMove() {
+        guard movesBack == 0 else {
+            UINotificationFeedbackGenerator().notificationOccurred(.error)
+            for delay in stride(from: 0.0, to: 0.4, by: 0.3) {
+                Game.main.timers.append(Timer.after(delay, run: { Game.main.nextOpacity = .half }))
+                Game.main.timers.append(Timer.after(delay + 0.15, run: { Game.main.nextOpacity = .full }))
+            }
+            return
+        }
         guard undoOpacity == .full else { return }
-        guard movesBack == 0 else { return }
-        guard winner == nil else { return }
-        guard !hintCard else { return }
+        guard gameState == .active else { return }
         guard let move = moves.popLast() else { return }
         UIImpactFeedbackGenerator(style: .medium).impactOccurred()
         player[0].cancelMove()
@@ -302,7 +328,7 @@ class Game: ObservableObject {
         movesBack += 1
         board.undoMove(for: turn^1)
         currentMove = i > 0 ? moves[i-1] : nil
-        if winner != nil {
+        if gameState != .active {
             replayMode = true
             if totalTime != nil && ghostMoveCount == 0 {
                 currentTimes[turn] = max(0, Int((times[turn][board.move[turn].count]).rounded()))
@@ -318,7 +344,7 @@ class Game: ObservableObject {
         withAnimation {
             nextOpacity = movesBack > 0 ? .full : .half
             if undoOpacity == .full { undoOpacity = .half }
-            let minMoves = winner == myTurn ? 0 : preset.count
+            let minMoves = gameState.myWin ? 0 : preset.count
             if moves.count - movesBack == minMoves { prevOpacity = .half }
         }
     }
@@ -342,7 +368,7 @@ class Game: ObservableObject {
         board.addMove(moves[i].p)
         movesBack -= 1
         currentMove = moves[i]
-        if winner != nil && totalTime != nil && ghostMoveCount == 0 {
+        if gameState == .active && totalTime != nil && ghostMoveCount == 0 {
             currentTimes[turn^1] = max(0, Int((times[turn^1][board.move[turn^1].count]).rounded()))
         }
         newHints()
@@ -354,7 +380,7 @@ class Game: ObservableObject {
                 nextOpacity = .half
             }
         }
-        if winner == nil && movesBack == 0 {
+        if gameState == .active && movesBack == 0 {
             player[turn].move()
         }
     }
@@ -415,11 +441,18 @@ class Game: ObservableObject {
         return op
     }
     
-    func updateWins() {
+    func endGame(with end: GameState) {
+        gameState = end
+        premoves = []
+        if !mode.solve || end.myWin { hints = true }
+        BoardScene.main.spinMoves()
+        withAnimation { undoOpacity = .clear }
+    
         if player[turn] as? Online != nil {
-            FB.main.finishedOnlineGame(with: winner == myTurn ? .myWin : .opWin)
+            FB.main.finishedOnlineGame(with: gameState)
         }
-        if winner == myTurn {
+        
+        if end.myWin {
             if mode == .daily && dayInt != UserDefaults.standard.integer(forKey: Key.lastDC) {
                 Notifications.ifUndetermined {
                     DispatchQueue.main.async {
@@ -429,23 +462,17 @@ class Game: ObservableObject {
                 Notifications.setBadge(justSolved: true, dayInt: dayInt ?? Date().getInt())
                 withAnimation { newStreak = UserDefaults.standard.integer(forKey: Key.streak) }
                 timers.append(Timer.after(2.4, run: { withAnimation { self.newStreak = nil } }))
-            } else if mode == .simple && solveBoard < simpleBoards.count {
-                guard var solves = UserDefaults.standard.array(forKey: Key.simple) as? [Int] else { return }
-                solves[solveBoard] = 1
-                UserDefaults.standard.setValue(solves, forKey: Key.simple)
-            } else if mode == .common && solveBoard < commonBoards.count {
-                guard var solves = UserDefaults.standard.array(forKey: Key.common) as? [Int] else { return }
-                solves[solveBoard] = 1
-                UserDefaults.standard.setValue(solves, forKey: Key.common)
-            } else if mode == .tricky && solveBoard < trickyBoards.count {
-                guard var solves = UserDefaults.standard.array(forKey: Key.tricky) as? [Int] else { return }
-                solves[solveBoard] = 1
-                UserDefaults.standard.setValue(solves, forKey: Key.tricky)
-            } else if mode.train && !hints {
-                var beaten = UserDefaults.standard.array(forKey: Key.train) as? [Int] ?? [0,0,0,0,0,0]
-                beaten[mode.trainValue] = 1
-                UserDefaults.standard.setValue(beaten, forKey: Key.train)
             }
+            else if mode == .simple && solveBoard < simpleBoards.count { recordSolve(type: Key.simple) }
+            else if mode == .common && solveBoard < commonBoards.count { recordSolve(type: Key.common) }
+            else if mode == .tricky && solveBoard < trickyBoards.count { recordSolve(type: Key.tricky) }
+            else if mode.train && !hints { recordSolve(type: Key.train) }
+        }
+        
+        func recordSolve(type: String) {
+            guard var solves = UserDefaults.standard.array(forKey: type) as? [Int] else { return }
+            solves[solveBoard] = 1
+            UserDefaults.standard.setValue(solves, forKey: type)
         }
     }
     
@@ -454,21 +481,16 @@ class Game: ObservableObject {
         for move in moves { b.addMove(move.p) }
         let turn = b.getTurn()
         
-        if winner == nil {
+        if gameState == .active {
             if let total = totalTime {
                 let timeLeft = time ?? (times[turn^1].last! + lastStart[turn^1] - Date.now)
                 times[turn^1].append(min(total, max(0, timeLeft)))
                 currentTimes[turn^1] = Int(min(total, max(timeLeft, 0)))
                 lastStart[turn] = Date.now + 0.2
             }
-            if b.hasW0(turn^1) {
-                winner = turn^1
-                premoves = []
-                BoardScene.main.spinMoves()
-                updateWins()
-                if !mode.solve || winner == myTurn { hints = true }
-                withAnimation { undoOpacity = .clear }
-            } else if !loading {
+            if b.hasW0(turn^1) { endGame(with: turn^1 == myTurn ? .myWin : .opWin) }
+            else if b.numMoves() == 64 { endGame(with: .draw) }
+            else if !loading {
                 timers.append(Timer.after(0.2, run: player[turn].move))
             }
         }

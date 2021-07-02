@@ -24,7 +24,7 @@ class User: Player {
     func move(at p: Int) {
         if Game.main.replayMode {
             Game.main.processGhostMove(p)
-        } else if Game.main.winner == nil {
+        } else if Game.main.gameState == .active {
             if Game.main.premoves.isEmpty {
                 Game.main.processMove(p, for: n, num: b.numMoves())
             }

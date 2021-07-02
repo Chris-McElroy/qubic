@@ -59,10 +59,10 @@ struct AboutView: View {
     }
     
     var swipeGesture: some Gesture {
-        DragGesture()
+        DragGesture(minimumDistance: 30)
             .onEnded { drag in
-                let h = drag.predictedEndTranslation.height
-                let w = drag.predictedEndTranslation.width
+                let h = drag.translation.height
+                let w = drag.translation.width
                 if abs(h)/abs(w) < 1 {
                     if w > 0 {
                         if selected[0] > 0 { selected[0] -= 1 }

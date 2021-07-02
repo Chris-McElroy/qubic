@@ -185,7 +185,7 @@ class FB {
             opGameRef.removeAllObservers()
             opGameRef.observe(DataEventType.value, with: { snapshot in
                 guard var myData = self.myGameData else {
-                    myGameRef.child(Key.state).setValue(GameData.GameState.error.rawValue)
+                    myGameRef.child(Key.state).setValue(GameState.error.rawValue)
                     self.myGameData = nil
                     self.opGameData = nil
                     opGameRef.removeAllObservers()
@@ -241,7 +241,7 @@ class FB {
         myGameRef.setValue(myData.toDict())
     }
     
-    func finishedOnlineGame(with state: GameData.GameState) {
+    func finishedOnlineGame(with state: GameState) {
         guard var myData = myGameData else { return }
         let myGameRef = ref.child("games/\(myID)/\(myData.gameID)")
         let opGameRef = ref.child("games/\(myData.opID)/\(myData.opGameID)")
@@ -317,24 +317,6 @@ class FB {
                 Key.myMoves: myMoves,
                 Key.opMoves: opMoves
             ]
-        }
-        
-        enum GameState: Int {
-            // each one is 1 more
-            case error = 0, new, active, myWin, opWin, myTimeout, opTimeout, myLeave, opLeave, draw
-            
-            func mirror() -> GameState {
-                switch self {
-                case .myWin: return .opWin
-                case .opWin: return .myWin
-                case .myTimeout: return .opTimeout
-                case .opTimeout: return .myTimeout
-                case .myLeave: return .opLeave
-                case .opLeave: return .myLeave
-                case .draw: return .draw
-                default: return .error
-                }
-            }
         }
     }
     

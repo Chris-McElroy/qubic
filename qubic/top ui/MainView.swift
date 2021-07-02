@@ -101,10 +101,8 @@ struct MainView: View {
                 mainButton(views: [.playMenu, .play], text: playText, color: .primary()) { v1,v2 in
                     if layout.current == .playMenu && playSelection[0] == 1 && playSelection[1] != 0 {
                         searching = true
-                        print("searching", playSelection)
                         FB.main.getOnlineMatch(timeLimit: [-1, 60, 300, 600][playSelection[2]], humansOnly: playSelection[1] == 2, onMatch: {
                             searching = false
-                            print("got match")
                             layout.current = .play
                         }, onCancel: { searching = false })
                     } else if layout.current == .playMenu && playSelection[0] == 2 {
@@ -260,10 +258,10 @@ struct MainView: View {
     }
     
     var scrollGestures: some Gesture {
-        DragGesture()
+        DragGesture(minimumDistance: 30)
             .onEnded { drag in
-                let h = drag.predictedEndTranslation.height
-                let w = drag.predictedEndTranslation.width
+                let h = drag.translation.height
+                let w = drag.translation.width
                 if abs(h)/abs(w) > 1 {
                     if self.layout.current == .main {
                         if h < 0 { self.switchLayout(to: .more) }

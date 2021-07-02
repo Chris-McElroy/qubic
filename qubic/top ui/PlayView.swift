@@ -32,7 +32,7 @@ struct PlayView: View {
                 VStack(spacing: 0) {
                     Spacer()
                     HPicker(content: $menuText, dim: (90, 37), selected: $selected, action: onSelection)
-                        .frame(height: 148)
+                        .frame(height: 165)
                 }
                 VStack(spacing: 0) {
                     Spacer()

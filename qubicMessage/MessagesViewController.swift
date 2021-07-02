@@ -21,6 +21,8 @@ class MessagesViewController: MSMessagesAppViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        UserDefaults.standard.setValue(4, forKey: Key.color)
+        
         loadButton.frame = CGRect(x: view.center.x-40, y: 130, width: 80, height: 40)
         loadButton.setTitle("load", for: .normal)
         loadButton.setTitleColor(.label, for: .normal)
@@ -112,9 +114,9 @@ class MessagesViewController: MSMessagesAppViewController {
             if selected?.session == message.session {
                 selected = message
                 print("same session")
-                guard let turn = Game.main.newMove(from: message.url) else { print("error?"); return }
+                guard Game.main.newMove(from: message.url) else { print("error?"); return }
                 print("got turn!")
-                let shadowed = Game.main.winner ?? turn
+                let shadowed = Game.main.realTurn
                 for p in stride(from: 0, through: 1, by: 1) {
                     playerView[p].layer.shadowOpacity = shadowed == p ? 1 : 0
                 }
@@ -155,8 +157,8 @@ class MessagesViewController: MSMessagesAppViewController {
         loadButton.isHidden = true
         picker.picker.isHidden = false
         gameView.isHidden = false
-        let turn = Game.main.load(from: message.url, movable: movable)
-        let shadowed = Game.main.winner ?? turn
+        Game.main.load(from: message.url, movable: movable)
+        let shadowed = Game.main.realTurn
         for p in stride(from: 0, through: 1, by: 1) {
             playerView[p].backgroundColor = .of(n: Game.main.player[p].color)
             playerText[p].text = Game.main.player[p].name
@@ -170,7 +172,7 @@ class MessagesViewController: MSMessagesAppViewController {
     
     func sendMessage(move: Character) {
 //        print("sending move!")
-        if Game.main.winner == nil {
+        if Game.main.gameState == .active {
             playerView[0].layer.shadowOpacity = Game.main.turn == 0 ? 1 : 0
             playerView[1].layer.shadowOpacity = Game.main.turn == 1 ? 1 : 0
         }

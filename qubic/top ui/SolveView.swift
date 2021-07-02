@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-let solveButtonsEnabled = false
+let solveButtonsEnabled = true
 
 struct SolveView: View {
     @ObservedObject var layout = Layout.main
