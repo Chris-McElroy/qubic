@@ -213,8 +213,10 @@ class FB {
                     if myData.state == .active {
                         self.opGameData = opData
                         let nextCount = myData.opMoves.count + 1
-                        if opData.state == .error || opData.state == .myLeave {
-                            self.finishedOnlineGame(with: opData.state.mirror())
+                        // don't include other end states because those are implicit with the moves
+                        print("state:", opData.state)
+                        if opData.state == .error || opData.state == .myLeave || opData.state == .myTimeout {
+                            Game.main.endGame(with: opData.state.mirror())
                         } else if opData.myMoves.count == nextCount && opData.myTimes.count == nextCount {
                             guard let newMove = opData.myMoves.last else { return }
                             guard let newTime = opData.myTimes.last else { return }

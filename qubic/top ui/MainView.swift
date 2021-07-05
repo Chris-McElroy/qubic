@@ -289,9 +289,8 @@ struct MainView: View {
         if halfBack {
             UIImpactFeedbackGenerator(style: .rigid).impactOccurred()
         } else {
-            game.turnOff()
             FB.main.cancelOnlineSearch?()
-            FB.main.finishedOnlineGame(with: .myLeave)
+            game.endGame(with: .myLeave)
             withAnimation(.easeInOut(duration: 0.4)) { //0.4
                 layout.current = layout.current.back
             }

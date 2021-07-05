@@ -166,7 +166,7 @@ extension Board {
             }
             stack = nextStack
             nextStack = []
-            if Date.now > deadline { return nil }
+            if Date.now > deadline { return wins }
         }
         return wins
     }

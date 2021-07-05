@@ -26,6 +26,14 @@ class Online: Player {
             let skill = bot?.skill ?? 0
             let squaredSkill = (2-skill)*skill
             
+            // stats i want to have dials on
+            // speed
+            // offensive attentiveness
+            // defensive attentiveness
+            // lookahead length
+            // rich v poor weight
+            // (Have them be more likely to look for checks if the last move was a check!)
+            
             super.init(b: b, n: n, name: bot?.name ?? "o", color: bot?.color ?? 0,
                        // TODO keep toyin
                        lineP: [3: squaredSkill, -3: squaredSkill, 2: squaredSkill],

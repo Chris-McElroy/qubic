@@ -199,7 +199,7 @@ class Game: ObservableObject {
             let newTime = max(0, Int((times[realTurn].last! + lastStart[realTurn] - Date.now).rounded()))
             if newTime < currentTimes[realTurn] {
                 currentTimes[realTurn] = newTime
-                if newTime == 0 {
+                if newTime == 0 && player[realTurn] as? Online != nil {
                     endGame(with: realTurn == myTurn ? .myTimeout : .opTimeout)
                 }
             }
@@ -368,7 +368,7 @@ class Game: ObservableObject {
         board.addMove(moves[i].p)
         movesBack -= 1
         currentMove = moves[i]
-        if gameState == .active && totalTime != nil && ghostMoveCount == 0 {
+        if gameState != .active && totalTime != nil && ghostMoveCount == 0 {
             currentTimes[turn^1] = max(0, Int((times[turn^1][board.move[turn^1].count]).rounded()))
         }
         newHints()
@@ -442,8 +442,11 @@ class Game: ObservableObject {
     }
     
     func endGame(with end: GameState) {
+        guard gameState == .active else { return }
+        
         gameState = end
         premoves = []
+        print(end, realTurn, moves.count, gameState, gameState.myWin, gameState.opWin)
         if !mode.solve || end.myWin { hints = true }
         BoardScene.main.spinMoves()
         withAnimation { undoOpacity = .clear }
@@ -468,6 +471,8 @@ class Game: ObservableObject {
             else if mode == .tricky && solveBoard < trickyBoards.count { recordSolve(type: Key.tricky) }
             else if mode.train && !hints { recordSolve(type: Key.train) }
         }
+        
+        if end == .myLeave { turnOff() }
         
         func recordSolve(type: String) {
             guard var solves = UserDefaults.standard.array(forKey: type) as? [Int] else { return }
@@ -500,7 +505,7 @@ class Game: ObservableObject {
             if b.hasW0(turn) { nHint = .w0 }
             else if b.hasW1(turn) { nHint = .w1 }
             else if b.hasW2(turn, depth: 1) == true { nHint = .w2d1 }
-            else if b.hasW2(turn) == true { nHint = .w2 }
+            else if b.hasW2(turn) == true { nHint = .w2; print("got w2 for move", moves.count) }
             
             if self.myTurn == turn { moves.last?.myHint = nHint }
             else { moves.last?.opHint = nHint }
