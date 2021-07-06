@@ -104,6 +104,10 @@ struct PlayView: View {
         if component == 0 {
             menuText = mode == .online ? PlayView.onlineMenuText : PlayView.altMenuText
         }
+        var newPlayMenu = selected
+        newPlayMenu[0] = 1
+        newPlayMenu[1] = 1
+        Storage.set(newPlayMenu, for: .lastPlayMenu)
     }
     
     static let tips: [String] = [

@@ -123,7 +123,7 @@ class Layout: ObservableObject {
     private var topSpacerHeight: [ViewState: CGFloat] = [:]
     
     @Published var current: ViewState = .main
-    @Published var leftArrows: Bool = UserDefaults.standard.integer(forKey: Key.arrowSide) == 0
+    @Published var leftArrows: Bool = Storage.int(.arrowSide) == 0
 //    @Published var hue: CGFloat = 0
 //    @Published var baseColor: CGFloat = 0
     var total: CGFloat = 2400

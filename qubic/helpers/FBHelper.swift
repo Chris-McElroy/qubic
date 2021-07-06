@@ -25,7 +25,7 @@ class FB {
     func start() {
         Auth.auth().addStateDidChangeListener { (auth, user) in
             if let user = user {
-                UserDefaults.standard.setValue(user.uid, forKey: Key.uuid)
+                Storage.set(user.uid, for: .uuid)
                 self.observePlayers()
                 self.updateMyData()
                 self.finishedOnlineGame(with: .error)
@@ -53,14 +53,14 @@ class FB {
     
     func updateMyData() {
         let myPlayerRef = ref.child("players/\(myID)")
-        let name = UserDefaults.standard.string(forKey: Key.name) ?? ""
-        let color = UserDefaults.standard.integer(forKey: Key.color)
-        myPlayerRef.setValue([Key.name: name, Key.color: color])
+        let name = Storage.string(.name) ?? ""
+        let color = Storage.int(.color)
+        myPlayerRef.setValue([Key.name.rawValue: name, Key.color.rawValue: color])
     }
     
     func postFeedback(name: String, email: String, feedback: String) {
         let feedbackRef = ref.child("feedback/\(myID)/\(Date.ms)")
-        feedbackRef.setValue([Key.name: name, Key.email: email, Key.feedback: feedback])
+        feedbackRef.setValue([Key.name.rawValue: name, Key.email.rawValue: email, Key.feedback.rawValue: feedback])
     }
     
     func uploadSolveBoard(_ string: String, key: String) {
@@ -185,7 +185,7 @@ class FB {
             opGameRef.removeAllObservers()
             opGameRef.observe(DataEventType.value, with: { snapshot in
                 guard var myData = self.myGameData else {
-                    myGameRef.child(Key.state).setValue(GameState.error.rawValue)
+                    myGameRef.child(Key.state.rawValue).setValue(GameState.error.rawValue)
                     self.myGameData = nil
                     self.opGameData = nil
                     opGameRef.removeAllObservers()
@@ -270,27 +270,27 @@ class FB {
         
         init(from dict: [String: Any], gameID: Int) {
             valid = (
-                dict[Key.myTurn] as? Int != nil &&
-                    dict[Key.opID] as? String != nil &&
-                    dict[Key.opGameID] as? Int != nil &&
-                    dict[Key.hints] as? Int != nil &&
-                    dict[Key.state] as? Int != nil &&
-                    dict[Key.myTimes] as? [Double] != nil &&
-                    dict[Key.opTimes] as? [Double] != nil &&
-                    dict[Key.myMoves] as? [Int] != nil &&
-                    dict[Key.opMoves] as? [Int] != nil
+                dict[Key.myTurn.rawValue] as? Int != nil &&
+                    dict[Key.opID.rawValue] as? String != nil &&
+                    dict[Key.opGameID.rawValue] as? Int != nil &&
+                    dict[Key.hints.rawValue] as? Int != nil &&
+                    dict[Key.state.rawValue] as? Int != nil &&
+                    dict[Key.myTimes.rawValue] as? [Double] != nil &&
+                    dict[Key.opTimes.rawValue] as? [Double] != nil &&
+                    dict[Key.myMoves.rawValue] as? [Int] != nil &&
+                    dict[Key.opMoves.rawValue] as? [Int] != nil
             )
             
             self.gameID = gameID
-            myTurn = dict[Key.myTurn] as? Int ?? 0
-            opID = dict[Key.opID] as? String ?? ""
-            opGameID = dict[Key.opGameID] as? Int ?? 0
-            hints = 1 == dict[Key.hints] as? Int ?? 0
-            state = GameState(rawValue: dict[Key.state] as? Int ?? 0) ?? .error
-            myTimes = dict[Key.myTimes] as? [Double] ?? []
-            opTimes = dict[Key.opTimes] as? [Double] ?? []
-            myMoves = dict[Key.myMoves] as? [Int] ?? []
-            opMoves = dict[Key.opMoves] as? [Int] ?? []
+            myTurn = dict[Key.myTurn.rawValue] as? Int ?? 0
+            opID = dict[Key.opID.rawValue] as? String ?? ""
+            opGameID = dict[Key.opGameID.rawValue] as? Int ?? 0
+            hints = 1 == dict[Key.hints.rawValue] as? Int ?? 0
+            state = GameState(rawValue: dict[Key.state.rawValue] as? Int ?? 0) ?? .error
+            myTimes = dict[Key.myTimes.rawValue] as? [Double] ?? []
+            opTimes = dict[Key.opTimes.rawValue] as? [Double] ?? []
+            myMoves = dict[Key.myMoves.rawValue] as? [Int] ?? []
+            opMoves = dict[Key.opMoves.rawValue] as? [Int] ?? []
         }
         
         init(myInvite: OnlineInviteData, opInvite: OnlineInviteData) {
@@ -309,15 +309,15 @@ class FB {
         
         func toDict() -> [String: Any] {
             [
-                Key.myTurn: myTurn,
-                Key.opID: opID,
-                Key.opGameID: opGameID,
-                Key.hints: hints ? 1 : 0,
-                Key.state: state.rawValue,
-                Key.myTimes: myTimes,
-                Key.opTimes: opTimes,
-                Key.myMoves: myMoves,
-                Key.opMoves: opMoves
+                Key.myTurn.rawValue: myTurn,
+                Key.opID.rawValue: opID,
+                Key.opGameID.rawValue: opGameID,
+                Key.hints.rawValue: hints ? 1 : 0,
+                Key.state.rawValue: state.rawValue,
+                Key.myTimes.rawValue: myTimes,
+                Key.opTimes.rawValue: opTimes,
+                Key.myMoves.rawValue: myMoves,
+                Key.opMoves.rawValue: opMoves
             ]
         }
     }
@@ -327,8 +327,8 @@ class FB {
         let color: Int
         
         init(from dict: [String: Any]) {
-            name = dict[Key.name] as? String ?? "no name"
-            color = dict[Key.color] as? Int ?? 0
+            name = dict[Key.name.rawValue] as? String ?? "no name"
+            color = dict[Key.color.rawValue] as? Int ?? 0
         }
     }
     
@@ -345,15 +345,15 @@ class FB {
         
         init(from dict: [String: Any], ID: String) {
             valid = (
-                dict[Key.gameID] as? Int != nil &&
-                    dict[Key.timeLimit] as? Double != nil &&
-                    dict[Key.opID] as? String != nil
+                dict[Key.gameID.rawValue] as? Int != nil &&
+                    dict[Key.timeLimit.rawValue] as? Double != nil &&
+                    dict[Key.opID.rawValue] as? String != nil
             )
             
             self.ID = ID
-            gameID = dict[Key.gameID] as? Int ?? 0
-            timeLimit = dict[Key.timeLimit] as? Double ?? 0
-            opID = dict[Key.opID] as? String ?? ""
+            gameID = dict[Key.gameID.rawValue] as? Int ?? 0
+            timeLimit = dict[Key.timeLimit.rawValue] as? Double ?? 0
+            opID = dict[Key.opID.rawValue] as? String ?? ""
         }
         
         init(timeLimit: Double) {
@@ -366,9 +366,9 @@ class FB {
         
         func toDict() -> [String: Any] {
             [
-                Key.gameID: gameID,
-                Key.timeLimit: timeLimit,
-                Key.opID: opID
+                Key.gameID.rawValue: gameID,
+                Key.timeLimit.rawValue: timeLimit,
+                Key.opID.rawValue: opID
             ]
         }
         

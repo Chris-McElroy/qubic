@@ -10,11 +10,11 @@ import SwiftUI
 
 class User: Player {
     init(b: Board, n: Int, name: String? = nil) {
-        var username = UserDefaults.standard.string(forKey: Key.name) ?? "you"
+        var username = Storage.string(.name) ?? "you"
         if let name = name {
             username = name
         }
-        super.init(b: b, n: n, name: username, color: UserDefaults.standard.integer(forKey: Key.color), rounded: true)
+        super.init(b: b, n: n, name: username, color: Storage.int(.color), rounded: true)
     }
     
     override func move() {

@@ -11,9 +11,9 @@ import SwiftUI
 struct SettingsView: View {
     @ObservedObject var layout = Layout.main
     var mainButtonAction: () -> Void
-    @State var selected1 = [UserDefaults.standard.integer(forKey: Key.arrowSide), UserDefaults.standard.integer(forKey: Key.premoves), UserDefaults.standard.integer(forKey: Key.notification)]
-    @State var selected2 = [UserDefaults.standard.integer(forKey: Key.color)]
-    @State var username = UserDefaults.standard.string(forKey: Key.name) ?? "me"
+    @State var selected1 = [Storage.int(.arrowSide), Storage.int(.premoves), Storage.int(.notification)]
+    @State var selected2 = [Storage.int(.color)]
+    @State var username = Storage.string(.name) ?? "me"
     @State var showNotificationAlert = false
 //    @State var lineSize = lineWidth
     
@@ -48,10 +48,10 @@ struct SettingsView: View {
                     HPicker(content: .constant(picker1Content), dim: (50,65), selected: $selected1, action: onSelection1)
                         .frame(height: 195)
                         .onAppear {
-                            selected1[notificationComp] = UserDefaults.standard.integer(forKey: Key.notification)
+                            selected1[notificationComp] = Storage.int(.notification)
                             Notifications.ifDenied {
                                 selected1[notificationComp] = 1
-                                UserDefaults.standard.setValue(1, forKey: Key.notification)
+                                Storage.set(1, for: .notification)
                             }
                         }
                     Fill(12)
@@ -101,7 +101,7 @@ struct SettingsView: View {
                         Text("username").frame(height: 20)
                         Fill(7)
                         TextField("enter name", text: $username, onCommit: {
-                            UserDefaults.standard.setValue(username, forKey: Key.name)
+                            Storage.set(username, for: .name)
                             FB.main.updateMyData()
                         })
                             .multilineTextAlignment(.center)
@@ -116,15 +116,15 @@ struct SettingsView: View {
         }
         .background(Fill().onTapGesture {
             hideKeyboard()
-            if username != UserDefaults.standard.string(forKey: Key.name) {
-                UserDefaults.standard.setValue(username, forKey: Key.name)
+            if username != Storage.string(.name) {
+                Storage.set(username, for: .name)
                 FB.main.updateMyData()
             }
         })
     }
     
 //    func setDots(row: Int, component: Int) -> Void {
-//        UserDefaults.standard.setValue(row, forKey: Key.dot)
+//        Storage.set(row, for: .dot)
 //    }
     
     func onSelection1(row: Int, component: Int) -> Void {
@@ -135,16 +135,16 @@ struct SettingsView: View {
                 Notifications.turnOff()
             }
         } else if component == premovesComp {
-            UserDefaults.standard.setValue(row, forKey: Key.premoves)
+            Storage.set(row, for: .premoves)
         } else if component == arrowSideComp {
-            UserDefaults.standard.setValue(row, forKey: Key.arrowSide)
+            Storage.set(row, for: .arrowSide)
             layout.leftArrows = row == 0
         }
     }
     
     func onSelection2(row: Int, component: Int) -> Void {
         if component == colorComp {
-            UserDefaults.standard.setValue(row, forKey: Key.color)
+            Storage.set(row, for: .color)
             FB.main.updateMyData()
         }
     }

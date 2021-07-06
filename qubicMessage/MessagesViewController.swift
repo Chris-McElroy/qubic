@@ -21,7 +21,7 @@ class MessagesViewController: MSMessagesAppViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        UserDefaults.standard.setValue(4, forKey: Key.color)
+        Storage.set(4, for: .color)
         
         loadButton.frame = CGRect(x: view.center.x-40, y: 130, width: 80, height: 40)
         loadButton.setTitle("load", for: .normal)

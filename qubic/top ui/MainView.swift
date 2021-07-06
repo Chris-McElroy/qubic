@@ -13,7 +13,7 @@ struct MainView: View {
     @ObservedObject var game: Game = Game.main
     @ObservedObject var layout = Layout.main
     @State var halfBack: Bool = false
-    @State var playSelection = [1,1,0,0]
+    @State var playSelection: [Int] = Storage.array(.lastPlayMenu) as? [Int] ?? [1,1,0,0]
     @State var searching: Bool = false
     
     // The delegate required by `MFMessageComposeViewController`
@@ -90,7 +90,7 @@ struct MainView: View {
                 .zIndex(0)
             ZStack {
                 mainButton(views: [.solveMenu, .solve], text: solveText, color: .secondary(), action: switchLayout)
-                if UserDefaults.standard.integer(forKey: Key.lastDC) != Date().getInt() {
+                if Storage.int(.lastDC) != Date().getInt() {
                     Circle().frame(width: 24, height: 24).foregroundColor(layout.current == .solveMenu ? .secondary() : .primary()).zIndex(2).offset(x: 88, y: -25)
                 }
             }

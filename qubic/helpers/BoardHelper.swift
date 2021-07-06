@@ -17,31 +17,31 @@ func expandMoves(_ moves: String) -> [Int] {
 let moveStringMap: [Character] = ["Q","W","E","R","T","Y","U","I","O","P","A","S","D","F","G","H","J","K","L","Z","X","C","V","B","N","M","q","w","e","r","t","y","u","i","o","p","a","s","d","f","g","h","j","k","l","z","x","c","v","b","n","m","1","2","3","4","5","6","7","8","9","0","_","-","."]
 
 func setSolveArrays() {
-    if var simple = UserDefaults.standard.array(forKey: Key.simple) as? [Int] {
+    if var simple = Storage.array(.simple) as? [Int] {
         if simple.count > simpleBoards.count {
             simple = simple.dropLast(simple.count - simpleBoards.count)
-            UserDefaults.standard.setValue(simple, forKey: Key.simple)
+            Storage.set(simple, for: .simple)
         } else if simple.count < simpleBoards.count {
             simple += Array(repeating: 0, count: simpleBoards.count - simple.count)
-            UserDefaults.standard.setValue(simple, forKey: Key.simple)
+            Storage.set(simple, for: .simple)
         }
     }
-    if var common = UserDefaults.standard.array(forKey: Key.common) as? [Int] {
+    if var common = Storage.array(.common) as? [Int] {
         if common.count > commonBoards.count {
             common = common.dropLast(common.count - commonBoards.count)
-            UserDefaults.standard.setValue(common, forKey: Key.common)
+            Storage.set(common, for: .common)
         } else if common.count < commonBoards.count {
             common += Array(repeating: 0, count: commonBoards.count - common.count)
-            UserDefaults.standard.setValue(common, forKey: Key.common)
+            Storage.set(common, for: .common)
         }
     }
-    if var tricky = UserDefaults.standard.array(forKey: Key.tricky) as? [Int] {
+    if var tricky = Storage.array(.tricky) as? [Int] {
         if tricky.count > trickyBoards.count {
             tricky = tricky.dropLast(tricky.count - trickyBoards.count)
-            UserDefaults.standard.setValue(tricky, forKey: Key.tricky)
+            Storage.set(tricky, for: .tricky)
         } else if tricky.count < trickyBoards.count {
             tricky += Array(repeating: 0, count: trickyBoards.count - tricky.count)
-            UserDefaults.standard.setValue(tricky, forKey: Key.tricky)
+            Storage.set(tricky, for: .tricky)
         }
     }
 }

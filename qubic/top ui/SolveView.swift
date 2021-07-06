@@ -61,17 +61,17 @@ struct SolveView: View {
     }
     
     var firstSimple: Int {
-        let simple = UserDefaults.standard.array(forKey: Key.simple) as? [Int] ?? [0]
+        let simple = Storage.array(.simple) as? [Int] ?? [0]
         return simple.enumerated().first(where: { $0.element == 0 })?.offset ?? simple.count
     }
     
     var firstCommon: Int {
-        let common = UserDefaults.standard.array(forKey: Key.common) as? [Int] ?? [0]
+        let common = Storage.array(.common) as? [Int] ?? [0]
         return common.enumerated().first(where: { $0.element == 0 })?.offset ?? common.count
     }
     
     var firstTricky: Int {
-        let tricky = UserDefaults.standard.array(forKey: Key.tricky) as? [Int] ?? [0]
+        let tricky = Storage.array(.tricky) as? [Int] ?? [0]
         return tricky.enumerated().first(where: { $0.element == 0 })?.offset ?? tricky.count
     }
     
@@ -91,7 +91,7 @@ struct SolveView: View {
     
     func getStreakView() -> UIView {
         Notifications.setBadge(justSolved: false)
-        let streak = UserDefaults.standard.integer(forKey: Key.streak)
+        let streak = Storage.int(.streak)
         return getLabel(for: "daily\n\(streak)")
         
     //    if text.contains("\n") {
@@ -102,22 +102,22 @@ struct SolveView: View {
 //            streak = "streak: \(streak)"
 //        } else {
 //            streakText = ""
-//            UserDefaults.standard.setValue(0, forKey: DCStreakKey)
+//            Storage.set(0, for: .DCStreak)
 //        }
     }
     
     func getSimpleView() -> UIView {
-        let simple = UserDefaults.standard.array(forKey: Key.simple) as? [Int] ?? [0]
+        let simple = Storage.array(.simple) as? [Int] ?? [0]
         return getLabel(for: "simple\n\(simple.sum())")
     }
     
     func getCommonView() -> UIView {
-        let common = UserDefaults.standard.array(forKey: Key.common) as? [Int] ?? [0]
+        let common = Storage.array(.common) as? [Int] ?? [0]
         return getLabel(for: "common\n\(common.sum())")
     }
     
     func getTrickyView() -> UIView {
-        let tricky = UserDefaults.standard.array(forKey: Key.tricky) as? [Int] ?? [0]
+        let tricky = Storage.array(.tricky) as? [Int] ?? [0]
         return getLabel(for: "tricky\n\(tricky.sum())")
     }
     
@@ -139,12 +139,12 @@ struct SolveView: View {
     func getDailyNames() -> [(String, Bool)] {
         let format = DateFormatter()
         format.dateStyle = .short
-        let solved = Date().getInt() == UserDefaults.standard.integer(forKey: Key.lastDC)
+        let solved = Date().getInt() == Storage.int(.lastDC)
         return [(format.string(from: Date()), solved)]
     }
     
     func getSimpleNames() -> [(String, Bool)] {
-        guard let solves = UserDefaults.standard.array(forKey: Key.simple) as? [Int] else {
+        guard let solves = Storage.array(.simple) as? [Int] else {
             return []
         }
         var boardArray: [(String, Bool)] = []
@@ -156,7 +156,7 @@ struct SolveView: View {
     }
     
     func getCommonNames() -> [(String, Bool)] {
-        guard let solves = UserDefaults.standard.array(forKey: Key.common) as? [Int] else {
+        guard let solves = Storage.array(.common) as? [Int] else {
             return []
         }
         var boardArray: [(String, Bool)] = []
@@ -168,7 +168,7 @@ struct SolveView: View {
     }
     
     func getTrickyNames() -> [(String, Bool)] {
-        guard let solves = UserDefaults.standard.array(forKey: Key.tricky) as? [Int] else {
+        guard let solves = Storage.array(.tricky) as? [Int] else {
             return []
         }
         var boardArray: [(String, Bool)] = []

@@ -17,19 +17,20 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         let defaultLastDC = 737764 // in de past
         UserDefaults.standard.register(defaults: [
-            Key.streak: 0,
-            Key.lastDC: defaultLastDC,
-            Key.train: [0,0,0,0,0,0,0],
-            Key.lastTrain: 0,
-            Key.simple: [0],
-            Key.common: [0],
-            Key.tricky: [0],
-            Key.name: "new player",
-            Key.color: 4,
-            Key.notification: 1,
-            Key.premoves: 1,
-            Key.arrowSide: 1,
-            Key.uuid: "00000000000000000000000000000000"
+            Key.streak.rawValue: 0,
+            Key.lastDC.rawValue: defaultLastDC,
+            Key.train.rawValue: [0,0,0,0,0,0,0],
+            Key.lastTrainMenu.rawValue: [0,1,0],
+            Key.lastPlayMenu.rawValue: [1,1,0,0],
+            Key.simple.rawValue: [0],
+            Key.common.rawValue: [0],
+            Key.tricky.rawValue: [0],
+            Key.name.rawValue: "new player",
+            Key.color.rawValue: 4,
+            Key.notification.rawValue: 1,
+            Key.premoves.rawValue: 1,
+            Key.arrowSide.rawValue: 1,
+            Key.uuid.rawValue: "00000000000000000000000000000000"
         ])
         
         FirebaseApp.configure()

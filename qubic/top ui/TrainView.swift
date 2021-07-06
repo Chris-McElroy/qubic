@@ -10,8 +10,8 @@ import SwiftUI
 
 struct TrainView: View {
     @ObservedObject var layout = Layout.main
-    @State var selected: [Int] = [UserDefaults.standard.integer(forKey: Key.lastTrain),1,0]
-    let beaten = UserDefaults.standard.array(forKey: Key.train) as? [Int] ?? [0,0,0,0,0,0]
+    @State var selected: [Int] = Storage.array(.lastTrainMenu) as? [Int] ?? [0,1,0]
+    let beaten = Storage.array(.train) as? [Int] ?? [0,0,0,0,0,0]
     
     var body: some View {
         if layout.current == .train {
@@ -28,9 +28,9 @@ struct TrainView: View {
     }
     
     func onSelection(row: Int, component: Int) {
-        if component == 0 {
-            UserDefaults.standard.setValue(row, forKey: Key.lastTrain)
-        }
+        var newTrainMenu = selected
+        newTrainMenu[1] = 1
+        Storage.set(newTrainMenu, for: .lastTrainMenu)
     }
 
     var pickerText: [[(String, Bool)]] {

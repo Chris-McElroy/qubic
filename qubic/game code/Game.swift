@@ -196,10 +196,10 @@ class Game: ObservableObject {
     
     func getCurrentTime() {
         if gameState == .active {
-            let newTime = max(0, Int((times[realTurn].last! + lastStart[realTurn] - Date.now).rounded()))
+            let newTime = max(0, Int(((times[realTurn].last ?? 0) + lastStart[realTurn] - Date.now).rounded()))
             if newTime < currentTimes[realTurn] {
                 currentTimes[realTurn] = newTime
-                if newTime == 0 && player[realTurn] as? Online != nil {
+                if newTime == 0 && player[realTurn].local {
                     endGame(with: realTurn == myTurn ? .myTimeout : .opTimeout)
                 }
             }
@@ -226,7 +226,7 @@ class Game: ObservableObject {
         if movesBack != 0 { movesBack += 1 }
         UIImpactFeedbackGenerator(style: .medium).impactOccurred()
         getHints(for: moves, time: time)
-        if player[turn^1] as? Online != nil {
+        if !player[turn^1].local {
             FB.main.sendOnlineMove(p: move.p, time: times[turn].last ?? -1)
         }
         guard movesBack == 0 else { return }
@@ -306,8 +306,8 @@ class Game: ObservableObject {
         board.undoMove(for: turn^1)
         if totalTime != nil {
             times[turn].removeLast()
-            currentTimes[turn] = max(0, Int((times[turn].last!).rounded()))
-            currentTimes[turn^1] = max(0, Int((times[turn^1].last!).rounded()))
+            currentTimes[turn] = max(0, Int((times[turn].last ?? 0).rounded()))
+            currentTimes[turn^1] = max(0, Int((times[turn^1].last ?? 0).rounded()))
             lastStart[turn] = Date.now + 0.5
         }
         BoardScene.main.undoMove(move.p)
@@ -393,7 +393,7 @@ class Game: ObservableObject {
             let total = dailyBoards.count
             let offset = (year+month+day) % (total/31 + (total%31 > day ? 1 : 0))
             preset = expandMoves(dailyBoards[31*offset + day])
-            solved = Date().getInt() == UserDefaults.standard.integer(forKey: Key.lastDC)
+            solved = Date().getInt() == Storage.int(.lastDC)
         } else if mode == .simple {
             getInfo(from: simpleBoards, key: Key.simple)
         } else if mode == .common {
@@ -405,10 +405,10 @@ class Game: ObservableObject {
             solved = false
         }
         
-        func getInfo(from boards: [String], key: String) {
+        func getInfo(from boards: [String], key: Key) {
             if board < boards.count {
                 preset = expandMoves(boards[board])
-                if let array = UserDefaults.standard.array(forKey: key) as? [Int] {
+                if let array = Storage.array(key) as? [Int] {
                     solved = array[board] == 1
                 } else {
                     solved = false
@@ -442,28 +442,27 @@ class Game: ObservableObject {
     }
     
     func endGame(with end: GameState) {
-        guard gameState == .active else { return }
+        guard gameState == .active else { turnOff(); return }
         
         gameState = end
         premoves = []
-        print(end, realTurn, moves.count, gameState, gameState.myWin, gameState.opWin)
         if !mode.solve || end.myWin { hints = true }
         BoardScene.main.spinMoves()
         withAnimation { undoOpacity = .clear }
     
-        if player[turn] as? Online != nil {
+        if !player[turn].local {
             FB.main.finishedOnlineGame(with: gameState)
         }
         
         if end.myWin {
-            if mode == .daily && dayInt != UserDefaults.standard.integer(forKey: Key.lastDC) {
+            if mode == .daily && dayInt != Storage.int(.lastDC) {
                 Notifications.ifUndetermined {
                     DispatchQueue.main.async {
                         self.showDCAlert = true
                     }
                 }
                 Notifications.setBadge(justSolved: true, dayInt: dayInt ?? Date().getInt())
-                withAnimation { newStreak = UserDefaults.standard.integer(forKey: Key.streak) }
+                withAnimation { newStreak = Storage.int(.streak) }
                 timers.append(Timer.after(2.4, run: { withAnimation { self.newStreak = nil } }))
             }
             else if mode == .simple && solveBoard < simpleBoards.count { recordSolve(type: Key.simple) }
@@ -474,10 +473,10 @@ class Game: ObservableObject {
         
         if end == .myLeave { turnOff() }
         
-        func recordSolve(type: String) {
-            guard var solves = UserDefaults.standard.array(forKey: type) as? [Int] else { return }
+        func recordSolve(type: Key) {
+            guard var solves = Storage.array(type) as? [Int] else { return }
             solves[solveBoard] = 1
-            UserDefaults.standard.setValue(solves, forKey: type)
+            Storage.set(solves, for: type)
         }
     }
     
@@ -488,7 +487,7 @@ class Game: ObservableObject {
         
         if gameState == .active {
             if let total = totalTime {
-                let timeLeft = time ?? (times[turn^1].last! + lastStart[turn^1] - Date.now)
+                let timeLeft = time ?? ((times[turn^1].last ?? 0) + lastStart[turn^1] - Date.now)
                 times[turn^1].append(min(total, max(0, timeLeft)))
                 currentTimes[turn^1] = Int(min(total, max(timeLeft, 0)))
                 lastStart[turn] = Date.now + 0.2

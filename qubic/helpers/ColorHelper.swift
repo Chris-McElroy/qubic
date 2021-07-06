@@ -26,17 +26,17 @@ extension UIColor {
     }
     
     static func primary() -> UIColor {
-        let nums = Color.playerColors[UserDefaults.standard.integer(forKey: Key.color)]
+        let nums = Color.playerColors[Storage.int(.color)]
         return UIColor(hue: CGFloat(nums.h), saturation: CGFloat(nums.s), brightness: CGFloat(nums.b), alpha: 1)
     }
     
     static func secondary() -> UIColor {
-        let nums = Color.playerColors[UserDefaults.standard.integer(forKey: Key.color)]
+        let nums = Color.playerColors[Storage.int(.color)]
         return UIColor(hue: CGFloat(nums.h), saturation: CGFloat(nums.s), brightness: CGFloat(nums.b)*0.75, alpha: 1)
     }
     
     static func tertiary() -> UIColor {
-        let nums = Color.playerColors[UserDefaults.standard.integer(forKey: Key.color)]
+        let nums = Color.playerColors[Storage.int(.color)]
         return UIColor(hue: CGFloat(nums.h), saturation: CGFloat(nums.s), brightness: CGFloat(nums.b)*0.5, alpha: 1)
     }
 }
@@ -63,17 +63,17 @@ extension Color {
     }
     
     static func primary() -> Color {
-        let nums = playerColors[UserDefaults.standard.integer(forKey: Key.color)]
+        let nums = playerColors[Storage.int(.color)]
         return Color(hue: nums.h, saturation: nums.s, brightness: nums.b)
     }
 
     static func secondary() -> Color {
-        let nums = playerColors[UserDefaults.standard.integer(forKey: Key.color)]
+        let nums = playerColors[Storage.int(.color)]
         return Color(hue: nums.h, saturation: nums.s, brightness: nums.b*0.75)
     }
 
     static func tertiary() -> Color {
-        let nums = playerColors[UserDefaults.standard.integer(forKey: Key.color)]
+        let nums = playerColors[Storage.int(.color)]
         return Color(hue: nums.h, saturation: nums.s, brightness: nums.b*0.5)
     }
 }

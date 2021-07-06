@@ -15,10 +15,11 @@ class Player {
     let name: String
     var color: Int
     let rounded: Bool
+    let local: Bool
     
     let lineP: [Int: Double]
     let dirStats: [Double]
-    let depth: Int
+    var depth: Int
     let w2BlockP: Double
     let lineScore: [Double]
     let bucketP: Double
@@ -33,6 +34,7 @@ class Player {
         self.name = ""
         self.color = 0
         self.rounded = false
+        self.local = true
         
         lineP = [:]
         dirStats = []
@@ -42,13 +44,14 @@ class Player {
         bucketP = 0
     }
     
-    init(b: Board, n: Int, name: String = "", color: Int = 0, rounded: Bool = false) {
+    init(b: Board, n: Int, name: String = "", color: Int = 0, rounded: Bool = false, local: Bool = true) {
         self.b = b
         self.n = n
         self.o = n^1
         self.name = name
         self.color = color
         self.rounded = rounded
+        self.local = local
         
         lineP = [:]
         dirStats = []
@@ -58,13 +61,14 @@ class Player {
         bucketP = 0
     }
     
-    init(b: Board, n: Int, name: String, color: Int, rounded: Bool = false, lineP: [Int: Double], dirStats: [Double], depth: Int, w2BlockP: Double, lineScore: [Double], bucketP: Double) {
+    init(b: Board, n: Int, name: String, color: Int, rounded: Bool = false, local: Bool = false, lineP: [Int: Double], dirStats: [Double], depth: Int, w2BlockP: Double, lineScore: [Double], bucketP: Double) {
         self.b = b
         self.n = n
         self.o = n^1
         self.name = name
         self.color = color
         self.rounded = rounded
+        self.local = local
         
         self.lineP = lineP
         self.dirStats = dirStats
@@ -105,12 +109,7 @@ class Player {
     func myW1() -> Int? { shouldMove(in: b.getW1(for: n), s: 3) }
     func opW1() -> Int? { shouldMove(in: b.getW1(for: o), s: -3) }
     func myW2() -> Int? { shouldMove(in: b.getW2(for: n, depth: depth) ?? [], s: 2) }
-    func opW2() -> Set<Int>? {
-        if w2BlockP > .random(in: 0..<1) {
-            return b.getW2Blocks(for: n, depth: depth)
-        }
-        return nil
-    }
+    func opW2() -> Set<Int>? { w2BlockP > .random(in: 0..<1) ? b.getW2Blocks(for: n, depth: depth) : nil }
     
     func shouldMove(in set: Set<Int>, s: Int) -> Int? {
         let baseP = lineP[s] ?? 0

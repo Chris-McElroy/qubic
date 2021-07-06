@@ -113,7 +113,7 @@ class BoardScene {
             }
             if let user = Game.main.player[turn] as? User, Game.main.premoves.isEmpty {
                 user.move(at: p)
-            } else if Game.main.gameState == .active && UserDefaults.standard.integer(forKey: Key.premoves) == 0 {
+            } else if Game.main.gameState == .active && Storage.int(.premoves) == 0 {
                 if Game.main.premoves.contains(p) {
                     Game.main.premoves = []
                 } else {
@@ -137,7 +137,7 @@ class BoardScene {
             showWins(lines, color: color, ghost: ghost)
         }
         
-//        if UserDefaults.standard.integer(forKey: Key.dot) == 0 {
+//        if Storage.int(.dot) == 0 {
 //        } else {
 //            addCube(move: move, color: color, opacity: ghost ? 0.7 : 1)
 //            moves.last?.runAction(SceneHelper.getHalfRotate())
@@ -250,12 +250,12 @@ class BoardScene {
     func spinMoves() {
         let list: Set<Int> = Game.main.showHintFor == nil ? Set(Game.main.premoves) : Game.main.currentHintMoves ?? []
         for (i, space) in spaces.enumerated() {
-            if space.actionKeys.contains(Key.spin) != list.contains(i) {
+            if space.actionKeys.contains(Key.spin.rawValue) != list.contains(i) {
                 if list.contains(i) {
                     let spin = SCNAction.rotate(by: .pi*2, around: SCNVector3(0,1,0), duration: 1.0)
                     let longSpin = SCNAction.repeatForever(spin)
                     space.removeAllActions()
-                    space.runAction(longSpin, forKey: Key.spin)
+                    space.runAction(longSpin, forKey: Key.spin.rawValue)
                 } else {
                     let dir: Float = space.rotation.y > 0 ? 1 : -1
                     let next = dir*((dir*space.rotation.w/(.pi/2)).rounded(.up))*(.pi/2)
