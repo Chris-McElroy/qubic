@@ -450,7 +450,7 @@ class Game: ObservableObject {
         BoardScene.main.spinMoves()
         withAnimation { undoOpacity = .clear }
     
-        if !player[turn].local {
+        if !player[myTurn^1].local {
             FB.main.finishedOnlineGame(with: gameState)
         }
         

@@ -206,7 +206,7 @@ struct MainView: View {
 //            Spacer().frame(width: layout.leftArrows ? 20 : 10)
             Button(action: game.undoMove) {
                 VStack(spacing: 0) {
-                    Fill(20).cornerRadius(10)
+                    Fill(20).cornerRadius(10).opacity(0.00001)
                     Text("undo")
                         .font(.custom("Oligopoly Regular", size: 16))
                         .accentColor(.label)
@@ -228,7 +228,7 @@ struct MainView: View {
 //            Spacer().frame(width: layout.leftArrows ? 30 : 0)
             Button(action: game.prevMove) {
                 VStack(spacing: 0) {
-                    Fill(20).cornerRadius(10)
+                    Fill(20).cornerRadius(10).opacity(0.00001)
                     Text("←")
                         .font(.custom("Oligopoly Regular", size: 25))
                         .accentColor(.label)
@@ -242,7 +242,7 @@ struct MainView: View {
             Spacer().frame(width: 15)
             Button(action: game.nextMove) {
                 VStack(spacing: 0) {
-                    Fill(20).cornerRadius(10)
+                    Fill(20).cornerRadius(10).opacity(0.00001)
                     Text("→")
                         .font(.custom("Oligopoly Regular", size: 25))
                         .accentColor(.label)

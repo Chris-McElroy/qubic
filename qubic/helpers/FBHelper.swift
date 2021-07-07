@@ -214,7 +214,6 @@ class FB {
                         self.opGameData = opData
                         let nextCount = myData.opMoves.count + 1
                         // don't include other end states because those are implicit with the moves
-                        print("state:", opData.state)
                         if opData.state == .error || opData.state == .myLeave || opData.state == .myTimeout {
                             Game.main.endGame(with: opData.state.mirror())
                         } else if opData.myMoves.count == nextCount && opData.myTimes.count == nextCount {

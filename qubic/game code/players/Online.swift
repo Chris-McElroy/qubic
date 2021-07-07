@@ -17,7 +17,7 @@ class Online: Player {
             self.op = op
             bot = nil
             
-            super.init(b: b, n: n, name: op.name, color: op.color, rounded: true)
+            super.init(b: b, n: n, name: op.name, color: op.color, rounded: true, local: false)
         } else {
             op = nil
             let bot = Online.bots.randomElement()!
@@ -28,7 +28,7 @@ class Online: Player {
 //            let skill = bot.skill ?? 0
 //            let squaredSkill = (2-skill)*skill
             
-            super.init(b: b, n: n, name: bot.name, color: bot.color, rounded: false, local: false,
+            super.init(b: b, n: n, name: bot.name, color: bot.color, rounded: false,
                        lineP: [3: bot.offAtt*3, -3: bot.defAtt, 2: bot.offAtt],
                        dirStats: Player.setStats(hs: min(1, bot.care*6), vs: min(1, bot.care*2.4), hd: min(1, bot.care*2), vd: min(1, bot.care*1.2), md: min(1, bot.care*1.8)),
                        depth: bot.depth,

@@ -61,7 +61,7 @@ class Player {
         bucketP = 0
     }
     
-    init(b: Board, n: Int, name: String, color: Int, rounded: Bool = false, local: Bool = false, lineP: [Int: Double], dirStats: [Double], depth: Int, w2BlockP: Double, lineScore: [Double], bucketP: Double) {
+    init(b: Board, n: Int, name: String, color: Int, rounded: Bool = false, local: Bool = true, lineP: [Int: Double], dirStats: [Double], depth: Int, w2BlockP: Double, lineScore: [Double], bucketP: Double) {
         self.b = b
         self.n = n
         self.o = n^1

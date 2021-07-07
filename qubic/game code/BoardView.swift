@@ -135,6 +135,8 @@ class BoardScene {
         
         if let lines = wins {
             showWins(lines, color: color, ghost: ghost)
+        } else if Game.main.moves.count == 64 && !ghost {
+            spinBoard()
         }
         
 //        if Storage.int(.dot) == 0 {
@@ -145,17 +147,18 @@ class BoardScene {
     }
     
     private func showWins(_ lines: [Int], color: UIColor, ghost: Bool = false) {
-        // TODO see if it's a draw
         Game.main.timers.append(Timer.after(0.2, run: {
             for line in lines {
                 self.winLines[line].setColor(color)
                 self.winLines[line].opacity = ghost ? 0.3 : 1
                 self.base.addChildNode(self.winLines[line])
             }
-            if !ghost {
-                self.base.runAction(SceneHelper.getFullRotate(1.45))
-            }
+            if !ghost { self.spinBoard() }
         }))
+    }
+    
+    func spinBoard() {
+        base.runAction(SceneHelper.getFullRotate(1.45))
     }
     
     private func hideWins(_ lines: [Int]) {
