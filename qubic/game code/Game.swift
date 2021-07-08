@@ -166,7 +166,7 @@ class Game: ObservableObject {
         
         func setPreset(_ boardNum: Int, for mode: GameMode) {
             if mode == .daily {
-                let m = dayInt*dayInt*dayInt
+                let m = dayInt*dayInt*(dayInt+boardNum)
                 let size = dailyBoards[boardNum].count/3
                 let aNum = (m/(10000000*size)) % 192
                 let bNum = ((m/1000000) % size) + size*(dayInt % 3)
