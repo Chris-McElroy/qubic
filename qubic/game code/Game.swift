@@ -103,14 +103,14 @@ class Game: ObservableObject {
     var lastStart: [Double] = [0,0]
     var preset: [Int] = []
     var mode: GameMode = .local
-    var dayInt: Int? = nil
+    var dayInt: Int = Date.int
     var solveBoard: Int = 0
     var gameState: GameState = .new
     var replayMode: Bool = false
     var solved: Bool = false
     var leaving: Bool = false
     private var board = Board()
-    let hintQueue = DispatchQueue(label: "hint queue", qos: .userInitiated)
+    let hintQueue = OperationQueue()
     var movesBack: Int = 0
     var ghostMoveStart: Int = 0
     var ghostMoveCount: Int = 0
@@ -126,24 +126,8 @@ class Game: ObservableObject {
         return nil
     }
     
-    init() { }
-    
-    func turnOff() {
-        guard mode != .off else { return }
-        
-        for timer in timers {
-            timer.invalidate()
-        }
-        timers = []
-        
-        player[0].cancelMove()
-        player[1].cancelMove()
-        
-        undoOpacity = .clear
-        prevOpacity = .clear
-        nextOpacity = .clear
-        
-        self.mode = .off
+    init() {
+        hintQueue.qualityOfService = .userInitiated
     }
     
     func load(mode: GameMode, boardNum: Int = 0, turn: Int? = nil, hints: Bool = false, time: Double? = nil) {
@@ -169,7 +153,7 @@ class Game: ObservableObject {
         premoves = []
         showHintFor = nil
         setPreset(boardNum, for: mode)
-        dayInt = Date().getInt()
+        dayInt = Date.int
         solveBoard = boardNum
         myTurn = turn != nil ? turn! : preset.count % 2
         self.mode = mode
@@ -179,6 +163,55 @@ class Game: ObservableObject {
         player = myTurn == 0 ? [me, op] : [op, me]
         for p in preset { loadMove(p) }
         newHints()
+        
+        func setPreset(_ boardNum: Int, for mode: GameMode) {
+            if mode == .daily {
+                let m = dayInt*dayInt*dayInt
+                let size = dailyBoards[boardNum].count/3
+                let aNum = (m/(10000000*size)) % 192
+                let bNum = ((m/1000000) % size) + size*(dayInt % 3)
+                preset = expandMoves(dailyBoards[boardNum][bNum]).map { Board.automorphisms[aNum][$0] }
+                solved = (Storage.array(.daily) as? [Int])?[boardNum] == 1
+            }
+            else if mode == .simple { getInfo(from: simpleBoards, key: .simple) }
+            else if mode == .common { getInfo(from: commonBoards, key: .common) }
+            else if mode == .tricky { getInfo(from: trickyBoards, key: .tricky) }
+            else {
+                preset = []
+                solved = false
+            }
+            
+            func getInfo(from boards: [String], key: Key) {
+                if boardNum < boards.count {
+                    preset = expandMoves(boards[boardNum])
+                    solved = (Storage.array(key) as? [Int])?[boardNum] == 1
+                } else {
+                    preset = Board.getAutomorphism(for: expandMoves(boards.randomElement() ?? ""))
+                    solved = false
+                }
+            }
+        }
+        
+        func getOp(boardNum: Int, myColor: Int) -> Player {
+            let op: Player
+            switch mode {
+            case .novice:   op = Novice(b: board, n: myTurn^1)
+            case .defender: op = Defender(b: board, n: myTurn^1)
+            case .warrior:  op = Warrior(b: board, n: myTurn^1)
+            case .tyrant:   op = Tyrant(b: board, n: myTurn^1)
+            case .oracle:   op = Oracle(b: board, n: myTurn^1)
+            case .cubist:   op = Cubist(b: board, n: myTurn^1)
+            case .daily:    op = Daily(b: board, n: myTurn^1, num: boardNum)
+            case .simple:   op = Simple(b: board, n: myTurn^1, num: boardNum)
+            case .common:   op = Common(b: board, n: myTurn^1, num: boardNum)
+            case .tricky:   op = Tricky(b: board, n: myTurn^1, num: boardNum)
+            case .local:    op = User(b: board, n: myTurn^1, name: "friend")
+            case .online:   op = Online(b: board, n: myTurn^1)
+            default:        op = Novice(b: board, n: myTurn^1)
+            }
+            if myColor == op.color { op.color = [4, 4, 1, 4, 6, 7, 4, 5, 7][myColor] }
+            return op
+        }
     }
     
     func startGame() {
@@ -260,6 +293,98 @@ class Game: ObservableObject {
         withAnimation {
             prevOpacity = .full
             nextOpacity = .half
+        }
+    }
+    
+    func getHints(for moves: [Move], loading: Bool = false, time: Double? = nil) {
+        let b = Board()
+        for move in moves { b.addMove(move.p) }
+        let turn = b.getTurn()
+        
+        if gameState == .active {
+            if let total = totalTime {
+                let timeLeft = time ?? ((times[turn^1].last ?? 0) + lastStart[turn^1] - Date.now)
+                times[turn^1].append(min(total, max(0, timeLeft)))
+                currentTimes[turn^1] = Int(min(total, max(timeLeft, 0)))
+                lastStart[turn] = Date.now + 0.2
+            }
+            if b.hasW0(turn^1) { endGame(with: turn^1 == myTurn ? .myWin : .opWin) }
+            else if b.numMoves() == 64 { endGame(with: .draw) }
+            else if !loading {
+                timers.append(Timer.after(0.2, run: player[turn].move))
+            }
+        }
+        
+        hintQueue.addOperation {
+            var nHint: HintValue = .noW
+            if b.hasW0(turn) { nHint = .w0 }
+            else if b.hasW1(turn) { nHint = .w1 }
+            else if b.hasW2(turn, depth: 1) == true { nHint = .w2d1 }
+            else if b.hasW2(turn) == true { nHint = .w2 } // print("got w2 for move", moves.count) }
+            
+            if self.myTurn == turn { moves.last?.myHint = nHint }
+            else { moves.last?.opHint = nHint }
+            
+            if solveButtonsEnabled {
+                if nHint == .w1 {
+                    moves.last?.solveType = .d1
+                } else if nHint == .w2d1 {
+                    moves.last?.solveType = .d2
+                } else if nHint == .w2 {
+                    if b.hasW2(turn, depth: 2) == true {
+                        moves.last?.solveType = .d3
+                    } else if b.hasW2(turn, depth: 3) == true {
+                        moves.last?.solveType = .d4
+                    } else if b.hasW2(turn, depth: 5) == false {
+                        moves.last?.solveType = .tr
+                    }
+                } else {
+                    moves.last?.solveType = .no
+                }
+            }
+            DispatchQueue.main.async { self.newHints() }
+            
+            var oHint: HintValue = .noW
+            if b.hasW0(turn^1) { oHint = .w0 }
+            else if b.getW1(for: turn^1).count > 1 { oHint = .cm1 }
+            else if b.hasW1(turn^1) { oHint = .c1 }
+            else if b.hasW2(turn^1) == true {
+                if b.getW2Blocks(for: turn) == nil { oHint = .cm2 }
+                else if b.hasW2(turn^1, depth: 1) == true { oHint = .c2d1 }
+                else { oHint = .c2 }
+            }
+            
+            if self.myTurn == turn { moves.last?.opHint = oHint }
+            else { moves.last?.myHint = oHint }
+            DispatchQueue.main.async { self.newHints() }
+            
+            var nMoves: Set<Int> = []
+            switch nHint {
+            case .w1: nMoves = b.getW1(for: turn)
+            case .w2: nMoves = b.getW2(for: turn) ?? []
+            case .w2d1: nMoves = b.getW2(for: turn, depth: 1) ?? []
+            default: break
+            }
+            
+            if self.myTurn == turn { moves.last?.myMoves = nMoves }
+            else { moves.last?.opMoves = nMoves }
+            if self.showHintFor == 1 {
+                DispatchQueue.main.async { BoardScene.main.spinMoves() }
+            }
+            
+            var oMoves: Set<Int> = []
+            switch oHint {
+            case .c1, .cm1: oMoves = b.getW1(for: turn^1)
+            case .c2d1: oMoves = b.getW2Blocks(for: turn, depth: 1) ?? []
+            case .c2: oMoves = b.getW2Blocks(for: turn) ?? []
+            default: break
+            }
+            
+            if self.myTurn == turn { moves.last?.opMoves = oMoves }
+            else { moves.last?.myMoves = oMoves }
+            if self.showHintFor == 0 {
+                DispatchQueue.main.async { BoardScene.main.spinMoves() }
+            }
         }
     }
     
@@ -385,62 +510,6 @@ class Game: ObservableObject {
         }
     }
     
-    private func setPreset(_ board: Int, for mode: GameMode) {
-        if mode == .daily {
-            let day = Calendar.current.component(.day, from: Date())
-            let month = Calendar.current.component(.month, from: Date())
-            let year = Calendar.current.component(.year, from: Date())
-            let total = dailyBoards.count
-            let offset = (year+month+day) % (total/31 + (total%31 > day ? 1 : 0))
-            preset = expandMoves(dailyBoards[31*offset + day])
-            solved = Date().getInt() == Storage.int(.lastDC)
-        } else if mode == .simple {
-            getInfo(from: simpleBoards, key: Key.simple)
-        } else if mode == .common {
-            getInfo(from: commonBoards, key: Key.common)
-        } else if mode == .tricky {
-            getInfo(from: trickyBoards, key: Key.tricky)
-        } else {
-            preset = []
-            solved = false
-        }
-        
-        func getInfo(from boards: [String], key: Key) {
-            if board < boards.count {
-                preset = expandMoves(boards[board])
-                if let array = Storage.array(key) as? [Int] {
-                    solved = array[board] == 1
-                } else {
-                    solved = false
-                }
-            } else {
-                preset = Board.getAutomorphism(for: expandMoves(boards.randomElement() ?? ""))
-                solved = false
-            }
-        }
-    }
-    
-    private func getOp(boardNum: Int, myColor: Int) -> Player {
-        let op: Player
-        switch mode {
-        case .novice:   op = Novice(b: board, n: myTurn^1)
-        case .defender: op = Defender(b: board, n: myTurn^1)
-        case .warrior:  op = Warrior(b: board, n: myTurn^1)
-        case .tyrant:   op = Tyrant(b: board, n: myTurn^1)
-        case .oracle:   op = Oracle(b: board, n: myTurn^1)
-        case .cubist:   op = Cubist(b: board, n: myTurn^1)
-        case .daily:    op = Daily(b: board, n: myTurn^1)
-        case .simple:   op = Simple(b: board, n: myTurn^1, num: boardNum)
-        case .common:   op = Common(b: board, n: myTurn^1, num: boardNum)
-        case .tricky:   op = Tricky(b: board, n: myTurn^1, num: boardNum)
-        case .local:    op = User(b: board, n: myTurn^1, name: "friend")
-        case .online:   op = Online(b: board, n: myTurn^1)
-        default:        op = Daily(b: board, n: myTurn^1)
-        }
-        if myColor == op.color { op.color = [4, 4, 1, 4, 6, 7, 4, 5, 7][myColor] }
-        return op
-    }
-    
     func endGame(with end: GameState) {
         guard gameState == .active else { turnOff(); return }
         
@@ -454,122 +523,54 @@ class Game: ObservableObject {
             FB.main.finishedOnlineGame(with: gameState)
         }
         
+        if end == .myTimeout || end == .opTimeout { BoardScene.main.spinBoard() }
+        
         if end.myWin {
-            if mode == .daily && dayInt != Storage.int(.lastDC) {
-                Notifications.ifUndetermined {
-                    DispatchQueue.main.async {
-                        self.showDCAlert = true
+            if mode == .daily {
+                recordSolve(type: .daily)
+                if (Storage.array(.daily) as? [Int])?.sum() == 4 && dayInt != Storage.int(.lastDC) {
+                    Notifications.ifUndetermined {
+                        DispatchQueue.main.async {
+                            self.showDCAlert = true
+                        }
                     }
+                    Notifications.setBadge(justSolved: true, dayInt: dayInt)
+                    withAnimation { newStreak = Storage.int(.streak) }
+                    timers.append(Timer.after(2.4, run: { withAnimation { self.newStreak = nil } }))
                 }
-                Notifications.setBadge(justSolved: true, dayInt: dayInt ?? Date().getInt())
-                withAnimation { newStreak = Storage.int(.streak) }
-                timers.append(Timer.after(2.4, run: { withAnimation { self.newStreak = nil } }))
             }
-            else if mode == .simple && solveBoard < simpleBoards.count { recordSolve(type: Key.simple) }
-            else if mode == .common && solveBoard < commonBoards.count { recordSolve(type: Key.common) }
-            else if mode == .tricky && solveBoard < trickyBoards.count { recordSolve(type: Key.tricky) }
-            else if mode.train && !hints { recordSolve(type: Key.train) }
+            else if mode == .simple { recordSolve(type: .simple) }
+            else if mode == .common { recordSolve(type: .common) }
+            else if mode == .tricky { recordSolve(type: .tricky) }
+            else if mode.train && !hints { recordSolve(type: .train) }
         }
         
         if end == .myLeave { turnOff() }
         
         func recordSolve(type: Key) {
-            guard var solves = Storage.array(type) as? [Int] else { return }
+            guard var solves = Storage.array(type) as? [Int], solveBoard < solves.count else { return }
             solves[solveBoard] = 1
             Storage.set(solves, for: type)
         }
     }
     
-    func getHints(for moves: [Move], loading: Bool = false, time: Double? = nil) {
-        let b = Board()
-        for move in moves { b.addMove(move.p) }
-        let turn = b.getTurn()
+    func turnOff() {
+        guard mode != .off else { return }
         
-        if gameState == .active {
-            if let total = totalTime {
-                let timeLeft = time ?? ((times[turn^1].last ?? 0) + lastStart[turn^1] - Date.now)
-                times[turn^1].append(min(total, max(0, timeLeft)))
-                currentTimes[turn^1] = Int(min(total, max(timeLeft, 0)))
-                lastStart[turn] = Date.now + 0.2
-            }
-            if b.hasW0(turn^1) { endGame(with: turn^1 == myTurn ? .myWin : .opWin) }
-            else if b.numMoves() == 64 { endGame(with: .draw) }
-            else if !loading {
-                timers.append(Timer.after(0.2, run: player[turn].move))
-            }
+        for timer in timers {
+            timer.invalidate()
         }
+        timers = []
+        hintQueue.cancelAllOperations()
         
-        hintQueue.async {
-            var nHint: HintValue = .noW
-            if b.hasW0(turn) { nHint = .w0 }
-            else if b.hasW1(turn) { nHint = .w1 }
-            else if b.hasW2(turn, depth: 1) == true { nHint = .w2d1 }
-            else if b.hasW2(turn) == true { nHint = .w2; print("got w2 for move", moves.count) }
-            
-            if self.myTurn == turn { moves.last?.myHint = nHint }
-            else { moves.last?.opHint = nHint }
-            
-            if solveButtonsEnabled {
-                if nHint == .w1 {
-                    moves.last?.solveType = .d1
-                } else if nHint == .w2d1 {
-                    moves.last?.solveType = .d2
-                } else if nHint == .w2 {
-                    if b.hasW2(turn, depth: 2) == true {
-                        moves.last?.solveType = .d3
-                    } else if b.hasW2(turn, depth: 3) == true {
-                        moves.last?.solveType = .d4
-                    } else if b.hasW2(turn, depth: 5) == false {
-                        moves.last?.solveType = .tr
-                    }
-                } else {
-                    moves.last?.solveType = .no
-                }
-            }
-            DispatchQueue.main.async { self.newHints() }
-            
-            var oHint: HintValue = .noW
-            if b.hasW0(turn^1) { oHint = .w0 }
-            else if b.getW1(for: turn^1).count > 1 { oHint = .cm1 }
-            else if b.hasW1(turn^1) { oHint = .c1 }
-            else if b.hasW2(turn^1) == true {
-                if b.getW2Blocks(for: turn) == nil { oHint = .cm2 }
-                else if b.hasW2(turn^1, depth: 1) == true { oHint = .c2d1 }
-                else { oHint = .c2 }
-            }
-            
-            if self.myTurn == turn { moves.last?.opHint = oHint }
-            else { moves.last?.myHint = oHint }
-            DispatchQueue.main.async { self.newHints() }
-            
-            var nMoves: Set<Int> = []
-            switch nHint {
-            case .w1: nMoves = b.getW1(for: turn)
-            case .w2: nMoves = b.getW2(for: turn) ?? []
-            case .w2d1: nMoves = b.getW2(for: turn, depth: 1) ?? []
-            default: break
-            }
-            
-            if self.myTurn == turn { moves.last?.myMoves = nMoves }
-            else { moves.last?.opMoves = nMoves }
-            if self.showHintFor == 1 {
-                DispatchQueue.main.async { BoardScene.main.spinMoves() }
-            }
-            
-            var oMoves: Set<Int> = []
-            switch oHint {
-            case .c1, .cm1: oMoves = b.getW1(for: turn^1)
-            case .c2d1: oMoves = b.getW2Blocks(for: turn, depth: 1) ?? []
-            case .c2: oMoves = b.getW2Blocks(for: turn) ?? []
-            default: break
-            }
-            
-            if self.myTurn == turn { moves.last?.opMoves = oMoves }
-            else { moves.last?.myMoves = oMoves }
-            if self.showHintFor == 0 {
-                DispatchQueue.main.async { BoardScene.main.spinMoves() }
-            }
-        }
+        player[0].cancelMove()
+        player[1].cancelMove()
+        
+        undoOpacity = .clear
+        prevOpacity = .clear
+        nextOpacity = .clear
+        
+        self.mode = .off
     }
     
     func uploadSolveBoard(_ key: String) {

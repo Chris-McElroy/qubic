@@ -12,6 +12,7 @@ enum Key: String {
     case streak = "DCStreak"
     case lastDC = "LastDC"
     case badge = "qubic badge notification"
+    case daily = "daily"
     case simple = "simple"
     case common = "common"
     case tricky = "tricky"

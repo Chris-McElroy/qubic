@@ -24,9 +24,9 @@ struct SolveView: View {
     var boardNum: Int {
         switch selected[1] {
         case 0: return selected[0] - 0
-        case 1: return selected[0] - 1
-        case 2: return selected[0] - (simpleBoards.count + 2)
-        default: return selected[0] - (simpleBoards.count + commonBoards.count + 3)
+        case 1: return selected[0] - 4
+        case 2: return selected[0] - (simpleBoards.count + 5)
+        default: return selected[0] - (simpleBoards.count + commonBoards.count + 6)
         }
     }
     
@@ -48,37 +48,26 @@ struct SolveView: View {
         if component == 1 {
             switch row {
             case 0: selected[0] = 0; break
-            case 1: selected[0] = 1 + firstSimple; break
-            case 2: selected[0] = simpleBoards.count + 2 + firstCommon; break
-            default: selected[0] = simpleBoards.count + commonBoards.count + 3 + firstTricky; break
+            case 1: selected[0] = 4 + firstBoard(of: .simple); break
+            case 2: selected[0] = 5 + simpleBoards.count + firstBoard(of: .common); break
+            default: selected[0] = 6 + simpleBoards.count + commonBoards.count + firstBoard(of: .tricky); break
             }
         } else {
-            if row < 1 { selected[1] = 0 }
-            else if row < simpleBoards.count + 2 { selected[1] = 1 }
-            else if row < simpleBoards.count + commonBoards.count + 3 { selected[1] = 2 }
+            if row < 4 { selected[1] = 0 }
+            else if row < simpleBoards.count + 5 { selected[1] = 1 }
+            else if row < simpleBoards.count + commonBoards.count + 6 { selected[1] = 2 }
             else { selected[1] = 3 }
         }
     }
     
-    var firstSimple: Int {
-        let simple = Storage.array(.simple) as? [Int] ?? [0]
-        return simple.enumerated().first(where: { $0.element == 0 })?.offset ?? simple.count
+    func firstBoard(of type: Key) -> Int {
+        let list = Storage.array(type) as? [Int] ?? [0]
+        return list.enumerated().first(where: { $0.element == 0 })?.offset ?? list.count
     }
-    
-    var firstCommon: Int {
-        let common = Storage.array(.common) as? [Int] ?? [0]
-        return common.enumerated().first(where: { $0.element == 0 })?.offset ?? common.count
-    }
-    
-    var firstTricky: Int {
-        let tricky = Storage.array(.tricky) as? [Int] ?? [0]
-        return tricky.enumerated().first(where: { $0.element == 0 })?.offset ?? tricky.count
-    }
-    
     
     // TODO make this a state var so that you can update it when the day changes etc
     func getPickerText() -> [[Any]] {
-        let streak = getStreakView
+        let daily = getDailyView
         let simple = getSimpleView
         let common = getCommonView
         let tricky = getTrickyView
@@ -86,10 +75,10 @@ struct SolveView: View {
         boardNames += getSimpleNames()
         boardNames += getCommonNames()
         boardNames += getTrickyNames()
-        return [boardNames, [streak, simple, common, tricky]]
+        return [boardNames, [daily, simple, common, tricky]]
     }
     
-    func getStreakView() -> UIView {
+    func getDailyView() -> UIView {
         Notifications.setBadge(justSolved: false)
         let streak = Storage.int(.streak)
         return getLabel(for: "daily\n\(streak)")
@@ -137,10 +126,14 @@ struct SolveView: View {
     }
     
     func getDailyNames() -> [(String, Bool)] {
-        let format = DateFormatter()
-        format.dateStyle = .short
-        let solved = Date().getInt() == Storage.int(.lastDC)
-        return [(format.string(from: Date()), solved)]
+        guard let solves = Storage.array(.daily) as? [Int] else {
+            return []
+        }
+        var boardArray: [(String, Bool)] = []
+        for (i, solved) in solves.enumerated() {
+            boardArray.append(("daily \(i+1)", solved == 1))
+        }
+        return boardArray
     }
     
     func getSimpleNames() -> [(String, Bool)] {
@@ -149,7 +142,7 @@ struct SolveView: View {
         }
         var boardArray: [(String, Bool)] = []
         for (i, solved) in solves.enumerated() {
-            boardArray.append(("simple \(i+1)",solved == 1))
+            boardArray.append(("simple \(i+1)", solved == 1))
         }
         boardArray.append(("simple ?", false))
         return boardArray
@@ -161,7 +154,7 @@ struct SolveView: View {
         }
         var boardArray: [(String, Bool)] = []
         for (i, solved) in solves.enumerated() {
-            boardArray.append(("common \(i+1)",solved == 1))
+            boardArray.append(("common \(i+1)", solved == 1))
         }
         boardArray.append(("common ?", false))
         return boardArray
@@ -173,7 +166,7 @@ struct SolveView: View {
         }
         var boardArray: [(String, Bool)] = []
         for (i, solved) in solves.enumerated() {
-            boardArray.append(("tricky \(i+1)",solved == 1))
+            boardArray.append(("tricky \(i+1)", solved == 1))
         }
         boardArray.append(("tricky ?", false))
         return boardArray

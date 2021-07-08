@@ -17,40 +17,38 @@ func expandMoves(_ moves: String) -> [Int] {
 let moveStringMap: [Character] = ["Q","W","E","R","T","Y","U","I","O","P","A","S","D","F","G","H","J","K","L","Z","X","C","V","B","N","M","q","w","e","r","t","y","u","i","o","p","a","s","d","f","g","h","j","k","l","z","x","c","v","b","n","m","1","2","3","4","5","6","7","8","9","0","_","-","."]
 
 func setSolveArrays() {
-    if var simple = Storage.array(.simple) as? [Int] {
-        if simple.count > simpleBoards.count {
-            simple = simple.dropLast(simple.count - simpleBoards.count)
-            Storage.set(simple, for: .simple)
-        } else if simple.count < simpleBoards.count {
-            simple += Array(repeating: 0, count: simpleBoards.count - simple.count)
-            Storage.set(simple, for: .simple)
-        }
-    }
-    if var common = Storage.array(.common) as? [Int] {
-        if common.count > commonBoards.count {
-            common = common.dropLast(common.count - commonBoards.count)
-            Storage.set(common, for: .common)
-        } else if common.count < commonBoards.count {
-            common += Array(repeating: 0, count: commonBoards.count - common.count)
-            Storage.set(common, for: .common)
-        }
-    }
-    if var tricky = Storage.array(.tricky) as? [Int] {
-        if tricky.count > trickyBoards.count {
-            tricky = tricky.dropLast(tricky.count - trickyBoards.count)
-            Storage.set(tricky, for: .tricky)
-        } else if tricky.count < trickyBoards.count {
-            tricky += Array(repeating: 0, count: trickyBoards.count - tricky.count)
-            Storage.set(tricky, for: .tricky)
+    setArray(for: .daily, to: 4)
+    setArray(for: .simple, to: simpleBoards.count)
+    setArray(for: .common, to: commonBoards.count)
+    setArray(for: .tricky, to: trickyBoards.count)
+    
+    func setArray(for type: Key, to count: Int) {
+        if var list = Storage.array(type) as? [Int] {
+            if list.count > count {
+                list = list.dropLast(list.count - count)
+                Storage.set(list, for: type)
+            } else if list.count < count {
+                list += Array(repeating: 0, count: count - list.count)
+                Storage.set(list, for: type)
+            }
         }
     }
 }
 
-let dailyBoards = ["dZsf-RvH", "QR9v-HMCh_", "-vHRD9ojCMh", "RmDO9zvh-siL", "sRdGC1hQ", "dZsf-RvH", "QR9v-HMCh_", "-vHRD9ojCMh", "RmDO9zvh-siL",  "vmDHQ9khV-q", "RHvu96Dh-MPU", "mR9vDdH-VlhQ", "9R-vDHojqMC",  "dsqtRF9hMmVD", "Hd-yvqVjhRms", "dsVqHhC4M9", "RmvCsqJj", "VdMqhs-RDe", "VdMZhRmqs6Db9v-z", "RQj9hgX-s0_E", "mRHCVh90Wq", "Vqhsv9dHtRCD", "RHtqvu9hj27C",  "pmD93VvMqhRs",  "m-DQCMsdqVZU3vjY", "DQvMRhPU9-Cd", "jCdhqVbmH", "sdqMVvCQmD", "mdvnqVsHh",  "m-DQvdRsCjhq", "QW9X-C0_BRjmhDMPUOHt",  "m-CDrMbQvnRj", "-qm8hjVRs", "sdMCqhRHvbDW0a_", "vQJHY-yCjkR3VM", "9V-j_0RdfBQMJuc",  "mRD9vM-qVh",  "hVMsjqTD-", "jhVdCqvQ-nG_RBt9H", "sdMCqj9Hv1R"]
+//let dailyBoards = ["dZsf-RvH", "QR9v-HMCh_", "-vHRD9ojCMh", "RmDO9zvh-siL", "sRdGC1hQ", "dZsf-RvH", "QR9v-HMCh_", "-vHRD9ojCMh", "RmDO9zvh-siL",  "vmDHQ9khV-q", "RHvu96Dh-MPU", "mR9vDdH-VlhQ", "9R-vDHojqMC",  "dsqtRF9hMmVD", "Hd-yvqVjhRms", "dsVqHhC4M9", "RmvCsqJj", "VdMqhs-RDe", "VdMZhRmqs6Db9v-z", "RQj9hgX-s0_E", "mRHCVh90Wq", "Vqhsv9dHtRCD", "RHtqvu9hj27C",  "pmD93VvMqhRs",  "m-DQCMsdqVZU3vjY", "DQvMRhPU9-Cd", "jCdhqVbmH", "sdqMVvCQmD", "mdvnqVsHh",  "m-DQvdRsCjhq", "QW9X-C0_BRjmhDMPUOHt",  "m-CDrMbQvnRj", "-qm8hjVRs", "sdMCqhRHvbDW0a_", "vQJHY-yCjkR3VM", "9V-j_0RdfBQMJuc",  "mRD9vM-qVh",  "hVMsjqTD-", "jhVdCqvQ-nG_RBt9H", "sdMCqj9Hv1R"]
 
-let simpleBoards = ["DQvqm-jRbnMdF"]
+let dailyBoards = [
+    ["DQvqm-jRbnMdF", "D9tV-rHGsvzihyMPqwRSQjWEC", "Rhs-jHcu09v_D5lVqQYm836n7o", "vq1h2daju-bQC9igk", "DQHv9-mEelMdtzwfyrZV", "HMDjQFRsbP9h6vm3KoWi", "CsM7j8hid6m", "CshdMgjPQ-O8Wk", "CshdMgjPQ-O8W0RE9VKrmoZpLJib", "CpsQhRWH", "-CmMHRvhqs27ycbn4831wf69", "VdCsjhqMQ-E_JyLtvuRW", "jhdDHq-Rmv84MQ", "jdqhVCMsvmRHLt", "jdqhVCMsvmRHLiztZ-"],
+    ["MqhPjkdxspVzQ", "DH-QYmKr90FPs2v1faRiVhel", "QRVCqtsvLMjA9c-0HghzD", "DT9dVaMlhRsIvqFbzi", "HMDjQFRsbP9h6vm3Ko", "CshdMgjPQ-O8W0RE9VKrmoZpLJ", "QjDM9vHhOTAYGFUE", "-CmMHRvhqs27ycbn4831", "CQv9VmqtHsd-GnDFNaXB", "VdCsjhqMQ-E_JyLtvu", "jdsqGhlVRMwHP9m", "ndjqshM9VClH8OE_1IcuS", "djhMqusvCVQ2-aD1", "jdqmvCVs-1", "jdqhVCMsvmRH", "dqjRChMV9S5HIvsmD", "dm-8sjCMOqhD9V", "pjudqoxMChVQs", "jQdmoxVER9XU-BHuqvJD"],
+    ["Rhs-jHcu09v_D5lVqQYm8KoXgCB", "hMqjCdosaVcFbDmU3", "VMqjCRO-km4dDoxQKEWpZ", "THDMU9dRasl", "CpsQhRW0Y2iz", "CQv9VmqtHsd-GnDFNa", "-RH9dmjqGM", "jmR-hDQq", "jmRhqdH9ODM8", "jmRdVhCq", "jmRdVhCB", "jmHhsdxMDC", "jdqhCsVM_EtLyJ-Q", "jhdDHq-Rmv", "-vk9ymSp", "dqjRChMV9S5HIvsm", "vjqsCdhMW0Jy5S91VRaDmxo", "BjsdhMVRQq9-H", "jdqVhM-s97"],
+    ["jDQHuvosqFG", "Rhs-jHcu09v_D5lV", "DH-QYmKr90FPs2v1faRi", "THDMU9dRas", "DT9dVaMlhRsI", "CshdMgjPQ-O8W0RE9VKrmo", "QjDM9vHhOTAY", "-CmMHRvhqs27ycbn", "CQv9VmqtHsd-GnDF", "m-DQvdRsCjhq", "-RH9dmjsvD", "jmRhqdH9D-", "jmRdsqHVhC", "jmHhsdlVDq", "jdqhCsVMD9A7E_UG", "jdqmvCVs9h", "jdqChDMs", "-vk9ymSpcHBRZwf", "jdVqh9-s"]
+]
 
-let daily1Boards = ["DQvqm-jRbnMdF"]
+let simpleBoards = ["DQvqm-jRbnMdF"]//, "QR9D-Cm2sjqvVUPMYHSha184360_dfpgkwGnyexOZN5JXKrFIiLtWzAbBoE7l"]
+
+// ties:
+// QR9D-Cm2sjqvVUPMYHSha184360_dfpgkwGnyexOZN5JXKrFIiLtWzAbBoE7l
+// sdMCqhQvHW0FmwlVYATDUI_jk9RpZ-oK54B13yiJNOuxrzGngaP72bcSt
 
 let commonBoards = ["H9R-mDQvhj","CsMqhVdD"]
 

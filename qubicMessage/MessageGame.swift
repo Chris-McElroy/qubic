@@ -86,6 +86,7 @@ class Game: ObservableObject {
     var moves: [Move] = []
     var timers: [Timer] = []
     var premoves: [Int] = []
+    var movesBack: Int = 0
     var showHintFor: Int? = nil
     var currentHintMoves: Set<Int>? = []
     

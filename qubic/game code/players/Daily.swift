@@ -9,12 +9,8 @@
 import Foundation
 
 class Daily: Player {
-    override init(b: Board, n: Int) {
-        let format = DateFormatter()
-        format.dateStyle = .short
-        let name = format.string(from: Date())
-        
-        super.init(b: b, n: n, name: name, color: 4,
+    init(b: Board, n: Int, num: Int) {
+        super.init(b: b, n: n, name: "daily \(num+1)", color: 4,
                    lineP: [3: 1.0, -3: 1.0, 2: 1.0],
                    dirStats: Array(repeating: 1.0, count: 76),
                    depth: 6,

@@ -135,7 +135,7 @@ class BoardScene {
         
         if let lines = wins {
             showWins(lines, color: color, ghost: ghost)
-        } else if Game.main.moves.count == 64 && !ghost {
+        } else if !ghost && Game.main.gameState != .active && Game.main.movesBack == 0 {
             spinBoard()
         }
         

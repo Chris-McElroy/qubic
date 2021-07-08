@@ -60,7 +60,7 @@ struct Notifications {
         UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [Key.badge.rawValue])
     }
     
-    static func setBadge(justSolved: Bool, dayInt: Int = Date().getInt()) {
+    static func setBadge(justSolved: Bool, dayInt: Int = Date.int) {
         UIApplication.shared.applicationIconBadgeNumber = 0
         UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: [Key.badge.rawValue])
         UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [Key.badge.rawValue])
@@ -74,7 +74,7 @@ struct Notifications {
         }
         Storage.set(streak, for: .streak)
         if Storage.int(.notification) == 0 {
-            UIApplication.shared.applicationIconBadgeNumber = lastDC == Date().getInt() ? 0 : 1
+            UIApplication.shared.applicationIconBadgeNumber = lastDC == Date.int ? 0 : 1
             let content = UNMutableNotificationContent()
             content.badge = 1
             var tomorrow = DateComponents()

@@ -22,6 +22,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             Key.train.rawValue: [0,0,0,0,0,0,0],
             Key.lastTrainMenu.rawValue: [0,1,0],
             Key.lastPlayMenu.rawValue: [1,1,0,0],
+            Key.daily.rawValue: [0],
             Key.simple.rawValue: [0],
             Key.common.rawValue: [0],
             Key.tricky.rawValue: [0],

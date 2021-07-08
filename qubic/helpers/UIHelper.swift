@@ -39,8 +39,8 @@ extension Date {
         Calendar.current.isDateInToday(self)
     }
     
-    func getInt() -> Int {
-        let midnight = Calendar.current.startOfDay(for: self)
+    static var int: Int {
+        let midnight = Calendar.current.startOfDay(for: Date())
         return Calendar.current.ordinality(of: .day, in: .era, for: midnight) ?? 0
     }
     
