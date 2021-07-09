@@ -44,7 +44,6 @@ class BoardScene {
     }
     
     func updateColors(for colorScheme: ColorScheme) {
-        // TODO fix this shit
         let color: UIColor = colorScheme == .dark ? .white : .black
         for space in spaces {
             for child in space.childNodes {

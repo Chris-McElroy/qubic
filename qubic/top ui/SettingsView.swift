@@ -80,7 +80,12 @@ struct SettingsView: View {
                 ZStack {
                     Fill().frame(height: moreButtonHeight)
                     Button(action: mainButtonAction) {
-                        Text("settings")
+                        ZStack {
+                            Text("settings")
+                            if FB.main.updateAvailable {
+                                Circle().frame(width: 12, height: 12).foregroundColor(.primary()).offset(x: 50, y: 2)
+                            }
+                        }
                     }
                     .buttonStyle(MoreStyle())
                 }
@@ -100,27 +105,29 @@ struct SettingsView: View {
                         }
                         Text("username").frame(height: 20)
                         Fill(7)
-                        TextField("enter name", text: $username, onCommit: {
-                            Storage.set(username, for: .name)
-                            FB.main.updateMyData()
+                        TextField("enter name", text: $username, onEditingChanged: { starting in
+                            if !starting && username != Storage.string(.name) {
+                                Storage.set(username, for: .name)
+                                FB.main.updateMyData()
+                            }
                         })
                             .multilineTextAlignment(.center)
                             .disableAutocorrection(true)
                             .accentColor(.primary())
                             .frame(width: 200, height: 43, alignment: .top)
+                        if FB.main.updateAvailable {
+                            Button("update available!") {
+                                guard let url = URL(string: "itms-apps://itunes.apple.com/app/1480301899") else { return }
+                                UIApplication.shared.open(url, options: [:], completionHandler: nil)
+                            }
+                        }
                     }.zIndex(3)
                 }
                 Spacer()
             }
             .alert(isPresented: $showNotificationAlert, content: { Notifications.notificationAlert })
         }
-        .background(Fill().onTapGesture {
-            hideKeyboard()
-            if username != Storage.string(.name) {
-                Storage.set(username, for: .name)
-                FB.main.updateMyData()
-            }
-        })
+        .background(Fill().onTapGesture { hideKeyboard() })
     }
     
 //    func setDots(row: Int, component: Int) -> Void {

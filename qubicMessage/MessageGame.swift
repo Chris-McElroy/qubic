@@ -190,8 +190,6 @@ class Game: ObservableObject {
             UIImpactFeedbackGenerator(style: .medium).impactOccurred()
         }
         BoardScene.main.showMove(move, wins: board.getWinLines(for: move))
-        // TODO add async hint text shit
-        // also i should make the next process move async as well
         if board.hasW0(turn^1) {
             gameState = turn^1 == myTurn ? .myWin : .opWin
         } else {
@@ -264,7 +262,7 @@ class Game: ObservableObject {
 //        let selfCreated = data.queryItems?[2].value ?? "" == uuid
 //        myTurn = selfCreated == (data.queryItems?[3].value ?? "" == "me") ? 0 : 1
 //        moved = preset.count % 2 != myTurn
-////        moved = false // TODO switch out with above
+////        moved = false
 //
 ////        print(selfCreated, myTurn, uuid, moved)
 //

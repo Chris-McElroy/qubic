@@ -20,7 +20,7 @@ struct TrainView: View {
         } else if layout.current == .trainMenu {
             VStack(spacing: 0) {
                 Spacer()
-                HPicker(content: .constant(pickerText), dim: (90, 55), selected: $selected, action: onSelection)
+                HPicker(content: .constant(menuText), dim: (90, 55), selected: $selected, action: onSelection)
                     .frame(height: 180)
                     .opacity(layout.current == .trainMenu ? 1 : 0)
             }
@@ -33,7 +33,7 @@ struct TrainView: View {
         Storage.set(newTrainMenu, for: .lastTrainMenu)
     }
 
-    var pickerText: [[(String, Bool)]] {
+    var menuText: [[(String, Bool)]] {
         [[("novice",    beaten[0] == 1),
           ("defender",  beaten[1] == 1),
           ("warrior",   beaten[2] == 1),

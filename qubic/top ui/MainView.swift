@@ -37,6 +37,7 @@ struct MainView: View {
             game.goBack = goBack
             game.cancelBack = cancelBack
             setSolveArrays()
+            Notifications.setBadge(justSolved: false)
         }
         .onReceive(screen.objectWillChange) { layout.load(for: screen) }
         .frame(height: layout.total)

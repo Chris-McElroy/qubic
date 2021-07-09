@@ -21,11 +21,14 @@ class FB {
     var onlineInviteState: MatchingState = .stopped
     var gotOnlineMove: ((Int, Double, Int) -> Void)? = nil
     var cancelOnlineSearch: (() -> Void)? = nil
+    var updateAvailable: Bool = false
+    let myVersion = 030030
     
     func start() {
         Auth.auth().addStateDidChangeListener { (auth, user) in
             if let user = user {
                 Storage.set(user.uid, for: .uuid)
+                self.checkVersion()
                 self.observePlayers()
                 self.updateMyData()
                 self.finishedOnlineGame(with: .error)
@@ -38,6 +41,13 @@ class FB {
                 }
             }
         }
+    }
+    
+    func checkVersion() {
+        ref.child("version").removeAllObservers()
+        ref.child("version").observe(DataEventType.value, with: { snapshot in
+            self.updateAvailable = snapshot.value as? Int ?? 999999 > self.myVersion
+        })
     }
     
     func observePlayers() {

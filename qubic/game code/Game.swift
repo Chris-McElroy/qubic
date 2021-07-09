@@ -152,6 +152,7 @@ class Game: ObservableObject {
         replayMode = false
         premoves = []
         showHintFor = nil
+        newStreak = nil
         setPreset(boardNum, for: mode)
         dayInt = Date.int
         solveBoard = boardNum
@@ -171,7 +172,7 @@ class Game: ObservableObject {
                 let aNum = (m/(10000000*size)) % 192
                 let bNum = ((m/1000000) % size) + size*(dayInt % 3)
                 preset = expandMoves(dailyBoards[boardNum][bNum]).map { Board.automorphisms[aNum][$0] }
-                solved = (Storage.array(.daily) as? [Int])?[boardNum] == 1
+                solved = (Storage.array(.daily) as? [Int])?[boardNum] == dayInt
             }
             else if mode == .simple { getInfo(from: simpleBoards, key: .simple) }
             else if mode == .common { getInfo(from: commonBoards, key: .common) }
@@ -184,7 +185,7 @@ class Game: ObservableObject {
             func getInfo(from boards: [String], key: Key) {
                 if boardNum < boards.count {
                     preset = expandMoves(boards[boardNum])
-                    solved = (Storage.array(key) as? [Int])?[boardNum] == 1
+                    solved = (Storage.array(key) as? [Int])?[boardNum] != 0
                 } else {
                     preset = Board.getAutomorphism(for: expandMoves(boards.randomElement() ?? ""))
                     solved = false
@@ -528,7 +529,7 @@ class Game: ObservableObject {
         if end.myWin {
             if mode == .daily {
                 recordSolve(type: .daily)
-                if (Storage.array(.daily) as? [Int])?.sum() == 4 && dayInt != Storage.int(.lastDC) {
+                if Storage.array(.daily) as? [Int] == [dayInt, dayInt, dayInt, dayInt] && dayInt != Storage.int(.lastDC) {
                     Notifications.ifUndetermined {
                         DispatchQueue.main.async {
                             self.showDCAlert = true
@@ -549,7 +550,7 @@ class Game: ObservableObject {
         
         func recordSolve(type: Key) {
             guard var solves = Storage.array(type) as? [Int], solveBoard < solves.count else { return }
-            solves[solveBoard] = 1
+            solves[solveBoard] = dayInt
             Storage.set(solves, for: type)
         }
     }

@@ -53,7 +53,7 @@ struct GameView: View {
                         Alert(title: Text("Enable Badges"),
                               message: Text("Allow 4Play to show a badge when a daily challenge is available?"),
                               primaryButton: .default(Text("OK"), action: {
-                                    Notifications.turnOn()
+                                Notifications.turnOn()
                               }),
                               secondaryButton: .cancel())
                     }
