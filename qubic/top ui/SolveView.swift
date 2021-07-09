@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-let solveButtonsEnabled = false
+let solveButtonsEnabled = true
 
 struct SolveView: View {
     @ObservedObject var layout = Layout.main
@@ -42,17 +42,22 @@ struct SolveView: View {
                 HPicker(content: $menuText, dim: (90, 40), selected: $selected, action: onSelection)
                     .frame(height: 80)
                     .opacity(layout.current == .solveMenu ? 1 : 0)
-                    .onAppear {
-                        menuText = SolveView.getMenuText()
-                        let delay = Calendar.current.startOfDay(for: Date().addingTimeInterval(86400)).timeIntervalSinceNow
-                        menuUpdateTimer?.invalidate()
-                        menuUpdateTimer = Timer.after(delay, run: {
-                            menuText = SolveView.getMenuText()
-                        })
-                    }
+                    .onAppear { refreshMenu() }
                 Blank(3)
             }
         }
+        .onAppear { refreshMenu() }
+    }
+    
+    func refreshMenu() {
+        menuText = SolveView.getMenuText()
+        layout.checkDaily()
+        let delay = Calendar.current.startOfDay(for: Date().addingTimeInterval(86400)).timeIntervalSinceNow
+        menuUpdateTimer?.invalidate()
+        menuUpdateTimer = Timer.after(delay, run: {
+            menuText = SolveView.getMenuText()
+            layout.checkDaily()
+        })
     }
     
     func onSelection(row: Int, component: Int) {

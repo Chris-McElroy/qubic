@@ -113,22 +113,22 @@ struct GameView: View {
     }
     
     var solveButtons: some View {
-        HStack {
-            Button("daily1") { if currentSolveType == .d1 { Game.main.uploadSolveBoard("d1") } }
+        HStack(spacing: 30) {
+            Button("d1") { if currentSolveType == .d1 { Game.main.uploadSolveBoard("d1") } }
                 .opacity(currentSolveType == .d1 ? 1.0 : 0.3)
-            Spacer()
-            Button("daily2") { if currentSolveType == .d2 { Game.main.uploadSolveBoard("d2") } }
+            Button("d2") { if currentSolveType == .d2 { Game.main.uploadSolveBoard("d2") } }
                 .opacity(currentSolveType == .d2 ? 1.0 : 0.3)
-            Spacer()
-            Button("daily3") { if currentSolveType == .d3 { Game.main.uploadSolveBoard("d3") } }
+            Button("d3") { if currentSolveType == .d3 { Game.main.uploadSolveBoard("d3") } }
                 .opacity(currentSolveType == .d3 ? 1.0 : 0.3)
-            Spacer()
-            Button("daily4") { if currentSolveType == .d4 { Game.main.uploadSolveBoard("d4") } }
+            Button("d4") { if currentSolveType == .d4 { Game.main.uploadSolveBoard("d4") } }
                 .opacity(currentSolveType == .d4 ? 1.0 : 0.3)
-            Spacer()
-            Button("tricky") { if currentSolveType == .tr { Game.main.uploadSolveBoard("tr") } }
+            Button("si") { if [.d1, .d2, .d3, .d4, .si, .tr].contains(currentSolveType) { Game.main.uploadSolveBoard("si") } }
+                .opacity([.d1, .d2, .d3, .d4, .si, .tr].contains(currentSolveType) ? 1.0 : 0.3)
+            Button("co") { if [.d4, .si, .tr].contains(currentSolveType) { Game.main.uploadSolveBoard("co") } }
+                .opacity([.d4, .si, .tr].contains(currentSolveType) ? 1.0 : 0.3)
+            Button("tr") { if currentSolveType == .tr { Game.main.uploadSolveBoard("tr") } }
                 .opacity(currentSolveType == .tr ? 1.0 : 0.3)
-        }.padding(.horizontal, 30)
+        }
     }
     
     func refreshHintPickerContent() {

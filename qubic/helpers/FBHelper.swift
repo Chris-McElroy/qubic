@@ -10,6 +10,9 @@ import SwiftUI
 import FirebaseDatabase
 import FirebaseAuth
 
+let tfVersion = true
+let qubicVersion = 030030
+
 class FB {
     static let main = FB()
     
@@ -22,7 +25,6 @@ class FB {
     var gotOnlineMove: ((Int, Double, Int) -> Void)? = nil
     var cancelOnlineSearch: (() -> Void)? = nil
     var updateAvailable: Bool = false
-    let myVersion = 030030
     
     func start() {
         Auth.auth().addStateDidChangeListener { (auth, user) in
@@ -44,10 +46,17 @@ class FB {
     }
     
     func checkVersion() {
-        ref.child("version").removeAllObservers()
-        ref.child("version").observe(DataEventType.value, with: { snapshot in
-            self.updateAvailable = snapshot.value as? Int ?? 999999 > self.myVersion
-        })
+        if tfVersion {
+            ref.child("tfVersion").removeAllObservers()
+            ref.child("tfVersion").observe(DataEventType.value, with: { snapshot in
+                self.updateAvailable = snapshot.value as? Int ?? 0 > qubicVersion
+            })
+        } else {
+            ref.child("version").removeAllObservers()
+            ref.child("version").observe(DataEventType.value, with: { snapshot in
+                self.updateAvailable = snapshot.value as? Int ?? 0 > qubicVersion
+            })
+        }
     }
     
     func observePlayers() {

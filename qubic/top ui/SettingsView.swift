@@ -82,9 +82,8 @@ struct SettingsView: View {
                     Button(action: mainButtonAction) {
                         ZStack {
                             Text("settings")
-                            if FB.main.updateAvailable {
-                                Circle().frame(width: 12, height: 12).foregroundColor(.primary()).offset(x: 50, y: 2)
-                            }
+                            Circle().frame(width: 12, height: 12).foregroundColor(.primary()).offset(x: 50, y: 2)
+                                .opacity(FB.main.updateAvailable ? 1 : 0)
                         }
                     }
                     .buttonStyle(MoreStyle())

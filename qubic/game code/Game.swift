@@ -54,7 +54,7 @@ enum HintValue {
 }
 
 enum SolveType {
-    case d1, d2, d3, d4, tr, no
+    case d1, d2, d3, d4, si, tr, no
 }
 
 class Move: Equatable {
@@ -338,6 +338,8 @@ class Game: ObservableObject {
                         moves.last?.solveType = .d4
                     } else if b.hasW2(turn, depth: 5) == false {
                         moves.last?.solveType = .tr
+                    } else {
+                        moves.last?.solveType = .si
                     }
                 } else {
                     moves.last?.solveType = .no
@@ -538,6 +540,7 @@ class Game: ObservableObject {
                     Notifications.setBadge(justSolved: true, dayInt: dayInt)
                     withAnimation { newStreak = Storage.int(.streak) }
                     timers.append(Timer.after(2.4, run: { withAnimation { self.newStreak = nil } }))
+                    Layout.main.checkDaily()
                 }
             }
             else if mode == .simple { recordSolve(type: .simple) }

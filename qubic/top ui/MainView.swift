@@ -91,9 +91,12 @@ struct MainView: View {
                 .zIndex(0)
             ZStack {
                 mainButton(views: [.solveMenu, .solve], text: solveText, color: .secondary(), action: switchLayout)
-                if Storage.int(.lastDC) != Date.int {
-                    Circle().frame(width: 24, height: 24).foregroundColor(layout.current == .solveMenu ? .secondary() : .primary()).zIndex(2).offset(x: 88, y: -25)
-                }
+                Circle()
+                    .frame(width: 24, height: 24)
+                    .foregroundColor(layout.current == .solveMenu ? .secondary() : .primary())
+                    .zIndex(2)
+                    .offset(x: 88, y: -25)
+                    .opacity(layout.newDaily ? 1 : 0)
             }
             .modifier(LayoutModifier(for: .solveButton))
             PlayView(selected: $playSelection)

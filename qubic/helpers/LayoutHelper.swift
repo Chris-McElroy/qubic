@@ -124,6 +124,7 @@ class Layout: ObservableObject {
     
     @Published var current: ViewState = .main
     @Published var leftArrows: Bool = Storage.int(.arrowSide) == 0
+    @Published var newDaily = Storage.int(.lastDC) != Date.int
 //    @Published var hue: CGFloat = 0
 //    @Published var baseColor: CGFloat = 0
     var total: CGFloat = 2400
@@ -138,6 +139,8 @@ class Layout: ObservableObject {
     var feedbackSpacerSize: CGFloat = 15
     
     init() {}
+    
+    func checkDaily() { newDaily = Storage.int(.lastDC) != Date.int }
     
     func heightOf(_ view: LayoutView) -> CGFloat {
         switch view {
