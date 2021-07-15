@@ -110,7 +110,7 @@ class Game: ObservableObject {
     var solved: Bool = false
     var leaving: Bool = false
     private var board = Board()
-    let hintQueue = OperationQueue()
+	let hintQueue = OperationQueue()
     var movesBack: Int = 0
     var ghostMoveStart: Int = 0
     var ghostMoveCount: Int = 0
@@ -316,16 +316,16 @@ class Game: ObservableObject {
             }
         }
         
-        hintQueue.addOperation {
+		hintQueue.addOperation {
             var nHint: HintValue = .noW
             if b.hasW0(turn) { nHint = .w0 }
             else if b.hasW1(turn) { nHint = .w1 }
             else if b.hasW2(turn, depth: 1) == true { nHint = .w2d1 }
-            else if b.hasW2(turn) == true { nHint = .w2 } // print("got w2 for move", moves.count) }
-            
+            else if b.hasW2(turn) == true { nHint = .w2 }
+
             if self.myTurn == turn { moves.last?.myHint = nHint }
             else { moves.last?.opHint = nHint }
-            
+
             if solveButtonsEnabled {
                 if nHint == .w1 {
                     moves.last?.solveType = .d1
@@ -346,7 +346,7 @@ class Game: ObservableObject {
                 }
             }
             DispatchQueue.main.async { self.newHints() }
-            
+
             var oHint: HintValue = .noW
             if b.hasW0(turn^1) { oHint = .w0 }
             else if b.getW1(for: turn^1).count > 1 { oHint = .cm1 }
@@ -356,11 +356,11 @@ class Game: ObservableObject {
                 else if b.hasW2(turn^1, depth: 1) == true { oHint = .c2d1 }
                 else { oHint = .c2 }
             }
-            
+
             if self.myTurn == turn { moves.last?.opHint = oHint }
             else { moves.last?.myHint = oHint }
             DispatchQueue.main.async { self.newHints() }
-            
+
             var nMoves: Set<Int> = []
             switch nHint {
             case .w1: nMoves = b.getW1(for: turn)
@@ -368,13 +368,13 @@ class Game: ObservableObject {
             case .w2d1: nMoves = b.getW2(for: turn, depth: 1) ?? []
             default: break
             }
-            
+
             if self.myTurn == turn { moves.last?.myMoves = nMoves }
             else { moves.last?.opMoves = nMoves }
             if self.showHintFor == 1 {
                 DispatchQueue.main.async { BoardScene.main.spinMoves() }
             }
-            
+
             var oMoves: Set<Int> = []
             switch oHint {
             case .c1, .cm1: oMoves = b.getW1(for: turn^1)
@@ -382,7 +382,7 @@ class Game: ObservableObject {
             case .c2: oMoves = b.getW2Blocks(for: turn) ?? []
             default: break
             }
-            
+
             if self.myTurn == turn { moves.last?.opMoves = oMoves }
             else { moves.last?.myMoves = oMoves }
             if self.showHintFor == 0 {

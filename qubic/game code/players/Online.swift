@@ -46,14 +46,14 @@ class Online: Player {
                 Game.main.processMove(move, for: self.n, num: num, time: time)
             }
         } else {
-            let rush = Game.main.totalTime == nil ? 1 : max(1, (20.0/(Game.main.times[n].last ?? 1)))
+            let rush = Game.main.totalTime == nil ? 1 : max(1, 1+4*(1-(Game.main.times[n].last ?? 1)/50))
             self.depth = Int(Double(bot?.depth ?? 1)/rush)
             super.move()
         }
     }
     
     override func getPause() -> Double {
-        let rush = Game.main.totalTime == nil ? 1 : max(1, (30.0/((Game.main.times[n].last ?? 1)+2)))
+		let rush = Game.main.totalTime == nil ? 1 : max(1, 1+4*(1-(Game.main.times[n].last ?? 1)/50))
         if b.move[0].count < 2 {
             return range(from: (1,1), to: (2,5))/rush
         } else if b.move[0].count < 5 {

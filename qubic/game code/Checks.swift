@@ -130,6 +130,7 @@ extension Board {
         for d in 0..<depth {
             for b in stack {
                 if b.board.hasW1(o) {
+					guard nextStack.count < 40000 else { break }
                     if b.addCheckMove(n, &nextStack, d == 0) != nil {
                         return true
                     }
@@ -154,15 +155,16 @@ extension Board {
         
         for d in 0..<depth {
             for b in stack {
-                if b.board.hasW1(o) {
-                    if let p = b.addCheckMove(n, &nextStack, d == 0) {
-                        wins.formUnion(p)
-                    }
-                } else {
-                    if let p = b.addAllForces(n, &nextStack, d == 0) {
-                        wins.formUnion(p)
-                    }
-                }
+				guard nextStack.count < 10000 else { break }
+				if b.board.hasW1(o) {
+					if let p = b.addCheckMove(n, &nextStack, d == 0) {
+					 wins.formUnion(p)
+					}
+				} else {
+					if let p = b.addAllForces(n, &nextStack, d == 0) {
+					 wins.formUnion(p)
+					}
+				}
             }
             stack = nextStack
             nextStack = []
