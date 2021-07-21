@@ -59,17 +59,15 @@ enum SolveType {
 
 class Move: Equatable {
     let p: Int
-    var myHint: HintValue?
-    var opHint: HintValue?
-    var myMoves: Set<Int>?
-    var opMoves: Set<Int>?
-    var solveType: SolveType?
+    var nHint: HintValue? = nil
+    var oHint: HintValue? = nil
+    var nMoves: Set<Int>? = nil
+	var oMoves: Set<Int>? = nil
+	var winLen: Int = 0
+    var solveType: SolveType? = nil
     
     init(_ p: Int) {
         self.p = p
-        myHint = nil
-        opHint = nil
-        solveType = nil
     }
     
     static func == (lhs: Move, rhs: Move) -> Bool {
@@ -118,12 +116,8 @@ class Game: ObservableObject {
     var timers: [Timer] = []
     var premoves: [Int] = []
     var currentHintMoves: Set<Int>? {
-        if showHintFor == 1 {
-            return currentMove?.myMoves
-        } else if showHintFor == 0 {
-            return currentMove?.opMoves
-        }
-        return nil
+		guard let hintFor = showHintFor else { return nil }
+		return (hintFor == 1) == (myTurn == turn) ? currentMove?.nMoves : currentMove?.oMoves
     }
     
     init() {
@@ -185,7 +179,7 @@ class Game: ObservableObject {
             func getInfo(from boards: [String], key: Key) {
                 if boardNum < boards.count {
                     preset = expandMoves(boards[boardNum])
-                    solved = (Storage.array(key) as? [Int])?[boardNum] != 0
+					solved = ((Storage.array(key) as? [Int])?[boardNum] ?? -1) >= (solveBoardDates[key]?[boardNum] ?? 0)
                 } else {
                     preset = Board.getAutomorphism(for: expandMoves(boards.randomElement() ?? ""))
                     solved = false
@@ -321,10 +315,8 @@ class Game: ObservableObject {
             if b.hasW0(turn) { nHint = .w0 }
             else if b.hasW1(turn) { nHint = .w1 }
             else if b.hasW2(turn, depth: 1) == true { nHint = .w2d1 }
-            else if b.hasW2(turn) == true { nHint = .w2 }
-
-            if self.myTurn == turn { moves.last?.myHint = nHint }
-            else { moves.last?.opHint = nHint }
+			else if b.hasW2(turn) == true { nHint = .w2; moves.last?.winLen = (b.cachedHasW2[turn] ?? 0) + 1 }
+            moves.last?.nHint = nHint
 
             if solveButtonsEnabled {
                 if nHint == .w1 {
@@ -356,9 +348,7 @@ class Game: ObservableObject {
                 else if b.hasW2(turn^1, depth: 1) == true { oHint = .c2d1 }
                 else { oHint = .c2 }
             }
-
-            if self.myTurn == turn { moves.last?.opHint = oHint }
-            else { moves.last?.myHint = oHint }
+			moves.last?.oHint = oHint
             DispatchQueue.main.async { self.newHints() }
 
             var nMoves: Set<Int> = []
@@ -368,10 +358,11 @@ class Game: ObservableObject {
             case .w2d1: nMoves = b.getW2(for: turn, depth: 1) ?? []
             default: break
             }
-
-            if self.myTurn == turn { moves.last?.myMoves = nMoves }
-            else { moves.last?.opMoves = nMoves }
-            if self.showHintFor == 1 {
+			moves.last?.nMoves = nMoves
+			// show hint for == 1 -> my wins
+			// if i go first then that's showHintFor = 0
+			// no what i'm testing for here is that showHintFor is equal to the person who's move it is
+			if self.myTurn == turn ? self.showHintFor == 0 : self.showHintFor == 1 {
                 DispatchQueue.main.async { BoardScene.main.spinMoves() }
             }
 
@@ -382,10 +373,8 @@ class Game: ObservableObject {
             case .c2: oMoves = b.getW2Blocks(for: turn) ?? []
             default: break
             }
-
-            if self.myTurn == turn { moves.last?.opMoves = oMoves }
-            else { moves.last?.myMoves = oMoves }
-            if self.showHintFor == 0 {
+			moves.last?.oMoves = oMoves
+			if self.myTurn == turn ? self.showHintFor == 1 : self.showHintFor == 0 {
                 DispatchQueue.main.async { BoardScene.main.spinMoves() }
             }
         }
@@ -428,10 +417,10 @@ class Game: ObservableObject {
         UIImpactFeedbackGenerator(style: .medium).impactOccurred()
         player[0].cancelMove()
         player[1].cancelMove()
+		board.undoMove(for: turn^1)
+		premoves = []
         currentMove = moves.last
         newHints()
-        premoves = []
-        board.undoMove(for: turn^1)
         if totalTime != nil {
             times[turn].removeLast()
             currentTimes[turn] = max(0, Int((times[turn].last ?? 0).rounded()))

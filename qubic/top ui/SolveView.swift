@@ -8,8 +8,6 @@
 
 import SwiftUI
 
-let solveButtonsEnabled = true
-
 struct SolveView: View {
     @ObservedObject var layout = Layout.main
     @State var selected: [Int] = [0,0]
@@ -78,7 +76,7 @@ struct SolveView: View {
     
     func firstBoard(of type: Key) -> Int {
         let list = Storage.array(type) as? [Int] ?? [0]
-        return list.enumerated().first(where: { type == .daily ? $0.element < Date.int : $0.element ==  0 })?.offset ?? (type == .daily ? 0 : list.count)
+		return list.enumerated().first(where: { type == .daily ? $0.element < Date.int : $0.element < solveBoardDates[type]?[$0.offset] ?? 0 })?.offset ?? (type == .daily ? 0 : list.count)
     }
     
     static func getMenuText() -> [[Any]] {
@@ -100,7 +98,7 @@ struct SolveView: View {
             
             let sum: Int
             if type == .daily { sum = Storage.int(.streak) }
-            else { sum = (Storage.array(.simple) as? [Int])?.reduce(0, { $0 + ($1 == 0 ? 0 : 1) }) ?? 0 }
+            else { sum = (Storage.array(type) as? [Int])?.reduce(0, { $0 + ($1 == 0 ? 0 : 1) }) ?? 0 }
             return [{ getLabel(for: "\(text)\n\(sum)") }]
         }
         
@@ -109,8 +107,8 @@ struct SolveView: View {
                 return []
             }
             var boardArray: [(String, Bool)] = []
-            for (i, solved) in solves.enumerated() {
-                boardArray.append(("\(text) \(i+1)", type == .daily ? solved == Date.int : solved != 0))
+			for (i, solved) in solves.enumerated() where i < solveBoardDates[type]?.count ?? 4 {
+				boardArray.append(("\(text) \(i+1)", solved >= solveBoardDates[type]?[i] ?? Date.int))
             }
             if type != .daily {
                 boardArray.append(("\(text) ?", false))

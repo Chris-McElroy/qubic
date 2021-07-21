@@ -13,6 +13,10 @@ class Board {
     var board: [UInt64]
     var open: [[Int: [Int]]]
     var status: [Int?]
+	
+	var cachedHasW2: [Int?] = [nil, nil]
+	var cachedGetW2: [[Int: Set<Int>]] = [[:], [:]]
+	var cachedGetW2Blocks: [[Int: Set<Int>]] = [[:], [:]]
     
     func getTurn() -> Int { move[0].count - move[1].count }
     func nextTurn() -> Int {  1 - move[0].count + move[1].count }
@@ -42,6 +46,9 @@ class Board {
     }
     
     func addMove(_ p: Int, for n: Int) {
+		cachedHasW2 = [nil, nil]
+		cachedGetW2 = [[:], [:]]
+		cachedGetW2Blocks = [[:], [:]]
         move[n].append(p)
         board[n] |= (1 << p)
         for line in Board.linesThruPoint[p] {
@@ -61,6 +68,9 @@ class Board {
     
     func undoMove(for n: Int) {
         guard let p = move[n].popLast() else { return }
+		cachedHasW2 = [nil, nil]
+		cachedGetW2 = [[:], [:]]
+		cachedGetW2Blocks = [[:], [:]]
         board[n] ^= (1 << p)
         for line in Board.linesThruPoint[p] {
             if var s = status[line] {

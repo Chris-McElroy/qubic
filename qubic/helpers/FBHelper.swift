@@ -10,9 +10,6 @@ import SwiftUI
 import FirebaseDatabase
 import FirebaseAuth
 
-let tfVersion = true
-let qubicVersion = 030030
-
 class FB {
     static let main = FB()
     

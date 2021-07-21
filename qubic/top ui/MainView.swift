@@ -8,6 +8,10 @@
 
 import SwiftUI
 
+let solveButtonsEnabled = false
+let tfVersion = true
+let qubicVersion = 030032
+
 struct MainView: View {
     @ObservedObject var screen: ScreenObserver
     @ObservedObject var game: Game = Game.main

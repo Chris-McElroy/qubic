@@ -120,72 +120,85 @@ extension Board {
             }
             return nil
         }
-    }
+	}
     
-    func hasW2(_ n: Int, depth: Int = 32, deadline: TimeInterval = Date.now + 30) -> Bool? {
+    func hasW2(_ n: Int, depth: Int = 32, time: TimeInterval = 30) -> Bool? {
+		if depth == 0 { return false }
+		if let w2 = cachedHasW2[n] { return w2 <= depth }
         let o = n^1
         var stack: Set<W2Board> = [W2Board(board: self, n: n, starts: [])]
         var nextStack: Set<W2Board> = []
+		let start = Date.now
         
-        for d in 0..<depth {
+		for d in 1...depth {
             for b in stack {
+				guard nextStack.count < 40000 else { break }
                 if b.board.hasW1(o) {
-					guard nextStack.count < 40000 else { break }
-                    if b.addCheckMove(n, &nextStack, d == 0) != nil {
+                    if b.addCheckMove(n, &nextStack, d == 1) != nil {
+						cachedHasW2[n] = d
                         return true
                     }
                 } else {
-                    if b.addAllForces(n, &nextStack, d == 0) != nil {
+                    if b.addAllForces(n, &nextStack, d == 1) != nil {
+						cachedHasW2[n] = d
                         return true
                     }
                 }
             }
             stack = nextStack
             nextStack = []
-            if Date.now > deadline { return nil }
+			if Date.now > start + time { return nil }
         }
+		if depth >= 32 { cachedHasW2[n] = Int.max }
         return false
     }
     
-    func getW2(for n: Int, depth: Int = 32, deadline: TimeInterval = Date.now + 30) -> Set<Int>? {
+    func getW2(for n: Int, depth: Int = 32, time: TimeInterval = 30) -> Set<Int>? {
+		if depth == 0 { return [] }
+		if let w2 = cachedGetW2[n][depth] { return w2 }
         let o = n^1
         var stack: Set<W2Board> = [W2Board(board: self, n: n, starts: [])]
         var nextStack: Set<W2Board> = []
         var wins: Set<Int> = []
+		let start = Date.now
         
-        for d in 0..<depth {
+		for d in 1...depth {
             for b in stack {
 				guard nextStack.count < 10000 else { break }
 				if b.board.hasW1(o) {
-					if let p = b.addCheckMove(n, &nextStack, d == 0) {
+					if let p = b.addCheckMove(n, &nextStack, d == 1) {
 					 wins.formUnion(p)
 					}
 				} else {
-					if let p = b.addAllForces(n, &nextStack, d == 0) {
+					if let p = b.addAllForces(n, &nextStack, d == 1) {
 					 wins.formUnion(p)
 					}
 				}
             }
             stack = nextStack
             nextStack = []
-            if Date.now > deadline { return wins }
+            if Date.now > start + time { return wins }
+			cachedGetW2[n][d] = wins
         }
         return wins
     }
     
-    func getW2Blocks(for n: Int, depth: Int = 32, deadline: TimeInterval = Date.now + 30) -> Set<Int>? {
+    func getW2Blocks(for n: Int, depth: Int = 32, time: TimeInterval = 30) -> Set<Int>? {
+		if let w2 = cachedGetW2Blocks[n][depth] { return w2 }
         var blocks: Set<Int> = []
         let o = n^1
         if hasW1(n) { return nil } // I should handle this case but I'm not
         if hasW2(o) == false { return nil }
         let checks = open[2+4*n].values.joined() // same for removing checks below
         let options = Array(0..<64).filter({ pointEmpty($0) && !checks.contains($0) })
+		let start = Date.now
         for p in options.shuffled() {
             addMove(p, for: n)
-            if hasW2(o, depth: depth, deadline: deadline) == false { blocks.insert(p) }
+			if hasW2(o, depth: depth, time: time - (Date.now - start)) == false { blocks.insert(p) }
             undoMove(for: n)
-            if Date.now > deadline { break }
+            if Date.now > start + time { break }
         }
+		if time >= 30 { cachedGetW2Blocks[n][depth] = blocks }
 //        if blocks.isEmpty { print("threatmate") }
         return blocks.isEmpty ? nil : blocks
     }

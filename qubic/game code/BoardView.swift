@@ -56,18 +56,24 @@ class BoardScene {
     
     func reset() {
         base.removeAllActions()
-        base.rotation = SCNVector4(x: 0, y: 0, z: 0, w: 0)
+		Timer.after(0.1, run: {
+			self.base.rotation = SCNVector4(x: 0, y: 0, z: 0, w: 0)
+		})
         
         for (p, move) in moves.enumerated() {
             move.removeFromParentNode()
             move.removeAllActions()
-            move.rotation = SCNVector4(x: 0, y: 0, z: 0, w: 0)
+			Timer.after(0.1, run: {
+				move.rotation = SCNVector4(x: 0, y: 0, z: 0, w: 0)
+			})
             move.position = spaces[p].position
         }
         for space in spaces {
             space.opacity = 1
             space.removeAllActions()
-            space.rotation = SCNVector4(x: 0, y: 0, z: 0, w: 0)
+			Timer.after(0.1, run: {
+				space.rotation = SCNVector4(x: 0, y: 0, z: 0, w: 0)
+			})
 //            dot.removeFromParentNode()
         }
 //        dots = (0..<64).map { _ in SceneHelper.makeDot(color: .primary(33), size: 0.68) }

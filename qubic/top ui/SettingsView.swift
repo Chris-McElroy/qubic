@@ -116,7 +116,7 @@ struct SettingsView: View {
                             .frame(width: 200, height: 43, alignment: .top)
                         if FB.main.updateAvailable {
                             Button("update available!") {
-                                guard let url = URL(string: "itms-apps://itunes.apple.com/app/1480301899") else { return }
+								guard let url = URL(string: "itms-\(tfVersion ? "beta" : "apps")://itunes.apple.com/app/1480301899") else { return }
                                 UIApplication.shared.open(url, options: [:], completionHandler: nil)
                             }
                         }
