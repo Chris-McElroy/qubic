@@ -42,7 +42,7 @@ let dailyBoards = [
     ["DQvqm-jRbnMdF", "D9tV-rHGsvzihyMPqwRSQjWEC", "Rhs-jHcu09v_D5lVqQYm836n7o", "vq1h2daju-bQC9igk", "DQHv9-mEelMdtzwfyrZV", "HMDjQFRsbP9h6vm3KoWi", "CsM7j8hid6m", "CshdMgjPQ-O8Wk", "CshdMgjPQ-O8W0RE9VKrmoZpLJib", "CpsQhRWH", "-CmMHRvhqs27ycbn4831wf69", "VdCsjhqMQ-E_JyLtvuRW", "jhdDHq-Rmv84MQ", "jdqhVCMsvmRHLt", "jdqhVCMsvmRHLiztZ-", "jqdhVsH3C94TBXIfRS-k", "djqVMsHvh1I_E95-", "Vdhlz9HDe-sQ", "RHviQsMhzC-0WD", "Vmh9d-1638", "Rh9j-dpmuvoi6nbG0", "jqdhVsH3C94TBXIfRS-", "djqVMsHvh1I_E95Sm-"],
     ["MqhPjkdxspVzQ", "DH-QYmKr90FPs2v1faRiVhel", "QRVCqtsvLMjA9c-0HghzD", "DT9dVaMlhRsIvqFbzi", "CshdMgjPQ-O8W0RE9VKrmoZpLJ", "QjDM9vHhOTAYGFUE", "-CmMHRvhqs27ycbn4831", "CQv9VmqtHsd-GnDFNaXB", "VdCsjhqMQ-E_JyLtvu", "jdsqGhlVRMwHP9m", "ndjqshM9VClH8OE_1IcuS", "djhMqusvCVQ2-aD1", "jdqmvCVs-1", "jdqhVCMsvmRH", "dqjRChMV9S5HIvsmD", "dm-8sjCMOqhD9V", "pjudqoxMChVQs", "jQdmoxVER9XU-BHuqvJD", "djqVMsHvh1I_E95SwN",  "HMDjQFRsbP9h6vm3Ko"],
     ["Rhs-jHcu09v_D5lVqQYm8KoXgCB", "VMqjCRO-km4dDoxQKEWpZ", "THDMU9dRasl", "CpsQhRW0Y2iz", "-RH9dmjqGM", "jmR-hDQq", "jmRhqdH9ODM8", "jmRdVhCq", "jmRdVhCB", "jmHhsdxMDC", "jdqhCsVM_EtLyJ-Q", "jhdDHq-Rmv", "-vk9ymSp", "dqjRChMV9S5HIvsm", "BjsdhMVRQq9-H", "jdqVhM-s97"],
-    ["DH-QYmKr90FPs2v1faRi", "THDMU9dRas", "DT9dVaMlhRsI", "CshdMgjPQ-O8W0RE9VKrmo", "QjDM9vHhOTAY", "-CmMHRvhqs27ycbn", "CQv9VmqtHsd-GnDF", "-RH9dmjsvD", "jmRhqdH9D-", "jmRdsqHVhC", "jmHhsdlVDq", "jdqhCsVMD9A7E_UG", "jdqmvCVs9h", "jdqChDMs", "-vk9ymSpcHBRZwf", "jdVqh9-s", "m-DQvdRsCjhq"]
+    ["DH-QYmKr90FPs2v1faRi", "THDMU9dRas", "DT9dVaMlhRsI", "CshdMgjPQ-O8W0RE9VKrmo", "QjDM9vHhOTAY", "-CmMHRvhqs27ycbn", "CQv9VmqtHsd-GnDF", "-RH9dmjsvD", "jmRhqdH9D-", "jmRdsqHVhC", "jmHhsdlVDq", "jdqhCsVMD9A7E_UG", "jdqmvCVs9h", "jdqChDMs", "-vk9ymSpcHBRZwf", "jdVqh9-s", "m-DQvdRsCjhq", "VdMZhRmqs6Db9v-z"]
 ]
 
 // crashed:
@@ -62,28 +62,27 @@ let simpleBoards = [
 ]
 
 let commonBoards = [
-	"HmR9Dj", "qhjCd-", // triangles with no distractions
-	// triangles with moves in the plane, no distractions
-	// triangles with distractions
-	// 2-2 splits from 4 corners (inner and outer corners)
-	"H9R-mDQvhj", // 5 corner wins
-	"CsMqhVdD" // standard 4 move wins
+	"HmR9Dj", "qhjCd-", "m9dRoq", "VRfDUH", // triangles with no distractions
+	"H9-QmS", "VHjqCg", "HDVmh5", "hHFmzK", // triangles with moves in the plane, no distractions
+	"Hd-yvqVjhRms", // triangles with distractions
+	"VhqCjdsM", "RHmv9DQ-", "jCdhqVMs", "HR-9vQmD", // 2-2 splits from 4 corners (inner and outer corners)
+	"H-9DvRQqmj", "HRDv-9mdhQ", "CjVMdsqhHR", "jdqCMhsHVD", // 5 corner wins
+	"H-RQ9vmh", "CsMqhVdD", "dZsf-RvH", "jdqCMhsV" // standard 4 move wins
 ]
 
 let trickyBoards = [
 	"Vqhsv9dHtRCD", "HRhQdmplvs9j", "-h9jm0Hkgs", "DQvqm-jR",
 	"m9-MhRQH", "9h-CH0WMYP6m", "qHV9dtzjMCmDr", "DHRvmMQ-9",
 	"DRH-kQjvmdo9", "Rhs-jHcu09v_D5", "VMqjCRO-km4", "cjdshVCqH-lp79_",
-	"cjdshVCq", "Vjdqh9mMs", "dZsf-RvH", "QR9v-HMCh_",
-	"-vHRD9ojCMh", "RmDO9zvh-siL", "sRdGC1hQ", "dZsf-RvH",
-	"QR9v-HMCh_", "-vHRD9ojCMh", "RmDO9zvh-siL", "vmDHQ9khV-q",
-	"RHvu96Dh-MPU", "mR9vDdH-VlhQ", "9R-vDHojqMC",  "dsqtRF9hMmVD",
-	"Hd-yvqVjhRms", "RmvCsqJj", "VdMqhs-RDe", "VdMZhRmqs6Db9v-z",
-	"RQj9hgX-s0_E", "mRHCVh90Wq", "Vqhsv9dHtRCD", "RHtqvu9hj27C",
+	"cjdshVCq", "Vjdqh9mMs", "QR9v-HMCh_", "-vHRD9ojCMh",
+	"RmDO9zvh-siL", "sRdGC1hQ", "vmDHQ9khV-q", "RHvu96Dh-MPU",
+	"mR9vDdH-VlhQ", "9R-vDHojqMC",  "dsqtRF9hMmVD", "RmvCsqJj",
+	"VdMqhs-RDe", "RQj9hgX-s0_E", "mRHCVh90Wq", "RHtqvu9hj27C",
 	"pmD93VvMqhRs", "m-DQCMsdqVZU3vjY", "DQvMRhPU9-Cd", "jCdhqVbmH",
 	"sdqMVvCQmD", "mdvnqVsHh", "m-CDrMbQvnRj", "-qm8hjVRs",
 	"sdMCqhRHvbDW0a_", "vQJHY-yCjkR3VM", "9V-j_0RdfBQMJuc", "mRD9vM-qVh",
-	"hVMsjqTD-", "jhVdCqvQ-nG_RBt9H", "sdMCqj9Hv1R"]
+	"hVMsjqTD-", "jhVdCqvQ-nG_RBt9H", "sdMCqj9Hv1R"
+]
 
 let solveBoardDates: [Key: [Int]] = [
 	.simple: Array(repeating: 737991, count: simpleBoards.count),
@@ -382,7 +381,7 @@ extension Board {
 
     static let linePoints: [UInt64] = [15, 240, 3840, 61440, 983040, 15728640, 251658240, 4026531840, 64424509440, 1030792151040, 16492674416640, 263882790666240, 4222124650659840, 67553994410557440, 1080863910568919040, 17293822569102704640, 4369, 8738, 17476, 34952, 286326784, 572653568, 1145307136, 2290614272, 18764712116224, 37529424232448, 75058848464896, 150117696929792, 1229764173248856064, 2459528346497712128, 4919056692995424256, 9838113385990848512, 281479271743489, 562958543486978, 1125917086973956, 2251834173947912, 4503668347895824, 9007336695791648, 18014673391583296, 36029346783166592, 72058693566333184, 144117387132666368, 288234774265332736, 576469548530665472, 1152939097061330944, 2305878194122661888, 4611756388245323776, 9223512776490647552, 33825, 2216755200, 145277268787200, 9520891087237939200, 4680, 306708480, 20100446945280, 1317302891005870080, 2251816993685505, 36029071898968080, 576465150383489280, 9223442406135828480, 281483566907400, 4503737070518400, 72059793128294400, 1152956690052710400, 1152922604119523329, 2305845208239046658, 4611690416478093316, 9223380832956186632, 281543712968704, 563087425937408, 1126174851874816, 2252349703749632, 9223376434903384065, 281612482805760, 1152923703634296840, 2252074725150720]
 
-    static let inLine: [[(Int, Int, Int)?]] = [
+	static let inLine: [[(line: Int, p1: Int, p2: Int)?]] = [
          [nil, (0, 3, 2), (0, 3, 1), (0, 1, 2), (16, 12, 8), (48, 15, 10), nil, nil, (16, 12, 4), nil, (48, 15, 5), nil, (16, 8, 4), nil, nil, (48, 10, 5), (32, 32, 48), (56, 34, 51), nil, nil, (64, 60, 40), (72, 63, 42), nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, (32, 48, 16), nil, (56, 51, 17), nil, nil, nil, nil, nil, (64, 20, 60), nil, (72, 63, 21), nil, nil, nil, nil, nil, (32, 32, 16), nil, nil, (56, 34, 17), nil, nil, nil, nil, nil, nil, nil, nil, (64, 20, 40), nil, nil, (72, 42, 21)],
          [(0, 3, 2), nil, (0, 3, 0), (0, 2, 0), nil, (17, 13, 9), nil, nil, nil, (17, 5, 13), nil, nil, nil, (17, 5, 9), nil, nil, nil, (33, 33, 49), nil, nil, nil, (65, 61, 41), nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, (33, 17, 49), nil, nil, nil, nil, nil, nil, nil, (65, 21, 61), nil, nil, nil, nil, nil, nil, nil, (33, 17, 33), nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, (65, 21, 41), nil, nil],
          [(0, 3, 1), (0, 3, 0), nil, (0, 1, 0), nil, nil, (18, 10, 14), nil, nil, nil, (18, 6, 14), nil, nil, nil, (18, 6, 10), nil, nil, nil, (34, 34, 50), nil, nil, nil, (66, 42, 62), nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, (34, 18, 50), nil, nil, nil, nil, nil, nil, nil, (66, 22, 62), nil, nil, nil, nil, nil, nil, nil, (34, 18, 34), nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, (66, 42, 22), nil],

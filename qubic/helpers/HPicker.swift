@@ -61,11 +61,12 @@ struct HPicker : UIViewRepresentable {
             
             let content = parent.content[component][row]
             if let givenFunc = content as? () -> UIView { return givenFunc() }
-            guard let (text, done) = content as? (String, Bool) else { return UIView() }
-            return getLabel(for: text, underline: done)
+            if let (text, done) = content as? (String, Bool) { return getLabel(for: text, underline: done) }
+			if let text = content as? String { return getLabel(for: text) }
+			return UIView()
         }
         
-        func getLabel(for text: String, underline: Bool) -> UILabel {
+        func getLabel(for text: String, underline: Bool = false) -> UILabel {
             let label = UILabel()
             label.text = text
             label.textAlignment = .center

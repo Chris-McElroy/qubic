@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-let solveButtonsEnabled = false
+let solveButtonsEnabled = true
 let tfVersion = true
 let qubicVersion = 030032
 
@@ -35,7 +35,7 @@ struct MainView: View {
                 .zIndex(10)
         }
         .onAppear {
-            FB.main.start()
+//            FB.main.start()
             layout.load(for: screen)
             layout.current = .main
             game.goBack = goBack

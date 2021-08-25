@@ -11,7 +11,7 @@ import SwiftUI
 struct AboutView: View {
     @ObservedObject var layout = Layout.main
     var mainButtonAction: () -> Void
-    let pickerContent: [[Any]] = [[("how to play", false), ("using the app", false), ("developer bio", false), ("helpful links", false)]]
+    let pickerContent: [[Any]] = [["how to play", "using the app", "developer bio", "helpful links"]]
     @State var selected: [Int] = [0]
     @State var page: Int = 0
     var width: CGFloat { min(500, layout.width) }

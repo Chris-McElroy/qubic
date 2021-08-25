@@ -33,15 +33,15 @@ struct TrainView: View {
         Storage.set(newTrainMenu, for: .lastTrainMenu)
     }
 
-    var menuText: [[(String, Bool)]] {
+    var menuText: [[Any]] {
         [[("novice",    beaten[0] == 1),
           ("defender",  beaten[1] == 1),
           ("warrior",   beaten[2] == 1),
           ("tyrant",    beaten[3] == 1),
           ("oracle",    beaten[4] == 1),
           ("cubist",    beaten[5] == 1)],
-         [("first", false),("random", false),("second", false)],
-         [("sandbox", false),("challenge", false)]]
+         ["first", "random", "second"],
+         ["sandbox", "challenge"]]
     }
     
     var mode: GameMode {

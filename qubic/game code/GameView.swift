@@ -15,10 +15,10 @@ struct GameView: View {
     @State var rotateMe = false
     @State var isRotated = false
     @State var cont = false
-    @State var hintSelection = [1,1]
+    @State var hintSelection = [1,2]
     @State var hintPickerContent: [[Any]] = [
-        [("blocks", false), ("wins", false)],
-        [("on",false),("off",false)]
+        ["blocks", "wins"],
+		["all", "best", "off"]
     ]
     @State var hintText: [[String]?] = [nil, nil]
     @State var currentSolveType: SolveType? = nil
@@ -42,9 +42,7 @@ struct GameView: View {
                             } else if h > 0 {
                                 game.goBack()
                             } else {
-                                if game.showHintCard() {
-                                    hintSelection[1] = 1
-                                }
+                                game.showHintCard()
                             }
                         }
                     )
@@ -149,7 +147,7 @@ struct GameView: View {
         hintPickerContent = [
             [("blocks", opHint ?? .noW != .noW),
              ("wins", myHint ?? .noW != .noW)],
-            [("on",false),("off",false)]
+            ["all", "best", "off"]
         ]
         
         switch opHint {
@@ -248,14 +246,15 @@ struct GameView: View {
     func onSelection(row: Int, component: Int) {
         withAnimation {
             if component == 1 { // changing show
-                if row == 0 {
+                if row < 2 {
                     game.showHintFor = hintSelection[0]
+					game.showAllHints = row == 0
                     game.hideHintCard()
                 } else {
                     game.showHintFor = nil
                 }
             } else {            // changing blocks/wins
-                hintSelection[1] = 1
+                hintSelection[1] = 2
                 game.showHintFor = nil
             }
         }

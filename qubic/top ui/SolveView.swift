@@ -37,8 +37,8 @@ struct SolveView: View {
                 GameView()
                     .onAppear { Game.main.load(mode: mode, boardNum: boardNum) }
             } else if layout.current == .solveMenu {
-                HPicker(content: $menuText, dim: (90, 40), selected: $selected, action: onSelection)
-                    .frame(height: 80)
+                HPicker(content: $menuText, dim: (100, 40), selected: $selected, action: onSelection)
+					.frame(height: 80)
                     .opacity(layout.current == .solveMenu ? 1 : 0)
                     .onAppear { refreshMenu() }
                 Blank(3)

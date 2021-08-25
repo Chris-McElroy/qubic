@@ -17,7 +17,7 @@ struct SettingsView: View {
     @State var showNotificationAlert = false
 //    @State var lineSize = lineWidth
     
-    let picker1Content: [[Any]] = [[("left", false), ("right", false)], [("on", false), ("off", false)],  [("on", false), ("off", false)]]
+    let picker1Content: [[Any]] = [["left", "right"], ["on", "off"],  ["on", "off"]]
     let picker2Content: [[Any]] = [cubeImages()]
 //    static let boardStyleContent = [["spaces","blanks","cubes","spheres","points"].map { ($0, false) }]
     let notificationComp = 2

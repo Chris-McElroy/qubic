@@ -66,7 +66,7 @@ class Board {
         }
     }
     
-    func undoMove(for n: Int) {
+	func undoMove(for n: Int) {
         guard let p = move[n].popLast() else { return }
 		cachedHasW2 = [nil, nil]
 		cachedGetW2 = [[:], [:]]

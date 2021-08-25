@@ -122,7 +122,7 @@ extension Board {
         }
 	}
     
-    func hasW2(_ n: Int, depth: Int = 32, time: TimeInterval = 30) -> Bool? {
+	func hasW2(_ n: Int, depth: Int = 32, time: TimeInterval = 30, valid: () -> Bool = { true }) -> Bool? {
 		if depth == 0 { return false }
 		if let w2 = cachedHasW2[n] { return w2 <= depth }
         let o = n^1
@@ -133,6 +133,7 @@ extension Board {
 		for d in 1...depth {
             for b in stack {
 				guard nextStack.count < 40000 else { break }
+				guard valid() else { print("tripped hasW2"); return nil }
                 if b.board.hasW1(o) {
                     if b.addCheckMove(n, &nextStack, d == 1) != nil {
 						cachedHasW2[n] = d
@@ -153,7 +154,7 @@ extension Board {
         return false
     }
     
-    func getW2(for n: Int, depth: Int = 32, time: TimeInterval = 30) -> Set<Int>? {
+	func getW2(for n: Int, depth: Int = 32, time: TimeInterval = 30, valid: () -> Bool = { true }) -> Set<Int>? {
 		if depth == 0 { return [] }
 		if let w2 = cachedGetW2[n][depth] { return w2 }
         let o = n^1
@@ -165,6 +166,7 @@ extension Board {
 		for d in 1...depth {
             for b in stack {
 				guard nextStack.count < 10000 else { break }
+				guard valid() else { print("tripped getW2"); return nil }
 				if b.board.hasW1(o) {
 					if let p = b.addCheckMove(n, &nextStack, d == 1) {
 					 wins.formUnion(p)
@@ -183,8 +185,9 @@ extension Board {
         return wins
     }
     
-    func getW2Blocks(for n: Int, depth: Int = 32, time: TimeInterval = 30) -> Set<Int>? {
+	func getW2Blocks(for n: Int, depth: Int = 32, time: TimeInterval = 30, valid: () -> Bool = { true }) -> Set<Int>? {
 		if let w2 = cachedGetW2Blocks[n][depth] { return w2 }
+		let checkBoard = Board(self)
         var blocks: Set<Int> = []
         let o = n^1
         if hasW1(n) { return nil } // I should handle this case but I'm not
@@ -193,15 +196,183 @@ extension Board {
         let options = Array(0..<64).filter({ pointEmpty($0) && !checks.contains($0) })
 		let start = Date.now
         for p in options.shuffled() {
-            addMove(p, for: n)
-			if hasW2(o, depth: depth, time: time - (Date.now - start)) == false { blocks.insert(p) }
-            undoMove(for: n)
+			guard valid() else { print("tripped getW2Blocks"); return nil }
+			checkBoard.addMove(p, for: n)
+			if checkBoard.hasW2(o, depth: depth, time: time - (Date.now - start)) == false { blocks.insert(p) }
+			checkBoard.undoMove(for: n)
             if Date.now > start + time { break }
         }
 		if time >= 30 { cachedGetW2Blocks[n][depth] = blocks }
 //        if blocks.isEmpty { print("threatmate") }
         return blocks.isEmpty ? nil : blocks
     }
+	
+//	func hasW2P(for n: Int, depth: Int) -> Bool {
+//		if depth == 0 { return false }
+//		let o = n^1
+//		if let w2 = cachedHasW2[n] { return w2 <= depth }
+//		var forces: [Force] = move[n].map { Force(p: $0) }
+//		var forceBoard: [[Int]] = Array(repeating: [], count: 64)
+//		var force1 = 0
+//
+//		while force1 < forces.count {
+//			if findWins() { return true } // TODO try switching to happen immediately when the force is found
+//			findForces()
+//			forceBoard[forces[force1].g].append(force1)
+//			force1 += 1
+//		}
+//
+//		func findWins() -> Bool {
+//			for force2 in forceBoard[forces[force1].g] {
+//				// check that force1 and force2 do not conflict
+//				guard noConflict(force2) else { continue }
+//
+//				// see if the sequence creates check
+//				var checks: [(g: Int, c: Int, r: UInt64)] = []
+//				fillChecks(force: force1)
+//				fillChecks(force: force2)
+//
+//				let checkBoard = Board(self)
+//				let path: [Int] = [] // TODO change to var when i'm writing this again
+//
+//				while path.count < checks.count {
+//					let opWins = checkBoard.getW1(for: o)
+//					if !opWins.isEmpty {
+//						let gain = opWins.first!
+//						if let check = checks.first(where: { $0.g == gain }),
+//						   (check.r & checkBoard.board[n] == check.r) && (opWins.count == 1) {
+//							// the check is solvable
+//							checkBoard.addMove(check.g, for: n)
+//							checkBoard.addMove(check.c, for: o)
+//						} else {
+//							// give up and reset
+//
+//							// wrong — there are more cases tham this
+//						}
+//					} else {
+//
+////						checkBoard.addMove(gain)
+////						checkBoard.addMove(cost)
+//					}
+//				}
+//
+//
+//
+////				if checkBoard.hasW1(o) || checkBoard.hasW0(o) {
+////					continue // we can't stop these wins
+////				} else if hadCheck {
+////					// see if you can order it to block the check on the next move
+////				} else {
+////					// checks.count is wrong now bc i flipped checks
+////					if checks.count < (cachedHasW2[n] ?? 64) { cachedHasW2[n] = checks.count }
+////					if checks.count < depth { return true }
+////				}
+//
+//				@discardableResult func fillChecks(force: Int) -> UInt64 {
+//					guard let cost = forces[force].c else { return 0 }
+//					let r = (1 &<< forces[force].g)
+//						| fillChecks(force: forces[force].from1!)
+//						| fillChecks(force: forces[force].from2!)
+//					checks.append((forces[force].g, cost, r))
+//					return r
+//				}
+//			}
+//
+//			return false
+//		}
+//
+//		func findForces() {
+//			let opBoard = forces[force1].costs | board[o]
+//			let f1Board = forces[force1].all | board[n]
+//			for line in Board.linesThruPoint[forces[force1].g] {
+//				guard Board.linePoints[line] & opBoard == 0 else { continue }
+//				let points = Board.pointsInLine[line]
+//				for p in points where p != forces[force1].g {
+//					guard let (_, c3, c4) = Board.inLine[forces[force1].g][p] else { print("wrote this wrong"); break }
+//
+//					// check that c3 and c4 are empty and are not part of force1
+//					guard f1Board & ((1 &<< c3) | (1 &<< c4)) == 0 else { continue }
+//
+//					for force2 in forceBoard[p] {
+//						// check that c3 and c4 are not part of force2
+//						guard forces[force2].all & ((1 &<< c3) | (1 &<< c4)) == 0 else { continue }
+//
+//						// check that force1 and force2 do not conflict
+//						guard noConflict(force2) else { continue }
+//
+//						// add the two resulting forces
+//						let all = forces[force1].all | forces[force2].all | (1 &<< c3) | (1 &<< c4)
+//						let gains = forces[force1].gains | forces[force2].gains
+//						let costs = forces[force1].costs | forces[force2].costs
+//						forces.append(Force(g: c3, c: c4, all: all, gains: gains | (1 &<< c3), costs: costs | (1 &<< c4), from1: force1, from2: force2))
+//						forces.append(Force(g: c4, c: c3, all: all, gains: gains | (1 &<< c4), costs: costs | (1 &<< c3), from1: force1, from2: force2))
+//					}
+//				}
+//			}
+//		}
+//
+//		func noConflict(_ force2: Int) -> Bool {
+//			// check that the gain cubes and cost cubes are separate
+//			if (forces[force1].gains & forces[force2].costs) | (forces[force1].costs & forces[force2].gains) != 0 { return false }
+//
+//			// if the costs don't overlap, you're all good
+//			if forces[force1].costs & forces[force2].costs == 0 { return true }
+//
+//			// otherwise, check that the cost cubes have the same gain cubes
+//			var costsDict: [Int: Int] = [:]
+//
+//			func fillDict(force: Int) {
+//				guard let cost = forces[force].c else { return }
+//				costsDict[cost] = forces[force].g
+//				fillDict(force: forces[force].from1 ?? 0)
+//				fillDict(force: forces[force].from2 ?? 0)
+//			}
+//
+//			func checkDict(force: Int) -> Bool {
+//				guard let cost = forces[force].c else { return true }
+//				if let oldGain = costsDict.updateValue(forces[force].g, forKey: cost), oldGain != forces[force].g {
+//					return false
+//				}
+//				return checkDict(force: forces[force].from1 ?? 0)
+//					&& checkDict(force: forces[force].from2 ?? 0)
+//			}
+//
+//			fillDict(force: force1)
+//			return checkDict(force: force2)
+//		}
+//
+//		return false
+//	}
+//
+//	struct Force: Hashable {
+//		let g: Int
+//		let c: Int?
+//		let all: UInt64
+//		let gains: UInt64
+//		let costs: UInt64
+//		let from1: Int?
+//		let from2: Int?
+//
+//		init(p: Int) {
+//			g = p
+//			c = nil
+//			all = 0
+//			gains = 0
+//			costs = 0
+//			from1 = nil
+//			from2 = nil
+//		}
+//
+//		init(g: Int, c: Int, all: UInt64, gains: UInt64, costs: UInt64, from1: Int, from2: Int) {
+//			self.g = g
+//			self.c = c
+//			self.all = all
+//			self.gains = gains
+//			self.costs = costs
+//			self.from1 = from1
+//			self.from2 = from2
+//		}
+//	}
     
 //    func hasO2Win(_ n: Int) -> Bool {
 //        // returns true if player n has 1st order check,

@@ -12,14 +12,14 @@ import MessageUI
 struct PlayView: View {
     @ObservedObject var layout = Layout.main
     @Binding var selected: [Int]
-    static let onlineMenuText = [[("local",false),("online",false),("invite",false)],
-                                 [("bots",false),("auto",false),("humans",false)],
-                                 [("untimed", false), ("1 min", false), ("5 min", false), ("10 min", false)],
-                                 [("sandbox",false),("challenge",false)]]
-    static let altMenuText = [[("local",false),("online",false),("invite",false)],
-                              [("first",false),("random",false),("second",false)],
-                              [("untimed", false), ("1 min", false), ("5 min", false), ("10 min", false)],
-                              [("sandbox",false),("challenge",false)]]
+    static let onlineMenuText = [["local", "online", "invite"],
+                                 ["bots", "auto", "humans"],
+                                 ["untimed", "1 min", "5 min", "10 min"],
+                                 ["sandbox", "challenge"]]
+    static let altMenuText = [["local", "online", "invite"],
+                              ["first", "random", "second"],
+                              ["untimed", "1 min", "5 min", "10 min"],
+                              ["sandbox", "challenge"]]
     @State var menuText: [[Any]] = PlayView.onlineMenuText
     @State var tip = tips.randomElement() ?? ""
     

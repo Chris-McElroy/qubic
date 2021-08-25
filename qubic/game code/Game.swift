@@ -61,8 +61,10 @@ class Move: Equatable {
     let p: Int
     var nHint: HintValue? = nil
     var oHint: HintValue? = nil
-    var nMoves: Set<Int>? = nil
-	var oMoves: Set<Int>? = nil
+    var nAllMoves: Set<Int>? = nil
+	var oAllMoves: Set<Int>? = nil
+	var nBestMoves: Set<Int>? = nil
+	var oBestMoves: Set<Int>? = nil
 	var winLen: Int = 0
     var solveType: SolveType? = nil
     
@@ -88,8 +90,10 @@ class Game: ObservableObject {
     @Published var moves: [Move] = []
     @Published var hints: Bool = false
     @Published var showHintFor: Int? = nil
+	@Published var showAllHints: Bool = true
     @Published var currentTimes: [Int] = [0,0]
     
+	var gameNum: Int = 0
     var turn: Int { board.getTurn() }
     var realTurn: Int { gameState == .active ? moves.count % 2 : (gameState.myWin ? myTurn : (gameState.opWin ? myTurn^1 : 2)) }
     var goBack: () -> Void = {}
@@ -117,7 +121,11 @@ class Game: ObservableObject {
     var premoves: [Int] = []
     var currentHintMoves: Set<Int>? {
 		guard let hintFor = showHintFor else { return nil }
-		return (hintFor == 1) == (myTurn == turn) ? currentMove?.nMoves : currentMove?.oMoves
+		if (hintFor == 1) == (myTurn == turn) {
+			return showAllHints ? currentMove?.nAllMoves : currentMove?.nBestMoves
+		} else {
+			return showAllHints ? currentMove?.oAllMoves : currentMove?.oBestMoves
+		}
     }
     
     init() {
@@ -127,6 +135,7 @@ class Game: ObservableObject {
     func load(mode: GameMode, boardNum: Int = 0, turn: Int? = nil, hints: Bool = false, time: Double? = nil) {
         board = Board()
         BoardScene.main.reset()
+		gameNum += 1
         undoOpacity = .clear
         prevOpacity = .clear
         nextOpacity = .clear
@@ -146,13 +155,14 @@ class Game: ObservableObject {
         replayMode = false
         premoves = []
         showHintFor = nil
+		showAllHints = true
         newStreak = nil
         setPreset(boardNum, for: mode)
         dayInt = Date.int
         solveBoard = boardNum
         myTurn = turn != nil ? turn! : preset.count % 2
         self.mode = mode
-        self.hints = hints
+        self.hints = true
         let me = User(b: board, n: myTurn)
         let op = getOp(boardNum: boardNum, myColor: me.color)
         player = myTurn == 0 ? [me, op] : [op, me]
@@ -295,6 +305,7 @@ class Game: ObservableObject {
         let b = Board()
         for move in moves { b.addMove(move.p) }
         let turn = b.getTurn()
+		let num = gameNum
         
         if gameState == .active {
             if let total = totalTime {
@@ -314,8 +325,9 @@ class Game: ObservableObject {
             var nHint: HintValue = .noW
             if b.hasW0(turn) { nHint = .w0 }
             else if b.hasW1(turn) { nHint = .w1 }
-            else if b.hasW2(turn, depth: 1) == true { nHint = .w2d1 }
-			else if b.hasW2(turn) == true { nHint = .w2; moves.last?.winLen = (b.cachedHasW2[turn] ?? 0) + 1 }
+            else if b.hasW2(turn, depth: 1, valid: { num == self.gameNum }) == true { nHint = .w2d1 }
+			else if b.hasW2(turn, valid: { num == self.gameNum }) == true { nHint = .w2; moves.last?.winLen = (b.cachedHasW2[turn] ?? 0) + 1 }
+			guard num == self.gameNum else { return }
             moves.last?.nHint = nHint
 
             if solveButtonsEnabled {
@@ -324,11 +336,11 @@ class Game: ObservableObject {
                 } else if nHint == .w2d1 {
                     moves.last?.solveType = .d2
                 } else if nHint == .w2 {
-                    if b.hasW2(turn, depth: 2) == true {
+                    if b.hasW2(turn, depth: 2, valid: { num == self.gameNum }) == true {
                         moves.last?.solveType = .d3
-                    } else if b.hasW2(turn, depth: 3) == true {
+                    } else if b.hasW2(turn, depth: 3, valid: { num == self.gameNum }) == true {
                         moves.last?.solveType = .d4
-                    } else if b.hasW2(turn, depth: 5) == false {
+                    } else if b.hasW2(turn, depth: 5, valid: { num == self.gameNum }) == false {
                         moves.last?.solveType = .tr
                     } else {
                         moves.last?.solveType = .si
@@ -337,28 +349,41 @@ class Game: ObservableObject {
                     moves.last?.solveType = .no
                 }
             }
+			guard num == self.gameNum else { return }
             DispatchQueue.main.async { self.newHints() }
 
             var oHint: HintValue = .noW
             if b.hasW0(turn^1) { oHint = .w0 }
             else if b.getW1(for: turn^1).count > 1 { oHint = .cm1 }
             else if b.hasW1(turn^1) { oHint = .c1 }
-            else if b.hasW2(turn^1) == true {
-                if b.getW2Blocks(for: turn) == nil { oHint = .cm2 }
-                else if b.hasW2(turn^1, depth: 1) == true { oHint = .c2d1 }
+			else if b.hasW2(turn^1, valid: { num == self.gameNum }) == true {
+				if b.getW2Blocks(for: turn, valid: { num == self.gameNum }) == nil { oHint = .cm2 }
+                else if b.hasW2(turn^1, depth: 1, valid: { num == self.gameNum }) == true { oHint = .c2d1 }
                 else { oHint = .c2 }
             }
+			
+			guard num == self.gameNum else { return }
 			moves.last?.oHint = oHint
             DispatchQueue.main.async { self.newHints() }
 
-            var nMoves: Set<Int> = []
+            var nAllMoves: Set<Int> = []
+			var nBestMoves: Set<Int> = []
             switch nHint {
-            case .w1: nMoves = b.getW1(for: turn)
-            case .w2: nMoves = b.getW2(for: turn) ?? []
-            case .w2d1: nMoves = b.getW2(for: turn, depth: 1) ?? []
+            case .w1:
+				nAllMoves = b.getW1(for: turn)
+				nBestMoves = nAllMoves
+			case .w2:
+				nAllMoves = b.getW2(for: turn, valid: { num == self.gameNum }) ?? []
+				nBestMoves = b.getW2(for: turn, depth: b.cachedHasW2[turn] ?? 0, valid: { num == self.gameNum }) ?? []
+			case .w2d1:
+				nAllMoves = b.getW2(for: turn, valid: { num == self.gameNum }) ?? []
+				nBestMoves = b.getW2(for: turn, depth: 1, valid: { num == self.gameNum }) ?? []
             default: break
             }
-			moves.last?.nMoves = nMoves
+			
+			guard num == self.gameNum else { return }
+			moves.last?.nAllMoves = nAllMoves
+			moves.last?.nBestMoves = nBestMoves
 			// show hint for == 1 -> my wins
 			// if i go first then that's showHintFor = 0
 			// no what i'm testing for here is that showHintFor is equal to the person who's move it is
@@ -366,28 +391,34 @@ class Game: ObservableObject {
                 DispatchQueue.main.async { BoardScene.main.spinMoves() }
             }
 
-            var oMoves: Set<Int> = []
+			var oAllMoves: Set<Int> = []
+			var oBestMoves: Set<Int> = []
             switch oHint {
-            case .c1, .cm1: oMoves = b.getW1(for: turn^1)
-            case .c2d1: oMoves = b.getW2Blocks(for: turn, depth: 1) ?? []
-            case .c2: oMoves = b.getW2Blocks(for: turn) ?? []
+            case .c1, .cm1:
+				oAllMoves = b.getW1(for: turn^1)
+				oBestMoves = oAllMoves
+            case .c2d1:
+				oAllMoves = b.getW2Blocks(for: turn, valid: { num == self.gameNum }) ?? []
+				oBestMoves = oAllMoves
+			case .c2:
+				oAllMoves = b.getW2Blocks(for: turn, valid: { num == self.gameNum }) ?? []
+				oBestMoves = oAllMoves
             default: break
             }
-			moves.last?.oMoves = oMoves
+			
+			guard num == self.gameNum else { return }
+			moves.last?.oAllMoves = oAllMoves
+			moves.last?.oBestMoves = oBestMoves
 			if self.myTurn == turn ? self.showHintFor == 1 : self.showHintFor == 0 {
                 DispatchQueue.main.async { BoardScene.main.spinMoves() }
             }
         }
     }
     
-    @discardableResult func showHintCard() -> Bool {
+	func showHintCard() {
         withAnimation {
             hintCard = true
-//            if undoOpacity == .full {
-//                undoOpacity = .half
-//            }
         }
-        return false
     }
     
     @discardableResult func hideHintCard() -> Bool {
