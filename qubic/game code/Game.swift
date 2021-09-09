@@ -157,8 +157,8 @@ class Game: ObservableObject {
         showHintFor = nil
 		showAllHints = true
         newStreak = nil
+		dayInt = Date.int
         setPreset(boardNum, for: mode)
-        dayInt = Date.int
         solveBoard = boardNum
         myTurn = turn != nil ? turn! : preset.count % 2
         self.mode = mode
@@ -176,6 +176,7 @@ class Game: ObservableObject {
                 let aNum = (m/(10000000*size)) % 192
                 let bNum = ((m/1000000) % size) + size*(dayInt % 3)
                 preset = expandMoves(dailyBoards[boardNum][bNum]).map { Board.automorphisms[aNum][$0] }
+				print(dayInt, Date.int, m, size, aNum, bNum, preset)
                 solved = (Storage.array(.daily) as? [Int])?[boardNum] == dayInt
             }
             else if mode == .simple { getInfo(from: simpleBoards, key: .simple) }

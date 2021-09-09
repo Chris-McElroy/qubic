@@ -40,7 +40,7 @@ func setSolveArrays() {
 
 let dailyBoards = [
     ["DQvqm-jRbnMdF", "D9tV-rHGsvzihyMPqwRSQjWEC", "Rhs-jHcu09v_D5lVqQYm836n7o", "vq1h2daju-bQC9igk", "DQHv9-mEelMdtzwfyrZV", "HMDjQFRsbP9h6vm3KoWi", "CsM7j8hid6m", "CshdMgjPQ-O8Wk", "CshdMgjPQ-O8W0RE9VKrmoZpLJib", "CpsQhRWH", "-CmMHRvhqs27ycbn4831wf69", "VdCsjhqMQ-E_JyLtvuRW", "jhdDHq-Rmv84MQ", "jdqhVCMsvmRHLt", "jdqhVCMsvmRHLiztZ-", "jqdhVsH3C94TBXIfRS-k", "djqVMsHvh1I_E95-", "Vdhlz9HDe-sQ", "RHviQsMhzC-0WD", "Vmh9d-1638", "Rh9j-dpmuvoi6nbG0", "jqdhVsH3C94TBXIfRS-", "djqVMsHvh1I_E95Sm-"],
-    ["MqhPjkdxspVzQ", "DH-QYmKr90FPs2v1faRiVhel", "QRVCqtsvLMjA9c-0HghzD", "DT9dVaMlhRsIvqFbzi", "CshdMgjPQ-O8W0RE9VKrmoZpLJ", "QjDM9vHhOTAYGFUE", "-CmMHRvhqs27ycbn4831", "CQv9VmqtHsd-GnDFNaXB", "VdCsjhqMQ-E_JyLtvu", "jdsqGhlVRMwHP9m", "ndjqshM9VClH8OE_1IcuS", "djhMqusvCVQ2-aD1", "jdqmvCVs-1", "jdqhVCMsvmRH", "dqjRChMV9S5HIvsmD", "dm-8sjCMOqhD9V", "pjudqoxMChVQs", "jQdmoxVER9XU-BHuqvJD", "djqVMsHvh1I_E95SwN",  "HMDjQFRsbP9h6vm3Ko"],
+    ["MqhPjkdxspVzQ", "DH-QYmKr90FPs2v1faRiVhel", "QRVCqtsvLMjA9c-0HghzD", "DT9dVaMlhRsIvqFbzi", "CshdMgjPQ-O8W0RE9VKrmoZpLJ", "QjDM9vHhOTAYGFUE", "-CmMHRvhqs27ycbn4831", "CQv9VmqtHsd-GnDFNaXB", "VdCsjhqMQ-E_JyLtvu", "jdsqGhlVRMwHP9m", "ndjqshM9VClH8OE_1IcuS", "djhMqusvCVQ2-aD1", "jdqmvCVs-1", "jdqhVCMsvmRH", "dqjRChMV9S5HIvsmD", "dm-8sjCMOqhD9V", "pjudqoxMChVQs", "jQdmoxVER9XU-BHuqvJD", "djqVMsHvh1I_E95SwN",  "HMDjQFRsbP9h6vm3Ko","VjRmD0ShIHUPTYOQA"],
     ["Rhs-jHcu09v_D5lVqQYm8KoXgCB", "VMqjCRO-km4dDoxQKEWpZ", "THDMU9dRasl", "CpsQhRW0Y2iz", "-RH9dmjqGM", "jmR-hDQq", "jmRhqdH9ODM8", "jmRdVhCq", "jmRdVhCB", "jmHhsdxMDC", "jdqhCsVM_EtLyJ-Q", "jhdDHq-Rmv", "-vk9ymSp", "dqjRChMV9S5HIvsm", "BjsdhMVRQq9-H", "jdqVhM-s97"],
     ["DH-QYmKr90FPs2v1faRi", "THDMU9dRas", "DT9dVaMlhRsI", "CshdMgjPQ-O8W0RE9VKrmo", "QjDM9vHhOTAY", "-CmMHRvhqs27ycbn", "CQv9VmqtHsd-GnDF", "-RH9dmjsvD", "jmRhqdH9D-", "jmRdsqHVhC", "jmHhsdlVDq", "jdqhCsVMD9A7E_UG", "jdqmvCVs9h", "jdqChDMs", "-vk9ymSpcHBRZwf", "jdVqh9-s", "m-DQvdRsCjhq", "VdMZhRmqs6Db9v-z"]
 ]
@@ -64,10 +64,11 @@ let simpleBoards = [
 let commonBoards = [
 	"HmR9Dj", "qhjCd-", "m9dRoq", "VRfDUH", // triangles with no distractions
 	"H9-QmS", "VHjqCg", "HDVmh5", "hHFmzK", // triangles with moves in the plane, no distractions
-	"Hd-yvqVjhRms", // triangles with distractions
-	"VhqCjdsM", "RHmv9DQ-", "jCdhqVMs", "HR-9vQmD", // 2-2 splits from 4 corners (inner and outer corners)
-	"H-9DvRQqmj", "HRDv-9mdhQ", "CjVMdsqhHR", "jdqCMhsHVD", // 5 corner wins
-	"H-RQ9vmh", "CsMqhVdD", "dZsf-RvH", "jdqCMhsV" // standard 4 move wins
+	"Hd-yvqVjhRms", "R9Hmqv-CkBSI1d", "RHmCD9VIkBcpljT", "VqRmDhSPIHM19YF", // triangles with distractions
+	"CjVMdsqhHR", // 4-1 corner wins, 6
+	"VhqCjdsM", "RHmv9DQ-", "jCdhqVMs", "HR-9vQmD", // 2-2 splits from 4 corners (inner and outer corners), 7 7 7 7
+	"H-9DvRQqmj", "HRDv-9mdhQ", "jdqCMhsHVD", // 5 corner wins, 9 9 9 // remove one of these
+	"H-RQ9vmh", "CsMqhVdD", "dZsf-RvH", "jdqCMhsV" // standard 4 move wins, 8 8 7 7
 ]
 
 let trickyBoards = [
