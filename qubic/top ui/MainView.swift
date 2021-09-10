@@ -40,7 +40,8 @@ struct MainView: View {
             layout.current = .main
             game.goBack = goBack
             game.cancelBack = cancelBack
-            setSolveArrays()
+			updateSolveBoardData()
+			updateDailyData()
             Notifications.setBadge(justSolved: false)
         }
         .onReceive(screen.objectWillChange) { layout.load(for: screen) }

@@ -55,6 +55,7 @@ struct SolveView: View {
         menuUpdateTimer = Timer.after(delay, run: {
             menuText = SolveView.getMenuText()
             layout.checkDaily()
+			setSolveData()
         })
     }
     
@@ -76,7 +77,11 @@ struct SolveView: View {
     
     func firstBoard(of type: Key) -> Int {
         let list = Storage.array(type) as? [Int] ?? [0]
-		return list.enumerated().first(where: { type == .daily ? $0.element < Date.int : $0.element < solveBoardDates[type]?[$0.offset] ?? 0 })?.offset ?? (type == .daily ? 0 : list.count)
+		return list.enumerated()
+			.first(where: {
+				type == .daily ? $0.element < Date.int : $0.element < solveBoardDates[type]?[$0.offset] ?? 0
+			})?
+			.offset ?? (type == .daily ? 0 : list.count)
     }
     
     static func getMenuText() -> [[Any]] {
@@ -103,12 +108,12 @@ struct SolveView: View {
         }
         
         func getNames(text: String, type: Key) -> [(String, Bool)] {
-            guard let solves = Storage.array(type) as? [Int] else {
+			guard let solves = Storage.array(type) as? [Bool] else {
                 return []
             }
             var boardArray: [(String, Bool)] = []
-			for (i, solved) in solves.enumerated() where i < solveBoardDates[type]?.count ?? 4 {
-				boardArray.append(("\(text) \(i+1)", solved >= solveBoardDates[type]?[i] ?? Date.int))
+			for (i, solved) in solves.enumerated() { // where i < solveBoardDates[type]?.count ?? 4 { consider adding this back in if i need it
+				boardArray.append(("\(text) \(i+1)", solved)) // type == .daily ? solves.contains(board) : Int(board) == Date.int
             }
             if type != .daily {
                 boardArray.append(("\(text) ?", false))
@@ -117,13 +122,15 @@ struct SolveView: View {
         }
         
         var labels = getLabel(text: "daily",  type: .daily)
-        var boards = getNames(text: "daily",  type: .daily)
         labels +=    getLabel(text: "simple", type: .simple)
+		labels +=    getLabel(text: "common", type: .common)
+		labels +=    getLabel(text: "tricky", type: .tricky)
+		
+		var boards = getNames(text: "daily",  type: .daily)
         boards +=    getNames(text: "simple", type: .simple)
-        labels +=    getLabel(text: "common", type: .common)
         boards +=    getNames(text: "common", type: .common)
-        labels +=    getLabel(text: "tricky", type: .tricky)
         boards +=    getNames(text: "tricky", type: .tricky)
+		
         return [boards, labels]
     }
 }

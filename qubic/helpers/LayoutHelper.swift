@@ -140,8 +140,6 @@ class Layout: ObservableObject {
     
     init() {}
     
-    func checkDaily() { newDaily = Storage.int(.lastDC) != Date.int }
-    
     func heightOf(_ view: LayoutView) -> CGFloat {
         switch view {
         case .topSpacer:    return topSpacerHeight[current] ?? 0

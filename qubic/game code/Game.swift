@@ -170,27 +170,20 @@ class Game: ObservableObject {
         newHints()
         
         func setPreset(_ boardNum: Int, for mode: GameMode) {
-            if mode == .daily {
-                let m = dayInt*dayInt*(dayInt+boardNum)
-                let size = dailyBoards[boardNum].count/3
-                let aNum = (m/(10000000*size)) % 192
-                let bNum = ((m/1000000) % size) + size*(dayInt % 3)
-                preset = expandMoves(dailyBoards[boardNum][bNum]).map { Board.automorphisms[aNum][$0] }
-				print(dayInt, Date.int, m, size, aNum, bNum, preset)
-                solved = (Storage.array(.daily) as? [Int])?[boardNum] == dayInt
-            }
-            else if mode == .simple { getInfo(from: simpleBoards, key: .simple) }
-            else if mode == .common { getInfo(from: commonBoards, key: .common) }
-            else if mode == .tricky { getInfo(from: trickyBoards, key: .tricky) }
+			if mode == .daily { getInfo(key: .simple) }
+            else if mode == .simple { getInfo(key: .simple) }
+            else if mode == .common { getInfo(key: .common) }
+            else if mode == .tricky { getInfo(key: .tricky) }
             else {
                 preset = []
                 solved = false
             }
             
-            func getInfo(from boards: [String], key: Key) {
+            func getInfo(key: Key) {
+				let boards = solveBoards[key] ?? [""]
                 if boardNum < boards.count {
                     preset = expandMoves(boards[boardNum])
-					solved = ((Storage.array(key) as? [Int])?[boardNum] ?? -1) >= (solveBoardDates[key]?[boardNum] ?? 0)
+					solved = (Storage.array(key) as? [Bool])?[boardNum] ?? true
                 } else {
                     preset = Board.getAutomorphism(for: expandMoves(boards.randomElement() ?? ""))
                     solved = false
@@ -552,7 +545,7 @@ class Game: ObservableObject {
         if end.myWin {
             if mode == .daily {
                 recordSolve(type: .daily)
-                if Storage.array(.daily) as? [Int] == [dayInt, dayInt, dayInt, dayInt] && dayInt != Storage.int(.lastDC) {
+				if Storage.array(.daily) as? [Bool] == [true, true, true, true] && dayInt > Storage.int(.lastDC) {
                     Notifications.ifUndetermined {
                         DispatchQueue.main.async {
                             self.showDCAlert = true
@@ -561,7 +554,7 @@ class Game: ObservableObject {
                     Notifications.setBadge(justSolved: true, dayInt: dayInt)
                     withAnimation { newStreak = Storage.int(.streak) }
                     timers.append(Timer.after(2.4, run: { withAnimation { self.newStreak = nil } }))
-                    Layout.main.checkDaily()
+                    updateDailyData() // turns off red dot
                 }
             }
             else if mode == .simple { recordSolve(type: .simple) }
@@ -573,8 +566,8 @@ class Game: ObservableObject {
         if end == .myLeave { turnOff() }
         
         func recordSolve(type: Key) {
-            guard var solves = Storage.array(type) as? [Int], solveBoard < solves.count else { return }
-            solves[solveBoard] = dayInt
+            guard var solves = Storage.array(type) as? [Bool] else { return }
+            solves[solveBoard] = true
             Storage.set(solves, for: type)
         }
     }

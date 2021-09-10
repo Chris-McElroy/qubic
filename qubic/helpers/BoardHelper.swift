@@ -16,29 +16,134 @@ func expandMoves(_ moves: String) -> [Int] {
 
 let moveStringMap: [Character] = ["Q","W","E","R","T","Y","U","I","O","P","A","S","D","F","G","H","J","K","L","Z","X","C","V","B","N","M","q","w","e","r","t","y","u","i","o","p","a","s","d","f","g","h","j","k","l","z","x","c","v","b","n","m","1","2","3","4","5","6","7","8","9","0","_","-","."]
 
-func setSolveArrays() {
-    setArray(for: .daily, to: 4)
-    setArray(for: .simple, to: simpleBoards.count)
-    setArray(for: .common, to: commonBoards.count)
-    setArray(for: .tricky, to: trickyBoards.count)
+func updateDailyData() {
+	let today = Date.int
+	
+	Layout.main.newDaily = Storage.int(.lastDC) != today
+	
+	if Storage.int(.currentDaily) == today { return }
+	
+	guard let history = Storage.array(.dailyHistory) as? [[Int: Bool]] else { return }
+	Storage.set((0..<4).map { history[$0][today] }, for: .daily)
+	
+	solveBoards[.daily] = ["","","",""]
+	
+	for i in 0..<4 {
+		let m = today*today*(today+i)
+		let size = dailyBoards[i].count/3
+		let aNum = (m/(10000000*size)) % 192
+		let bNum = ((m/1000000) % size) + size*(today % 3)
+		// TODO spread this out and print the output
+		solveBoards[.daily][i] = String(expandMoves(dailyBoards[i][bNum]).map { Board.automorphisms[aNum][$0] }.map { moveStringMap[$0] })
+		print("updating daily boards:", today, i, m, size, aNum, bNum)
+	}
+	
+	Storage.set(today, for: .currentDaily)
+}
+
+func updateSolveBoardData() {
+	solveBoards = [
+		.daily: ["","","",""],
+		.simple: simpleBoards,
+		.common: commonBoards,
+		.tricky: trickyBoards
+	]
+	
+	if Storage.int(.solveBoardsVersion) < 33 {
+		// TODO remove after everyone's on 33:
+		transfer32Data()
+		
+		setArray(for: .daily,  length: dailyBoards.count)
+		setArray(for: .simple, length: simpleBoards.count)
+		setArray(for: .common, length: commonBoards.count)
+		setArray(for: .tricky, length: trickyBoards.count)
+		Storage.set(33, for: .solveBoardsVersion)
+	}
+	
+	verifyDailyData()
+	
+	func transfer32Data() {
+		// transfer daily stats
+		let today = Date.int
+		let streak = Storage.int(.streak)
+		let offset = Storage.int(.lastDC) == today ? 0 : 1
+		guard var dailyHistory = Storage.array(.dailyHistory) as? [[Int: Bool]] else { return }
+		guard let intDaily = Storage.array(.daily) as? [Int] else { return }
+		let boolDaily = intDaily.map { $0 >= today }
+		for daysBack in 0..<streak {
+			let date = today - daysBack + offset
+			for i in 0..<4 {
+				dailyHistory[i][date] = true
+			}
+		}
+		for i in 0..<4 {
+			dailyHistory[i][today] = boolDaily[i]
+		}
+		
+		Storage.set(boolDaily, for: .daily)
+		Storage.set(dailyHistory, for: .dailyHistory)
+		
+		// transfer simple boards
+		guard let list = Storage.array(.simple) as? [Int] else { return }
+		var solved = Storage.array(.solvedBoards) as? [String] ?? []
+		
+		for (i, n) in list.enumerated() where n != 0 {
+			solved.append(simpleBoards[i])
+		}
+		
+		Storage.set(solved, for: .solvedBoards)
+	}
     
-    func setArray(for type: Key, to count: Int) {
-        if var list = Storage.array(type) as? [Int] {
-            if list.count > count {
-                list = list.dropLast(list.count - count)
-                Storage.set(list, for: type)
-            } else if list.count < count {
-                list += Array(repeating: 0, count: count - list.count)
-                Storage.set(list, for: type)
-            }
-        }
+    func setArray(for type: Key, length: Int) {
+		let solved = Storage.array(.solvedBoards) as? [String] ?? []
+		var list: [Bool] = []
+		
+		for i in 0..<length {
+			if let board = solveBoards[type]?[i] {
+				list.append(solved.contains(board))
+			}
+		}
+		
+		Storage.set(list, for: type)
     }
+	
+	func verifyDailyData() {
+		let today = Date.int
+		var date = today - 1
+		guard let history = Storage.array(.dailyHistory) as? [[Int: Bool]] else { print("no history"); return }
+		
+		let finishedToday = finishedDate()
+		repeat {
+			date -= 1
+		} while finishedDate()
+		
+		let streak: Int
+		let lastDC: Int
+		if finishedToday {
+			streak = today - date
+			lastDC = today
+		} else {
+			streak = today - date - 1
+			lastDC = streak == 0 ? 0 : today - 1
+		}
+		Storage.set(streak, for: .streak)
+		Storage.set(lastDC, for: .lastDC)
+		
+		func finishedDate() -> Bool {
+			history[0][date] == true &&
+			history[1][date] == true &&
+			history[2][date] == true &&
+			history[3][date] == true
+		}
+	}
 }
 
 // old daily boards
 //let dailyBoards = ["dZsf-RvH", "QR9v-HMCh_", "-vHRD9ojCMh", "RmDO9zvh-siL", "sRdGC1hQ", "dZsf-RvH", "QR9v-HMCh_", "-vHRD9ojCMh", "RmDO9zvh-siL",  "vmDHQ9khV-q", "RHvu96Dh-MPU", "mR9vDdH-VlhQ", "9R-vDHojqMC",  "dsqtRF9hMmVD", "Hd-yvqVjhRms", "dsVqHhC4M9", "RmvCsqJj", "VdMqhs-RDe", "VdMZhRmqs6Db9v-z", "RQj9hgX-s0_E", "mRHCVh90Wq", "Vqhsv9dHtRCD", "RHtqvu9hj27C",  "pmD93VvMqhRs",  "m-DQCMsdqVZU3vjY", "DQvMRhPU9-Cd", "jCdhqVbmH", "sdqMVvCQmD", "mdvnqVsHh",  "m-DQvdRsCjhq", "QW9X-C0_BRjmhDMPUOHt",  "m-CDrMbQvnRj", "-qm8hjVRs", "sdMCqhRHvbDW0a_", "vQJHY-yCjkR3VM", "9V-j_0RdfBQMJuc",  "mRD9vM-qVh",  "hVMsjqTD-", "jhVdCqvQ-nG_RBt9H", "sdMCqj9Hv1R"]
 
-let dailyBoards = [
+var solveBoards: [Key: [String]] = [:]
+
+private let dailyBoards = [
     ["DQvqm-jRbnMdF", "D9tV-rHGsvzihyMPqwRSQjWEC", "Rhs-jHcu09v_D5lVqQYm836n7o", "vq1h2daju-bQC9igk", "DQHv9-mEelMdtzwfyrZV", "HMDjQFRsbP9h6vm3KoWi", "CsM7j8hid6m", "CshdMgjPQ-O8Wk", "CshdMgjPQ-O8W0RE9VKrmoZpLJib", "CpsQhRWH", "-CmMHRvhqs27ycbn4831wf69", "VdCsjhqMQ-E_JyLtvuRW", "jhdDHq-Rmv84MQ", "jdqhVCMsvmRHLt", "jdqhVCMsvmRHLiztZ-", "jqdhVsH3C94TBXIfRS-k", "djqVMsHvh1I_E95-", "Vdhlz9HDe-sQ", "RHviQsMhzC-0WD", "Vmh9d-1638", "Rh9j-dpmuvoi6nbG0", "jqdhVsH3C94TBXIfRS-", "djqVMsHvh1I_E95Sm-"],
     ["MqhPjkdxspVzQ", "DH-QYmKr90FPs2v1faRiVhel", "QRVCqtsvLMjA9c-0HghzD", "DT9dVaMlhRsIvqFbzi", "CshdMgjPQ-O8W0RE9VKrmoZpLJ", "QjDM9vHhOTAYGFUE", "-CmMHRvhqs27ycbn4831", "CQv9VmqtHsd-GnDFNaXB", "VdCsjhqMQ-E_JyLtvu", "jdsqGhlVRMwHP9m", "ndjqshM9VClH8OE_1IcuS", "djhMqusvCVQ2-aD1", "jdqmvCVs-1", "jdqhVCMsvmRH", "dqjRChMV9S5HIvsmD", "dm-8sjCMOqhD9V", "pjudqoxMChVQs", "jQdmoxVER9XU-BHuqvJD", "djqVMsHvh1I_E95SwN",  "HMDjQFRsbP9h6vm3Ko","VjRmD0ShIHUPTYOQA"],
     ["Rhs-jHcu09v_D5lVqQYm8KoXgCB", "VMqjCRO-km4dDoxQKEWpZ", "THDMU9dRasl", "CpsQhRW0Y2iz", "-RH9dmjqGM", "jmR-hDQq", "jmRhqdH9ODM8", "jmRdVhCq", "jmRdVhCB", "jmHhsdxMDC", "jdqhCsVM_EtLyJ-Q", "jhdDHq-Rmv", "-vk9ymSp", "dqjRChMV9S5HIvsm", "BjsdhMVRQq9-H", "jdqVhM-s97"],
@@ -52,7 +157,7 @@ let dailyBoards = [
 // QR9D-Cm2sjqvVUPMYHSha184360_dfpgkwGnyexOZN5JXKrFIiLtWzAbBoE7l
 // sdMCqhQvHW0FmwlVYATDUI_jk9RpZ-oK54B13yiJNOuxrzGngaP72bcSt
 
-let simpleBoards = [
+private let simpleBoards = [
 	"RmIQDUFh", "7sqRh-kS", "mRQoYvfI", "R-SHVvqt", // checkmates no distractions
 	"hjqVsH9RCWm", "jVdhRovs91ImQuHSD", "H-DRdVhjEmqGQv95", "dhqRV9HDe31m6Q", // checkmates with distractions
 	"DQRUImPOW-", "HQR9ZmyS", "qdhjV-Hs", "qVjshS8-5A", // 3 move wins no distractions
@@ -61,7 +166,7 @@ let simpleBoards = [
 	"QRm-DdVhMjkSq", "jDqARdHOhSPs", "dsVqHhC4M9", "QW9X-C0_BRjmhDMPUOHt" // 5 move wins with distractions
 ]
 
-let commonBoards = [
+private let commonBoards = [
 	"HmR9Dj", "qhjCd-", "m9dRoq", "VRfDUH", // triangles with no distractions
 	"H9-QmS", "VHjqCg", "HDVmh5", "hHFmzK", // triangles with moves in the plane, no distractions
 	"Hd-yvqVjhRms", "R9Hmqv-CkBSI1d", "RHmCD9VIkBcpljT", "VqRmDhSPIHM19YF", // triangles with distractions
@@ -71,7 +176,7 @@ let commonBoards = [
 	"H-RQ9vmh", "CsMqhVdD", "dZsf-RvH", "jdqCMhsV" // standard 4 move wins, 8 8 7 7
 ]
 
-let trickyBoards = [
+private let trickyBoards = [
 	"Vqhsv9dHtRCD", "HRhQdmplvs9j", "-h9jm0Hkgs", "DQvqm-jR",
 	"m9-MhRQH", "9h-CH0WMYP6m", "qHV9dtzjMCmDr", "DHRvmMQ-9",
 	"DRH-kQjvmdo9", "Rhs-jHcu09v_D5", "VMqjCRO-km4", "cjdshVCqH-lp79_",
@@ -85,11 +190,11 @@ let trickyBoards = [
 	"hVMsjqTD-", "jhVdCqvQ-nG_RBt9H", "sdMCqj9Hv1R"
 ]
 
-let solveBoardDates: [Key: [Int]] = [
-	.simple: Array(repeating: 737991, count: simpleBoards.count),
-	.common: Array(repeating: 737991, count: commonBoards.count),
-	.tricky: Array(repeating: 1, count: trickyBoards.count)
-]
+//let solveBoardDates: [Key: [Int]] = [
+//	.simple: Array(repeating: 737991, count: simpleBoards.count),
+//	.common: Array(repeating: 737991, count: commonBoards.count),
+//	.tricky: Array(repeating: 1, count: trickyBoards.count)
+//]
 
 extension Board {
     static func getAutomorphism(for moves: [Int]) -> [Int] {

@@ -16,17 +16,19 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
         
-        let defaultLastDC = 737764 // in de past
         UserDefaults.standard.register(defaults: [
+			Key.train.rawValue: [0,0,0,0,0,0,0],
+			Key.lastTrainMenu.rawValue: [0,1,0],
+			Key.lastPlayMenu.rawValue: [1,1,0,0],
             Key.streak.rawValue: 0,
-            Key.lastDC.rawValue: defaultLastDC,
-            Key.train.rawValue: [0,0,0,0,0,0,0],
-            Key.lastTrainMenu.rawValue: [0,1,0],
-            Key.lastPlayMenu.rawValue: [1,1,0,0],
-            Key.daily.rawValue: [0],
-            Key.simple.rawValue: [0],
-            Key.common.rawValue: [0],
-            Key.tricky.rawValue: [0],
+            Key.lastDC.rawValue: 0,
+			Key.currentDaily.rawValue: 0,
+			Key.dailyHistory.rawValue: [],
+            Key.daily.rawValue: [],
+            Key.simple.rawValue: [],
+            Key.common.rawValue: [],
+            Key.tricky.rawValue: [],
+			Key.solveBoardsVersion.rawValue: 33,
             Key.name.rawValue: "new player",
             Key.color.rawValue: 4,
             Key.notification.rawValue: 1,
