@@ -72,6 +72,8 @@ func updateDailyData() {
 	
 	if lastDaily == today { return }
 	
+	print("updating")
+	
 	var history = Storage.dictionary(.dailyHistory) as? [String: [Bool]] ?? [:]
 	history[String(lastDaily)] = Storage.array(.daily) as? [Bool] ?? [false, false, false, false]
 	Storage.set(history, for: .dailyHistory)
@@ -112,7 +114,6 @@ func updateSolveBoardData() {
 		// TODO remove after everyone's on 33:
 		transfer32Data()
 		
-		setArray(for: .daily,  length: dailyBoards.count)
 		setArray(for: .simple, length: simpleBoards.count)
 		setArray(for: .common, length: commonBoards.count)
 		setArray(for: .tricky, length: trickyBoards.count)
@@ -124,13 +125,19 @@ func updateSolveBoardData() {
 	func transfer32Data() {
 		// transfer daily stats
 		let today = Date.int
-		if let intDaily = Storage.array(.daily) as? [Int] {
-			let streak = Storage.int(.streak)
+		if var intDaily = Storage.array(.daily) as? [Int] {
+			var streak = Storage.int(.streak)
+			
+			if intDaily.count != 4 {
+				intDaily = [0,0,0,0]
+				streak = 0
+			}
+			
 			let offset = Storage.int(.lastDC) == today ? 0 : 1
 			var dailyHistory = Storage.dictionary(.dailyHistory) as? [String: [Bool]] ?? [:]
-			let boolDaily = intDaily.map { $0 >= today }
+			let boolDaily = intDaily.map { $0 >= today || $0 == 1 }
 			for daysBack in 0..<streak {
-				let date = String(today - daysBack + offset)
+				let date = String(today - daysBack - offset)
 				dailyHistory[date] = [true, true, true, true]
 			}
 			
@@ -180,9 +187,9 @@ func updateSolveBoardData() {
 		var date = today - 1
 		let history = Storage.dictionary(.dailyHistory) as? [String: [Bool]] ?? [:]
 		
-		repeat {
+		while history[String(date)] == [true, true, true, true] {
 			date -= 1
-		} while history[String(date)] == [true, true, true, true]
+		}
 		
 		let streak: Int
 		let lastDC: Int
