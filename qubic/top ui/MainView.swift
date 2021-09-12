@@ -35,13 +35,12 @@ struct MainView: View {
                 .zIndex(10)
         }
         .onAppear {
-//            FB.main.start()
+            FB.main.start()
             layout.load(for: screen)
             layout.current = .main
             game.goBack = goBack
             game.cancelBack = cancelBack
 			updateSolveBoardData()
-			updateDailyData()
             Notifications.setBadge(justSolved: false)
         }
         .onReceive(screen.objectWillChange) { layout.load(for: screen) }

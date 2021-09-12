@@ -73,6 +73,7 @@
 		1EDDE19024FAC70800B7742C /* Board.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EDDE18F24FAC70800B7742C /* Board.swift */; };
 		1EE4C75C24EB7ADC0038C1E2 /* UIHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EE4C75B24EB7ADC0038C1E2 /* UIHelper.swift */; };
 		1EEB0D4E24CF3780008F5B4B /* ColorHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EEB0D4D24CF3780008F5B4B /* ColorHelper.swift */; };
+		1EFB12C526ED5052001A7B48 /* SolveHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EFB12C426ED5052001A7B48 /* SolveHelper.swift */; };
 		1EFCD1E62693A25B006A5430 /* StorageHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EFCD1E52693A25B006A5430 /* StorageHelper.swift */; };
 		1EFCD1E72693A25B006A5430 /* StorageHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EFCD1E52693A25B006A5430 /* StorageHelper.swift */; };
 		AED83640B64C9C248C88B0B2 /* Pods_qubic.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 535B31542F05D481FEF1F34D /* Pods_qubic.framework */; };
@@ -165,6 +166,7 @@
 		1EDDE18F24FAC70800B7742C /* Board.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Board.swift; sourceTree = "<group>"; };
 		1EE4C75B24EB7ADC0038C1E2 /* UIHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIHelper.swift; sourceTree = "<group>"; };
 		1EEB0D4D24CF3780008F5B4B /* ColorHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorHelper.swift; sourceTree = "<group>"; };
+		1EFB12C426ED5052001A7B48 /* SolveHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SolveHelper.swift; sourceTree = "<group>"; };
 		1EFCD1E52693A25B006A5430 /* StorageHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageHelper.swift; sourceTree = "<group>"; };
 		459B7FD80A3A13653BECEE17 /* Pods-qubicMessage.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-qubicMessage.debug.xcconfig"; path = "Target Support Files/Pods-qubicMessage/Pods-qubicMessage.debug.xcconfig"; sourceTree = "<group>"; };
 		535B31542F05D481FEF1F34D /* Pods_qubic.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_qubic.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -239,6 +241,7 @@
 				1EE4C75B24EB7ADC0038C1E2 /* UIHelper.swift */,
 				1E4645F42616970500862260 /* KeyHelper.swift */,
 				1E883EFA24EE3B14002686C8 /* LayoutHelper.swift */,
+				1EFB12C426ED5052001A7B48 /* SolveHelper.swift */,
 				1E6C428F24FCE1F20065BDF5 /* BoardHelper.swift */,
 				1E9A545926112F90001FC204 /* FBHelper.swift */,
 				1E92D5F6261A608500D0D19C /* ActivityIndicator.swift */,
@@ -556,6 +559,7 @@
 				1E8C554725365E3400C9A556 /* Game.swift in Sources */,
 				1EA0CABA2580468D00C200E8 /* HPicker.swift in Sources */,
 				1E4645F52616970500862260 /* KeyHelper.swift in Sources */,
+				1EFB12C526ED5052001A7B48 /* SolveHelper.swift in Sources */,
 				1EC2B8852536A86C001B0A1F /* Checks.swift in Sources */,
 				1EB1CB51260ECC6300A2DCDC /* BotList.swift in Sources */,
 				1E68179324CC973B001713E7 /* AppDelegate.swift in Sources */,

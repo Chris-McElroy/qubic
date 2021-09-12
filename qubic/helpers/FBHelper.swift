@@ -30,6 +30,7 @@ class FB {
                 self.checkVersion()
                 self.observePlayers()
                 self.updateMyData()
+				self.updateMyStats()
                 self.finishedOnlineGame(with: .error)
             } else {
                 // should only happen once, when they first use the app
@@ -73,6 +74,28 @@ class FB {
         let color = Storage.int(.color)
         myPlayerRef.setValue([Key.name.rawValue: name, Key.color.rawValue: color])
     }
+	
+	func updateMyStats() {
+		let myStatsRef = ref.child("stats/\(myID)")
+		let train = Storage.array(.train) as? [Bool] ?? []
+		let dailyHistory = Storage.dictionary(.dailyHistory) as? [String: [Bool]] ?? [:]
+		let daily = Storage.array(.daily) as? [Bool] ?? []
+		let simple = Storage.array(.simple) as? [Bool] ?? []
+		let common = Storage.array(.common) as? [Bool] ?? []
+		let tricky = Storage.array(.tricky) as? [Bool] ?? []
+		let solves = Storage.array(.solvedBoards) as? [String] ?? []
+		let solveBoardVersion = Storage.int(.solveBoardsVersion)
+		myStatsRef.setValue([
+			Key.train.rawValue: train,
+			Key.dailyHistory.rawValue: dailyHistory,
+			Key.daily.rawValue: daily,
+			Key.simple.rawValue: simple,
+			Key.common.rawValue: common,
+			Key.tricky.rawValue: tricky,
+			Key.solvedBoards.rawValue: solves,
+			Key.solveBoardsVersion.rawValue: solveBoardVersion
+		])
+	}
     
     func postFeedback(name: String, email: String, feedback: String) {
         let feedbackRef = ref.child("feedback/\(myID)/\(Date.ms)")

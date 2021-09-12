@@ -25,9 +25,9 @@ struct SolveView: View {
     var boardNum: Int {
         switch selected[1] {
         case 0: return selected[0] - 0
-        case 1: return selected[0] - 4
-        case 2: return selected[0] - (simpleBoards.count + 5)
-        default: return selected[0] - (simpleBoards.count + commonBoards.count + 6)
+		case 1: return selected[0] - solveBoardCount(.daily)
+        case 2: return selected[0] - (solveBoardCount(.daily) + (solveBoardCount(.simple) + 1))
+		default: return selected[0] - (solveBoardCount(.daily) + (solveBoardCount(.simple) + 1) + (solveBoardCount(.common) + 1))
         }
     }
     
@@ -49,39 +49,35 @@ struct SolveView: View {
     
     func refreshMenu() {
         menuText = SolveView.getMenuText()
-        layout.checkDaily()
+        updateDailyData()
         let delay = Calendar.current.startOfDay(for: Date().addingTimeInterval(86400)).timeIntervalSinceNow
         menuUpdateTimer?.invalidate()
         menuUpdateTimer = Timer.after(delay, run: {
             menuText = SolveView.getMenuText()
-            layout.checkDaily()
-			setSolveData()
+			updateDailyData()
         })
     }
     
     func onSelection(row: Int, component: Int) {
         if component == 1 {
             switch row {
-            case 0: selected[0] = firstBoard(of: .daily); break
-            case 1: selected[0] = 4 + firstBoard(of: .simple); break
-            case 2: selected[0] = 5 + simpleBoards.count + firstBoard(of: .common); break
-            default: selected[0] = 6 + simpleBoards.count + commonBoards.count + firstBoard(of: .tricky); break
+            case 0: selected[0] = firstBoard(of: .daily)
+            case 1: selected[0] = solveBoardCount(.daily) + firstBoard(of: .simple)
+            case 2: selected[0] = solveBoardCount(.daily) + (solveBoardCount(.simple) + 1) + firstBoard(of: .common)
+            case 3: selected[0] = solveBoardCount(.daily) + (solveBoardCount(.simple) + 1) + (solveBoardCount(.common) + 1) + firstBoard(of: .tricky)
+			default: break
             }
         } else {
-            if row < 4 { selected[1] = 0 }
-            else if row < simpleBoards.count + 5 { selected[1] = 1 }
-            else if row < simpleBoards.count + commonBoards.count + 6 { selected[1] = 2 }
+            if row < solveBoardCount(.daily) { selected[1] = 0 }
+            else if row < solveBoardCount(.daily) + (solveBoardCount(.simple) + 1) { selected[1] = 1 }
+            else if row < solveBoardCount(.daily) + (solveBoardCount(.simple) + 1) + (solveBoardCount(.common) + 1) { selected[1] = 2 }
             else { selected[1] = 3 }
         }
     }
     
     func firstBoard(of type: Key) -> Int {
-        let list = Storage.array(type) as? [Int] ?? [0]
-		return list.enumerated()
-			.first(where: {
-				type == .daily ? $0.element < Date.int : $0.element < solveBoardDates[type]?[$0.offset] ?? 0
-			})?
-			.offset ?? (type == .daily ? 0 : list.count)
+        let list = Storage.array(type) as? [Bool] ?? []
+		return list.enumerated().first(where: { !$0.element })? .offset ?? (type == .daily ? 0 : list.count)
     }
     
     static func getMenuText() -> [[Any]] {

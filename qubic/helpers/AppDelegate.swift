@@ -17,7 +17,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Override point for customization after application launch.
         
         UserDefaults.standard.register(defaults: [
-			Key.train.rawValue: [0,0,0,0,0,0,0],
+			Key.train.rawValue: [0,0,0,0,0,0],
 			Key.lastTrainMenu.rawValue: [0,1,0],
 			Key.lastPlayMenu.rawValue: [1,1,0,0],
             Key.streak.rawValue: 0,
@@ -28,7 +28,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             Key.simple.rawValue: [],
             Key.common.rawValue: [],
             Key.tricky.rawValue: [],
-			Key.solveBoardsVersion.rawValue: 33,
+			Key.solveBoardsVersion.rawValue: 32, // TODO make 34 once everyone has 33
             Key.name.rawValue: "new player",
             Key.color.rawValue: 4,
             Key.notification.rawValue: 1,

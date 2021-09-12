@@ -162,7 +162,7 @@ class Game: ObservableObject {
         solveBoard = boardNum
         myTurn = turn != nil ? turn! : preset.count % 2
         self.mode = mode
-        self.hints = true
+        self.hints = hints
         let me = User(b: board, n: myTurn)
         let op = getOp(boardNum: boardNum, myColor: me.color)
         player = myTurn == 0 ? [me, op] : [op, me]
@@ -170,7 +170,7 @@ class Game: ObservableObject {
         newHints()
         
         func setPreset(_ boardNum: Int, for mode: GameMode) {
-			if mode == .daily { getInfo(key: .simple) }
+			if mode == .daily { getInfo(key: .daily) }
             else if mode == .simple { getInfo(key: .simple) }
             else if mode == .common { getInfo(key: .common) }
             else if mode == .tricky { getInfo(key: .tricky) }
@@ -532,8 +532,32 @@ class Game: ObservableObject {
         
         gameState = end
         premoves = []
+		BoardScene.main.spinMoves()
+		
+		if end.myWin {
+			if mode == .daily {
+				recordSolve(type: .daily, index: solveBoard)
+				if Storage.array(.daily) as? [Bool] == [true, true, true, true] && dayInt > Storage.int(.lastDC) {
+					Notifications.ifUndetermined {
+						DispatchQueue.main.async {
+							self.showDCAlert = true
+						}
+					}
+					Notifications.setBadge(justSolved: true, dayInt: dayInt)
+					withAnimation { newStreak = Storage.int(.streak) }
+					timers.append(Timer.after(2.4, run: { withAnimation { self.newStreak = nil } }))
+					updateDailyData() // turns off red dot
+				}
+			}
+			else if mode == .simple { recordSolve(type: .simple, index: solveBoard) }
+			else if mode == .common { recordSolve(type: .common, index: solveBoard) }
+			else if mode == .tricky { recordSolve(type: .tricky, index: solveBoard) }
+			else if let index = [.novice, .defender, .warrior, .tyrant, .oracle, .cubist].firstIndex(of: mode), !hints {
+				recordSolve(type: .train, index: index)
+			}
+		}
+		
         if !mode.solve || end.myWin { hints = true }
-        BoardScene.main.spinMoves()
         withAnimation { undoOpacity = .clear }
     
         if !player[myTurn^1].local {
@@ -542,33 +566,21 @@ class Game: ObservableObject {
         
         if end == .myTimeout || end == .opTimeout { BoardScene.main.spinBoard() }
         
-        if end.myWin {
-            if mode == .daily {
-                recordSolve(type: .daily)
-				if Storage.array(.daily) as? [Bool] == [true, true, true, true] && dayInt > Storage.int(.lastDC) {
-                    Notifications.ifUndetermined {
-                        DispatchQueue.main.async {
-                            self.showDCAlert = true
-                        }
-                    }
-                    Notifications.setBadge(justSolved: true, dayInt: dayInt)
-                    withAnimation { newStreak = Storage.int(.streak) }
-                    timers.append(Timer.after(2.4, run: { withAnimation { self.newStreak = nil } }))
-                    updateDailyData() // turns off red dot
-                }
-            }
-            else if mode == .simple { recordSolve(type: .simple) }
-            else if mode == .common { recordSolve(type: .common) }
-            else if mode == .tricky { recordSolve(type: .tricky) }
-            else if mode.train && !hints { recordSolve(type: .train) }
-        }
-        
         if end == .myLeave { turnOff() }
         
-        func recordSolve(type: Key) {
-            guard var solves = Storage.array(type) as? [Bool] else { return }
-            solves[solveBoard] = true
-            Storage.set(solves, for: type)
+		func recordSolve(type: Key, index: Int) {
+			guard var solvesForType = Storage.array(type) as? [Bool] else { print("Can't record solve"); return }
+			solvesForType[index] = true
+			Storage.set(solvesForType, for: type)
+			
+			if mode.solve {
+				var allSolves = Storage.array(.solvedBoards) as? [String] ?? []
+				let solveString = compressMoves(preset)
+				if !allSolves.contains(solveString) { allSolves.append(solveString) }
+				Storage.set(allSolves, for: .solvedBoards)
+			}
+			
+			FB.main.updateMyStats()
         }
     }
     

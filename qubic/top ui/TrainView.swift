@@ -11,12 +11,12 @@ import SwiftUI
 struct TrainView: View {
     @ObservedObject var layout = Layout.main
     @State var selected: [Int] = Storage.array(.lastTrainMenu) as? [Int] ?? [0,1,0]
-    let beaten = Storage.array(.train) as? [Int] ?? [0,0,0,0,0,0]
+    let beaten = Storage.array(.train) as? [Bool] ?? [false, false, false, false, false, false]
     
     var body: some View {
         if layout.current == .train {
             GameView()
-                .onAppear { Game.main.load(mode: mode, turn: turn, hints: hints) }
+				.onAppear { Game.main.load(mode: mode, turn: turn, hints: hints) }
         } else if layout.current == .trainMenu {
             VStack(spacing: 0) {
                 Spacer()
@@ -34,12 +34,12 @@ struct TrainView: View {
     }
 
     var menuText: [[Any]] {
-        [[("novice",    beaten[0] == 1),
-          ("defender",  beaten[1] == 1),
-          ("warrior",   beaten[2] == 1),
-          ("tyrant",    beaten[3] == 1),
-          ("oracle",    beaten[4] == 1),
-          ("cubist",    beaten[5] == 1)],
+        [[("novice",    beaten[0]),
+          ("defender",  beaten[1]),
+          ("warrior",   beaten[2]),
+          ("tyrant",    beaten[3]),
+          ("oracle",    beaten[4]),
+          ("cubist",    beaten[5])],
          ["first", "random", "second"],
          ["sandbox", "challenge"]]
     }

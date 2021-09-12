@@ -12,6 +12,10 @@ class Storage {
     static func array(_ key: Key) -> [Any]? {
         UserDefaults.standard.array(forKey: key.rawValue)
     }
+	
+	static func dictionary(_ key: Key) -> [String: Any]? {
+		UserDefaults.standard.dictionary(forKey: key.rawValue)
+	}
     
     static func int(_ key: Key) -> Int {
         UserDefaults.standard.integer(forKey: key.rawValue)
