@@ -77,7 +77,7 @@ struct SolveView: View {
     
     func firstBoard(of type: Key) -> Int {
         let list = Storage.array(type) as? [Bool] ?? []
-		return list.enumerated().first(where: { !$0.element })? .offset ?? (type == .daily ? 0 : list.count)
+		return list.enumerated().first(where: { !$0.element })?.offset ?? (type == .daily ? 0 : list.count)
     }
     
     static func getMenuText() -> [[Any]] {

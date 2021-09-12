@@ -43,11 +43,11 @@ private let simpleBoards = [
 private let commonBoards = [
 	"HmR9Dj", "qhjCd-", "m9dRoq", "VRfDUH", // triangles with no distractions
 	"H9-QmS", "VHjqCg", "HDVmh5", "hHFmzK", // triangles with moves in the plane, no distractions
-	"Hd-yvqVjhRms", "R9Hmqv-CkBSI1d", "RHmCD9VIkBcpljT", "VqRmDhSPIHM19YF", // triangles with distractions
-	"CjVMdsqhHR", // 4-1 corner wins, 6
-	"VhqCjdsM", "RHmv9DQ-", "jCdhqVMs", "HR-9vQmD", // 2-2 splits from 4 corners (inner and outer corners), 7 7 7 7
-	"H-9DvRQqmj", "HRDv-9mdhQ", "jdqCMhsHVD", // 5 corner wins, 9 9 9 // remove one of these
-	"H-RQ9vmh", "CsMqhVdD", "dZsf-RvH", "jdqCMhsV" // standard 4 move wins, 8 8 7 7
+	"Hd-yvqVjhRms", "R9Hmqv-CkBSI1d", "RHmCD9VIkBcpljT", "sVhjH-9z_0r6bR", // triangles with distractions
+	"HRDv-9mdqQ", "CjVMdsqhHR", // 4-1 corner wins, 6 6
+	"VhqCjdsM", "RHmv9DQ-", "jCdhqVMs", "HR-9vQmD", // 2-2 splits from 4 corners 7 7 7 7
+	"dZsf-RvH", "MdqhQVj-", "CsMqhVdD", "H-RQ9vmh", // standard 4 move wins, 7 7 8 8
+	"H-9DvRQqmj", "jdqCMhsHVD" // 5 corner wins, 9 9
 ]
 
 private let trickyBoards = [
@@ -61,7 +61,7 @@ private let trickyBoards = [
 	"pmD93VvMqhRs", "m-DQCMsdqVZU3vjY", "DQvMRhPU9-Cd", "jCdhqVbmH",
 	"sdqMVvCQmD", "mdvnqVsHh", "m-CDrMbQvnRj", "-qm8hjVRs",
 	"sdMCqhRHvbDW0a_", "vQJHY-yCjkR3VM", "9V-j_0RdfBQMJuc", "mRD9vM-qVh",
-	"hVMsjqTD-", "jhVdCqvQ-nG_RBt9H", "sdMCqj9Hv1R"
+	"hVMsjqTD-", "jhVdCqvQ-nG_RBt9H", "sdMCqj9Hv1R", "HRDv-9mdhQ"
 ]
 
 func updateDailyData() {
@@ -71,8 +71,6 @@ func updateDailyData() {
 	Layout.main.newDaily = Storage.int(.lastDC) != today
 	
 	if lastDaily == today { return }
-	
-	print("updating")
 	
 	var history = Storage.dictionary(.dailyHistory) as? [String: [Bool]] ?? [:]
 	history[String(lastDaily)] = Storage.array(.daily) as? [Bool] ?? [false, false, false, false]
@@ -95,7 +93,7 @@ private func upadateDailyBoards(today: Int) {
 		let base = expandMoves(dailyBoards[i][bNum])
 		let newBoard = Board.getAutomorphism(for: base, a: aNum)
 		newDailyBoards.append(compressMoves(newBoard))
-		print("updating daily boards:", today, i, m, size, aNum, bNum, newDailyBoards.last ?? "")
+//		print("updating daily boards:", today, i, m, size, aNum, bNum, newDailyBoards.last ?? "")
 	}
 	
 	solveBoards[.daily] = newDailyBoards

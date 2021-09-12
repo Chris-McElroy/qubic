@@ -8,9 +8,9 @@
 
 import SwiftUI
 
-let solveButtonsEnabled = true
+let solveButtonsEnabled = false
 let tfVersion = true
-let qubicVersion = 030032
+let qubicVersion = 030033
 
 struct MainView: View {
     @ObservedObject var screen: ScreenObserver
