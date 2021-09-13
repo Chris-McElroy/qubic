@@ -536,8 +536,13 @@ class Game: ObservableObject {
 		
 		if end.myWin {
 			if mode == .daily {
-				recordSolve(type: .daily, index: solveBoard)
-				if Storage.array(.daily) as? [Bool] == [true, true, true, true] && dayInt > Storage.int(.lastDC) {
+				// keeping this custom so that it uses dayInt instead of Date.int
+				var dailyHistory = Storage.dictionary(.dailyHistory) as? [String: [Bool]] ?? [:]
+				dailyHistory[String(dayInt), default: [false, false, false, false]][solveBoard] = true
+				Storage.set(dailyHistory, for: .dailyHistory)
+				FB.main.updateMyStats()
+				
+				if dailyHistory[String(dayInt)] == [true, true, true, true] && dayInt > Storage.int(.lastDC) {
 					Notifications.ifUndetermined {
 						DispatchQueue.main.async {
 							self.showDCAlert = true

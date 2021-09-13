@@ -8,9 +8,15 @@
 
 import SwiftUI
 
+let buildNumber = 030034
+let versionType: VersionType = .testFlight
 let solveButtonsEnabled = false
-let tfVersion = true
-let qubicVersion = 030033
+
+enum VersionType: String {
+	case xCode = "xCode"
+	case testFlight = "testFlight"
+	case appStore = "appStore"
+}
 
 struct MainView: View {
     @ObservedObject var screen: ScreenObserver

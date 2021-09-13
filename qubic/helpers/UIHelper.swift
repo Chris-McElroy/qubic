@@ -9,7 +9,7 @@
 import SwiftUI
 
 //00000000-0000-0000-0000-000000000000
-var myID: String { Storage.string(.uuid) ?? "00000000000000000000000000000000" }
+var myID: String = Storage.string(.uuid) ?? "00000000000000000000000000000000"
 var messagesID: String {
     if let id = Storage.string(.messagesID) {
         return id

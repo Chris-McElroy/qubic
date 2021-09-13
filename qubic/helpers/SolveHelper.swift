@@ -64,41 +64,6 @@ private let trickyBoards = [
 	"hVMsjqTD-", "jhVdCqvQ-nG_RBt9H", "sdMCqj9Hv1R", "HRDv-9mdhQ"
 ]
 
-func updateDailyData() {
-	let today = Date.int
-	let lastDaily = Storage.int(.currentDaily)
-	
-	Layout.main.newDaily = Storage.int(.lastDC) != today
-	
-	if lastDaily == today { return }
-	
-	var history = Storage.dictionary(.dailyHistory) as? [String: [Bool]] ?? [:]
-	history[String(lastDaily)] = Storage.array(.daily) as? [Bool] ?? [false, false, false, false]
-	Storage.set(history, for: .dailyHistory)
-	Storage.set(history[String(today)], for: .daily)
-	
-	upadateDailyBoards(today: today)
-	
-	Storage.set(today, for: .currentDaily)
-}
-
-private func upadateDailyBoards(today: Int) {
-	var newDailyBoards: [String] = []
-	
-	for i in 0..<4 {
-		let m = today*today*(today+i)
-		let size = dailyBoards[i].count/3
-		let aNum = (m/(10000000*size)) % 192
-		let bNum = ((m/1000000) % size) + size*(today % 3)
-		let base = expandMoves(dailyBoards[i][bNum])
-		let newBoard = Board.getAutomorphism(for: base, a: aNum)
-		newDailyBoards.append(compressMoves(newBoard))
-//		print("updating daily boards:", today, i, m, size, aNum, bNum, newDailyBoards.last ?? "")
-	}
-	
-	solveBoards[.daily] = newDailyBoards
-}
-
 func updateSolveBoardData() {
 	solveBoards = [
 		.daily: ["","","",""],
@@ -106,19 +71,24 @@ func updateSolveBoardData() {
 		.common: commonBoards,
 		.tricky: trickyBoards
 	]
-	upadateDailyBoards(today: Date.int)
+	updateDailyBoards()
 	
-	if Storage.int(.solveBoardsVersion) < 33 {
-		// TODO remove after everyone's on 33:
-		transfer32Data()
+	if Storage.int(.solveBoardsVersion) < 34 {
+		// TODO remove after everyone's up to date:
+		if Storage.int(.solveBoardsVersion) < 33 {
+			transfer32Data()
+		} else {
+			transfer33Data()
+		}
 		
 		setArray(for: .simple, length: simpleBoards.count)
 		setArray(for: .common, length: commonBoards.count)
 		setArray(for: .tricky, length: trickyBoards.count)
-		Storage.set(33, for: .solveBoardsVersion)
+		Storage.set(34, for: .solveBoardsVersion)
 	}
 	
 	verifyDailyData()
+	updateDailyData()
 	
 	func transfer32Data() {
 		// transfer daily stats
@@ -141,8 +111,8 @@ func updateSolveBoardData() {
 			
 			dailyHistory[String(today)] = boolDaily
 			
-			Storage.set(boolDaily, for: .daily)
 			Storage.set(dailyHistory, for: .dailyHistory)
+			UserDefaults.standard.removeObject(forKey: Key.daily.rawValue)
 		}
 		
 		// transfer simple boards
@@ -165,6 +135,22 @@ func updateSolveBoardData() {
 			}
 			Storage.set(boolTrain, for: .train)
 		}
+	}
+	
+	func transfer33Data() {
+		// transfer daily stats
+		let today = Date.int
+		var boolDaily = UserDefaults.standard.array(forKey: Key.daily.rawValue) as? [Bool] ?? [false, false, false, false]
+		if boolDaily.count != 4 {
+			boolDaily = [false, false, false, false]
+		}
+		
+		var dailyHistory = Storage.dictionary(.dailyHistory) as? [String: [Bool]] ?? [:]
+		
+		dailyHistory[String(today)] = boolDaily
+		
+		Storage.set(dailyHistory, for: .dailyHistory)
+		UserDefaults.standard.removeObject(forKey: Key.daily.rawValue)
 	}
 	
 	func setArray(for type: Key, length: Int) {
@@ -200,10 +186,36 @@ func updateSolveBoardData() {
 		}
 		Storage.set(streak, for: .streak)
 		Storage.set(lastDC, for: .lastDC)
-		
-		Layout.main.newDaily = Storage.int(.lastDC) != today
-		Storage.set(today, for: .currentDaily)
 	}
+}
+
+func updateDailyData() {
+	let today = Date.int
+	
+	Layout.main.newDaily = Storage.int(.lastDC) != today
+	
+	if Storage.int(.currentDaily) == today { return }
+	
+	updateDailyBoards()
+	
+	Storage.set(today, for: .currentDaily)
+}
+
+private func updateDailyBoards() {
+	let today = Date.int
+	
+	var newDailyBoards: [String] = []
+	for i in 0..<4 {
+		let m = today*today*(today+i)
+		let size = dailyBoards[i].count/3
+		let aNum = (m/(10000000*size)) % 192
+		let bNum = ((m/1000000) % size) + size*(today % 3)
+		let base = expandMoves(dailyBoards[i][bNum])
+		let newBoard = Board.getAutomorphism(for: base, a: aNum)
+		newDailyBoards.append(compressMoves(newBoard))
+//		print("updating daily boards:", today, i, m, size, aNum, bNum, newDailyBoards.last ?? "")
+	}
+	solveBoards[.daily] = newDailyBoards
 }
 
 //let solveBoardDates: [Key: [Int]] = [

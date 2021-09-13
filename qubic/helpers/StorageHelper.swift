@@ -10,7 +10,11 @@ import Foundation
 
 class Storage {
     static func array(_ key: Key) -> [Any]? {
-        UserDefaults.standard.array(forKey: key.rawValue)
+		if key == .daily {
+			let dailyHistory = dictionary(.dailyHistory) as? [String: [Any]] ?? [:]
+			return dailyHistory[String(Date.int)] ?? [false, false, false, false]
+		}
+        return UserDefaults.standard.array(forKey: key.rawValue)
     }
 	
 	static func dictionary(_ key: Key) -> [String: Any]? {

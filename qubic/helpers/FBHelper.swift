@@ -27,6 +27,7 @@ class FB {
         Auth.auth().addStateDidChangeListener { (auth, user) in
             if let user = user {
                 Storage.set(user.uid, for: .uuid)
+				myID = user.uid
                 self.checkVersion()
                 self.observePlayers()
                 self.updateMyData()
@@ -44,22 +45,17 @@ class FB {
     }
     
     func checkVersion() {
-        if tfVersion {
-            ref.child("tfVersion").removeAllObservers()
-            ref.child("tfVersion").observe(DataEventType.value, with: { snapshot in
-                self.updateAvailable = snapshot.value as? Int ?? 0 > qubicVersion
-            })
-        } else {
-            ref.child("version").removeAllObservers()
-            ref.child("version").observe(DataEventType.value, with: { snapshot in
-                self.updateAvailable = snapshot.value as? Int ?? 0 > qubicVersion
-            })
-        }
+		let versionRef = ref.child("newestBuild/\(versionType == .appStore ? "appStore" : "testFlight")")
+		versionRef.removeAllObservers()
+		versionRef.observe(DataEventType.value, with: { snapshot in
+			self.updateAvailable = snapshot.value as? Int ?? 0 > buildNumber
+		})
     }
     
     func observePlayers() {
-        ref.child("players").removeAllObservers()
-        ref.child("players").observe(DataEventType.value, with: { snapshot in
+		let playerRef = ref.child("players")
+		playerRef.removeAllObservers()
+		playerRef.observe(DataEventType.value, with: { snapshot in
             if let dict = snapshot.value as? [String: [String: Any]] {
                 for entry in dict {
                     self.playerDict[entry.key] = PlayerData(from: entry.value)
@@ -78,17 +74,23 @@ class FB {
 	func updateMyStats() {
 		let myStatsRef = ref.child("stats/\(myID)")
 		let train = Storage.array(.train) as? [Bool] ?? []
+		let streak = Storage.int(.streak)
+		let lastDC = Storage.int(.lastDC)
+		let currentDaily = Storage.int(.currentDaily)
 		let dailyHistory = Storage.dictionary(.dailyHistory) as? [String: [Bool]] ?? [:]
-		let daily = Storage.array(.daily) as? [Bool] ?? []
 		let simple = Storage.array(.simple) as? [Bool] ?? []
 		let common = Storage.array(.common) as? [Bool] ?? []
 		let tricky = Storage.array(.tricky) as? [Bool] ?? []
 		let solves = Storage.array(.solvedBoards) as? [String] ?? []
 		let solveBoardVersion = Storage.int(.solveBoardsVersion)
 		myStatsRef.setValue([
+			Key.buildNumber.rawValue: buildNumber,
+			Key.versionType.rawValue: versionType.rawValue,
 			Key.train.rawValue: train,
+			Key.streak.rawValue: streak,
+			Key.lastDC.rawValue: lastDC,
+			Key.currentDaily.rawValue: currentDaily,
 			Key.dailyHistory.rawValue: dailyHistory,
-			Key.daily.rawValue: daily,
 			Key.simple.rawValue: simple,
 			Key.common.rawValue: common,
 			Key.tricky.rawValue: tricky,
