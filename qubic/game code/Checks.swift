@@ -169,11 +169,11 @@ extension Board {
 				guard valid() else { print("tripped getW2"); return nil }
 				if b.board.hasW1(o) {
 					if let p = b.addCheckMove(n, &nextStack, d == 1) {
-					 wins.formUnion(p)
+						wins.formUnion(p)
 					}
 				} else {
 					if let p = b.addAllForces(n, &nextStack, d == 1) {
-					 wins.formUnion(p)
+						wins.formUnion(p)
 					}
 				}
             }

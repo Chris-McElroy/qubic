@@ -20,6 +20,13 @@ var messagesID: String {
     }
 }
 
+enum VersionType: String {
+	case xCode = "xCode"
+	case testFlight = "testFlight"
+	case appStore = "appStore"
+}
+
+
 enum Opacity: Double {
     case clear = 0
     case half = 0.3

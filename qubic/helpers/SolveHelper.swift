@@ -51,50 +51,30 @@ private let commonBoards = [
 ]
 
 private let trickyBoards = [
-	"Vqhsv9dHtRCD",			// 1
-	"HRhQdmplvs9j",			// 2
-	"-h9jm0Hkgs",			// 3
-	"DQvqm-jR",				// 4 11 move win, pretty hard for me, kept exploring the wrong branch
-	"m9-MhRQH",				// 5
-	"9h-CH0WMYP6m",			// 6
-	"qHV9dtzjMCmDr",		// 7
-	"DHRvmMQ-9",			// 8
-	"DRH-kQjvmdo9",			// 9
-	"Rhs-jHcu09v_D5",		// 10
-	"VMqjCRO-km4",			// 11
-	"cjdshVCqH-lp79_",		// 12
-	"cjdshVCq",				// 13
-	"Vjdqh9mMs",			// 14
-	"QR9v-HMCh_",			// 15
-	"-vHRD9ojCMh",			// 16
-	"RmDO9zvh-siL",			// 17
-	"sRdGC1hQ",				// 18
-	"vmDHQ9khV-q",			// 19
-	"RHvu96Dh-MPU",			// 20
-	"mR9vDdH-VlhQ",			// 21
-	"9R-vDHojqMC", 			// 22
-	"dsqtRF9hMmVD",			// 23
-	"RmvCsqJj",				// 24
-	"VdMqhs-RDe",			// 25
-	"RQj9hgX-s0_E",			// 26
-	"mRHCVh90Wq",			// 27
-	"RHtqvu9hj27C",			// 28
-	"pmD93VvMqhRs",			// 29
-	"m-DQCMsdqVZU3vjY",		// 30
-	"DQvMRhPU9-Cd",			// 31
-	"jCdhqVbmH",			// 32
-	"sdqMVvCQmD",			// 33
-	"mdvnqVsHh",			// 34
-	"m-CDrMbQvnRj",			// 35
-	"-qm8hjVRs",			// 36
-	"sdMCqhRHvbDW0a_",		// 37
-	"vQJHY-yCjkR3VM",		// 38
-	"9V-j_0RdfBQMJuc",		// 39
-	"mRD9vM-qVh",			// 40
-	"hVMsjqTD-",			// 41
-	"jhVdCqvQ-nG_RBt9H",	// 42
-	"sdMCqj9Hv1R",			// 43
-	"HRDv-9mdhQ"			// 44
+	"VdMqhs-RDe",			// 25 	6 ceutsy
+	"dsqtRF9hMmVD",			// 23	8 medium solutions. in the hundreds by move 7. looks like a win
+	"-h9jm0Hkgs",			// 3 	9 SO many ways to win
+	"Vjdqh9mMs",			// 14 	8 2 into a triangle
+	"-qm8hjVRs",			// 36 	8 2 into a triangle
+	"DHRvmMQ-9",			// 8 	8 very puzzly 2 into a triangle
+	"HRDv-9mdhQ",			// 44 	9 earlyish, 3 into a triangle
+	"pmD93VvMqhRs",			// 29	9 move win possible 3 into a triangle, many other ways though
+	"RQj9hgX-s0_E",			// 26 	9 few best solutions, many available, not as easy as it seems
+	"RHtqvu9hj27C",			// 28 	8 few solutions, many decoys, but still pretty straightforward
+	"DRH-kQjvmdo9",			// 9	9 got stuck, only 2 solutions but very few alternatives
+	"cjdshVCqH-lp79_",		// 12 	9 a tricky ending, found a simple one too, few paths until move 7. only a few best wins
+	"sdMCqhRHvbDW0a_",		// 37  	7 computer shit
+	"9R-vDHojqMC", 			// 22	11 many options, very similar to 16
+	"9V-j_0RdfBQMJuc",		// 39 	9 many options, computer shit
+	"qVMHjh9N",				// 45.2 11 trap triangle setup on the bottom
+	"9h-CH0WMYP6m",			// 6 	9 not many wins, lots of paths
+	"mRHCVh90Wq",			// 27 	12 THERE’S ONLY ONE WIN
+	"RmvCsqJj",				// 24 	12 another 4 move start
+	"DQvqm-jR",				// 4  	11 kept exploring the wrong branch, 20 total options
+	"HRhQdmplvs9j",			// 2 	12 very few solutions, straightforward start but hard end
+	"mdvnqVsHh",			// 34 	13 never would have seen it coming, good stuff
+	"Vqhsv9dHtRCD",			// 1 	10 the OG
+	"cjdshVCq"				// 13 	11 seems impossible, only 2 solutions
 ]
 
 func updateSolveBoardData() {
@@ -106,18 +86,18 @@ func updateSolveBoardData() {
 	]
 	updateDailyBoards()
 	
-	if Storage.int(.solveBoardsVersion) < 34 {
+	if Storage.int(.solveBoardsVersion) < 35 {
 		// TODO remove after everyone's up to date:
 		if Storage.int(.solveBoardsVersion) < 33 {
 			transfer32Data()
-		} else {
+		} else if Storage.int(.solveBoardsVersion) < 34 {
 			transfer33Data()
 		}
 		
 		setArray(for: .simple, length: simpleBoards.count)
 		setArray(for: .common, length: commonBoards.count)
 		setArray(for: .tricky, length: trickyBoards.count)
-		Storage.set(34, for: .solveBoardsVersion)
+		Storage.set(35, for: .solveBoardsVersion)
 	}
 	
 	verifyDailyData()
