@@ -51,17 +51,50 @@ private let commonBoards = [
 ]
 
 private let trickyBoards = [
-	"Vqhsv9dHtRCD", "HRhQdmplvs9j", "-h9jm0Hkgs", "DQvqm-jR",
-	"m9-MhRQH", "9h-CH0WMYP6m", "qHV9dtzjMCmDr", "DHRvmMQ-9",
-	"DRH-kQjvmdo9", "Rhs-jHcu09v_D5", "VMqjCRO-km4", "cjdshVCqH-lp79_",
-	"cjdshVCq", "Vjdqh9mMs", "QR9v-HMCh_", "-vHRD9ojCMh",
-	"RmDO9zvh-siL", "sRdGC1hQ", "vmDHQ9khV-q", "RHvu96Dh-MPU",
-	"mR9vDdH-VlhQ", "9R-vDHojqMC",  "dsqtRF9hMmVD", "RmvCsqJj",
-	"VdMqhs-RDe", "RQj9hgX-s0_E", "mRHCVh90Wq", "RHtqvu9hj27C",
-	"pmD93VvMqhRs", "m-DQCMsdqVZU3vjY", "DQvMRhPU9-Cd", "jCdhqVbmH",
-	"sdqMVvCQmD", "mdvnqVsHh", "m-CDrMbQvnRj", "-qm8hjVRs",
-	"sdMCqhRHvbDW0a_", "vQJHY-yCjkR3VM", "9V-j_0RdfBQMJuc", "mRD9vM-qVh",
-	"hVMsjqTD-", "jhVdCqvQ-nG_RBt9H", "sdMCqj9Hv1R", "HRDv-9mdhQ"
+	"Vqhsv9dHtRCD",			// 1
+	"HRhQdmplvs9j",			// 2
+	"-h9jm0Hkgs",			// 3
+	"DQvqm-jR",				// 4 11 move win, pretty hard for me, kept exploring the wrong branch
+	"m9-MhRQH",				// 5
+	"9h-CH0WMYP6m",			// 6
+	"qHV9dtzjMCmDr",		// 7
+	"DHRvmMQ-9",			// 8
+	"DRH-kQjvmdo9",			// 9
+	"Rhs-jHcu09v_D5",		// 10
+	"VMqjCRO-km4",			// 11
+	"cjdshVCqH-lp79_",		// 12
+	"cjdshVCq",				// 13
+	"Vjdqh9mMs",			// 14
+	"QR9v-HMCh_",			// 15
+	"-vHRD9ojCMh",			// 16
+	"RmDO9zvh-siL",			// 17
+	"sRdGC1hQ",				// 18
+	"vmDHQ9khV-q",			// 19
+	"RHvu96Dh-MPU",			// 20
+	"mR9vDdH-VlhQ",			// 21
+	"9R-vDHojqMC", 			// 22
+	"dsqtRF9hMmVD",			// 23
+	"RmvCsqJj",				// 24
+	"VdMqhs-RDe",			// 25
+	"RQj9hgX-s0_E",			// 26
+	"mRHCVh90Wq",			// 27
+	"RHtqvu9hj27C",			// 28
+	"pmD93VvMqhRs",			// 29
+	"m-DQCMsdqVZU3vjY",		// 30
+	"DQvMRhPU9-Cd",			// 31
+	"jCdhqVbmH",			// 32
+	"sdqMVvCQmD",			// 33
+	"mdvnqVsHh",			// 34
+	"m-CDrMbQvnRj",			// 35
+	"-qm8hjVRs",			// 36
+	"sdMCqhRHvbDW0a_",		// 37
+	"vQJHY-yCjkR3VM",		// 38
+	"9V-j_0RdfBQMJuc",		// 39
+	"mRD9vM-qVh",			// 40
+	"hVMsjqTD-",			// 41
+	"jhVdCqvQ-nG_RBt9H",	// 42
+	"sdMCqj9Hv1R",			// 43
+	"HRDv-9mdhQ"			// 44
 ]
 
 func updateSolveBoardData() {
