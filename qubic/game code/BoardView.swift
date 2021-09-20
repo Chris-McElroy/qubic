@@ -29,7 +29,14 @@ class BoardScene {
         let end = SIMD3<Float>(coords(for: Board.pointsInLine[$0][3]))
         return SceneHelper.makeLine(from: start, to: end)
     }
-    
+	var mostRecentRotate: CGPoint? = nil
+	var rotationStart: SCNVector4 = SCNVector4(0,0,0,0)
+	var rotationSpeed: CGFloat = 0
+	var lastRotationAngle: CGFloat = 0
+	var lastRotationTime: Date = Date()
+	var rotationObserver: NSKeyValueObservation? = nil
+	var rotatedAway: Bool = false
+	
     init() {
         scene.rootNode.addChildNode(SceneHelper.makeCamera())
         scene.rootNode.addChildNode(SceneHelper.makeOmniLight())
@@ -56,6 +63,7 @@ class BoardScene {
     
     func reset() {
         base.removeAllActions()
+		base.removeAllAnimations()
 		Timer.after(0.1, run: {
 			self.base.rotation = SCNVector4(x: 0, y: 0, z: 0, w: 0)
 		})
@@ -63,6 +71,7 @@ class BoardScene {
         for (p, move) in moves.enumerated() {
             move.removeFromParentNode()
             move.removeAllActions()
+			move.removeAllAnimations()
 			Timer.after(0.1, run: {
 				move.rotation = SCNVector4(x: 0, y: 0, z: 0, w: 0)
 			})
@@ -71,6 +80,7 @@ class BoardScene {
         for space in spaces {
             space.opacity = 1
             space.removeAllActions()
+			space.removeAllAnimations()
 			Timer.after(0.1, run: {
 				space.rotation = SCNVector4(x: 0, y: 0, z: 0, w: 0)
 			})
@@ -178,6 +188,39 @@ class BoardScene {
         rotateAction.timingMode = .easeInEaseOut
         base.runAction(rotateAction)
     }
+	
+	func rotate(angle: CGFloat, start: CGPoint, time: Date) {
+		if start != mostRecentRotate {
+			mostRecentRotate = start
+			rotationStart = base.rotation
+		}
+		
+		rotationSpeed = (angle - lastRotationAngle)/CGFloat(lastRotationTime.distance(to: time) + 0.000001)
+		lastRotationTime = time
+		lastRotationAngle = angle
+		var nextRotation = rotationStart
+		nextRotation.w += Float(angle/150)*nextRotation.y
+		let rotateAction = SCNAction.rotate(toAxisAngle: nextRotation, duration: 0.1)
+		rotateAction.timingMode = .easeOut
+		base.runAction(rotateAction)
+	}
+	
+	func endRotate() {
+		if mostRecentRotate == nil { return }
+		let goingPos = (rotationSpeed > 0) == (base.rotation.y > 0)
+		let minRot = base.rotation.w/(.pi/2) + (goingPos ? 0.5 : -0.5)
+		let alreadyPos = minRot > 0
+		let roundingRule: FloatingPointRoundingRule = goingPos == alreadyPos ? .awayFromZero : .towardZero
+		let endW = minRot.rounded(roundingRule)*(.pi/2)
+		let endRotation = SCNVector4(0, rotationStart.y, 0, endW)
+		let duration = max(0.12, abs(Double(endW - base.rotation.w)/Double(rotationSpeed/150 + 0.00001)))
+		if duration < 0.4 || rotationSpeed > 500 {
+			let rotateAction = SCNAction.rotate(toAxisAngle: endRotation, duration: duration) //max(0.2, Double(100/abs(rotationSpeed))))
+			rotateAction.timingMode = .easeOut
+			base.runAction(rotateAction)
+		}
+		mostRecentRotate = nil
+	}
     
 //    func moveCube(move: Int, color: UIColor) -> TimeInterval {
 //        let cube = moves[move]
@@ -256,7 +299,7 @@ class BoardScene {
     }
     
     func spinMoves() {
-        let list: Set<Int> = Game.main.showHintFor == nil ? Set(Game.main.premoves) : Game.main.currentHintMoves ?? []
+		let list: Set<Int> = !Game.main.premoves.isEmpty ? Set(Game.main.premoves) : (Game.main.showHintFor != nil ? Game.main.currentHintMoves ?? [] : [])
         for (i, space) in spaces.enumerated() {
             if space.actionKeys.contains(Key.spin.rawValue) != list.contains(i) {
                 if list.contains(i) {

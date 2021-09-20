@@ -26,7 +26,6 @@ enum VersionType: String {
 	case appStore = "appStore"
 }
 
-
 enum Opacity: Double {
     case clear = 0
     case half = 0.3

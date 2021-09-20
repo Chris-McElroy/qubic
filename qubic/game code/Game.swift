@@ -83,7 +83,7 @@ class Game: ObservableObject {
     @Published var hintCard: Bool = false
     @Published var currentMove: Move? = nil
     @Published var showDCAlert: Bool = false
-    @Published var newStreak: Int? = nil
+//    @Published var newStreak: Int? = nil
     @Published var undoOpacity: Opacity = .clear
     @Published var prevOpacity: Opacity = .clear
     @Published var nextOpacity: Opacity = .clear
@@ -92,6 +92,7 @@ class Game: ObservableObject {
     @Published var showHintFor: Int? = nil
 	@Published var showAllHints: Bool = true
     @Published var currentTimes: [Int] = [0,0]
+	@Published var gameEndPopup: Bool = false
     
 	var gameNum: Int = 0
     var turn: Int { board.getTurn() }
@@ -106,6 +107,7 @@ class Game: ObservableObject {
     var preset: [Int] = []
     var mode: GameMode = .local
     var dayInt: Int = Date.int
+	var lastDC: Int = 0
     var solveBoard: Int = 0
     var gameState: GameState = .new
     var replayMode: Bool = false
@@ -117,8 +119,11 @@ class Game: ObservableObject {
     var ghostMoveStart: Int = 0
     var ghostMoveCount: Int = 0
     var newHints: () -> Void = {}
+	var animatingWin: Bool = false
     var timers: [Timer] = []
     var premoves: [Int] = []
+	var rematchRequested: Bool = false
+	var mostRecentGame: (GameMode, Int, Int?, Bool, Double?) = (.novice, 0, nil, false, nil)
     var currentHintMoves: Set<Int>? {
 		guard let hintFor = showHintFor else { return nil }
 		if (hintFor == 1) == (myTurn == turn) {
@@ -133,6 +138,7 @@ class Game: ObservableObject {
     }
     
     func load(mode: GameMode, boardNum: Int = 0, turn: Int? = nil, hints: Bool = false, time: Double? = nil) {
+		mostRecentGame = (mode, boardNum, turn, hints, time)
         board = Board()
         BoardScene.main.reset()
 		gameNum += 1
@@ -156,11 +162,16 @@ class Game: ObservableObject {
         premoves = []
         showHintFor = nil
 		showAllHints = true
-        newStreak = nil
+		gameEndPopup = false
+		animatingWin = false
+//        newStreak = nil
 		dayInt = Date.int
-        setPreset(boardNum, for: mode)
-        solveBoard = boardNum
-        myTurn = turn != nil ? turn! : preset.count % 2
+		lastDC = Storage.int(.lastDC)
+		solveBoard = boardNum
+        setPreset(for: mode)
+		if !preset.isEmpty { myTurn = preset.count % 2 }
+		else if let givenTurn = turn { myTurn = givenTurn }
+		else { myTurn = .random(in: 0...1) }
         self.mode = mode
         self.hints = hints
         let me = User(b: board, n: myTurn)
@@ -169,7 +180,11 @@ class Game: ObservableObject {
         for p in preset { loadMove(p) }
         newHints()
         
-        func setPreset(_ boardNum: Int, for mode: GameMode) {
+        func setPreset(for mode: GameMode) {
+			if rematchRequested {
+				rematchRequested = false
+				return
+			}
 			if mode == .daily { getInfo(key: .daily) }
             else if mode == .simple { getInfo(key: .simple) }
             else if mode == .common { getInfo(key: .common) }
@@ -181,9 +196,9 @@ class Game: ObservableObject {
             
             func getInfo(key: Key) {
 				let boards = solveBoards[key] ?? [""]
-                if boardNum < boards.count {
-                    preset = expandMoves(boards[boardNum])
-					solved = (Storage.array(key) as? [Bool])?[boardNum] ?? true
+                if solveBoard < boards.count {
+                    preset = expandMoves(boards[solveBoard])
+					solved = (Storage.array(key) as? [Bool])?[solveBoard] ?? true
                 } else {
                     preset = Board.getAutomorphism(for: expandMoves(boards.randomElement() ?? ""))
                     solved = false
@@ -212,6 +227,33 @@ class Game: ObservableObject {
             return op
         }
     }
+	
+	func loadRematch() {
+		rematchRequested = true
+		load(mode: mostRecentGame.0, boardNum: mostRecentGame.1, turn: mostRecentGame.2, hints: mostRecentGame.3, time: mostRecentGame.4)
+	}
+	
+	func loadNextGame() {
+		let newMode: GameMode
+		switch mostRecentGame.0 {
+		case .novice: newMode = .defender
+		case .defender: newMode = .warrior
+		case .warrior: newMode = .tyrant
+		case .tyrant: newMode = .oracle
+		case .oracle: newMode = .cubist
+		default: newMode = mostRecentGame.0
+		}
+		
+		var newBoardNum: Int = mostRecentGame.1
+		if newMode.solve {
+			let key: Key = [.simple: .simple, .common: .common, .tricky: .tricky][newMode, default: .daily]
+			if newBoardNum < solveBoardCount(key) {
+				newBoardNum += 1
+			}
+		}
+		
+		load(mode: newMode, boardNum: newBoardNum, turn: mostRecentGame.2, hints: mostRecentGame.3, time: mostRecentGame.4)
+	}
     
     func startGame() {
         withAnimation {
@@ -410,6 +452,7 @@ class Game: ObservableObject {
     }
     
 	func showHintCard() {
+		if animatingWin { return }
         withAnimation {
             hintCard = true
         }
@@ -419,13 +462,26 @@ class Game: ObservableObject {
         if !hintCard { return false }
         withAnimation {
             hintCard = false
-//            let emptyBoard = (board.board[0] + board.board[1] == 0)
-//            if undoOpacity == .half && !emptyBoard && movesBack == 0 {
-//                undoOpacity = .full
-//            }
         }
         return true
     }
+	
+	func showGameEndPopup() {
+		Layout.main.halfBack = true
+		withAnimation {
+			gameEndPopup = true
+		}
+	}
+	
+	@discardableResult func hideGameEndPopup() -> Bool {
+		if !gameEndPopup { return false }
+		animatingWin = false
+		Layout.main.halfBack = false
+		withAnimation {
+			gameEndPopup = false
+		}
+		return true
+	}
     
     func undoMove() {
         guard movesBack == 0 else {
@@ -529,10 +585,15 @@ class Game: ObservableObject {
     
     func endGame(with end: GameState) {
         guard gameState == .active else { turnOff(); return }
-        
-        gameState = end
-        premoves = []
+		
+		gameState = end
+		premoves = []
 		BoardScene.main.spinMoves()
+		animatingWin = true
+		hideHintCard()
+		
+		let feedback = UINotificationFeedbackGenerator()
+		feedback.prepare()
 		
 		if end.myWin {
 			if mode == .daily {
@@ -540,19 +601,21 @@ class Game: ObservableObject {
 				var dailyHistory = Storage.dictionary(.dailyHistory) as? [String: [Bool]] ?? [:]
 				dailyHistory[String(dayInt), default: [false, false, false, false]][solveBoard] = true
 				Storage.set(dailyHistory, for: .dailyHistory)
-				FB.main.updateMyStats()
 				
 				if dailyHistory[String(dayInt)] == [true, true, true, true] && dayInt > Storage.int(.lastDC) {
+					verifyDailyData()
 					Notifications.ifUndetermined {
 						DispatchQueue.main.async {
 							self.showDCAlert = true
 						}
 					}
 					Notifications.setBadge(justSolved: true, dayInt: dayInt)
-					withAnimation { newStreak = Storage.int(.streak) }
-					timers.append(Timer.after(2.4, run: { withAnimation { self.newStreak = nil } }))
+//					withAnimation { newStreak = Storage.int(.streak) }
+//					timers.append(Timer.after(2.4, run: { withAnimation { self.newStreak = nil } }))
 					updateDailyData() // turns off red dot
 				}
+				
+				FB.main.updateMyStats()
 			}
 			else if mode == .simple { recordSolve(type: .simple, index: solveBoard) }
 			else if mode == .common { recordSolve(type: .common, index: solveBoard) }
@@ -572,9 +635,16 @@ class Game: ObservableObject {
         if end == .myTimeout || end == .opTimeout { BoardScene.main.spinBoard() }
         
         if end == .myLeave { turnOff() }
+		else {
+			timers.append(Timer.after(1) {
+				self.showGameEndPopup()
+				feedback.notificationOccurred(end.myWin ? .error : .warning)
+			})
+		}
         
 		func recordSolve(type: Key, index: Int) {
 			guard var solvesForType = Storage.array(type) as? [Bool] else { print("Can't record solve"); return }
+			if index == solvesForType.count { return }
 			solvesForType[index] = true
 			Storage.set(solvesForType, for: type)
 			
@@ -591,22 +661,32 @@ class Game: ObservableObject {
     
     func turnOff() {
         guard mode != .off else { return }
-        
-        for timer in timers {
-            timer.invalidate()
-        }
-        timers = []
-        hintQueue.cancelAllOperations()
-        
-        player[0].cancelMove()
-        player[1].cancelMove()
+		
+		self.mode = .off
+		
+//		timers.append(Timer.after(1) {
+//			self.hintCard = false
+//			self.gameEndPopup = false
+//			self.animatingWin = false
+//		})
+		
+		cancelActions()
         
         undoOpacity = .clear
         prevOpacity = .clear
         nextOpacity = .clear
-        
-        self.mode = .off
     }
+	
+	func cancelActions() {
+		for timer in timers {
+			timer.invalidate()
+		}
+		timers = []
+		hintQueue.cancelAllOperations()
+		
+		player[0].cancelMove()
+		player[1].cancelMove()
+	}
     
     func uploadSolveBoard(_ key: String) {
         FB.main.uploadSolveBoard(board.getMoveString(), key: key)

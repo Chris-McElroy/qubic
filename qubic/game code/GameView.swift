@@ -33,48 +33,20 @@ struct GameView: View {
             VStack(spacing: 0) {
                 Fill(65)
                 BoardView()
-                    .gesture(DragGesture(minimumDistance: 30)
-                        .onEnded { drag in
-                            let h = drag.translation.height
-                            let w = drag.translation.width
-                            if abs(w)/abs(h) > 1 {
-                                BoardScene.main.rotate(right: w > 0)
-                            } else if h > 0 {
-                                game.goBack()
-                            } else {
-                                game.showHintCard()
-                            }
-                        }
-                    )
+                    .gesture(swipe)
                     .zIndex(0.0)
-                    .alert(isPresented: $game.showDCAlert) {
-                        Alert(title: Text("Enable Badges"),
-                              message: Text("Allow 4Play to show a badge when a daily challenge is available?"),
-                              primaryButton: .default(Text("OK"), action: {
-                                Notifications.turnOn()
-                              }),
-                              secondaryButton: .cancel())
-                    }
+					.alert(isPresented: $game.showDCAlert, content: { enableBadgesAlert })
                     .opacity(hideBoard ? 0 : 1)
             }
             VStack(spacing: 0) {
-                HStack {
-                    PlayerName(turn: 0, game: game, text: game.myTurn == 0 ? $myText : $opText)
-                    Spacer().frame(minWidth: 15).frame(width: centerNames ? 15 : nil)
-                    PlayerName(turn: 1, game: game, text: game.myTurn == 1 ? $myText : $opText)
-                }
-                .padding(.horizontal, 22)
-                .padding(.top, 10)
-                .offset(y: centerNames ? Layout.main.safeHeight/2 - 50 : 0)
-                .zIndex(1.0)
+                names
                 Spacer()
                 ZStack {
-                    Fill()
-                        .shadow(radius: 20)
-                    hintContent
+					Fill().shadow(radius: 20).offset(y: game.hintCard || game.gameEndPopup ? 0 : 300)
+					gameEndOptions.offset(y: game.gameEndPopup ? 0 : 300)
+					hintContent.offset(y: game.hintCard ? 0 : 300)
                 }
                 .frame(height: 240)
-                .offset(y: game.hintCard ? 0 : 300)
             }
         }
         .opacity(hideAll ? 0 : 1)
@@ -83,32 +55,148 @@ struct GameView: View {
             animateIntro()
         }
     }
+	
+	let swipe = DragGesture(minimumDistance: 30)
+		.onEnded { drag in
+			let h = drag.translation.height
+			let w = drag.translation.width
+			if abs(w/h) < 1 {
+				if h > 0 {
+					Game.main.goBack()
+				} else {
+					Game.main.showHintCard()
+				}
+			}
+			BoardScene.main.endRotate()
+		}
+		.onChanged { drag in
+			let h = drag.translation.height
+			let w = drag.translation.width
+			if abs(w/h) > 1 {
+			   BoardScene.main.rotate(angle: w, start: drag.startLocation, time: drag.time)
+			}
+		}
+	
+	let enableBadgesAlert = Alert(title: Text("Enable Badges"),
+								  message: Text("Allow 4Play to show a badge when a daily challenge is available?"),
+								  primaryButton: .default(Text("OK"), action: {
+									Notifications.turnOn()
+								  }),
+								  secondaryButton: .cancel())
+	
+	var names: some View {
+		HStack {
+			PlayerName(turn: 0, game: game, text: game.myTurn == 0 ? $myText : $opText)
+			Spacer().frame(minWidth: 15).frame(width: centerNames ? 15 : nil)
+			PlayerName(turn: 1, game: game, text: game.myTurn == 1 ? $myText : $opText)
+		}
+		.padding(.horizontal, 22)
+		.padding(.top, 10)
+		.offset(y: centerNames ? Layout.main.safeHeight/2 - 50 : 0)
+		.zIndex(1.0)
+	}
+	
+	var gameEndOptions: some View {
+		var titleText = game.gameState.myWin ? "you won!" : "you lost!"
+		if game.gameState == .draw { titleText = "draw" }
+		if game.mode == .daily && Storage.int(.lastDC) > game.lastDC { titleText = "\(Storage.int(.streak)) day streak!" }
+		let rematchText = game.mode.solve ? "try again" : "rematch"
+		let newGameText: String
+		switch game.mode {
+		case .novice: newGameText = "play defender"
+		case .defender: newGameText = "play warrior"
+		case .warrior: newGameText = "play tyrant"
+		case .tyrant: newGameText = "play oracle"
+		case .oracle: newGameText = "play cubist"
+		case .daily, .simple, .common, .tricky:
+			let key: Key = [.simple: .simple, .common: .common, .tricky: .tricky][game.mode, default: .daily]
+			let type: String = [.simple: "simple", .common: "common", .tricky: "tricky"][game.mode, default: "daily"]
+			if game.solveBoard == solveBoardCount(key) {
+				newGameText = "new \(type) ?"
+			} else if game.solveBoard == solveBoardCount(key) - 1 {
+				newGameText = "try \(type) ?"
+			} else {
+				newGameText = "try \(type) \(game.solveBoard + 2)"
+			}
+		default: newGameText = "new online game"
+		}
+		
+		return VStack(spacing: 15) {
+			Spacer()
+			Text(titleText).font(.custom("Oligopoly Regular", size: 24)) // .system(.largeTitle))
+			Spacer()
+			Button("review game") { game.hideGameEndPopup() }
+			if game.mode != .online {
+				Button(rematchText) { animateGameChange(rematch: true) }
+			}
+			if !(game.mode == .local || (game.mode == .daily && game.solveBoard == 3) || game.mode == .cubist) {
+				Button(newGameText) { animateGameChange(rematch: false) }
+			}
+			Spacer()
+			Spacer()
+		}
+		.font(.custom("Oligopoly Regular", size: 18)) //.system(size: 18))
+		.buttonStyle(Solid())
+	}
     
     func animateIntro() {
         hideAll = true
         hideBoard = true
         centerNames = true
 //        BoardScene.main.rotate(right: true) // this created a race condition
-        Game.main.timers.append(Timer.after(0.1) {
+        game.timers.append(Timer.after(0.1) {
             withAnimation {
                 hideAll = false
             }
         })
-        Game.main.timers.append(Timer.after(1) {
+		game.timers.append(Timer.after(1) {
             withAnimation {
                 centerNames = false
             }
         })
-        Game.main.timers.append(Timer.after(1.1) {
+		game.timers.append(Timer.after(1.1) {
             withAnimation {
                 hideBoard = false
             }
             BoardScene.main.rotate(right: false)
         })
-        Game.main.timers.append(Timer.after(1.5) {
+		game.timers.append(Timer.after(1.5) {
             game.startGame()
         })
     }
+	
+	func animateGameChange(rematch: Bool) {
+		game.hideGameEndPopup()
+		game.cancelActions()
+		withAnimation {
+			game.undoOpacity = .clear
+			game.prevOpacity = .clear
+			game.nextOpacity = .clear
+		}
+		
+		game.timers.append(Timer.after(0.3) {
+			withAnimation {
+				hideBoard = true
+			}
+			BoardScene.main.rotate(right: false)
+		})
+		
+		game.timers.append(Timer.after(0.6) {
+			if rematch { game.loadRematch() }
+			else { game.loadNextGame() }
+		})
+		
+		game.timers.append(Timer.after(0.8) {
+			withAnimation {
+				hideBoard = false
+			}
+			BoardScene.main.rotate(right: false)
+		})
+		
+		game.timers.append(Timer.after(1.2) {
+			game.startGame()
+		})
+	}
     
     var solveButtons: some View {
         HStack(spacing: 30) {
@@ -273,7 +361,7 @@ struct GameView: View {
         var body: some View {
             VStack(spacing: 3) {
                 ZStack {
-                    Text(game.newStreak != nil ? "\(game.newStreak ?? 0) day streak!" : (game.showHintFor == turn^game.myTurn^1 ? text?[0] ?? "loading..." : ""))
+                    Text(game.showHintFor == turn^game.myTurn^1 ? text?[0] ?? "loading..." : "")
                         .animation(.none)
                         .multilineTextAlignment(.center)
                         .frame(height: 45)
@@ -286,7 +374,7 @@ struct GameView: View {
                         .cornerRadius(rounded ? 100 : 4)
                         .shadow(color: glow, radius: 8, y: 0)
                         .animation(.easeIn(duration: 0.3))
-                        .rotation3DEffect((game.newStreak != nil && game.myTurn != turn) || game.showHintFor == turn^game.myTurn^1 ? .radians(.pi/2) : .zero, axis: (x: 1, y: 0, z: 0), anchor: .top)
+                        .rotation3DEffect(game.showHintFor == turn^game.myTurn^1 ? .radians(.pi/2) : .zero, axis: (x: 1, y: 0, z: 0), anchor: .top)
                 }
                 Text(String(format: "%01d:%02d", (game.currentTimes[turn]/60) % 100, game.currentTimes[turn] % 60))
                     .opacity(timerOpacity.rawValue)

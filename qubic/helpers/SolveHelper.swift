@@ -86,7 +86,7 @@ func updateSolveBoardData() {
 	]
 	updateDailyBoards()
 	
-	if Storage.int(.solveBoardsVersion) < 35 {
+	if Storage.int(.solveBoardsVersion) < buildNumber {
 		// TODO remove after everyone's up to date:
 		if Storage.int(.solveBoardsVersion) < 33 {
 			transfer32Data()
@@ -97,7 +97,7 @@ func updateSolveBoardData() {
 		setArray(for: .simple, length: simpleBoards.count)
 		setArray(for: .common, length: commonBoards.count)
 		setArray(for: .tricky, length: trickyBoards.count)
-		Storage.set(35, for: .solveBoardsVersion)
+		Storage.set(buildNumber, for: .solveBoardsVersion)
 	}
 	
 	verifyDailyData()
@@ -178,28 +178,28 @@ func updateSolveBoardData() {
 		
 		Storage.set(list, for: type)
 	}
+}
+
+func verifyDailyData() {
+	let today = Date.int
+	var date = today - 1
+	let history = Storage.dictionary(.dailyHistory) as? [String: [Bool]] ?? [:]
 	
-	func verifyDailyData() {
-		let today = Date.int
-		var date = today - 1
-		let history = Storage.dictionary(.dailyHistory) as? [String: [Bool]] ?? [:]
-		
-		while history[String(date)] == [true, true, true, true] {
-			date -= 1
-		}
-		
-		let streak: Int
-		let lastDC: Int
-		if history[String(today)] == [true, true, true, true] {
-			streak = today - date
-			lastDC = today
-		} else {
-			streak = today - date - 1
-			lastDC = streak == 0 ? 0 : today - 1
-		}
-		Storage.set(streak, for: .streak)
-		Storage.set(lastDC, for: .lastDC)
+	while history[String(date)] == [true, true, true, true] {
+		date -= 1
 	}
+	
+	let streak: Int
+	let lastDC: Int
+	if history[String(today)] == [true, true, true, true] {
+		streak = today - date
+		lastDC = today
+	} else {
+		streak = today - date - 1
+		lastDC = streak == 0 ? 0 : today - 1
+	}
+	Storage.set(streak, for: .streak)
+	Storage.set(lastDC, for: .lastDC)
 }
 
 func updateDailyData() {

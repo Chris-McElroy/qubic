@@ -55,11 +55,11 @@ struct TrainView: View {
         }
     }
     
-    var turn: Int {
+    var turn: Int? {
         switch selected[1] {
         case 0: return 0
         case 2: return 1
-        default: return Int.random(in: 0...1)
+        default: return nil
         }
     }
     

@@ -85,13 +85,13 @@ struct PlayView: View {
         }
     }
     
-    var turn: Int {
-        if mode == .online { return FB.main.myGameData?.myTurn ?? Int.random(in: 0...1) }
+    var turn: Int? {
+        if mode == .online { return FB.main.myGameData?.myTurn }
         
         switch selected[1] {
         case 0: return 0
         case 2: return 1
-        default: return Int.random(in: 0...1)
+        default: return nil
         }
     }
     

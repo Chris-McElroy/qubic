@@ -133,7 +133,10 @@ extension Board {
 		for d in 1...depth {
             for b in stack {
 				guard nextStack.count < 40000 else { break }
-				guard valid() else { print("tripped hasW2"); return nil }
+				guard valid() else {
+//					print("tripped hasW2")
+					return nil
+				}
                 if b.board.hasW1(o) {
                     if b.addCheckMove(n, &nextStack, d == 1) != nil {
 						cachedHasW2[n] = d
@@ -166,7 +169,10 @@ extension Board {
 		for d in 1...depth {
             for b in stack {
 				guard nextStack.count < 10000 else { break }
-				guard valid() else { print("tripped getW2"); return nil }
+				guard valid() else {
+//					print("tripped getW2")
+					return nil
+				}
 				if b.board.hasW1(o) {
 					if let p = b.addCheckMove(n, &nextStack, d == 1) {
 						wins.formUnion(p)
@@ -196,7 +202,10 @@ extension Board {
         let options = Array(0..<64).filter({ pointEmpty($0) && !checks.contains($0) })
 		let start = Date.now
         for p in options.shuffled() {
-			guard valid() else { print("tripped getW2Blocks"); return nil }
+			guard valid() else {
+//				print("tripped getW2Blocks")
+				return nil
+			}
 			checkBoard.addMove(p, for: n)
 			if checkBoard.hasW2(o, depth: depth, time: time - (Date.now - start)) == false { blocks.insert(p) }
 			checkBoard.undoMove(for: n)

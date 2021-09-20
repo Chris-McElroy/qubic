@@ -16,7 +16,6 @@ struct MainView: View {
     @ObservedObject var screen: ScreenObserver
     @ObservedObject var game: Game = Game.main
     @ObservedObject var layout = Layout.main
-    @State var halfBack: Bool = false
     @State var playSelection: [Int] = Storage.array(.lastPlayMenu) as? [Int] ?? [1,1,0,0]
     @State var searching: Bool = false
     
@@ -195,7 +194,7 @@ struct MainView: View {
     private var backButton: some View {
         Button(action: goBack ) {
             VStack {
-                Text(layout.current == .main ? "more" : halfBack ? "leave game?" : "back")
+				Text(layout.current == .main ? "more" : layout.halfBack ? "leave game" : "back")
                     .font(.custom("Oligopoly Regular", size: 16))
                     .animation(nil)
                 Text("↓")
@@ -293,8 +292,9 @@ struct MainView: View {
     
     func goBack() {
         if game.hideHintCard() { return }
-        if layout.current.gameView { halfBack.toggle() }
-        if halfBack {
+		if layout.current.gameView { layout.halfBack.toggle() }
+		else { layout.halfBack = false }
+		if layout.halfBack {
             UIImpactFeedbackGenerator(style: .rigid).impactOccurred()
         } else {
             FB.main.cancelOnlineSearch?()
@@ -307,9 +307,10 @@ struct MainView: View {
     
     func cancelBack() -> Bool {
         if game.hideHintCard() { return false }
-        if halfBack {
+		if game.hideGameEndPopup() { return false }
+		if layout.halfBack {
             UIImpactFeedbackGenerator(style: .light).impactOccurred()
-            halfBack = false
+			layout.halfBack = false
             return false
         }
         return true

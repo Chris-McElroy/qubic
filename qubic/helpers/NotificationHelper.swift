@@ -64,16 +64,17 @@ struct Notifications {
         UIApplication.shared.applicationIconBadgeNumber = 0
         UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: [Key.badge.rawValue])
         UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [Key.badge.rawValue])
-        var streak = Storage.int(.streak)
-        var lastDC = Storage.int(.lastDC)
-        if lastDC < dayInt - 1 { streak = 0 }
-        if justSolved {
-            Storage.set(dayInt, for: .lastDC)
-            streak += lastDC < dayInt ? 1 : 0
-            lastDC = dayInt
-        }
-        Storage.set(streak, for: .streak)
+//        var streak = Storage.int(.streak)
+//        var lastDC = Storage.int(.lastDC)
+//        if lastDC < dayInt - 1 { streak = 0 }
+//        if justSolved {
+//            Storage.set(dayInt, for: .lastDC)
+//            streak += lastDC < dayInt ? 1 : 0
+//            lastDC = dayInt
+//        }
+//        Storage.set(streak, for: .streak)
         if Storage.int(.notification) == 0 {
+			let lastDC = Storage.int(.lastDC)
             UIApplication.shared.applicationIconBadgeNumber = lastDC == Date.int ? 0 : 1
             let content = UNMutableNotificationContent()
             content.badge = 1
