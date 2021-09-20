@@ -181,10 +181,8 @@ class Game: ObservableObject {
         newHints()
         
         func setPreset(for mode: GameMode) {
-			if rematchRequested {
-				rematchRequested = false
-				return
-			}
+			let oldPreset = preset
+			
 			if mode == .daily { getInfo(key: .daily) }
             else if mode == .simple { getInfo(key: .simple) }
             else if mode == .common { getInfo(key: .common) }
@@ -193,6 +191,12 @@ class Game: ObservableObject {
                 preset = []
                 solved = false
             }
+			
+			if rematchRequested {
+				rematchRequested = false
+				preset = oldPreset
+				return
+			}
             
             func getInfo(key: Key) {
 				let boards = solveBoards[key] ?? [""]

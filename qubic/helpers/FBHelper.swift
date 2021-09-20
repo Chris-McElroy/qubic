@@ -21,7 +21,6 @@ class FB {
     var onlineInviteState: MatchingState = .stopped
     var gotOnlineMove: ((Int, Double, Int) -> Void)? = nil
     var cancelOnlineSearch: (() -> Void)? = nil
-    var updateAvailable: Bool = false
     
     func start() {
         Auth.auth().addStateDidChangeListener { (auth, user) in
@@ -45,10 +44,10 @@ class FB {
     }
     
     func checkVersion() {
-		let versionRef = ref.child("newestBuild/\(versionType == .appStore ? "appStore" : "testFlight")")
+		let versionRef = ref.child("newestBuild/\(versionType.rawValue)")
 		versionRef.removeAllObservers()
 		versionRef.observe(DataEventType.value, with: { snapshot in
-			self.updateAvailable = snapshot.value as? Int ?? 0 > buildNumber
+			Layout.main.updateAvailable = snapshot.value as? Int ?? 0 > buildNumber
 		})
     }
     

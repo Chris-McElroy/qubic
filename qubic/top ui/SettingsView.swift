@@ -82,8 +82,8 @@ struct SettingsView: View {
                     Button(action: mainButtonAction) {
                         ZStack {
                             Text("settings")
-                            Circle().frame(width: 12, height: 12).foregroundColor(.primary()).offset(x: 50, y: 2)
-                                .opacity(FB.main.updateAvailable ? 1 : 0)
+                            Circle().frame(width: 12, height: 12).foregroundColor(.primary()).offset(x: 53, y: 2)
+                                .opacity(Layout.main.updateAvailable ? 1 : 0)
                         }
                     }
                     .buttonStyle(MoreStyle())
@@ -114,7 +114,7 @@ struct SettingsView: View {
                             .disableAutocorrection(true)
                             .accentColor(.primary())
                             .frame(width: 200, height: 43, alignment: .top)
-                        if FB.main.updateAvailable {
+                        if Layout.main.updateAvailable {
                             Button("update available!") {
 								let urlString = "itms-\(versionType == .appStore ? "apps" : "beta")://itunes.apple.com/app/1480301899"
 								guard let url = URL(string: urlString) else { return }

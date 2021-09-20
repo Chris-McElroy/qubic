@@ -28,7 +28,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             Key.simple.rawValue: [],
             Key.common.rawValue: [],
             Key.tricky.rawValue: [],
-			Key.solveBoardsVersion.rawValue: 32, // TODO make 34 once everyone has 33
+			Key.solveBoardsVersion.rawValue: 0,
             Key.name.rawValue: "new player",
             Key.color.rawValue: 4,
             Key.notification.rawValue: 1,

@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-let buildNumber = 030035
+let buildNumber = 030036
 let versionType: VersionType = .testFlight
 let solveButtonsEnabled = false
 
@@ -194,9 +194,13 @@ struct MainView: View {
     private var backButton: some View {
         Button(action: goBack ) {
             VStack {
-				Text(layout.current == .main ? "more" : layout.halfBack ? "leave game" : "back")
-                    .font(.custom("Oligopoly Regular", size: 16))
-                    .animation(nil)
+				ZStack {
+					Text(layout.current == .main ? "more" : layout.halfBack ? "leave game" : "back")
+						.font(.custom("Oligopoly Regular", size: 16))
+						.animation(nil)
+					Circle().frame(width: 12, height: 12).foregroundColor(.primary()).offset(x: 30, y: 2)
+						.opacity(layout.current == .main && layout.updateAvailable ? 1 : 0)
+				}
                 Text("↓")
                     .rotationEffect(Angle(degrees: layout.current == .main ? 0 : 180))
             }
