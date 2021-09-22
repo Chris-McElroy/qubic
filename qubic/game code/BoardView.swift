@@ -16,7 +16,7 @@ struct BoardView: UIViewRepresentable {
     }
 }
 
-class BoardScene {
+class BoardScene: ObservableObject {
     static let main = BoardScene()
     
     let view =  SCNView()
@@ -36,6 +36,8 @@ class BoardScene {
 	var lastRotationTime: Date = Date()
 	var rotationObserver: NSKeyValueObservation? = nil
 	var rotatedAway: Bool = false
+	var wentSlow: Bool = true
+	@Published var newSwiping = true
 	
     init() {
         scene.rootNode.addChildNode(SceneHelper.makeCamera())
@@ -193,9 +195,12 @@ class BoardScene {
 		if start != mostRecentRotate {
 			mostRecentRotate = start
 			rotationStart = base.rotation
+			wentSlow = false
 		}
 		
+		let lastSpeed = rotationSpeed
 		rotationSpeed = (angle - lastRotationAngle)/CGFloat(lastRotationTime.distance(to: time) + 0.000001)
+		if !wentSlow && abs(lastSpeed) < 500 && abs(rotationSpeed) < 500 { wentSlow = true }
 		lastRotationTime = time
 		lastRotationAngle = angle
 		var nextRotation = rotationStart
@@ -207,6 +212,7 @@ class BoardScene {
 	
 	func endRotate() {
 		if mostRecentRotate == nil { return }
+		if newSwiping && wentSlow { return }
 		let goingPos = (rotationSpeed > 0) == (base.rotation.y > 0)
 		let minRot = base.rotation.w/(.pi/2) + (goingPos ? 0.5 : -0.5)
 		let alreadyPos = minRot > 0
@@ -214,7 +220,7 @@ class BoardScene {
 		let endW = minRot.rounded(roundingRule)*(.pi/2)
 		let endRotation = SCNVector4(0, rotationStart.y, 0, endW)
 		let duration = max(0.12, abs(Double(endW - base.rotation.w)/Double(rotationSpeed/150 + 0.00001)))
-		if duration < 0.4 || rotationSpeed > 500 {
+		if !newSwiping && (duration < 0.4 || abs(rotationSpeed) > 500) {
 			let rotateAction = SCNAction.rotate(toAxisAngle: endRotation, duration: duration) //max(0.2, Double(100/abs(rotationSpeed))))
 			rotateAction.timingMode = .easeOut
 			base.runAction(rotateAction)

@@ -11,6 +11,7 @@ import Foundation
 enum Key: String {
 	case buildNumber = "buildNumber"
 	case versionType = "versionType"
+	case active = "active"
     case streak = "DCStreak"
     case lastDC = "LastDC"
     case badge = "qubic badge notification"

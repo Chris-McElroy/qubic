@@ -31,6 +31,7 @@ class FB {
                 self.observePlayers()
                 self.updateMyData()
 				self.updateMyStats()
+				self.startActiveTimer()
                 self.finishedOnlineGame(with: .error)
             } else {
                 // should only happen once, when they first use the app
@@ -42,6 +43,13 @@ class FB {
             }
         }
     }
+	
+	func startActiveTimer() {
+		let myActiveRef = ref.child("stats/\(myID)/active")
+		Timer.every(30, run: {
+			myActiveRef.setValue(Date.ms)
+		})
+	}
     
     func checkVersion() {
 		let versionRef = ref.child("newestBuild/\(versionType.rawValue)")
@@ -85,6 +93,7 @@ class FB {
 		myStatsRef.setValue([
 			Key.buildNumber.rawValue: buildNumber,
 			Key.versionType.rawValue: versionType.rawValue,
+			Key.active.rawValue: Date.ms,
 			Key.train.rawValue: train,
 			Key.streak.rawValue: streak,
 			Key.lastDC.rawValue: lastDC,

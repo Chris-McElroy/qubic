@@ -15,6 +15,7 @@ struct SettingsView: View {
     @State var selected2 = [Storage.int(.color)]
     @State var username = Storage.string(.name) ?? "me"
     @State var showNotificationAlert = false
+	@ObservedObject var boardScene = BoardScene.main
 //    @State var lineSize = lineWidth
     
     let picker1Content: [[Any]] = [["left", "right"], ["on", "off"],  ["on", "off"]]
@@ -114,6 +115,9 @@ struct SettingsView: View {
                             .disableAutocorrection(true)
                             .accentColor(.primary())
                             .frame(width: 200, height: 43, alignment: .top)
+						Button(boardScene.newSwiping ? "new swiping" : "old swiping") {
+							boardScene.newSwiping.toggle()
+						}.buttonStyle(Solid())
                         if Layout.main.updateAvailable {
                             Button("update available!") {
 								let urlString = "itms-\(versionType == .appStore ? "apps" : "beta")://itunes.apple.com/app/1480301899"
