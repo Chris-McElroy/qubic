@@ -12,7 +12,8 @@ import SceneKit
 struct BoardView: UIViewRepresentable {
     func makeUIView(context: Context) -> SCNView { return BoardScene.main.view }
     func updateUIView(_ scnView: SCNView, context: Context) {
-        BoardScene.main.updateColors(for: context.environment.colorScheme)
+		// see below comment for explanation
+//        BoardScene.main.updateColors(for: context.environment.colorScheme)
     }
 }
 
@@ -52,20 +53,29 @@ class BoardScene: ObservableObject {
         view.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleTap)))
     }
     
-    func updateColors(for colorScheme: ColorScheme) {
-        let color: UIColor = colorScheme == .dark ? .white : .black
-        for space in spaces {
-            for child in space.childNodes {
-                if child.geometry?.name != "clear" {
-                    child.setColor(color)
-                }
-            }
-        }
-    }
+	// commenting out because i think this was actually causing the problem
+	/*
+	 it was:
+	 - not checking the correct names (should be child.name for most of them)
+	 - making things .white or .black so if it missed an update later it would break
+	 
+	 if there still is an issue, i can use the sceneWillEnterForeground function in sceneDelegate to trigger a change
+	 
+	 */
+//    func updateColors(for colorScheme: ColorScheme) {
+//        let color: UIColor = colorScheme == .dark ? .white : .black
+//		print(color == UIColor.white)
+//        for space in spaces {
+//            for child in space.childNodes {
+//                if child.geometry?.name != "clear" {
+//                    child.setColor(color)
+//                }
+//            }
+//        }
+//    }
     
     func reset() {
-        base.removeAllActions()
-		base.removeAllAnimations()
+		base.removeAllActions()
 		Timer.after(0.1, run: {
 			self.base.rotation = SCNVector4(x: 0, y: 0, z: 0, w: 0)
 		})
@@ -73,16 +83,18 @@ class BoardScene: ObservableObject {
         for (p, move) in moves.enumerated() {
             move.removeFromParentNode()
             move.removeAllActions()
-			move.removeAllAnimations()
 			Timer.after(0.1, run: {
 				move.rotation = SCNVector4(x: 0, y: 0, z: 0, w: 0)
 			})
+			// TODO change the fuckin color of these maybe also??
             move.position = spaces[p].position
         }
         for space in spaces {
             space.opacity = 1
             space.removeAllActions()
-			space.removeAllAnimations()
+//			for node in space.childNodes {
+//				if node.
+//			}
 			Timer.after(0.1, run: {
 				space.rotation = SCNVector4(x: 0, y: 0, z: 0, w: 0)
 			})
@@ -220,9 +232,10 @@ class BoardScene: ObservableObject {
 		let endW = minRot.rounded(roundingRule)*(.pi/2)
 		let endRotation = SCNVector4(0, rotationStart.y, 0, endW)
 		let duration = max(0.12, abs(Double(endW - base.rotation.w)/Double(rotationSpeed/150 + 0.00001)))
-		if !newSwiping && (duration < 0.4 || abs(rotationSpeed) > 500) {
-			let rotateAction = SCNAction.rotate(toAxisAngle: endRotation, duration: duration) //max(0.2, Double(100/abs(rotationSpeed))))
+		if newSwiping || (duration < 0.4 || abs(rotationSpeed) > 500) {
+			let rotateAction = SCNAction.rotate(toAxisAngle: endRotation, duration: 100*duration) //max(0.2, Double(100/abs(rotationSpeed))))
 			rotateAction.timingMode = .easeOut
+			print(duration)
 			base.runAction(rotateAction)
 		}
 		mostRecentRotate = nil
