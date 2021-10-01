@@ -93,7 +93,6 @@ class FB {
 		myStatsRef.setValue([
 			Key.buildNumber.rawValue: buildNumber,
 			Key.versionType.rawValue: versionType.rawValue,
-			Key.active.rawValue: Date.ms,
 			Key.train.rawValue: train,
 			Key.streak.rawValue: streak,
 			Key.lastDC.rawValue: lastDC,
@@ -117,11 +116,14 @@ class FB {
         solveRef.setValue(string)
     }
     
-    func getOnlineMatch(timeLimit: Double, humansOnly: Bool, onMatch: @escaping () -> Void, onCancel: @escaping () -> Void) {
+	func getOnlineMatch(onMatch: @escaping () -> Void) {
+		Layout.main.searchingOnline = true
         onlineInviteState = .invited
         myGameData = nil
         opGameData = nil
-        
+		
+		let timeLimit: Double = [-1, 60, 300, 600][Layout.main.playSelection[2]]
+		let humansOnly = Layout.main.playSelection[1] == 2
         var possOp: Set<String> = []
         var myInvite = OnlineInviteData(timeLimit: timeLimit)
         
@@ -140,7 +142,8 @@ class FB {
                     self.onlineInviteState = .stopped
                     onlineRef.child(myID).removeValue()
                     onlineRef.removeAllObservers()
-                    onMatch()
+					Layout.main.searchingOnline = false
+					onMatch()
                 }
             })
         }
@@ -151,7 +154,7 @@ class FB {
             botTimer?.invalidate()
             onlineRef.removeAllObservers()
             onlineRef.child(myID).removeValue()
-            onCancel()
+			Layout.main.searchingOnline = false
             self.cancelOnlineSearch = nil
         }
         
@@ -257,7 +260,8 @@ class FB {
                         self.op = op
                         myGameRef.setValue(myData.toDict())
                         botTimer?.invalidate()
-                        onMatch()
+						Layout.main.searchingOnline = false
+						onMatch()
                     }
                     if myData.state == .active {
                         self.opGameData = opData

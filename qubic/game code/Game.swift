@@ -307,10 +307,10 @@ class Game: ObservableObject {
         moves.append(move)
         if movesBack != 0 { movesBack += 1 }
         UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+		if !player[turn^1].local {
+			FB.main.sendOnlineMove(p: move.p, time: times[turn].last ?? -1)
+		}
         getHints(for: moves, time: time)
-        if !player[turn^1].local {
-            FB.main.sendOnlineMove(p: move.p, time: times[turn].last ?? -1)
-        }
         guard movesBack == 0 else { return }
         board.addMove(move.p)
         currentMove = move
@@ -483,6 +483,7 @@ class Game: ObservableObject {
 	
 	@discardableResult func hideGameEndPopup() -> Bool {
 		if !gameEndPopup { return false }
+		FB.main.cancelOnlineSearch?()
 		animatingWin = false
 		Layout.main.halfBack = false
 		withAnimation {

@@ -14,7 +14,7 @@ class Common: Player {
         super.init(b: b, n: n, name: num == solveBoards[.common]?.count ?? 0 ? "common ?" : "common \(num+1)", color: 8,
                    lineP: [3: 1.0, -3: 1.0, 2: 1.0],
                    dirStats: Array(repeating: 1.0, count: 76),
-                   depth: 6,
+                   depth: 10,
                    w2BlockP: 1.0,
                    lineScore: [0,2,2,2,1,2,2,2,0], // my points on the left
                    bucketP: 0.8)

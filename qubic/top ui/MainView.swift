@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-let buildNumber = 30041
+let buildNumber = 30042
 let versionType: VersionType = .testFlight
 let solveButtonsEnabled = false
 
@@ -16,7 +16,6 @@ struct MainView: View {
     @ObservedObject var screen: ScreenObserver
     @ObservedObject var game: Game = Game.main
     @ObservedObject var layout = Layout.main
-    @State var searching: Bool = false
     
     // The delegate required by `MFMessageComposeViewController`
     let messageComposeDelegate = MessageDelegate()
@@ -75,12 +74,20 @@ struct MainView: View {
         }
         
         var playText: String {
-            if searching {
+			if layout.searchingOnline {
                 return "\u{2009}            "
             } else {
                 return layout.current == .playMenu ? "  start  " : "  \u{2009}\u{2009}\u{2009}play\u{2009}\u{2009}\u{2009}  "
             }
         }
+		
+		func playAction(view1: ViewState, view2: ViewState) {
+			if layout.shouldStartOnlineGame() {
+				FB.main.getOnlineMatch(onMatch: { layout.current = .play })
+			} else if layout.shouldSendInvite() {
+				presentMessageCompose()
+			} else { switchLayout(to: view1, or: view2) }
+		}
         
         return VStack(spacing: 0) {
             TrainView()
@@ -104,20 +111,10 @@ struct MainView: View {
             PlayView()
                 .modifier(LayoutModifier(for: .playView)) //, alignment: .bottom)
             ZStack {
-                mainButton(views: [.playMenu, .play], text: playText, color: .primary()) { v1,v2 in
-					if layout.current == .playMenu && layout.playSelection[0] == 1 && layout.playSelection[1] != 0 {
-                        searching = true
-						FB.main.getOnlineMatch(timeLimit: [-1, 60, 300, 600][layout.playSelection[2]], humansOnly: layout.playSelection[1] == 2, onMatch: {
-                            searching = false
-                            layout.current = .play
-                        }, onCancel: { searching = false })
-					} else if layout.current == .playMenu && layout.playSelection[0] == 2 {
-                        presentMessageCompose()
-                    } else { switchLayout(to: v1, or: v2) }
-                }
-                ActivityIndicator()
+				mainButton(views: [.playMenu, .play], text: playText, color: .primary(), action: playAction)
+				ActivityIndicator(color: .white, size: .large)
                     .offset(x: 1, y: 1)
-                    .opacity(searching ? 1 : 0)
+					.opacity(layout.searchingOnline ? 1 : 0)
             }
             .modifier(LayoutModifier(for: .playButton))
         }

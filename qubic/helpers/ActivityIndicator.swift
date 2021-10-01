@@ -10,11 +10,13 @@ import SwiftUI
 
 struct ActivityIndicator: UIViewRepresentable {
 //    @Binding var shouldAnimate: Bool
+	let color: UIColor
+	let size: UIActivityIndicatorView.Style
     
     func makeUIView(context: Context) -> UIActivityIndicatorView {
         let activityIndicator = UIActivityIndicatorView()
-        activityIndicator.color = .white
-        activityIndicator.style = .large
+		activityIndicator.color = color
+        activityIndicator.style = size
         activityIndicator.startAnimating()
         return activityIndicator
     }

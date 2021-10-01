@@ -87,12 +87,11 @@ func updateSolveBoardData() {
 	updateDailyBoards()
 	
 	if Storage.int(.solveBoardsVersion) < buildNumber {
-		// TODO remove after everyone's up to date:
-		if Storage.int(.solveBoardsVersion) < 33 {
-			transfer32Data()
-		} else if Storage.int(.solveBoardsVersion) < 34 {
-			transfer33Data()
-		}
+//		if Storage.int(.solveBoardsVersion) < 33 {
+//			transfer32Data()
+//		} else if Storage.int(.solveBoardsVersion) < 34 {
+//			transfer33Data()
+//		}
 		
 		setArray(for: .simple, length: simpleBoards.count)
 		setArray(for: .common, length: commonBoards.count)
@@ -102,69 +101,6 @@ func updateSolveBoardData() {
 	
 	verifyDailyData()
 	updateDailyData()
-	
-	func transfer32Data() {
-		// transfer daily stats
-		let today = Date.int
-		if var intDaily = Storage.array(.daily) as? [Int] {
-			var streak = Storage.int(.streak)
-			
-			if intDaily.count != 4 {
-				intDaily = [0,0,0,0]
-				streak = 0
-			}
-			
-			let offset = Storage.int(.lastDC) == today ? 0 : 1
-			var dailyHistory = Storage.dictionary(.dailyHistory) as? [String: [Bool]] ?? [:]
-			let boolDaily = intDaily.map { $0 >= today || $0 == 1 }
-			for daysBack in 0..<streak {
-				let date = String(today - daysBack - offset)
-				dailyHistory[date] = [true, true, true, true]
-			}
-			
-			dailyHistory[String(today)] = boolDaily
-			
-			Storage.set(dailyHistory, for: .dailyHistory)
-			UserDefaults.standard.removeObject(forKey: Key.daily.rawValue)
-		}
-		
-		// transfer simple boards
-		if let list = Storage.array(.simple) as? [Int] {
-			var solved = Storage.array(.solvedBoards) as? [String] ?? []
-			
-			for (i, n) in list.enumerated() where n != 0 {
-				solved.append(simpleBoards[i])
-			}
-			
-			Storage.set(solved, for: .solvedBoards)
-			// don't set simple bc the next step resets that
-		}
-		
-		// transfer training data
-		if let intTrain = Storage.array(.train) as? [Int] {
-			var boolTrain: [Bool] = []
-			for i in 0..<6 {
-				boolTrain.append(intTrain[i] != 0)
-			}
-			Storage.set(boolTrain, for: .train)
-		}
-	}
-	
-	func transfer33Data() {
-		// transfer daily stats
-		let today = Date.int
-		var boolDaily = UserDefaults.standard.array(forKey: Key.daily.rawValue) as? [Bool] ?? [false, false, false, false]
-		if boolDaily.count != 4 {
-			boolDaily = [false, false, false, false]
-		}
-		
-		var dailyHistory = Storage.dictionary(.dailyHistory) as? [String: [Bool]] ?? [:]
-		
-		dailyHistory[String(today)] = boolDaily
-		
-		Storage.set(dailyHistory, for: .dailyHistory)
-		UserDefaults.standard.removeObject(forKey: Key.daily.rawValue)
-	}
 	
 	func setArray(for type: Key, length: Int) {
 		let solved = Storage.array(.solvedBoards) as? [String] ?? []
@@ -178,6 +114,69 @@ func updateSolveBoardData() {
 		
 		Storage.set(list, for: type)
 	}
+	
+//	func transfer32Data() {
+//		// transfer daily stats
+//		let today = Date.int
+//		if var intDaily = Storage.array(.daily) as? [Int] {
+//			var streak = Storage.int(.streak)
+//
+//			if intDaily.count != 4 {
+//				intDaily = [0,0,0,0]
+//				streak = 0
+//			}
+//
+//			let offset = Storage.int(.lastDC) == today ? 0 : 1
+//			var dailyHistory = Storage.dictionary(.dailyHistory) as? [String: [Bool]] ?? [:]
+//			let boolDaily = intDaily.map { $0 >= today || $0 == 1 }
+//			for daysBack in 0..<streak {
+//				let date = String(today - daysBack - offset)
+//				dailyHistory[date] = [true, true, true, true]
+//			}
+//
+//			dailyHistory[String(today)] = boolDaily
+//
+//			Storage.set(dailyHistory, for: .dailyHistory)
+//			UserDefaults.standard.removeObject(forKey: Key.daily.rawValue)
+//		}
+//
+//		// transfer simple boards
+//		if let list = Storage.array(.simple) as? [Int] {
+//			var solved = Storage.array(.solvedBoards) as? [String] ?? []
+//
+//			for (i, n) in list.enumerated() where n != 0 {
+//				solved.append(simpleBoards[i])
+//			}
+//
+//			Storage.set(solved, for: .solvedBoards)
+//			// don't set simple bc the next step resets that
+//		}
+//
+//		// transfer training data
+//		if let intTrain = Storage.array(.train) as? [Int] {
+//			var boolTrain: [Bool] = []
+//			for i in 0..<6 {
+//				boolTrain.append(intTrain[i] != 0)
+//			}
+//			Storage.set(boolTrain, for: .train)
+//		}
+//	}
+//
+//	func transfer33Data() {
+//		// transfer daily stats
+//		let today = Date.int
+//		var boolDaily = UserDefaults.standard.array(forKey: Key.daily.rawValue) as? [Bool] ?? [false, false, false, false]
+//		if boolDaily.count != 4 {
+//			boolDaily = [false, false, false, false]
+//		}
+//
+//		var dailyHistory = Storage.dictionary(.dailyHistory) as? [String: [Bool]] ?? [:]
+//
+//		dailyHistory[String(today)] = boolDaily
+//
+//		Storage.set(dailyHistory, for: .dailyHistory)
+//		UserDefaults.standard.removeObject(forKey: Key.daily.rawValue)
+//	}
 }
 
 func verifyDailyData() {

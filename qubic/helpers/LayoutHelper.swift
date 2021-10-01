@@ -130,6 +130,7 @@ class Layout: ObservableObject {
 	@Published var trainSelection: [Int] = Storage.array(.lastTrainMenu) as? [Int] ?? [0,1,0]
 	@Published var solveSelection: [Int] = [0,0]
 	@Published var playSelection: [Int] = Storage.array(.lastPlayMenu) as? [Int] ?? [1,1,0,0]
+	@Published var searchingOnline: Bool = false
 //	@Published var hue: CGFloat = 0.59
 //	@Published var sat: CGFloat = 1.0
     var total: CGFloat = 2400
@@ -284,6 +285,13 @@ class Layout: ObservableObject {
         }
     }
     
+	func shouldStartOnlineGame() -> Bool {
+		(current == .playMenu || current == .play) && playSelection[0] == 1 && playSelection[1] != 0
+	}
+	
+	func shouldSendInvite() -> Bool {
+		current == .playMenu && playSelection[0] == 2
+	}
 }
 
 

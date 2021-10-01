@@ -11,6 +11,7 @@ import SceneKit
 
 struct GameView: View {
     @ObservedObject var game: Game = Game.main
+	@ObservedObject var layout: Layout = Layout.main
     @State var cubeHeight: CGFloat = 10
     @State var rotateMe = false
     @State var isRotated = false
@@ -130,7 +131,19 @@ struct GameView: View {
 				Button(rematchText) { animateGameChange(rematch: true) }
 			}
 			if !(game.mode == .local || (game.mode == .daily && game.solveBoard == 3) || game.mode == .cubist) {
-				Button(newGameText) { animateGameChange(rematch: false) }
+				ZStack {
+					Button(newGameText) {
+						if layout.shouldStartOnlineGame() {
+							FB.main.getOnlineMatch(onMatch: { animateGameChange(rematch: false) })
+						} else {
+							animateGameChange(rematch: false)
+						}
+					}
+					.opacity(layout.searchingOnline ? 0 : 1)
+					ActivityIndicator(color: .label, size: .medium)
+						.offset(x: 1, y: 1)
+						.opacity(layout.searchingOnline ? 1 : 0)
+				}
 			}
 			Spacer()
 			Spacer()

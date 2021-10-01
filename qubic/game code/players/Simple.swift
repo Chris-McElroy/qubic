@@ -14,7 +14,7 @@ class Simple: Player {
         super.init(b: b, n: n, name: num == solveBoards[.simple]?.count ?? 0 ? "simple ?" : "simple \(num+1)", color: 7,
                    lineP: [3: 1.0, -3: 1.0, 2: 1.0],
                    dirStats: Array(repeating: 1.0, count: 76),
-                   depth: 6,
+                   depth: 7,
                    w2BlockP: 1.0,
                    lineScore: [0,2,2,2,1,2,2,2,0], // my points on the left
                    bucketP: 0.8)
