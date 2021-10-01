@@ -50,7 +50,7 @@ struct MainView: View {
     
     private var top: some View {
         VStack(spacing: 0) {
-            Text("4Play beta")
+			Text("4Play" + (versionType != .appStore ? " beta" : ""))
                 .font(.custom("Oligopoly Regular", size: 24))
                 .padding(.top, 10)
                 .modifier(LayoutModifier(for: .title))

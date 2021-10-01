@@ -26,44 +26,49 @@ struct PlayView: View {
         if layout.current == .play {
             GameView()
                 .onAppear { Game.main.load(mode: mode, turn: turn, hints: hints, time: time) }
-        } else if layout.current == .playMenu {
-            ZStack {
-                VStack(spacing: 0) {
-                    Spacer()
-                    HPicker(content: $menuText, dim: (90, 37), selected: $layout.playSelection, action: onSelection)
-                        .frame(height: 165)
-                }
-                VStack(spacing: 0) {
-                    Spacer()
-                    Spacer()
-                    Button(action: { tip = PlayView.tips.filter({ $0 != tip }).randomElement() ?? "" }) {
-                        VStack(spacing: 0) {
-                            Text("tip")
-                                .bold()
-                                .font(.custom("Oligopoly Regular", size: 16))
-                                .padding(.top, 20)
-                            Fill(3)
-                            Text(tip)
-                                .padding(.horizontal, 20)
-                                .lineLimit(10)
-                                .multilineTextAlignment(.center)
-                                .frame(height: 120, alignment: .top)
-                        }.background(Fill())
-                    }
-                    .buttonStyle(Solid())
-                    Spacer()
-                    Fill(100)
-                        .opacity(mode == .local ? 0.0 : 0.8)
-                        .animation(.linear(duration: 0.15))
-                    Fill(74)
-                        .opacity(mode != .invite ? 0.0 : 0.8)
-                        .animation(.linear(duration: 0.15))
-                    Blank(37)
-                }
-            }.onAppear {
-//                FB.main.finishedOnlineGame(with: .error) // not sure which case this covered
-                tip = PlayView.tips.filter({ $0 != tip }).randomElement() ?? ""
-            }
+		} else {
+			VStack {
+				Spacer()
+				if layout.current == .playMenu {
+					ZStack {
+						VStack(spacing: 0) {
+							Spacer()
+							HPicker(content: $menuText, dim: (90, 37), selected: $layout.playSelection, action: onSelection)
+								.frame(height: 165)
+						}
+						VStack(spacing: 0) {
+							Spacer()
+							Spacer()
+							Button(action: { tip = PlayView.tips.filter({ $0 != tip }).randomElement() ?? "" }) {
+								VStack(spacing: 0) {
+									Text("tip")
+										.bold()
+										.font(.custom("Oligopoly Regular", size: 16))
+										.padding(.top, 20)
+									Fill(3)
+									Text(tip)
+										.padding(.horizontal, 20)
+										.lineLimit(10)
+										.multilineTextAlignment(.center)
+										.frame(height: 120, alignment: .top)
+								}.background(Fill())
+							}
+							.buttonStyle(Solid())
+							Spacer()
+							Fill(100)
+								.opacity(mode == .local ? 0.0 : 0.8)
+								.animation(.linear(duration: 0.15))
+							Fill(74)
+								.opacity(mode != .invite ? 0.0 : 0.8)
+								.animation(.linear(duration: 0.15))
+							Blank(37)
+						}
+					}.onAppear {
+		//                FB.main.finishedOnlineGame(with: .error) // not sure which case this covered
+						tip = PlayView.tips.filter({ $0 != tip }).randomElement() ?? ""
+					}
+				}
+			}
         }
     }
     

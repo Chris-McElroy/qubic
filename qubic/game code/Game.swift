@@ -145,7 +145,7 @@ class Game: ObservableObject {
         undoOpacity = .clear
         prevOpacity = .clear
         nextOpacity = .clear
-        gameState = .active
+        gameState = .new
         currentMove = nil
         moves = []
         totalTime = time
@@ -273,6 +273,7 @@ class Game: ObservableObject {
             lastStart[turn] = Date.now+2
             timers.append(Timer.every(0.1, run: getCurrentTime))
         }
+		gameState = .active
         player[turn].move()
     }
     

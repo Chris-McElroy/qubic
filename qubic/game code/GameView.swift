@@ -383,14 +383,29 @@ struct GameView: View {
                         .padding(.horizontal, 5)
                         .foregroundColor(.white)
                         .frame(minWidth: 140, maxWidth: 160, minHeight: 40)
-                        .background(Rectangle().foregroundColor(color))
+						.background(Rectangle()
+										.foregroundColor(color)
+										.opacity(game.realTurn == turn || game.gameState == .new ? 1 : 0.7)
+						)
                         .cornerRadius(rounded ? 100 : 4)
                         .shadow(color: glow, radius: 8, y: 0)
                         .animation(.easeIn(duration: 0.3))
                         .rotation3DEffect(game.showHintFor == turn^game.myTurn^1 ? .radians(.pi/2) : .zero, axis: (x: 1, y: 0, z: 0), anchor: .top)
                 }
-                Text(String(format: "%01d:%02d", (game.currentTimes[turn]/60) % 100, game.currentTimes[turn] % 60))
-                    .opacity(timerOpacity.rawValue)
+				ZStack {
+					Text(String(format: "%01d:%02d", (game.currentTimes[turn]/60) % 100, game.currentTimes[turn] % 60))
+						.opacity(timerOpacity.rawValue)
+					if game.player[turn] as? User == nil {
+						HStack {
+							if turn == 1 { Spacer() }
+							ActivityIndicator(color: .label, size: .medium)
+								.opacity(game.realTurn == turn && game.gameState == .active ? 1 : 0)
+								.padding(.horizontal, 5)
+							if turn == 0 { Spacer() }
+						}
+					}
+				}
+				.frame(minWidth: 140, maxWidth: 160, minHeight: 40)
             }
         }
     }

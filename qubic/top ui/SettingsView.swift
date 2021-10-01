@@ -58,6 +58,7 @@ struct SettingsView: View {
                     Fill(12)
                     HPicker(content: .constant(picker2Content), dim: (50,65), selected: $selected2, action: onSelection2)
                         .frame(height: 65)
+						.zIndex(-1)
 //                    Fill(102)
 //                    HPicker(content: .constant(SettingsView.boardStyleContent),
 //                            dim: (80,30), selected: $style, action: setDots)
@@ -157,7 +158,10 @@ struct SettingsView: View {
         if component == colorComp {
             Storage.set(row, for: .color)
             FB.main.updateMyData()
-			UIApplication.shared.setAlternateIconName(["orange", "red", "pink", "purple", nil, "cyan", "lime", "green", "gold"][row])
+			let newIcon = ["orange", "red", "pink", "purple", nil, "cyan", "lime", "green", "gold"][row]
+			if UIApplication.shared.alternateIconName != newIcon {
+				UIApplication.shared.setAlternateIconName(newIcon)
+			}
         }
     }
     
