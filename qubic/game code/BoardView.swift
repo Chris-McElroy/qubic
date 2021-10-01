@@ -210,9 +210,9 @@ class BoardScene: ObservableObject {
 			wentSlow = false
 		}
 		
-		let lastSpeed = rotationSpeed
+		let lastSpeed = abs(rotationSpeed)
 		rotationSpeed = (angle - lastRotationAngle)/CGFloat(lastRotationTime.distance(to: time) + 0.000001)
-		if !wentSlow && abs(lastSpeed) < 500 && abs(rotationSpeed) < 500 { wentSlow = true }
+		if !wentSlow && max(lastSpeed, abs(rotationSpeed)) < 200 && min(lastSpeed, abs(rotationSpeed)) > 0.01 { wentSlow = true }
 		lastRotationTime = time
 		lastRotationAngle = angle
 		var nextRotation = rotationStart
@@ -233,9 +233,9 @@ class BoardScene: ObservableObject {
 		let endRotation = SCNVector4(0, rotationStart.y, 0, endW)
 		let duration = max(0.12, abs(Double(endW - base.rotation.w)/Double(rotationSpeed/150 + 0.00001)))
 		if newSwiping || (duration < 0.4 || abs(rotationSpeed) > 500) {
-			let rotateAction = SCNAction.rotate(toAxisAngle: endRotation, duration: 100*duration) //max(0.2, Double(100/abs(rotationSpeed))))
+			let rotateAction = SCNAction.rotate(toAxisAngle: endRotation, duration: duration) //max(0.2, Double(100/abs(rotationSpeed))))
 			rotateAction.timingMode = .easeOut
-			print(duration)
+//			print(duration)
 			base.runAction(rotateAction)
 		}
 		mostRecentRotate = nil

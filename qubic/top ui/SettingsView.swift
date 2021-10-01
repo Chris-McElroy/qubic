@@ -100,7 +100,7 @@ struct SettingsView: View {
                             Blank(50)
                             Text("arrow side").frame(height: 20)
                             Blank(50)
-                            Text("color").frame(height: 20)
+                            Text("color / app icon").frame(height: 20)
                             Blank(50)
                         }
                         Text("username").frame(height: 20)
@@ -157,6 +157,7 @@ struct SettingsView: View {
         if component == colorComp {
             Storage.set(row, for: .color)
             FB.main.updateMyData()
+			UIApplication.shared.setAlternateIconName(["orange", "red", "pink", "purple", nil, "cyan", "lime", "green", "gold"][row])
         }
     }
     

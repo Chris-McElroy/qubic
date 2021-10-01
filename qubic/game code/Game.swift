@@ -247,12 +247,16 @@ class Game: ObservableObject {
 		case .oracle: newMode = .cubist
 		default: newMode = mostRecentGame.0
 		}
+		if newMode.train && mostRecentGame.0 != .cubist {
+			Layout.main.trainSelection[0] += 1
+		}
 		
 		var newBoardNum: Int = mostRecentGame.1
 		if newMode.solve {
 			let key: Key = [.simple: .simple, .common: .common, .tricky: .tricky][newMode, default: .daily]
 			if newBoardNum < solveBoardCount(key) {
 				newBoardNum += 1
+				Layout.main.solveSelection[0] += 1
 			}
 		}
 		

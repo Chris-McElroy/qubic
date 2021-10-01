@@ -127,8 +127,11 @@ class Layout: ObservableObject {
     @Published var newDaily = Storage.int(.lastDC) != Date.int
 	@Published var halfBack: Bool = false
 	@Published var updateAvailable: Bool = false
-//    @Published var hue: CGFloat = 0
-//    @Published var baseColor: CGFloat = 0
+	@Published var trainSelection: [Int] = Storage.array(.lastTrainMenu) as? [Int] ?? [0,1,0]
+	@Published var solveSelection: [Int] = [0,0]
+	@Published var playSelection: [Int] = Storage.array(.lastPlayMenu) as? [Int] ?? [1,1,0,0]
+//	@Published var hue: CGFloat = 0.59
+//	@Published var sat: CGFloat = 1.0
     var total: CGFloat = 2400
     var fullHeight: CGFloat = 800
     var safeHeight: CGFloat = 800

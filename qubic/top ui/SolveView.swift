@@ -10,12 +10,11 @@ import SwiftUI
 
 struct SolveView: View {
     @ObservedObject var layout = Layout.main
-    @State var selected: [Int] = [0,0]
     @State var menuText: [[Any]] = getMenuText()
     @State var menuUpdateTimer: Timer?
     
     var mode: GameMode {
-        switch selected[1] {
+        switch layout.solveSelection[1] {
         case 0: return .daily
         case 1: return .simple
         case 2: return .common
@@ -23,11 +22,11 @@ struct SolveView: View {
         }
     }
     var boardNum: Int {
-        switch selected[1] {
-        case 0: return selected[0] - 0
-		case 1: return selected[0] - solveBoardCount(.daily)
-        case 2: return selected[0] - (solveBoardCount(.daily) + (solveBoardCount(.simple) + 1))
-		default: return selected[0] - (solveBoardCount(.daily) + (solveBoardCount(.simple) + 1) + (solveBoardCount(.common) + 1))
+        switch layout.solveSelection[1] {
+        case 0: return layout.solveSelection[0] - 0
+		case 1: return layout.solveSelection[0] - solveBoardCount(.daily)
+        case 2: return layout.solveSelection[0] - (solveBoardCount(.daily) + (solveBoardCount(.simple) + 1))
+		default: return layout.solveSelection[0] - (solveBoardCount(.daily) + (solveBoardCount(.simple) + 1) + (solveBoardCount(.common) + 1))
         }
     }
     
@@ -37,7 +36,7 @@ struct SolveView: View {
                 GameView()
                     .onAppear { Game.main.load(mode: mode, boardNum: boardNum) }
             } else if layout.current == .solveMenu {
-                HPicker(content: $menuText, dim: (100, 40), selected: $selected, action: onSelection)
+                HPicker(content: $menuText, dim: (100, 40), selected: $layout.solveSelection, action: onSelection)
 					.frame(height: 80)
                     .opacity(layout.current == .solveMenu ? 1 : 0)
                     .onAppear { refreshMenu() }
@@ -61,17 +60,17 @@ struct SolveView: View {
     func onSelection(row: Int, component: Int) {
         if component == 1 {
             switch row {
-            case 0: selected[0] = firstBoard(of: .daily)
-            case 1: selected[0] = solveBoardCount(.daily) + firstBoard(of: .simple)
-            case 2: selected[0] = solveBoardCount(.daily) + (solveBoardCount(.simple) + 1) + firstBoard(of: .common)
-            case 3: selected[0] = solveBoardCount(.daily) + (solveBoardCount(.simple) + 1) + (solveBoardCount(.common) + 1) + firstBoard(of: .tricky)
+            case 0: layout.solveSelection[0] = firstBoard(of: .daily)
+            case 1: layout.solveSelection[0] = solveBoardCount(.daily) + firstBoard(of: .simple)
+            case 2: layout.solveSelection[0] = solveBoardCount(.daily) + (solveBoardCount(.simple) + 1) + firstBoard(of: .common)
+            case 3: layout.solveSelection[0] = solveBoardCount(.daily) + (solveBoardCount(.simple) + 1) + (solveBoardCount(.common) + 1) + firstBoard(of: .tricky)
 			default: break
             }
         } else {
-            if row < solveBoardCount(.daily) { selected[1] = 0 }
-            else if row < solveBoardCount(.daily) + (solveBoardCount(.simple) + 1) { selected[1] = 1 }
-            else if row < solveBoardCount(.daily) + (solveBoardCount(.simple) + 1) + (solveBoardCount(.common) + 1) { selected[1] = 2 }
-            else { selected[1] = 3 }
+            if row < solveBoardCount(.daily) { layout.solveSelection[1] = 0 }
+            else if row < solveBoardCount(.daily) + (solveBoardCount(.simple) + 1) { layout.solveSelection[1] = 1 }
+            else if row < solveBoardCount(.daily) + (solveBoardCount(.simple) + 1) + (solveBoardCount(.common) + 1) { layout.solveSelection[1] = 2 }
+            else { layout.solveSelection[1] = 3 }
         }
     }
     

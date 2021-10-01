@@ -45,7 +45,7 @@ class FB {
     }
 	
 	func startActiveTimer() {
-		let myActiveRef = ref.child("stats/\(myID)/active")
+		let myActiveRef = ref.child("active/\(myID)")
 		Timer.every(30, run: {
 			myActiveRef.setValue(Date.ms)
 		})

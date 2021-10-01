@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-let buildNumber = 30037
+let buildNumber = 30039
 let versionType: VersionType = .testFlight
 let solveButtonsEnabled = false
 
@@ -16,14 +16,13 @@ struct MainView: View {
     @ObservedObject var screen: ScreenObserver
     @ObservedObject var game: Game = Game.main
     @ObservedObject var layout = Layout.main
-    @State var playSelection: [Int] = Storage.array(.lastPlayMenu) as? [Int] ?? [1,1,0,0]
     @State var searching: Bool = false
     
     // The delegate required by `MFMessageComposeViewController`
     let messageComposeDelegate = MessageDelegate()
     
     var body: some View {
-        VStack(alignment: .center, spacing: 0) {
+		VStack(alignment: .center, spacing: 0) {
             Spacer().modifier(LayoutModifier(for: .topSpacer))
             top.zIndex(9)
             mainStack.zIndex(1)
@@ -59,9 +58,9 @@ struct MainView: View {
             cube
                 .onTapGesture(count: 2) { self.cube.resetCube() }
                 .modifier(LayoutModifier(for: .cube))
-            Fill()
-                .modifier(LayoutModifier(for: .mainSpacer))
-                .zIndex(2)
+			Fill()
+				.modifier(LayoutModifier(for: .mainSpacer))
+				.zIndex(2)
         }
         .background(Fill())
     }
@@ -102,17 +101,17 @@ struct MainView: View {
                     .opacity(layout.newDaily ? 1 : 0)
             }
             .modifier(LayoutModifier(for: .solveButton))
-            PlayView(selected: $playSelection)
+            PlayView()
                 .modifier(LayoutModifier(for: .playView)) //, alignment: .bottom)
             ZStack {
                 mainButton(views: [.playMenu, .play], text: playText, color: .primary()) { v1,v2 in
-                    if layout.current == .playMenu && playSelection[0] == 1 && playSelection[1] != 0 {
+					if layout.current == .playMenu && layout.playSelection[0] == 1 && layout.playSelection[1] != 0 {
                         searching = true
-                        FB.main.getOnlineMatch(timeLimit: [-1, 60, 300, 600][playSelection[2]], humansOnly: playSelection[1] == 2, onMatch: {
+						FB.main.getOnlineMatch(timeLimit: [-1, 60, 300, 600][layout.playSelection[2]], humansOnly: layout.playSelection[1] == 2, onMatch: {
                             searching = false
                             layout.current = .play
                         }, onCancel: { searching = false })
-                    } else if layout.current == .playMenu && playSelection[0] == 2 {
+					} else if layout.current == .playMenu && layout.playSelection[0] == 2 {
                         presentMessageCompose()
                     } else { switchLayout(to: v1, or: v2) }
                 }

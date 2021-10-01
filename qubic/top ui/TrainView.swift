@@ -10,7 +10,6 @@ import SwiftUI
 
 struct TrainView: View {
     @ObservedObject var layout = Layout.main
-    @State var selected: [Int] = Storage.array(.lastTrainMenu) as? [Int] ?? [0,1,0]
     let beaten = Storage.array(.train) as? [Bool] ?? [false, false, false, false, false, false]
     
     var body: some View {
@@ -20,7 +19,7 @@ struct TrainView: View {
         } else if layout.current == .trainMenu {
             VStack(spacing: 0) {
                 Spacer()
-                HPicker(content: .constant(menuText), dim: (90, 55), selected: $selected, action: onSelection)
+				HPicker(content: .constant(menuText), dim: (90, 55), selected: $layout.trainSelection, action: onSelection)
                     .frame(height: 180)
                     .opacity(layout.current == .trainMenu ? 1 : 0)
             }
@@ -28,7 +27,7 @@ struct TrainView: View {
     }
     
     func onSelection(row: Int, component: Int) {
-        var newTrainMenu = selected
+		var newTrainMenu = layout.trainSelection
         newTrainMenu[1] = 1
         Storage.set(newTrainMenu, for: .lastTrainMenu)
     }
@@ -45,7 +44,7 @@ struct TrainView: View {
     }
     
     var mode: GameMode {
-        switch selected[0] {
+		switch layout.trainSelection[0] {
         case 0: return .novice
         case 1: return .defender
         case 2: return .warrior
@@ -56,7 +55,7 @@ struct TrainView: View {
     }
     
     var turn: Int? {
-        switch selected[1] {
+        switch layout.trainSelection[1] {
         case 0: return 0
         case 2: return 1
         default: return nil
@@ -64,7 +63,7 @@ struct TrainView: View {
     }
     
     var hints: Bool {
-        selected[2] == 0
+		layout.trainSelection[2] == 0
     }
     
 //    var difficultyPicker: some View {

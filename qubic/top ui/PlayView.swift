@@ -11,7 +11,6 @@ import MessageUI
 
 struct PlayView: View {
     @ObservedObject var layout = Layout.main
-    @Binding var selected: [Int]
     static let onlineMenuText = [["local", "online", "invite"],
                                  ["bots", "auto", "humans"],
                                  ["untimed", "1 min", "5 min", "10 min"],
@@ -31,7 +30,7 @@ struct PlayView: View {
             ZStack {
                 VStack(spacing: 0) {
                     Spacer()
-                    HPicker(content: $menuText, dim: (90, 37), selected: $selected, action: onSelection)
+                    HPicker(content: $menuText, dim: (90, 37), selected: $layout.playSelection, action: onSelection)
                         .frame(height: 165)
                 }
                 VStack(spacing: 0) {
@@ -69,7 +68,7 @@ struct PlayView: View {
     }
     
     var mode: GameMode {
-        switch selected[0] {
+        switch layout.playSelection[0] {
         case 0: return .local
         case 1: return .online
         default: return .invite
@@ -77,7 +76,7 @@ struct PlayView: View {
     }
     
     var time: Double? {
-        switch selected[2] {
+        switch layout.playSelection[2] {
         case 0: return nil
         case 1: return 60
         case 2: return 300
@@ -88,7 +87,7 @@ struct PlayView: View {
     var turn: Int? {
         if mode == .online { return FB.main.myGameData?.myTurn }
         
-        switch selected[1] {
+        switch layout.playSelection[1] {
         case 0: return 0
         case 2: return 1
         default: return nil
@@ -96,7 +95,7 @@ struct PlayView: View {
     }
     
     var hints: Bool {
-        selected[3] == 0 && mode != .online
+		layout.playSelection[3] == 0 && mode != .online
     }
     
     func onSelection(row: Int, component: Int) {
@@ -104,7 +103,7 @@ struct PlayView: View {
         if component == 0 {
             menuText = mode == .online ? PlayView.onlineMenuText : PlayView.altMenuText
         }
-        var newPlayMenu = selected
+        var newPlayMenu = layout.playSelection
         newPlayMenu[0] = 1
         newPlayMenu[1] = 1
         Storage.set(newPlayMenu, for: .lastPlayMenu)
@@ -192,6 +191,6 @@ struct PlayView: View {
 
 struct PlayView_Previews: PreviewProvider {
     static var previews: some View {
-        PlayView(selected: .constant([0,0,0]))
+        PlayView()
     }
 }
