@@ -17,7 +17,7 @@ struct BoardView: UIViewRepresentable {
     }
 }
 
-class BoardScene: ObservableObject {
+class BoardScene {
     static let main = BoardScene()
     
     let view =  SCNView()
@@ -32,13 +32,11 @@ class BoardScene: ObservableObject {
     }
 	var mostRecentRotate: CGPoint? = nil
 	var rotationStart: SCNVector4 = SCNVector4(0,0,0,0)
-	var rotationSpeed: CGFloat = 0
-	var lastRotationAngle: CGFloat = 0
-	var lastRotationTime: Date = Date()
-	var rotationObserver: NSKeyValueObservation? = nil
-	var rotatedAway: Bool = false
-	var wentSlow: Bool = true
-	@Published var newSwiping = true
+	var mostRecentTap: Date? = nil
+//	var rotationSpeed: CGFloat = 0
+//	var lastRotationAngle: CGFloat = 0
+//	var lastRotationTime: Date = Date()
+//	var wentSlow: Bool = true
 	
     init() {
         scene.rootNode.addChildNode(SceneHelper.makeCamera())
@@ -130,7 +128,15 @@ class BoardScene: ObservableObject {
         guard Game.main.cancelBack() else { return }
         let hit = gestureRecognize.location(in: view)
         let hitResults = view.hitTest(hit, options: [:])
-        guard let result = hitResults.first?.node else { return }
+        guard let result = hitResults.first?.node else {
+			if let oldTap = mostRecentTap, oldTap.distance(to: Date()) < 0.5 {
+				resetRotation()
+				mostRecentTap = nil
+			} else {
+				mostRecentTap = Date()
+			}
+			return
+		}
         if let p = spaces.firstIndex(where: { $0.childNodes.contains(result) || $0 == result }) {
             let turn = Game.main.gameState == .active ? Game.main.turn : Game.main.myTurn
             if Game.main.gameState == .active && Game.main.nextOpacity == .full {
@@ -207,14 +213,14 @@ class BoardScene: ObservableObject {
 		if start != mostRecentRotate {
 			mostRecentRotate = start
 			rotationStart = base.rotation
-			wentSlow = false
+//			wentSlow = false
 		}
 		
-		let lastSpeed = abs(rotationSpeed)
-		rotationSpeed = (angle - lastRotationAngle)/CGFloat(lastRotationTime.distance(to: time) + 0.000001)
-		if !wentSlow && max(lastSpeed, abs(rotationSpeed)) < 200 && min(lastSpeed, abs(rotationSpeed)) > 0.01 { wentSlow = true }
-		lastRotationTime = time
-		lastRotationAngle = angle
+//		let lastSpeed = abs(rotationSpeed)
+//		rotationSpeed = (angle - lastRotationAngle)/CGFloat(lastRotationTime.distance(to: time) + 0.000001)
+//		if !wentSlow && max(lastSpeed, abs(rotationSpeed)) < 200 && min(lastSpeed, abs(rotationSpeed)) > 0.01 { wentSlow = true }
+//		lastRotationTime = time
+//		lastRotationAngle = angle
 		var nextRotation = rotationStart
 		nextRotation.w += Float(angle/150)*nextRotation.y
 		let rotateAction = SCNAction.rotate(toAxisAngle: nextRotation, duration: 0.1)
@@ -222,24 +228,40 @@ class BoardScene: ObservableObject {
 		base.runAction(rotateAction)
 	}
 	
+	func resetRotation() {
+		base.removeAllActions()
+		Game.main.timers.append(Timer.after(0.1, run: {
+			let newW = (self.base.rotation.w / (.pi/2)).rounded(.toNearestOrAwayFromZero) * .pi/2
+			let distance = Double(abs(self.base.rotation.w - newW))
+			let newRot = SCNVector4(0, self.base.rotation.y, 0, newW)
+			if distance > 0.001 {
+				let rotateAction = SCNAction.rotate(toAxisAngle: newRot, duration: max(0.1, distance/3))
+				rotateAction.timingMode = .easeInEaseOut
+				self.base.runAction(rotateAction)
+			}
+		}))
+	}
+	
 	func endRotate() {
-		if mostRecentRotate == nil { return }
-		if newSwiping && wentSlow { return }
-		let goingPos = (rotationSpeed > 0) == (base.rotation.y > 0)
-		let minRot = base.rotation.w/(.pi/2) + (goingPos ? 0.5 : -0.5)
-		let alreadyPos = minRot > 0
-		let roundingRule: FloatingPointRoundingRule = goingPos == alreadyPos ? .awayFromZero : .towardZero
-		let endW = minRot.rounded(roundingRule)*(.pi/2)
-		let endRotation = SCNVector4(0, rotationStart.y, 0, endW)
-		let duration = max(0.12, abs(Double(endW - base.rotation.w)/Double(rotationSpeed/150 + 0.00001)))
-		if newSwiping || (duration < 0.4 || abs(rotationSpeed) > 500) {
-			let rotateAction = SCNAction.rotate(toAxisAngle: endRotation, duration: duration) //max(0.2, Double(100/abs(rotationSpeed))))
-			rotateAction.timingMode = .easeOut
-//			print(duration)
-			base.runAction(rotateAction)
-		}
 		mostRecentRotate = nil
 	}
+//		if mostRecentRotate == nil { return }
+//		if newSwiping && wentSlow { return }
+//		let goingPos = (rotationSpeed > 0) == (base.rotation.y > 0)
+//		let minRot = base.rotation.w/(.pi/2) + (goingPos ? 0.5 : -0.5)
+//		let alreadyPos = minRot > 0
+//		let roundingRule: FloatingPointRoundingRule = goingPos == alreadyPos ? .awayFromZero : .towardZero
+//		let endW = minRot.rounded(roundingRule)*(.pi/2)
+//		let endRotation = SCNVector4(0, rotationStart.y, 0, endW)
+//		let duration = max(0.12, abs(Double(endW - base.rotation.w)/Double(rotationSpeed/150 + 0.00001)))
+//		if newSwiping || (duration < 0.4 || abs(rotationSpeed) > 500) {
+//			let rotateAction = SCNAction.rotate(toAxisAngle: endRotation, duration: duration) //max(0.2, Double(100/abs(rotationSpeed))))
+//			rotateAction.timingMode = .easeOut
+////			print(duration)
+//			base.runAction(rotateAction)
+//		}
+//		mostRecentRotate = nil
+//	}
     
 //    func moveCube(move: Int, color: UIColor) -> TimeInterval {
 //        let cube = moves[move]

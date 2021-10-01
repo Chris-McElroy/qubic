@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-let buildNumber = 30042
+let buildNumber = 30043
 let versionType: VersionType = .testFlight
 let solveButtonsEnabled = false
 
@@ -50,7 +50,7 @@ struct MainView: View {
     
     private var top: some View {
         VStack(spacing: 0) {
-			Text("4Play" + (versionType != .appStore ? " beta" : ""))
+			Text("4Play" + (versionType == .testFlight ? " beta" : ""))
                 .font(.custom("Oligopoly Regular", size: 24))
                 .padding(.top, 10)
                 .modifier(LayoutModifier(for: .title))

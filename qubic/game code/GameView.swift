@@ -61,7 +61,7 @@ struct GameView: View {
 		.onEnded { drag in
 			let h = drag.translation.height
 			let w = drag.translation.width
-			if abs(w/h) < 1 {
+			if abs(w/h) < 1 && BoardScene.main.mostRecentRotate == nil {
 				if h > 0 {
 					Game.main.goBack()
 				} else {
@@ -392,20 +392,20 @@ struct GameView: View {
                         .animation(.easeIn(duration: 0.3))
                         .rotation3DEffect(game.showHintFor == turn^game.myTurn^1 ? .radians(.pi/2) : .zero, axis: (x: 1, y: 0, z: 0), anchor: .top)
                 }
-				ZStack {
-					Text(String(format: "%01d:%02d", (game.currentTimes[turn]/60) % 100, game.currentTimes[turn] % 60))
-						.opacity(timerOpacity.rawValue)
-					if game.player[turn] as? User == nil {
-						HStack {
-							if turn == 1 { Spacer() }
-							ActivityIndicator(color: .label, size: .medium)
-								.opacity(game.realTurn == turn && game.gameState == .active ? 1 : 0)
-								.padding(.horizontal, 5)
-							if turn == 0 { Spacer() }
-						}
-					}
-				}
-				.frame(minWidth: 140, maxWidth: 160, minHeight: 40)
+//				ZStack {
+				Text(String(format: "%01d:%02d", (game.currentTimes[turn]/60) % 100, game.currentTimes[turn] % 60))
+					.opacity(timerOpacity.rawValue)
+//					if game.player[turn] as? User == nil {
+//						HStack {
+//							if turn == 1 { Spacer() }
+//							ActivityIndicator(color: .label, size: .medium)
+//								.opacity(game.realTurn == turn && game.gameState == .active ? 1 : 0)
+//								.padding(.horizontal, 5)
+//							if turn == 0 { Spacer() }
+//						}
+//					}
+//				}
+//				.frame(minWidth: 140, maxWidth: 160, minHeight: 40)
             }
         }
     }
