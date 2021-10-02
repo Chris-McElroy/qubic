@@ -133,6 +133,7 @@ struct PlayView: View {
 		"the 8 corner moves and 8 central moves are the best starting points!",
 		"the earliest possible 2nd order win begins on the 4th move!",
 		"swipe side to side in game to rotate the board!",
+		"if you get the game board off-axis, you can double tap the background to reset it!",
 		"when it’s your turn, your name will glow!",
 		"if your opponent has your color, their color will appear different for you!",
 		"once you beat a solve board, its name will show up underlined!",

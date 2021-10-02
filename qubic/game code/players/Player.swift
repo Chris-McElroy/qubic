@@ -12,9 +12,9 @@ class Player {
     let b: Board
     let n: Int
     let o: Int
-    let name: String
+    var name: String // TODO change this and rounded back to let
     var color: Int
-    let rounded: Bool
+    var rounded: Bool
     let local: Bool
     
     let lineP: [Int: Double]
