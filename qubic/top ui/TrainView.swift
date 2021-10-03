@@ -45,10 +45,10 @@ struct TrainView: View {
     
     var mode: GameMode {
 		switch layout.trainSelection[0] {
-		case 0: return .picture1// .novice
-		case 1: return .picture2//.defender
-		case 2: return .picture3//.warrior
-		case 3: return .picture4//.tyrant
+		case 0: return .novice
+		case 1: return .defender
+		case 2: return .warrior
+		case 3: return .tyrant
         case 4: return .oracle
         default: return .cubist
         }

@@ -12,7 +12,7 @@ enum GameMode: Int {
     case novice, defender, warrior, tyrant, oracle, cubist
     case daily, simple, common, tricky
     case local, online, invite
-	case picture1, picture2, picture3, picture4
+//	case picture1, picture2, picture3, picture4
     case off
     
     var train: Bool { [.novice, .defender, .warrior, .tyrant, .oracle, .cubist].contains(self) }
@@ -155,12 +155,12 @@ class Game: ObservableObject {
             times = [[total],[total]]
             lastStart = [0,0]
         }
-		if mode == .picture1 {
-			totalTime = 200
-			currentTimes = [185, 156]
-			times = [[185], [156]]
-			lastStart = [0,0]
-		}
+//		if mode == .picture1 {
+//			totalTime = 200
+//			currentTimes = [183, 156]
+//			times = [[183], [156]]
+//			lastStart = [0,0]
+//		}
         movesBack = 0
         ghostMoveStart = 0
         ghostMoveCount = 0
@@ -179,55 +179,55 @@ class Game: ObservableObject {
 		if !preset.isEmpty { myTurn = preset.count % 2 }
 		else if let givenTurn = turn { myTurn = givenTurn }
 		else { myTurn = .random(in: 0...1) }
-		if mode == .picture2 {
-			myTurn ^= 1
-		}
-		if mode == .picture3 {
-			myTurn ^= 1
-			Timer.after(0.2, run: { BoardScene.main.rotate(right: true); BoardScene.main.rotate(right: true) })
-		}
+//		if mode == .picture2 {
+//			myTurn ^= 1
+//		}
+//		if mode == .picture3 {
+//			myTurn ^= 1
+//			Timer.after(0.2, run: { BoardScene.main.rotate(right: true); BoardScene.main.rotate(right: true) })
+//		}
         self.mode = mode
         self.hints = hints
-        var me = User(b: board, n: myTurn)
+        let me = User(b: board, n: myTurn)
         let op = getOp(boardNum: boardNum, myColor: me.color)
-		if mode == .picture1 {
-			me = User(b: board, n: myTurn, name: "𝓽𝓪𝓷𝓰𝓸")
-			me.color = 1
-			op.name = "Vimz"
-			op.color = 2
-			op.rounded = true
-		} else if mode == .picture2 {
-			me = User(b: board, n: myTurn, name: "Patashnik")
-			me.color = 5
-		} else if mode == .picture3 {
-			me = User(b: board, n: myTurn, name: "4Dliner")
-			me.color = 6
-		} else if mode == .picture4 {
-			me = User(b: board, n: myTurn, name: "Sam")
-			me.color = 0
-		}
+//		if mode == .picture1 {
+//			me = User(b: board, n: myTurn, name: "𝓽𝓪𝓷𝓰𝓸")
+//			me.color = 1
+//			op.name = "Vimz"
+//			op.color = 2
+//			op.rounded = true
+//		} else if mode == .picture2 {
+//			me = User(b: board, n: myTurn, name: "Patashnik")
+//			me.color = 5
+//		} else if mode == .picture3 {
+//			me = User(b: board, n: myTurn, name: "4Dliner")
+//			me.color = 6
+//		} else if mode == .picture4 {
+//			me = User(b: board, n: myTurn, name: "Sam")
+//			me.color = 0
+//		}
 		player = myTurn == 0 ? [me, op] : [op, me]
         for p in preset { loadMove(p) }
         newHints()
         
         func setPreset(for mode: GameMode) {
-			if mode == .picture1 {
-				preset = expandMoves("HRVDGqlJdhmiv9") // move anywhere
-				solved = false
-				return
-			} else if mode == .picture2 {
-				preset = expandMoves("Vqhsv9dHtRCDT") // ends on its own
-				solved = false
-				return
-			} else if mode == .picture3 {
-				preset = expandMoves("MRVQCJmDOXsvuN") // ends on its own
-				solved = true
-				return
-			} else if mode == .picture4 {
-				preset = expandMoves("DH-QYmKr90FPs2v1faRiVhelMb") // get the 4 in a row
-				solved = false
-				return
-			}
+//			if mode == .picture1 {
+//				preset = expandMoves("HRVDGqlJdhmiv9") // move anywhere
+//				solved = false
+//				return
+//			} else if mode == .picture2 {
+//				preset = expandMoves("Vqhsv9dHtRCDT") // ends on its own
+//				solved = false
+//				return
+//			} else if mode == .picture3 {
+//				preset = expandMoves("MRVQCJmDOXsvuN") // ends on its own
+//				solved = true
+//				return
+//			} else if mode == .picture4 {
+//				preset = expandMoves("DH-QYmKr90FPs2v1faRiVhelMb") // get the 4 in a row
+//				solved = false
+//				return
+//			}
 			let oldPreset = preset
 			
 			if mode == .daily { getInfo(key: .daily) }
@@ -272,10 +272,10 @@ class Game: ObservableObject {
             case .tricky:   op = Tricky(b: board, n: myTurn^1, num: boardNum)
             case .local:    op = User(b: board, n: myTurn^1, name: "friend")
             case .online:   op = Online(b: board, n: myTurn^1)
-			case .picture1: op = Online(b: board, n: myTurn^1)
-			case .picture2: op = Tricky(b: board, n: myTurn^1, num: 22)
-			case .picture3: op = Cubist(b: board, n: myTurn^1)
-			case .picture4: op = Daily(b: board, n: myTurn^1, num: 3)
+//			case .picture1: op = Online(b: board, n: myTurn^1)
+//			case .picture2: op = Tricky(b: board, n: myTurn^1, num: 22)
+//			case .picture3: op = Cubist(b: board, n: myTurn^1)
+//			case .picture4: op = Daily(b: board, n: myTurn^1, num: 3)
             default:        op = Novice(b: board, n: myTurn^1)
             }
             if myColor == op.color { op.color = [4, 4, 1, 4, 6, 7, 4, 5, 7][myColor] }
@@ -296,9 +296,9 @@ class Game: ObservableObject {
 		case .warrior: newMode = .tyrant
 		case .tyrant: newMode = .oracle
 		case .oracle: newMode = .cubist
-		case .picture1: newMode = .picture2
-		case .picture2: newMode = .picture3
-		case .picture3: newMode = .picture4
+//		case .picture1: newMode = .picture2
+//		case .picture2: newMode = .picture3
+//		case .picture3: newMode = .picture4
 		default: newMode = mostRecentGame.0
 		}
 		if newMode.train && mostRecentGame.0 != .cubist {
@@ -355,10 +355,10 @@ class Game: ObservableObject {
     }
     
     func processMove(_ p: Int, for turn: Int, num: Int, time: Double? = nil) {
-		if [.picture2, .picture3, .picture4].contains(mode) && turn != myTurn || mode == .picture1 {
-			Timer.after(mode == .picture2 ? 1.5 : mode == .picture3 ? 5 : 0, run: { self.endGame(with: .myWin) })
-			return
-		}
+//		if [.picture2, .picture3, .picture4].contains(mode) && turn != myTurn || mode == .picture1 {
+//			Timer.after(mode == .picture2 ? 1.5 : mode == .picture3 ? 4 : 0, run: { self.endGame(with: .myWin) })
+//			return
+//		}
         let move = Move(p)
         guard gameState == .active else { return }
         guard turn == realTurn && num == moves.count else { print("Invalid turn!"); return }

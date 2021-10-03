@@ -101,8 +101,8 @@ struct GameView: View {
 		var titleText = game.gameState.myWin ? "you won!" : "you lost!"
 		if game.gameState == .draw { titleText = "draw" }
 		if game.mode == .daily && Storage.int(.lastDC) > game.lastDC { titleText = "\(Storage.int(.streak)) day streak!" }
-		var rematchText = game.mode.solve ? "try again" : "rematch"
-		if game.mode == .picture4 { titleText = "8 day streak!"; rematchText = "try again" }
+		let rematchText = game.mode.solve ? "try again" : "rematch"
+//		if game.mode == .picture4 { titleText = "8 day streak!"; rematchText = "try again" }
 		let newGameText: String
 		switch game.mode {
 		case .novice: newGameText = "play defender"
@@ -131,7 +131,7 @@ struct GameView: View {
 			if game.mode != .online {
 				Button(rematchText) { animateGameChange(rematch: true) }
 			}
-			if !(game.mode == .local || (game.mode == .daily && game.solveBoard == 3) || game.mode == .cubist || game.mode == .picture4) {
+			if !(game.mode == .local || (game.mode == .daily && game.solveBoard == 3) || game.mode == .cubist) { // || game.mode == .picture4) {
 				ZStack {
 					Button(newGameText) {
 						if layout.shouldStartOnlineGame() {
