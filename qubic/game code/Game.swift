@@ -48,10 +48,8 @@ enum GameState: Int {
     }
 }
 
-enum HintValue {
-    case w0, w1, w2, w2d1
-    case c1, cm1, cm2, c2d1, c2
-    case noW
+enum HintValue: Comparable {
+	case noW, c2, cm2, c2d1, w2, w2d1, c1, cm1, w1, w0
 }
 
 enum SolveType {
@@ -60,12 +58,9 @@ enum SolveType {
 
 class Move: Equatable {
     let p: Int
-    var nHint: HintValue? = nil
-    var oHint: HintValue? = nil
-    var nAllMoves: Set<Int>? = nil
-	var oAllMoves: Set<Int>? = nil
-	var nBestMoves: Set<Int>? = nil
-	var oBestMoves: Set<Int>? = nil
+    var hints: [HintValue?] = [nil, nil]
+    var allMoves: [Set<Int>?] = [nil, nil]
+	var bestMoves: [Set<Int>?] = [nil, nil]
 	var winLen: Int = 0
     var solveType: SolveType? = nil
     
@@ -90,7 +85,7 @@ class Game: ObservableObject {
     @Published var nextOpacity: Opacity = .clear
     @Published var moves: [Move] = []
     @Published var hints: Bool = false
-    @Published var showHintFor: Int? = nil
+    @Published var showWinsFor: Int? = nil
 	@Published var showAllHints: Bool = true
     @Published var currentTimes: [Int] = [0,0]
 	@Published var gameEndPopup: Bool = false
@@ -126,12 +121,8 @@ class Game: ObservableObject {
 	var rematchRequested: Bool = false
 	var mostRecentGame: (GameMode, Int, Int?, Bool, Double?) = (.novice, 0, nil, false, nil)
     var currentHintMoves: Set<Int>? {
-		guard let hintFor = showHintFor else { return nil }
-		if (hintFor == 1) == (myTurn == turn) {
-			return showAllHints ? currentMove?.nAllMoves : currentMove?.nBestMoves
-		} else {
-			return showAllHints ? currentMove?.oAllMoves : currentMove?.oBestMoves
-		}
+		guard let winsFor = showWinsFor else { return nil }
+		return showAllHints ? currentMove?.allMoves[winsFor] : currentMove?.bestMoves[winsFor]
     }
     
     init() {
@@ -167,7 +158,7 @@ class Game: ObservableObject {
         hintCard = false
         replayMode = false
         premoves = []
-        showHintFor = nil
+		showWinsFor = nil
 		showAllHints = true
 		gameEndPopup = false
 		animatingWin = false
@@ -431,7 +422,7 @@ class Game: ObservableObject {
             else if b.hasW2(turn, depth: 1, valid: { num == self.gameNum }) == true { nHint = .w2d1 }
 			else if b.hasW2(turn, valid: { num == self.gameNum }) == true { nHint = .w2; moves.last?.winLen = (b.cachedHasW2[turn] ?? 0) + 1 }
 			guard num == self.gameNum else { return }
-            moves.last?.nHint = nHint
+            moves.last?.hints[turn] = nHint
 
             if solveButtonsEnabled {
                 if nHint == .w1 {
@@ -466,7 +457,7 @@ class Game: ObservableObject {
             }
 			
 			guard num == self.gameNum else { return }
-			moves.last?.oHint = oHint
+			moves.last?.hints[turn^1] = oHint
             DispatchQueue.main.async { self.newHints() }
 
             var nAllMoves: Set<Int> = []
@@ -485,12 +476,12 @@ class Game: ObservableObject {
             }
 			
 			guard num == self.gameNum else { return }
-			moves.last?.nAllMoves = nAllMoves
-			moves.last?.nBestMoves = nBestMoves
+			moves.last?.allMoves[turn] = nAllMoves
+			moves.last?.bestMoves[turn] = nBestMoves
 			// show hint for == 1 -> my wins
-			// if i go first then that's showHintFor = 0
-			// no what i'm testing for here is that showHintFor is equal to the person who's move it is
-			if self.myTurn == turn ? self.showHintFor == 0 : self.showHintFor == 1 {
+			// if i go first then that's showWinFor = 0
+			// no what i'm testing for here is that showWinFor is equal to the person who's move it is
+			if self.myTurn == turn ? self.showWinsFor == 0 : self.showWinsFor == 1 {
                 DispatchQueue.main.async { BoardScene.main.spinMoves() }
             }
 
@@ -510,9 +501,9 @@ class Game: ObservableObject {
             }
 			
 			guard num == self.gameNum else { return }
-			moves.last?.oAllMoves = oAllMoves
-			moves.last?.oBestMoves = oBestMoves
-			if self.myTurn == turn ? self.showHintFor == 1 : self.showHintFor == 0 {
+			moves.last?.allMoves[turn^1] = oAllMoves
+			moves.last?.bestMoves[turn^1] = oBestMoves
+			if self.myTurn == turn ? self.showWinsFor == 1 : self.showWinsFor == 0 {
                 DispatchQueue.main.async { BoardScene.main.spinMoves() }
             }
         }

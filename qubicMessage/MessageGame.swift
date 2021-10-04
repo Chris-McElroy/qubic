@@ -71,6 +71,7 @@ class Game: ObservableObject {
     var sendMessage: (Character) -> Void = { _ in }
     var moved: Bool = false
     
+	var gameNum: Int = 0
     var turn: Int { board.getTurn() }
     var realTurn: Int { gameState == .active ? moves.count % 2 : (gameState.myWin ? myTurn : (gameState.opWin ? myTurn^1 : 2)) }
     var goBack: () -> Void = {}
@@ -87,7 +88,7 @@ class Game: ObservableObject {
     var timers: [Timer] = []
     var premoves: [Int] = []
     var movesBack: Int = 0
-    var showHintFor: Int? = nil
+    var showWinsFor: Int? = nil
     var currentHintMoves: Set<Int>? = []
     
     init() { }

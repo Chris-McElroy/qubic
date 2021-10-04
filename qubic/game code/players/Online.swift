@@ -62,7 +62,7 @@ class Online: Player {
             return range(from: (1,2), to: (3,10))/rush
         } else if b.hasW2(0, depth: 2) == true || b.hasW2(1, depth: 2) == true {
             return range(from: (1,3), to: (2,15))/rush
-		} else if b.hasW2(0, depth: 10, time: 2) != false || b.hasW2(1, depth: 10, time: 2) != false {
+		} else if b.hasW2(0, depth: 10, time: 2, valid: { gameNum == Game.main.gameNum }) != false || b.hasW2(1, depth: 10, time: 2, valid: { gameNum == Game.main.gameNum }) != false {
             return range(from: (2,3), to: (8,20))/rush
         } else {
             return range(from: (2,1), to: (8,15))/rush

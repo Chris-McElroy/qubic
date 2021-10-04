@@ -115,11 +115,11 @@ struct PlayView: View {
     }
     
     static let tips: [String] = [
-		"swipe up on the board for hints!",
+		"swipe up on the board for analysis!", // TODO change do down (and maybe edit that elsewhere too?)
 		"you can change your name and color in settings!",
 		"your name can include emojis and other i̴͍͈̱̊͐͑n̵̠̍̊̎t̸̹͗̈́͜͝e̸̗̝̻͠r̸̰̀ê̶̼͍s̵̰̯̅̀t̴̢͂̾̎ị̴̏̎n̸̡̨̟̍̐g̶͓̙̺̊̒ characters!",
 		"the \"auto\" option will match you with a bot if you don’t match with a human in time!",
-		"sandbox mode lets you undo moves and see hints during the game!",
+		"sandbox mode lets you undo moves and see analysis during the game!",
 		"training opponents who you beat in a challenge game will have their name underlined!",
 		"you can make hypothetical moves after a game if you go back to earlier positions!",
 		"you can swipe down instead of using the back button!",
@@ -158,7 +158,7 @@ struct PlayView: View {
 		"checkmates are key to winning!",
 		"second order checkmate means your opponent can’t prevent a second order win!",
 		"second order check means you could have a second order win the next turn if it’s open!",
-		"third and fourth order wins exist but aren’t shown by the hints!",
+		"third and fourth order wins exist but aren’t shown in the analysis!",
 		"sometimes you have to check to get out of a second order check!",
 		"second order checkmate means your opponents checks (if any) don’t prevent a win!",
 		"there are only 2 distinct first moves!",
@@ -174,10 +174,10 @@ struct PlayView: View {
 		"daily 2 boards can always be won in 2 moves!",
 		"daily 3 boards can always be won in 3 moves!",
 		"daily 4 boards can always be won in 4 moves!",
-		"hints are not available in challenge mode until after the game!",
-		"hints are not available on solve boards until they are solved!",
-		"hints are not available in online games until after the game!",
-		"hints are available in sandbox mode both during and after the game!",
+		"analysis is not available in challenge mode until after the game!",
+		"analysis is not available on solve boards until they are solved!",
+		"analysis is not available in online games until after the game!",
+		"analysis is available in sandbox mode both during and after the game!",
 		"it is possible to reach a draw!",
 		"the name on the left is player 1, and the name on the right is player 2!",
 		"the name on the left always moves first!",

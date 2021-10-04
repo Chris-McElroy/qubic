@@ -209,19 +209,19 @@ class BoardScene {
         base.runAction(rotateAction)
     }
 	
-	func rotate(angle: CGFloat, start: CGPoint, time: Date) {
+	func rotate(angle: CGFloat, start: CGPoint) {
 		if start != mostRecentRotate {
 			mostRecentRotate = start
 			rotationStart = base.rotation
 //			wentSlow = false
 		}
-		
 //		let lastSpeed = abs(rotationSpeed)
 //		rotationSpeed = (angle - lastRotationAngle)/CGFloat(lastRotationTime.distance(to: time) + 0.000001)
 //		if !wentSlow && max(lastSpeed, abs(rotationSpeed)) < 200 && min(lastSpeed, abs(rotationSpeed)) > 0.01 { wentSlow = true }
 //		lastRotationTime = time
 //		lastRotationAngle = angle
 		var nextRotation = rotationStart
+		nextRotation.y = nextRotation.y >= 0 ? 1 : -1
 		nextRotation.w += Float(angle/150)*nextRotation.y
 		let rotateAction = SCNAction.rotate(toAxisAngle: nextRotation, duration: 0.1)
 		rotateAction.timingMode = .easeOut
@@ -340,7 +340,7 @@ class BoardScene {
     }
     
     func spinMoves() {
-		let list: Set<Int> = !Game.main.premoves.isEmpty ? Set(Game.main.premoves) : (Game.main.showHintFor != nil ? Game.main.currentHintMoves ?? [] : [])
+		let list: Set<Int> = !Game.main.premoves.isEmpty ? Set(Game.main.premoves) : (Game.main.showWinsFor != nil ? Game.main.currentHintMoves ?? [] : [])
         for (i, space) in spaces.enumerated() {
             if space.actionKeys.contains(Key.spin.rawValue) != list.contains(i) {
                 if list.contains(i) {

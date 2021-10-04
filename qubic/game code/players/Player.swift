@@ -23,6 +23,7 @@ class Player {
     let w2BlockP: Double
     let lineScore: [Double]
     let bucketP: Double
+	let gameNum: Int
     
     let moveQueue = DispatchQueue(label: "player move queue", qos: .userInitiated)
     var moveTimer: Timer? = nil
@@ -42,6 +43,7 @@ class Player {
         w2BlockP = 0
         lineScore = []
         bucketP = 0
+		gameNum = 0
     }
     
     init(b: Board, n: Int, name: String = "", color: Int = 0, rounded: Bool = false, local: Bool = true) {
@@ -52,13 +54,14 @@ class Player {
         self.color = color
         self.rounded = rounded
         self.local = local
-        
+		
         lineP = [:]
         dirStats = []
         depth = 0
         w2BlockP = 0
         lineScore = []
         bucketP = 0
+		gameNum = Game.main.gameNum
     }
     
     init(b: Board, n: Int, name: String, color: Int, rounded: Bool = false, local: Bool = true, lineP: [Int: Double], dirStats: [Double], depth: Int, w2BlockP: Double, lineScore: [Double], bucketP: Double) {
@@ -69,13 +72,14 @@ class Player {
         self.color = color
         self.rounded = rounded
         self.local = local
-        
+		
         self.lineP = lineP
         self.dirStats = dirStats
         self.depth = depth
         self.w2BlockP = w2BlockP
         self.lineScore = n == 0 ? lineScore : lineScore.reversed()
         self.bucketP = bucketP
+		gameNum = Game.main.gameNum
     }
     
     func getPause() -> Double { return 0 }
@@ -108,8 +112,8 @@ class Player {
     
     func myW1() -> Int? { shouldMove(in: b.getW1(for: n), s: 3) }
     func opW1() -> Int? { shouldMove(in: b.getW1(for: o), s: -3) }
-    func myW2() -> Int? { shouldMove(in: b.getW2(for: n, depth: depth) ?? [], s: 2) }
-    func opW2() -> Set<Int>? { w2BlockP > .random(in: 0..<1) ? b.getW2Blocks(for: n, depth: depth) : nil }
+	func myW2() -> Int? { shouldMove(in: b.getW2(for: n, depth: depth, valid: { gameNum == Game.main.gameNum }) ?? [], s: 2) }
+	func opW2() -> Set<Int>? { w2BlockP > .random(in: 0..<1) ? b.getW2Blocks(for: n, depth: depth, valid: { gameNum == Game.main.gameNum }) : nil }
     
     func shouldMove(in set: Set<Int>, s: Int) -> Int? {
         let baseP = lineP[s] ?? 0

@@ -94,16 +94,16 @@ struct SettingsView: View {
                     VStack(spacing: 0) {
                         Fill(10)
                         VStack(spacing: 0) {
-                            Text("notifications").frame(height: 20)
+							Text("notifications").bold().frame(height: 20)
                             Blank(50)
-                            Text("premoves").frame(height: 20)
+							Text("premoves").bold().frame(height: 20)
                             Blank(50)
-                            Text("arrow side").frame(height: 20)
+							Text("arrow side").bold().frame(height: 20)
                             Blank(50)
-                            Text("color / app icon").frame(height: 20)
+							Text("color / app icon").bold().frame(height: 20)
                             Blank(50)
-                        }
-                        Text("username").frame(height: 20)
+						}
+						Text("username").bold().frame(height: 20)
                         Fill(7)
                         TextField("enter name", text: $username, onEditingChanged: { starting in
                             if !starting && username != Storage.string(.name) {

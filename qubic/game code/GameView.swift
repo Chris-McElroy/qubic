@@ -16,18 +16,17 @@ struct GameView: View {
     @State var rotateMe = false
     @State var isRotated = false
     @State var cont = false
-    @State var hintSelection = [1,2]
+	@State var hintSelection = [1,2]
     @State var hintPickerContent: [[Any]] = [
-        ["blocks", "wins"],
+        ["first", "priority", "second"],
 		["all", "best", "off"]
     ]
-    @State var hintText: [[String]?] = [nil, nil]
+    @State var hintText: [[String]?] = [nil, nil, nil]
     @State var currentSolveType: SolveType? = nil
     @State var hideAll: Bool = true
     @State var hideBoard: Bool = true
     @State var centerNames: Bool = true
-    @State var opText: [String]?
-    @State var myText: [String]?
+	@State var currentPriority: Int = 0
     
     var body: some View {
         ZStack {
@@ -74,7 +73,7 @@ struct GameView: View {
 			let h = drag.translation.height
 			let w = drag.translation.width
 			if abs(w/h) > 1 {
-			   BoardScene.main.rotate(angle: w, start: drag.startLocation, time: drag.time)
+				BoardScene.main.rotate(angle: w, start: drag.startLocation)
 			}
 		}
 	
@@ -87,9 +86,9 @@ struct GameView: View {
 	
 	var names: some View {
 		HStack {
-			PlayerName(turn: 0, game: game, text: game.myTurn == 0 ? $myText : $opText)
+			PlayerName(turn: 0, game: game, text: $hintText, winsFor: $hintSelection[0])
 			Spacer().frame(minWidth: 15).frame(width: centerNames ? 15 : nil)
-			PlayerName(turn: 1, game: game, text: game.myTurn == 1 ? $myText : $opText)
+			PlayerName(turn: 1, game: game, text: $hintText, winsFor: $hintSelection[0])
 		}
 		.padding(.horizontal, 22)
 		.padding(.top, 10)
@@ -196,6 +195,8 @@ struct GameView: View {
 		})
 		
 		game.timers.append(Timer.after(0.6) {
+			hintSelection = [1, 2]
+			withAnimation { game.showWinsFor = nil }
 			if rematch { game.loadRematch() }
 			else { game.loadNextGame() }
 		})
@@ -232,27 +233,23 @@ struct GameView: View {
     }
     
     func refreshHintPickerContent() {
-        let myHint: HintValue?
-		let opHint: HintValue?
+        let firstHint: HintValue?
+		let secondHint: HintValue?
+		let priorityHint: HintValue?
 		if game.currentMove == nil {
-			myHint = .noW
-			opHint = .noW
-		} else if game.turn == game.myTurn {
-			myHint = game.currentMove?.nHint
-			opHint = game.currentMove?.oHint
+			firstHint = .noW
+			secondHint = .noW
 		} else {
-			myHint = game.currentMove?.oHint
-			opHint = game.currentMove?.nHint
+			firstHint = game.currentMove?.hints[0]
+			secondHint = game.currentMove?.hints[1]
 		}
+		
         currentSolveType = game.currentMove?.solveType
-        
-        hintPickerContent = [
-            [("blocks", opHint ?? .noW != .noW),
-             ("wins", myHint ?? .noW != .noW)],
-            ["all", "best", "off"]
-        ]
-        
-        switch opHint {
+		
+		let opText: [String]?
+		let myText: [String]?
+		let priorityText: [String]?
+		switch (game.myTurn == 1 ? firstHint : secondHint) {
         case .w0:   opText = ["4 in a row", "Your opponent won the game, better luck next time!"]
         case .w1:   opText = ["3 in a row","Your opponent has 3 in a row, so now they can fill in the last move in that line and win!"]
         case .w2d1: opText = ["checkmate", "Your opponent can get two checks with their next move, and you can’t block both!"]
@@ -266,7 +263,7 @@ struct GameView: View {
         case nil:   opText = nil
         }
         
-        switch myHint {
+        switch (game.myTurn == 0 ? firstHint : secondHint) {
         case .w0:   myText = ["4 in a row", "You won the game, great job!"]
         case .w1:   myText = ["3 in a row","You have 3 in a row, so now you can fill in the last move in that line and win!"]
         case .w2d1: myText = ["checkmate", "You can get two checks with your next move, and your opponent can’t block both!"]
@@ -279,8 +276,45 @@ struct GameView: View {
         case .noW:  myText = ["no wins", "You don't have any forced wins right now, keep working to set one up!"]
         case nil:   myText = nil
         }
+		
+		if firstHint == nil || secondHint == nil {
+			priorityHint = nil
+			priorityText = nil
+			currentPriority = game.showWinsFor ?? game.myTurn
+		} else if firstHint == .noW && secondHint == .noW {
+			priorityHint = .noW
+			priorityText = game.myTurn == 0 ? myText : opText
+			currentPriority = game.myTurn
+		} else if firstHint ?? .noW > secondHint ?? .noW {
+			priorityHint = firstHint
+			priorityText = game.myTurn == 0 ? myText : opText
+			currentPriority = 0
+		} else {
+			priorityHint = secondHint
+			priorityText = game.myTurn == 1 ? myText : opText
+			currentPriority = 1
+		}
+		
+		hintPickerContent = [
+			[("first", firstHint ?? .noW != .noW),
+			 ("priority", priorityHint ?? .noW != .noW),
+			 ("second", secondHint ?? .noW != .noW)],
+			["all", "best", "off"]
+		]
         
-        hintText = [opText, myText]
+		Timer.after(0.05) {
+			hintText = game.myTurn == 0 ? [myText, priorityText,  opText] : [opText, priorityText, myText]
+		}
+		
+		if hintSelection[1] != 2 && hintSelection[0] == 1 {
+			Timer.after(0.06) {
+				withAnimation {
+	//				print("old show wins:", game.showWinsFor, "new show wins:", currentPriority)
+					self.game.showWinsFor = self.currentPriority
+				}
+				BoardScene.main.spinMoves()
+			}
+		}
     }
     
     var hintContent: some View {
@@ -289,7 +323,7 @@ struct GameView: View {
                 // HPickers
                 VStack(spacing: 0) {
                     Spacer()
-                    HPicker(content: $hintPickerContent, dim: (60, 50), selected: $hintSelection, action: onSelection)
+                    HPicker(content: $hintPickerContent, dim: (70, 50), selected: $hintSelection, action: onSelection)
                         .frame(height: 100)
                 }
                 // Mask
@@ -304,7 +338,7 @@ struct GameView: View {
                 VStack(spacing: 0) {
                     Blank(15)
                     if let text = hintText[hintSelection[0]] {
-                        Text(text[0]).bold()
+						Text(text[0]).bold()
                         Blank(4)
                         Text(text[1]).multilineTextAlignment(.center)
                     } else {
@@ -312,9 +346,9 @@ struct GameView: View {
                         Text("loading...").bold()
                     }
                     Spacer()
-                    Text("show moves")
+					Text("show moves").bold()
                     Blank(34)
-                    Text("hints for")
+					Text("wins for").bold()
                     Blank(36)
                 }.padding(.horizontal, 40)
                 VStack {
@@ -325,19 +359,19 @@ struct GameView: View {
                 if game.mode.solve {
                     if game.solved {
                         VStack(spacing: 20) {
-                            Text("you previously solved this puzzle, do you want to enable hints?")
+                            Text("you previously solved this puzzle, do you want to analyze it?")
                                 .multilineTextAlignment(.center)
                                 .padding(.horizontal, 40)
                             Button("enable") { game.hints = true }
                                 .buttonStyle(Solid())
                         }
                     } else {
-                        Text("hints are not available on solve boards until they are solved!")
+                        Text("you can't analyze solve boards until they are solved!")
                             .multilineTextAlignment(.center)
                             .padding(.horizontal, 40)
                     }
                 } else {
-                    Text("hints are only available in sandbox mode or after games!")
+                    Text("analysis is only available in sandbox mode or after games!")
                         .multilineTextAlignment(.center)
                         .padding(.horizontal, 40)
                 }
@@ -347,17 +381,18 @@ struct GameView: View {
     
     func onSelection(row: Int, component: Int) {
         withAnimation {
-            if component == 1 { // changing show
+            if component == 1 { // changing show options
                 if row < 2 {
-                    game.showHintFor = hintSelection[0]
+//					print("old show wins:", game.showWinsFor, "new show wins:", currentPriority)
+					game.showWinsFor = hintSelection[0] == 1 ? currentPriority : hintSelection[0]/2
 					game.showAllHints = row == 0
                     game.hideHintCard()
                 } else {
-                    game.showHintFor = nil
+                    game.showWinsFor = nil
                 }
-            } else {            // changing blocks/wins
+            } else {            // changing first/priority/second
                 hintSelection[1] = 2
-                game.showHintFor = nil
+                game.showWinsFor = nil
             }
         }
         BoardScene.main.spinMoves()
@@ -366,7 +401,8 @@ struct GameView: View {
     struct PlayerName: View {
         let turn: Int
         @ObservedObject var game: Game
-        @Binding var text: [String]?
+        @Binding var text: [[String]?]
+		@Binding var winsFor: Int
         var color: Color { .of(n: game.player[turn].color) }
         var rounded: Bool { game.player[turn].rounded }
         var glow: Color { game.realTurn == turn ? color : .clear }
@@ -375,7 +411,7 @@ struct GameView: View {
         var body: some View {
             VStack(spacing: 3) {
                 ZStack {
-                    Text(game.showHintFor == turn^game.myTurn^1 ? text?[0] ?? "loading..." : "")
+                    Text(game.showWinsFor == turn ? text[winsFor]?[0] ?? "loading..." : "")
                         .animation(.none)
                         .multilineTextAlignment(.center)
                         .frame(height: 45)
@@ -388,10 +424,11 @@ struct GameView: View {
 										.foregroundColor(color)
 										.opacity(game.realTurn == turn || game.gameState == .new ? 1 : 0.7)
 						)
+						.background(Rectangle().foregroundColor(.systemBackground))
                         .cornerRadius(rounded ? 100 : 4)
                         .shadow(color: glow, radius: 8, y: 0)
                         .animation(.easeIn(duration: 0.3))
-                        .rotation3DEffect(game.showHintFor == turn^game.myTurn^1 ? .radians(.pi/2) : .zero, axis: (x: 1, y: 0, z: 0), anchor: .top)
+                        .rotation3DEffect(game.showWinsFor == turn ? .radians(.pi/2) : .zero, axis: (x: 1, y: 0, z: 0), anchor: .top)
                 }
 //				ZStack {
 				Text(String(format: "%01d:%02d", (game.currentTimes[turn]/60) % 100, game.currentTimes[turn] % 60))
