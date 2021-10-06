@@ -149,6 +149,7 @@ class Layout: ObservableObject {
 	}
     var feedbackTextSize: CGFloat = 90
     var feedbackSpacerSize: CGFloat = 15
+	var hasBottomGap: Bool { bottomGap == 0 }
     
     init() {}
     
@@ -185,6 +186,13 @@ class Layout: ObservableObject {
         setFocusHeights()
         setTopSpacerHeights()
     }
+	
+	func goBack() {
+		FB.main.cancelOnlineSearch?()
+		withAnimation(.easeInOut(duration: 0.4)) { //0.4
+			current = current.back
+		}
+	}
     
     private func setFocusHeights() {
         // set default height of main spacer (this is fucking ONLY necessary for solveMenu)

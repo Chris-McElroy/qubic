@@ -176,7 +176,7 @@ struct MainView: View {
     }
     
     private var backButton: some View {
-        Button(action: goBack ) {
+		Button(action: layout.goBack ) {
 			VStack(spacing: 0) {
 				ZStack {
 					Text(layout.current == .main ? "more" : "back")
@@ -205,7 +205,7 @@ struct MainView: View {
                         if h < 0 { self.switchLayout(to: .more) }
                         else { self.cube.flipCube() }
                     } else if h > 0 || self.layout.current.menuView {
-                        self.goBack()
+						self.layout.goBack()
                     }
                 } else {
                     self.cube.rotate(right: w > 0)
@@ -219,16 +219,6 @@ struct MainView: View {
                 layout.current = nextView
             }
         }
-    }
-    
-	// TODO consider declaring in layout
-    func goBack() {
-//        if game.hideHintCard() { return } // TODO consider removing
-		FB.main.cancelOnlineSearch?()
-		game.endGame(with: .myLeave)
-		withAnimation(.easeInOut(duration: 0.4)) { //0.4
-			layout.current = layout.current.back
-		}
     }
 }
 

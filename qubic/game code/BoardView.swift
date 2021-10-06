@@ -125,6 +125,7 @@ class BoardScene {
     }
     
     @objc func handleTap(_ gestureRecognize: UIGestureRecognizer) {
+		if Game.main.hidePopups() { return }
         let hit = gestureRecognize.location(in: view)
         let hitResults = view.hitTest(hit, options: [:])
         guard let result = hitResults.first?.node else {
@@ -170,6 +171,7 @@ class BoardScene {
         if let lines = wins {
             showWins(lines, color: color, ghost: ghost)
         } else if !ghost && Game.main.gameState != .active && Game.main.movesBack == 0 {
+			print("got here", Game.main.gameState)
             spinBoard()
         }
         

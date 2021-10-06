@@ -220,7 +220,6 @@ class Game: ObservableObject {
 //    @Published var undoOpacity: Double = 0
 //    @Published var redoOpacity: Double = 0
 //
-//    var goBack: () -> Void = {}
 //    var sendMessage: (Character) -> Void = { _ in }
 //    var myTurn: Int = 0
 //    var player: [Player] = [Player(b: Board(), n: 0), Player(b: Board(), n: 0)]

@@ -36,27 +36,16 @@ struct GameView: View {
             VStack(spacing: 0) {
                 Fill(nameSpace)
                 BoardView()
-                    .gesture(swipe)
                     .zIndex(0.0)
-					.alert(isPresented: $game.showDCAlert, content: { enableBadgesAlert })
                     .opacity(hideBoard ? 0 : 1)
 				Fill(gameControlSpace)
             }
-            VStack(spacing: 0) {
-                Spacer()
-				analysisPopup.offset(y: game.popup == .analysis ? 0 : 320) // TODO split this into two, have the description up top and the sliders on the bottom
-            }
-			VStack(spacing: 0) {
-				Spacer()
-				gameEndPopup.offset(y: game.popup == .gameEnd ? 0 : 320)
-			}
-			VStack(spacing: 0) {
-				Spacer()
-				optionsPopup.offset(y: game.popup == .options ? 0 : 200)
-			}
+			optionsPopup
+			gameEndPopup
+			analysisPopup
 			VStack(spacing: 0) {
 				Fill(100).offset(y: -100)
-				Spacer() // TODO make this a fill with very slight opacity when any popups are up, and then use that to mask the sliders
+				Spacer()
 				Fill(100).offset(y: 100)
 			}
 			VStack(spacing: 0) {
@@ -66,6 +55,8 @@ struct GameView: View {
 			}
         }
         .opacity(hideAll ? 0 : 1)
+		.gesture(swipe)
+		.alert(isPresented: $game.showDCAlert, content: { enableBadgesAlert })
         .onAppear {
             Game.main.newHints = refreshHintPickerContent
             animateIntro()
@@ -96,7 +87,7 @@ struct GameView: View {
 		.onChanged { drag in
 			let h = drag.translation.height
 			let w = drag.translation.width
-			if abs(w/h) > 1 {
+			if abs(w/h) > 1 && Game.main.popup == .none {
 				BoardScene.main.rotate(angle: w, start: drag.startLocation)
 			}
 		}
@@ -111,7 +102,7 @@ struct GameView: View {
 	var names: some View {
 		HStack {
 			PlayerName(turn: 0, game: game, text: $hintText, winsFor: $hintSelection[0])
-			Spacer().frame(minWidth: 15).frame(width: centerNames ? 15 : nil)
+			Spacer().frame(minWidth: 15).frame(width: centerNames && layout.width > 320 ? 15 : nil)
 			PlayerName(turn: 1, game: game, text: $hintText, winsFor: $hintSelection[0])
 		}
 		.padding(.horizontal, 22)
@@ -127,9 +118,7 @@ struct GameView: View {
 			if layout.leftArrows { arrowButtons }
 			else { undoButton.frame(alignment: .top) }
 			Spacer()
-			Text("· · ·") // TODO make 3 different dots and make it a button
-				.font(.system(size: 28)).bold()
-				.opacity(game.optionsOpacity.rawValue)
+			optionsButton
 			Spacer()
 			if layout.leftArrows { undoButton }
 			else { arrowButtons.frame(alignment: .top) }
@@ -139,6 +128,25 @@ struct GameView: View {
 		.offset(y: 5)
 		.frame(width: layout.width, height: 40)
 		.buttonStyle(Solid())
+	}
+	
+	private var optionsButton: some View {
+		let vShape: Bool = game.popup == .options || game.popup == .gameEnd || (game.popup == .gameEndPending && game.gameState == .myResign)
+		
+		return Button(action: {
+			if game.popup == .none || game.popup == .analysis {
+				withAnimation { game.popup = .options }
+			} else if game.popup.up {
+				game.hidePopups()
+			}
+		}, label: {
+			HStack (spacing: 7) {
+				Text("·").bold().offset(y: vShape ? -6 : 0)
+				Text("·").bold().offset(y: vShape ?  6 : 0)
+				Text("·").bold().offset(y: vShape ? -6 : 0)
+			}
+			.font(.system(size: 28))
+		}).opacity(game.optionsOpacity.rawValue)
 	}
 	
 	private var undoButton: some View {
@@ -195,25 +203,86 @@ struct GameView: View {
 	}
 	
 	var optionsPopup: some View {
-		VStack(spacing: 20) {
-			Text("resign")
-			if game.hints || game.solved {
-				Text("analysis")
+		VStack(spacing: 0) {
+			Spacer()
+			VStack(spacing: 20) {
+//				Text("share board")
+//				Text("settings")
+				if game.hints || game.solved {
+					Button("analysis") { withAnimation { game.popup = .analysis } }
+				}
+//				Text("game insights")
+				if game.gameEndOptions {
+					if !(game.mode == .local || (game.mode == .daily && game.solveBoard == 3) || game.mode == .cubist) {
+						newGameButton
+					}
+					if game.mode != .online {
+						rematchButton
+					}
+					Button("menu") { layout.goBack() }
+				} else {
+					if game.mode.solve {
+						Button("restart") { animateGameChange(rematch: true) }
+					}
+					Button("resign") { game.endGame(with: .myResign) }
+				}
 			}
+			.font(.custom("Oligopoly Regular", size: 18))
+			.buttonStyle(Solid())
+			.padding(.top, 20)
+			.padding(.bottom, gameControlSpace)
+			.frame(width: layout.width)
+			.background(Fill().shadow(radius: 20))
+			.offset(y: game.popup == .options ? 0 : 400)
 		}
-		.font(.custom("Oligopoly Regular", size: 18))
-		.padding(.top, 20)
-		.padding(.bottom, gameControlSpace)
-		.frame(width: layout.width)
-		.background(Fill().shadow(radius: 20))
 	}
 	
 	var gameEndPopup: some View {
 		var titleText = game.gameState.myWin ? "you won!" : "you lost!"
 		if game.gameState == .draw { titleText = "draw" }
 		if game.mode == .daily && Storage.int(.lastDC) > game.lastDC { titleText = "\(Storage.int(.streak)) day streak!" }
-		let rematchText = game.mode.solve ? "try again" : "rematch"
 //		if game.mode == .picture4 { titleText = "8 day streak!"; rematchText = "try again" }
+		
+		return VStack(spacing: 0) {
+			VStack(spacing: 15) {
+				Text(titleText).font(.custom("Oligopoly Regular", size: 24)) // .system(.largeTitle))
+//				Text("a little something about the game")
+			}
+			.padding(.vertical, 15)
+			.padding(.top, nameSpace)
+			.frame(width: layout.width)
+			.background(Fill().shadow(radius: 20))
+			.offset(y: game.popup == .gameEnd ? 0 : -(130 + nameSpace))
+			
+			Spacer()
+			
+			VStack(spacing: 15) {
+//				Text("share board")
+				Button("review game") { game.hidePopups() }
+//				Text("game insights")
+				if !(game.mode == .local || (game.mode == .daily && game.solveBoard == 3) || game.mode == .cubist) { // || game.mode == .picture4) {
+					newGameButton
+				}
+				if game.mode != .online {
+					rematchButton
+				}
+				Button("menu") { layout.goBack() }
+			}
+			.padding(.top, 15)
+			.padding(.bottom, gameControlSpace)
+			.font(.custom("Oligopoly Regular", size: 18)) //.system(size: 18))
+			.buttonStyle(Solid())
+			.frame(width: layout.width)
+			.background(Fill().shadow(radius: 20))
+			.offset(y: game.popup == .gameEnd ? 0 : 330)
+		}
+	}
+	
+	var rematchButton: some View {
+		Button(game.mode.solve ? "try again" : "rematch") { animateGameChange(rematch: true) }
+	}
+	
+	var newGameButton: some View {
 		let newGameText: String
 		switch game.mode {
 		case .novice: newGameText = "play defender"
@@ -234,37 +303,19 @@ struct GameView: View {
 		default: newGameText = "new online game"
 		}
 		
-		return VStack(spacing: 15) {
-			Spacer()
-			Text(titleText).font(.custom("Oligopoly Regular", size: 24)) // .system(.largeTitle))
-			Spacer()
-			Button("review game") { game.hidePopups() }
-			if game.mode != .online {
-				Button(rematchText) { animateGameChange(rematch: true) }
-			}
-			if !(game.mode == .local || (game.mode == .daily && game.solveBoard == 3) || game.mode == .cubist) { // || game.mode == .picture4) {
-				ZStack {
-					Button(newGameText) {
-						if layout.shouldStartOnlineGame() {
-							FB.main.getOnlineMatch(onMatch: { animateGameChange(rematch: false) })
-						} else {
-							animateGameChange(rematch: false)
-						}
-					}
-					.opacity(layout.searchingOnline ? 0 : 1)
-					ActivityIndicator(color: .label, size: .medium)
-						.offset(x: 1, y: 1)
-						.opacity(layout.searchingOnline ? 1 : 0)
+		return ZStack {
+			Button(newGameText) {
+				if layout.shouldStartOnlineGame() {
+					FB.main.getOnlineMatch(onMatch: { animateGameChange(rematch: false) })
+				} else {
+					animateGameChange(rematch: false)
 				}
 			}
-			Spacer()
-			Spacer()
+			.opacity(layout.searchingOnline ? 0 : 1)
+			ActivityIndicator(color: .label, size: .medium)
+				.offset(x: 1, y: 1)
+				.opacity(layout.searchingOnline ? 1 : 0)
 		}
-		.font(.custom("Oligopoly Regular", size: 18)) //.system(size: 18))
-		.padding(.top, nameSpace)
-		.buttonStyle(Solid())
-		.frame(width: layout.width, height: 300)
-		.background(Fill().shadow(radius: 20))
 	}
     
     func animateIntro() {
@@ -272,60 +323,61 @@ struct GameView: View {
         hideBoard = true
         centerNames = true
 //        BoardScene.main.rotate(right: true) // this created a race condition
-        game.timers.append(Timer.after(0.1) {
+        Timer.after(0.1) {
             withAnimation {
                 hideAll = false
             }
-        })
-		game.timers.append(Timer.after(1) {
+        }
+		Timer.after(1) {
             withAnimation {
                 centerNames = false
             }
-        })
-		game.timers.append(Timer.after(1.1) {
+        }
+		Timer.after(1.1) {
             withAnimation {
                 hideBoard = false
             }
             BoardScene.main.rotate(right: false)
-        })
-		game.timers.append(Timer.after(1.5) {
+        }
+		Timer.after(1.5) {
             game.startGame()
-        })
+        }
     }
 	
 	func animateGameChange(rematch: Bool) {
 		game.hidePopups()
-		game.cancelActions()
 		withAnimation {
 			game.undoOpacity = .clear
 			game.prevOpacity = .clear
 			game.nextOpacity = .clear
+			game.optionsOpacity = .clear
 		}
 		
-		game.timers.append(Timer.after(0.3) {
+		Timer.after(0.3) {
 			withAnimation {
 				hideBoard = true
 			}
 			BoardScene.main.rotate(right: false)
-		})
+		}
 		
-		game.timers.append(Timer.after(0.6) {
+		Timer.after(0.6) {
 			hintSelection = [1, 2]
 			withAnimation { game.showWinsFor = nil }
+			game.turnOff()
 			if rematch { game.loadRematch() }
 			else { game.loadNextGame() }
-		})
+		}
 		
-		game.timers.append(Timer.after(0.8) {
+		Timer.after(0.8) {
 			withAnimation {
 				hideBoard = false
 			}
 			BoardScene.main.rotate(right: false)
-		})
+		}
 		
-		game.timers.append(Timer.after(1.2) {
+		Timer.after(1.2) {
 			game.startGame()
-		})
+		}
 	}
     
     var solveButtons: some View {
@@ -365,30 +417,30 @@ struct GameView: View {
 		let myText: [String]?
 		let priorityText: [String]?
 		switch (game.myTurn == 1 ? firstHint : secondHint) {
-        case .w0:   opText = ["4 in a row", "Your opponent won the game, better luck next time!"]
-        case .w1:   opText = ["3 in a row","Your opponent has 3 in a row, so now they can fill in the last move in that line and win!"]
-        case .w2d1: opText = ["checkmate", "Your opponent can get two checks with their next move, and you can’t block both!"]
-        case .w2:   opText = ["2nd order win", "Your opponent can get to a checkmate using a series of checks! They can win in \(game.currentMove?.winLen ?? 0) moves!"]
-        case .c1:   opText = ["check", "Your opponent has 3 in a row, so you should block their line to prevent them from winning!"]
-        case .cm1:  opText = ["checkmate", "Your opponent has more than one check, and you can’t block them all!"]
-        case .cm2:  opText = ["2nd order checkmate", "Your opponent has more than one second order check, and you can’t block them all!"]
-        case .c2d1: opText = ["2nd order check", "Your opponent can get checkmate next move if you don’t stop them!"]
-        case .c2:   opText = ["2nd order check", "Your opponent can get checkmate through a series of checks if you don’t stop them!"]
-        case .noW:  opText = ["no wins", "Your opponent doesn't have any forced wins right now, keep it up!"]
+        case .w0:   opText = ["4 in a row", 		"Your opponent won the game, better luck next time!"]
+        case .w1:   opText = ["3 in a row",			"Your opponent has 3 in a row, so now they can fill in the last move in that line and win!"]
+        case .w2d1: opText = ["checkmate", 			"Your opponent can get two checks with their next move, and you can’t block both!"]
+        case .w2:   opText = ["2nd order win", 		"Your opponent can get to a checkmate using a series of checks! They can win in \(game.currentMove?.winLen ?? 0) moves!"]
+        case .c1:   opText = ["check", 				"Your opponent has 3 in a row, so you should block their line to prevent them from winning!"]
+        case .cm1:  opText = ["checkmate", 			"Your opponent has more than one check, and you can’t block them all!"]
+        case .cm2:  opText = ["2nd order checkmate","Your opponent has more than one second order check, and you can’t block them all!"]
+        case .c2d1: opText = ["2nd order check", 	"Your opponent can get checkmate next move if you don’t stop them!"]
+        case .c2:   opText = ["2nd order check", 	"Your opponent can get checkmate through a series of checks if you don’t stop them!"]
+        case .noW:  opText = ["no wins", 			"Your opponent doesn't have any forced wins right now, keep it up!"]
         case nil:   opText = nil
         }
         
         switch (game.myTurn == 0 ? firstHint : secondHint) {
-        case .w0:   myText = ["4 in a row", "You won the game, great job!"]
-        case .w1:   myText = ["3 in a row","You have 3 in a row, so now you can fill in the last move in that line and win!"]
-        case .w2d1: myText = ["checkmate", "You can get two checks with your next move, and your opponent can’t block both!"]
-		case .w2:   myText = ["2nd order win", "You can get to a checkmate using a series of checks! You can win in \(game.currentMove?.winLen ?? 0) moves!"]
-        case .c1:   myText = ["check", "You have 3 in a row, so you can win next turn unless it’s blocked!"]
-        case .cm1:  myText = ["checkmate", "You have more than one check, and your opponent can’t block them all!"]
-        case .cm2:  myText = ["2nd order checkmate", "You have more than one second order check, and your opponent can’t block them all!"]
-        case .c2d1: myText = ["2nd order check", "You can get checkmate next move if your opponent doesn’t stop you!"]
-        case .c2:   myText = ["2nd order check", "You can get checkmate through a series of checks if your opponent doesn’t stop you!"]
-        case .noW:  myText = ["no wins", "You don't have any forced wins right now, keep working to set one up!"]
+        case .w0:   myText = ["4 in a row", 		"You won the game, great job!"]
+        case .w1:   myText = ["3 in a row",			"You have 3 in a row, so now you can fill in the last move in that line and win!"]
+        case .w2d1: myText = ["checkmate", 			"You can get two checks with your next move, and your opponent can’t block both!"]
+		case .w2:   myText = ["2nd order win", 		"You can get to a checkmate using a series of checks! You can win in \(game.currentMove?.winLen ?? 0) moves!"]
+        case .c1:   myText = ["check", 				"You have 3 in a row, so you can win next turn unless it’s blocked!"]
+        case .cm1:  myText = ["checkmate", 			"You have more than one check, and your opponent can’t block them all!"]
+        case .cm2:  myText = ["2nd order checkmate","You have more than one second order check, and your opponent can’t block them all!"]
+        case .c2d1: myText = ["2nd order check", 	"You can get checkmate next move if your opponent doesn’t stop you!"]
+        case .c2:   myText = ["2nd order check", 	"You can get checkmate through a series of checks if your opponent doesn’t stop you!"]
+        case .noW:  myText = ["no wins", 			"You don't have any forced wins right now, keep working to set one up!"]
         case nil:   myText = nil
         }
 		
@@ -398,7 +450,7 @@ struct GameView: View {
 			currentPriority = game.showWinsFor ?? game.myTurn
 		} else if firstHint == .noW && secondHint == .noW {
 			priorityHint = .noW
-			priorityText = game.myTurn == 0 ? myText : opText
+			priorityText = myText
 			currentPriority = game.myTurn
 		} else if firstHint ?? .noW > secondHint ?? .noW {
 			priorityHint = firstHint
@@ -433,69 +485,81 @@ struct GameView: View {
     }
     
     var analysisPopup: some View {
-        ZStack {
-            if game.hints {
-                // HPickers
-                VStack(spacing: 0) {
-                    Spacer()
-                    HPicker(content: $hintPickerContent, dim: (70, 50), selected: $hintSelection, action: onSelection)
-                        .frame(height: 100)
-                }
-                // Mask
-                VStack(spacing: 0) {
-                    Fill()
-                    Blank(30)
-                    Fill(20)
-                    Blank(30)
-                    Fill(10)
-                }
-                // Content
-                VStack(spacing: 0) {
-                    Blank(15)
-                    if let text = hintText[hintSelection[0]] {
+		VStack(spacing: 0) {
+			VStack(spacing: 0) {
+				if game.hints {
+					Spacer()
+					if let text = hintText[hintSelection[0]] {
 						Text(text[0]).bold()
-                        Blank(4)
-                        Text(text[1]).multilineTextAlignment(.center)
-                    } else {
-                        Spacer()
-                        Text("loading...").bold()
-                    }
-                    Spacer()
+						Blank(4)
+						Text(text[1])
+					} else {
+						Text("loading...").bold()
+					}
+					Spacer()
+				} else if game.mode.solve {
+					if game.solved {
+						VStack(spacing: 20) {
+							Text("you previously solved this puzzle, do you want to enable analysis?")
+							Button("yes") { withAnimation {
+								game.hints = true
+								if game.gameState != .active && !game.moves.isEmpty {
+									game.prevOpacity = .full
+								}
+							} }
+								.buttonStyle(Solid())
+						}
+					} else {
+						Text("you can't analyze solve boards until they are solved!")
+					}
+				} else {
+					Text("analysis is only available in sandbox mode or after games!")
+				}
+			}
+			.multilineTextAlignment(.center)
+			.padding(.horizontal, 25)
+			.padding(.top, nameSpace - 10)
+			.frame(width: layout.width, height: 170)
+			.background(Fill().shadow(radius: 20))
+			.offset(y: game.popup == .analysis ? 0 : -(165 + 30 + nameSpace))
+			Fill().opacity(game.popup == .analysis ? 0.015 : 0) // 0.015 seems to be about the minimum opacity to work
+				.onTapGesture { game.hidePopups() }
+				.zIndex(4)
+			ZStack {
+				// HPickers
+				VStack(spacing: 0) {
+					Spacer()
+					HPicker(content: $hintPickerContent, dim: (70, 50), selected: $hintSelection, action: onSelection)
+					 .frame(height: 100)
+				}
+				// Mask
+				VStack(spacing: 0) {
+					Fill()
+					Blank(30)
+					Fill(20)
+					Blank(30)
+					Fill(10)
+				}
+				// Content
+				VStack(spacing: 0) {
+					Spacer()
 					Text("show moves").bold()
-                    Blank(34)
+					Blank(34)
 					Text("wins for").bold()
-                    Blank(36)
-                }.padding(.horizontal, 40)
-                VStack {
-                    if solveButtonsEnabled { solveButtons }
-                    Spacer()
-                }
-            } else {
-                if game.mode.solve {
-                    if game.solved {
-                        VStack(spacing: 20) {
-                            Text("you previously solved this puzzle, do you want to enable analysis?")
-                                .multilineTextAlignment(.center)
-                                .padding(.horizontal, 40)
-							Button("yes") { withAnimation { game.hints = true } }
-                                .buttonStyle(Solid())
-                        }
-                    } else {
-                        Text("you can't analyze solve boards until they are solved!")
-                            .multilineTextAlignment(.center)
-                            .padding(.horizontal, 40)
-                    }
-                } else {
-                    Text("analysis is only available in sandbox mode or after games!")
-                        .multilineTextAlignment(.center)
-                        .padding(.horizontal, 40)
-                }
-            }
-        }
-		.padding(.top, nameSpace)
-		.padding(.bottom, 10)
-		.frame(height: 320)
-		.background(Fill().shadow(radius: 20))
+					Blank(36)
+				}.padding(.horizontal, 40)
+				if solveButtonsEnabled {
+					VStack {
+						solveButtons
+						Spacer()
+					}
+				}
+			}
+			.padding(.bottom, gameControlSpace)
+			.frame(width: layout.width, height: 170)
+			.background(Fill().shadow(radius: 20))
+			.offset(y: game.popup == .analysis && game.hints ? 0 : 200)
+		}
     }
     
     func onSelection(row: Int, component: Int) {

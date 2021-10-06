@@ -13,7 +13,6 @@ enum GameMode: Int {
     case daily, simple, common, tricky
     case local, online, invite
 //	case picture1, picture2, picture3, picture4
-    case off
     
     var train: Bool { [.novice, .defender, .warrior, .tyrant, .oracle, .cubist].contains(self) }
     var solve: Bool { [.daily, .simple, .common, .tricky].contains(self) }
@@ -24,7 +23,7 @@ enum GameMode: Int {
 
 enum GameState: Int {
     // each one is 1 more
-    case error = 0, new, active, myWin, opWin, myTimeout, opTimeout, myLeave, opLeave, draw
+	case error = 0, new, active, myWin, opWin, myTimeout, opTimeout, myResign, opResign, draw, off
     
     func mirror() -> GameState {
         switch self {
@@ -32,24 +31,28 @@ enum GameState: Int {
         case .opWin: return .myWin
         case .myTimeout: return .opTimeout
         case .opTimeout: return .myTimeout
-        case .myLeave: return .opLeave
-        case .opLeave: return .myLeave
+        case .myResign: return .opResign
+        case .opResign: return .myResign
         case .draw: return .draw
         default: return .error
         }
     }
     
     var myWin: Bool {
-        self == .myWin || self == .opTimeout || self == .opLeave
+        self == .myWin || self == .opTimeout || self == .opResign
     }
     
     var opWin: Bool {
-        self == .opWin || self == .myTimeout || self == .myLeave
+        self == .opWin || self == .myTimeout || self == .myResign
     }
 }
 
 enum GamePopup {
 	case none, analysis, options, gameEnd, gameEndPending
+	
+	var up: Bool {
+		!(self == .none || self == .gameEndPending)
+	}
 }
 
 enum HintValue: Comparable {
@@ -120,6 +123,7 @@ class Game: ObservableObject {
     var timers: [Timer] = []
     var premoves: [Int] = []
 	var rematchRequested: Bool = false
+	var gameEndOptions: Bool = false
 	var mostRecentGame: (GameMode, Int, Int?, Bool, Double?) = (.novice, 0, nil, false, nil)
     var currentHintMoves: Set<Int>? {
 		guard let winsFor = showWinsFor else { return nil }
@@ -131,6 +135,8 @@ class Game: ObservableObject {
     }
     
     func load(mode: GameMode, boardNum: Int = 0, turn: Int? = nil, hints: Bool = false, time: Double? = nil) {
+		gameState = .new
+		self.mode = mode
 		mostRecentGame = (mode, boardNum, turn, hints, time)
         board = Board()
         BoardScene.main.reset()
@@ -139,7 +145,7 @@ class Game: ObservableObject {
         prevOpacity = .clear
         nextOpacity = .clear
 		optionsOpacity = .clear
-        gameState = .new
+		gameEndOptions = false
         currentMove = nil
         moves = []
         totalTime = time
@@ -177,7 +183,6 @@ class Game: ObservableObject {
 //			myTurn ^= 1
 //			Timer.after(0.2, run: { BoardScene.main.rotate(right: true); BoardScene.main.rotate(right: true) })
 //		}
-        self.mode = mode
         self.hints = hints
         let me = User(b: board, n: myTurn)
         let op = getOp(boardNum: boardNum, myColor: me.color)
@@ -511,7 +516,10 @@ class Game: ObservableObject {
     }
     
     @discardableResult func hidePopups() -> Bool {
-		if popup == .gameEnd { FB.main.cancelOnlineSearch?() }
+		if popup == .gameEnd {
+			gameEndOptions = true
+			FB.main.cancelOnlineSearch?()
+		}
 		if popup == .none { return false }
         withAnimation {
 			popup = .none
@@ -578,7 +586,7 @@ class Game: ObservableObject {
         withAnimation {
             nextOpacity = movesBack > 0 ? .full : .half
             if undoOpacity == .full { undoOpacity = .half }
-            let minMoves = gameState.myWin ? 0 : preset.count
+			let minMoves = mode.solve && (gameState == .active || !hints) ? preset.count : 0
             if moves.count - movesBack == minMoves { prevOpacity = .half }
         }
     }
@@ -669,13 +677,10 @@ class Game: ObservableObject {
         
         if end == .myTimeout || end == .opTimeout { BoardScene.main.spinBoard() }
         
-        if end == .myLeave { turnOff() }
-		else {
-			timers.append(Timer.after(1) {
-				withAnimation { self.popup = .gameEnd }
-				feedback.notificationOccurred(end.myWin ? .error : .warning)
-			})
-		}
+		timers.append(Timer.after(end == .myResign ? 0 : 1) {
+			withAnimation { self.popup = .gameEnd }
+			feedback.notificationOccurred(end.myWin ? .error : .warning)
+		})
         
 		func recordSolve(type: Key, index: Int) {
 			guard var solvesForType = Storage.array(type) as? [Bool] else { print("Can't record solve"); return }
@@ -695,33 +700,19 @@ class Game: ObservableObject {
     }
     
     func turnOff() {
-        guard mode != .off else { return }
+        guard gameState != .off else { return }
+		gameState = .off
 		
-		self.mode = .off
-		
-//		timers.append(Timer.after(1) {
-//			self.hintCard = false
-//			self.gameEndPopup = false
-//			self.animatingWin = false
-//		})
-		
-		cancelActions()
-        
-        undoOpacity = .clear
-        prevOpacity = .clear
-        nextOpacity = .clear
-    }
-	
-	func cancelActions() {
-		for timer in timers {
+		for timer in self.timers {
 			timer.invalidate()
 		}
 		timers = []
-		hintQueue.cancelAllOperations()
 		
+		hintQueue.cancelAllOperations()
 		player[0].cancelMove()
 		player[1].cancelMove()
-	}
+		
+    }
     
     func uploadSolveBoard(_ key: String) {
         FB.main.uploadSolveBoard(board.getMoveString(), key: key)

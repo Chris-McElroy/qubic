@@ -71,14 +71,16 @@ extension Timer {
 
 struct Fill: View {
     let height: CGFloat?
+	let color: Color
     
-    init(_ height: CGFloat? = nil) {
+	init(_ height: CGFloat? = nil, color: Color = .systemBackground) {
         self.height = height
+		self.color = color
     }
     
     var body: some View {
         Rectangle()
-            .foregroundColor(.systemBackground)
+            .foregroundColor(color)
             .frame(height: height)
     }
 }
