@@ -74,8 +74,6 @@ class Game: ObservableObject {
 	var gameNum: Int = 0
     var turn: Int { board.getTurn() }
     var realTurn: Int { gameState == .active ? moves.count % 2 : (gameState.myWin ? myTurn : (gameState.opWin ? myTurn^1 : 2)) }
-    var goBack: () -> Void = {}
-    var cancelBack: () -> Bool = { true }
     var myTurn: Int = 0
     var player: [Player] = [Player(b: Board(), n: 0), Player(b: Board(), n: 0)]
     var preset: [Int] = []
@@ -207,6 +205,8 @@ class Game: ObservableObject {
     private static func getDefaultColor(for n: Int) -> Int {
         return n == 4 ? 6 : 4
     }
+	
+	func hidePopups() -> Bool { false }
 }
 
 //class Game: ObservableObject {
@@ -221,7 +221,6 @@ class Game: ObservableObject {
 //    @Published var redoOpacity: Double = 0
 //
 //    var goBack: () -> Void = {}
-//    var cancelBack: () -> Bool = { true }
 //    var sendMessage: (Character) -> Void = { _ in }
 //    var myTurn: Int = 0
 //    var player: [Player] = [Player(b: Board(), n: 0), Player(b: Board(), n: 0)]

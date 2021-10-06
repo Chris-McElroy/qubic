@@ -27,27 +27,43 @@ struct GameView: View {
     @State var hideBoard: Bool = true
     @State var centerNames: Bool = true
 	@State var currentPriority: Int = 0
+	
+	let nameSpace: CGFloat = 65
+	let gameControlSpace: CGFloat = 45
     
     var body: some View {
         ZStack {
             VStack(spacing: 0) {
-                Fill(65)
+                Fill(nameSpace)
                 BoardView()
                     .gesture(swipe)
                     .zIndex(0.0)
 					.alert(isPresented: $game.showDCAlert, content: { enableBadgesAlert })
                     .opacity(hideBoard ? 0 : 1)
+				Fill(gameControlSpace)
             }
             VStack(spacing: 0) {
-                names
                 Spacer()
-                ZStack {
-					Fill().shadow(radius: 20).offset(y: game.hintCard || game.gameEndPopup ? 0 : 300)
-					gameEndOptions.offset(y: game.gameEndPopup ? 0 : 300)
-					hintContent.offset(y: game.hintCard ? 0 : 300)
-                }
-                .frame(height: 240)
+				analysisPopup.offset(y: game.popup == .analysis ? 0 : 320) // TODO split this into two, have the description up top and the sliders on the bottom
             }
+			VStack(spacing: 0) {
+				Spacer()
+				gameEndPopup.offset(y: game.popup == .gameEnd ? 0 : 320)
+			}
+			VStack(spacing: 0) {
+				Spacer()
+				optionsPopup.offset(y: game.popup == .options ? 0 : 200)
+			}
+			VStack(spacing: 0) {
+				Fill(100).offset(y: -100)
+				Spacer() // TODO make this a fill with very slight opacity when any popups are up, and then use that to mask the sliders
+				Fill(100).offset(y: 100)
+			}
+			VStack(spacing: 0) {
+				names
+				Spacer()
+				gameControls
+			}
         }
         .opacity(hideAll ? 0 : 1)
         .onAppear {
@@ -62,9 +78,17 @@ struct GameView: View {
 			let w = drag.translation.width
 			if abs(w/h) < 1 && BoardScene.main.mostRecentRotate == nil {
 				if h > 0 {
-					Game.main.goBack()
+					if Game.main.popup == .options || Game.main.popup == .gameEnd {
+						Game.main.hidePopups()
+					} else if Game.main.popup == .none {
+						withAnimation { Game.main.popup = .analysis }
+					}
 				} else {
-					Game.main.showHintCard()
+					if Game.main.popup == .analysis {
+						Game.main.hidePopups()
+					} else if Game.main.popup == .none {
+						withAnimation { Game.main.popup = .options }
+					}
 				}
 			}
 			BoardScene.main.endRotate()
@@ -78,7 +102,7 @@ struct GameView: View {
 		}
 	
 	let enableBadgesAlert = Alert(title: Text("Enable Badges"),
-								  message: Text("Allow 4Play to show a badge when a daily challenge is available?"),
+								  message: Text("Allow qubic to show a badge when a daily challenge is available?"),
 								  primaryButton: .default(Text("OK"), action: {
 									Notifications.turnOn()
 								  }),
@@ -92,11 +116,99 @@ struct GameView: View {
 		}
 		.padding(.horizontal, 22)
 		.padding(.top, 10)
+		.background(Fill().offset(y: -15))
 		.offset(y: centerNames ? Layout.main.safeHeight/2 - 50 : 0)
 		.zIndex(1.0)
 	}
 	
-	var gameEndOptions: some View {
+	var gameControls: some View {
+		HStack(spacing: 0) {
+			Spacer().frame(width: 15)
+			if layout.leftArrows { arrowButtons }
+			else { undoButton.frame(alignment: .top) }
+			Spacer()
+			Text("· · ·") // TODO make 3 different dots and make it a button
+				.font(.system(size: 28)).bold()
+				.opacity(game.optionsOpacity.rawValue)
+			Spacer()
+			if layout.leftArrows { undoButton }
+			else { arrowButtons.frame(alignment: .top) }
+			Spacer().frame(width: 15)
+		}
+		.background(Fill())
+		.offset(y: 5)
+		.frame(width: layout.width, height: 40)
+		.buttonStyle(Solid())
+	}
+	
+	private var undoButton: some View {
+		HStack(spacing: 0) {
+//            Spacer().frame(width: layout.leftArrows ? 20 : 10)
+			Button(action: game.undoMove) {
+				VStack(spacing: 0) {
+					Fill(20).cornerRadius(10).opacity(0.00001)
+					Text("undo")
+						.font(.custom("Oligopoly Regular", size: 16))
+						.accentColor(.label)
+					Text(" ")
+	//                    .padding(.bottom, 10)
+	//                    .multilineTextAlignment(layout.leftArrows ? .trailing : .leading)
+				}
+			}
+			.frame(width: 75, height: bottomButtonHeight, alignment: layout.leftArrows ? .trailing : .leading)
+			.padding(.horizontal, 10)
+			.opacity(game.undoOpacity.rawValue)
+//            Spacer().frame(width: layout.leftArrows ? 10 : 20)
+		}
+	}
+	
+	private var arrowButtons: some View {
+		HStack(spacing: 0) {
+//            Spacer().frame(width: layout.leftArrows ? 30 : 0)
+			Button(action: game.prevMove) {
+				VStack(spacing: 0) {
+					Fill(20).cornerRadius(10).opacity(0.00001)
+					Text("←")
+						.font(.custom("Oligopoly Regular", size: 25))
+						.accentColor(.label)
+	//                    .padding(.bottom, 10)
+					Blank(12)
+				}
+			}
+			.frame(width: 40, height: bottomButtonHeight)
+			.opacity(game.prevOpacity.rawValue)
+			Spacer().frame(width: 15)
+			Button(action: game.nextMove) {
+				VStack(spacing: 0) {
+					Fill(20).cornerRadius(10).opacity(0.00001)
+					Text("→")
+						.font(.custom("Oligopoly Regular", size: 25))
+						.accentColor(.label)
+	//                    .padding(.bottom, 10)
+					Blank(12)
+				}
+			}
+			.frame(width: 40, height: bottomButtonHeight)
+			.opacity(game.nextOpacity.rawValue)
+//            Spacer().frame(width: layout.leftArrows ? 0 : 30)
+		}
+	}
+	
+	var optionsPopup: some View {
+		VStack(spacing: 20) {
+			Text("resign")
+			if game.hints || game.solved {
+				Text("analysis")
+			}
+		}
+		.font(.custom("Oligopoly Regular", size: 18))
+		.padding(.top, 20)
+		.padding(.bottom, gameControlSpace)
+		.frame(width: layout.width)
+		.background(Fill().shadow(radius: 20))
+	}
+	
+	var gameEndPopup: some View {
 		var titleText = game.gameState.myWin ? "you won!" : "you lost!"
 		if game.gameState == .draw { titleText = "draw" }
 		if game.mode == .daily && Storage.int(.lastDC) > game.lastDC { titleText = "\(Storage.int(.streak)) day streak!" }
@@ -126,7 +238,7 @@ struct GameView: View {
 			Spacer()
 			Text(titleText).font(.custom("Oligopoly Regular", size: 24)) // .system(.largeTitle))
 			Spacer()
-			Button("review game") { game.hideGameEndPopup() }
+			Button("review game") { game.hidePopups() }
 			if game.mode != .online {
 				Button(rematchText) { animateGameChange(rematch: true) }
 			}
@@ -149,7 +261,10 @@ struct GameView: View {
 			Spacer()
 		}
 		.font(.custom("Oligopoly Regular", size: 18)) //.system(size: 18))
+		.padding(.top, nameSpace)
 		.buttonStyle(Solid())
+		.frame(width: layout.width, height: 300)
+		.background(Fill().shadow(radius: 20))
 	}
     
     func animateIntro() {
@@ -179,7 +294,7 @@ struct GameView: View {
     }
 	
 	func animateGameChange(rematch: Bool) {
-		game.hideGameEndPopup()
+		game.hidePopups()
 		game.cancelActions()
 		withAnimation {
 			game.undoOpacity = .clear
@@ -317,7 +432,7 @@ struct GameView: View {
 		}
     }
     
-    var hintContent: some View {
+    var analysisPopup: some View {
         ZStack {
             if game.hints {
                 // HPickers
@@ -359,10 +474,10 @@ struct GameView: View {
                 if game.mode.solve {
                     if game.solved {
                         VStack(spacing: 20) {
-                            Text("you previously solved this puzzle, do you want to analyze it?")
+                            Text("you previously solved this puzzle, do you want to enable analysis?")
                                 .multilineTextAlignment(.center)
                                 .padding(.horizontal, 40)
-                            Button("enable") { game.hints = true }
+							Button("yes") { withAnimation { game.hints = true } }
                                 .buttonStyle(Solid())
                         }
                     } else {
@@ -377,6 +492,10 @@ struct GameView: View {
                 }
             }
         }
+		.padding(.top, nameSpace)
+		.padding(.bottom, 10)
+		.frame(height: 320)
+		.background(Fill().shadow(radius: 20))
     }
     
     func onSelection(row: Int, component: Int) {
@@ -386,7 +505,7 @@ struct GameView: View {
 //					print("old show wins:", game.showWinsFor, "new show wins:", currentPriority)
 					game.showWinsFor = hintSelection[0] == 1 ? currentPriority : hintSelection[0]/2
 					game.showAllHints = row == 0
-                    game.hideHintCard()
+                    game.hidePopups()
                 } else {
                     game.showWinsFor = nil
                 }

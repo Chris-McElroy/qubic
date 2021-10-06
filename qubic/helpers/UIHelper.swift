@@ -98,9 +98,9 @@ struct Blank: View {
 let mainButtonHeight: CGFloat = 92
 let moreButtonHeight: CGFloat = 50
 let nameButtonWidth: CGFloat = 180
-var bottomButtonSpace: CGFloat = 50
-let bottomButtonHeight: CGFloat = 50
-let bottomButtonFrame: CGFloat = 100
+var bottomButtonSpace: CGFloat = 50 // space for menus = menuSpace - bottombuttonspace
+let bottomButtonHeight: CGFloat = 50 // actual height of the bottom buttons
+let bottomButtonFrame: CGFloat = 150 // height of the entire bottom button view, just needs to be big enough but doesn't matter otherwise
 
 struct MainStyle: ButtonStyle {
     let color: Color

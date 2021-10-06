@@ -181,10 +181,10 @@ class MessagesViewController: MSMessagesAppViewController {
         }
         
         let message = MSMessage(session: selected?.session ?? MSSession())
-        message.summaryText = "4Play game"
+        message.summaryText = "qubic game"
         let layout = MSMessageTemplateLayout()
         layout.image = UIImage(named: "icon1024half")
-        layout.caption = "4Play"
+        layout.caption = "qubic"
         message.layout = layout
         guard let url = selected?.url else { print("no url"); return }
         guard var urlComponents = URLComponents(url: url, resolvingAgainstBaseURL: true) else { print("url failed"); return }
@@ -204,10 +204,10 @@ class MessagesViewController: MSMessagesAppViewController {
     
     @objc func pressedStart() {
         let message = MSMessage(session: selected?.session ?? MSSession())
-        message.summaryText = "4Play game"
+        message.summaryText = "qubic game"
         let layout = MSMessageTemplateLayout()
         layout.image = UIImage(named: "icon1024half")
-        layout.caption = "4Play"
+        layout.caption = "qubic"
         message.layout = layout
 //        let uuid = UIDevice.current.identifierForVendor?.uuidString ?? ""
         var first: Bool = 0 == .random(in: 0...1)

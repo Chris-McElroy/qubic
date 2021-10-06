@@ -8,8 +8,8 @@
 
 import SwiftUI
 
-let buildNumber = 30101
-let versionType: VersionType = .testFlight
+let buildNumber = 30102
+let versionType: VersionType = .xCode
 let solveButtonsEnabled = false
 
 struct MainView: View {
@@ -28,15 +28,13 @@ struct MainView: View {
             moreStack.zIndex(0)
             Spacer()
             bottomButtons.modifier(LayoutModifier(for: .bottomButtons))
-                .offset(y: layout.bottomButtonsOffset)
+				.offset(y: layout.bottomButtonsOffset)
                 .zIndex(10)
         }
         .onAppear {
             FB.main.start()
             layout.load(for: screen)
             layout.current = .main
-            game.goBack = goBack
-            game.cancelBack = cancelBack
 			updateSolveBoardData()
             Notifications.setBadge(justSolved: false)
         }
@@ -50,8 +48,8 @@ struct MainView: View {
     
     private var top: some View {
         VStack(spacing: 0) {
-			Text("4Play" + (versionType == .testFlight ? " beta" : ""))
-                .font(.custom("Oligopoly Regular", size: 24))
+			Text("qubic" + (versionType == .testFlight ? " beta" : ""))
+                .font(.custom("Oligopoly Regular", size: 26))
                 .padding(.top, 10)
                 .modifier(LayoutModifier(for: .title))
             cube
@@ -66,18 +64,18 @@ struct MainView: View {
     
     private var mainStack: some View {
         var trainText: String {
-            layout.current == .trainMenu ? "  start  " : "  train  "
+			layout.current.trainGame ? "  start  " : "  train  "
         }
         
         var solveText: String {
-            layout.current == .solveMenu ? "  start  " : " solve "
+			layout.current.solveGame ? "  start  " : " solve "
         }
         
         var playText: String {
 			if layout.searchingOnline {
                 return "\u{2009}            "
             } else {
-                return layout.current == .playMenu ? "  start  " : "  \u{2009}\u{2009}\u{2009}play\u{2009}\u{2009}\u{2009}  "
+				return layout.current.playGame ? "  start  " : "  \u{2009}\u{2009}\u{2009}play\u{2009}\u{2009}\u{2009}  "
             }
         }
 		
@@ -161,22 +159,12 @@ struct MainView: View {
     private var bottomButtons: some View {
 //        ZStack {
             VStack(spacing: 0) {
-                HStack(spacing: 0) {
-                    Spacer().frame(width: 15)
-                    if layout.leftArrows { arrowButtons }
-                    else { undoButton.frame(alignment: .top) }
-                    Spacer()
-                    backButton
-                    Spacer()
-                    if layout.leftArrows { undoButton }
-                    else { arrowButtons.frame(alignment: .top) }
-                    Spacer().frame(width: 15)
-                }
+				backButton
                 Spacer()
             }
+			.frame(width: layout.width)
             .background(Fill())
             .buttonStyle(Solid())
-            .frame(width: layout.width)
 //            VStack {
 //                Text("\(layout.hue), \(layout.baseColor)").offset(y: -700)
 //                if #available(iOS 14.0, *) {
@@ -189,79 +177,22 @@ struct MainView: View {
     
     private var backButton: some View {
         Button(action: goBack ) {
-            VStack {
+			VStack(spacing: 0) {
 				ZStack {
-					Text(layout.current == .main ? "more" : layout.halfBack ? "leave game" : "back")
+					Text(layout.current == .main ? "more" : "back")
 						.font(.custom("Oligopoly Regular", size: 16))
-						.animation(nil)
 					Circle().frame(width: 12, height: 12).foregroundColor(.primary()).offset(x: 30, y: 2)
 						.opacity(layout.current == .main && layout.updateAvailable ? 1 : 0)
 				}
-                Text("↓")
-                    .rotationEffect(Angle(degrees: layout.current == .main ? 0 : 180))
-            }
+				Text("↓")
+					.rotationEffect(Angle(degrees: layout.current == .main ? 0 : 180))
+			}
+			.frame(width: 110, height: bottomButtonHeight)
+			.background(Fill())
+		}
 //            .padding(.horizontal, 0)// halfBack ? 0 : 20)
 //            .padding(.bottom, 10)
 //            .padding(.top, 5)
-            .frame(width: 110, height: bottomButtonHeight)
-            .background(Fill())
-        }
-    }
-    
-    private var undoButton: some View {
-        HStack(spacing: 0) {
-//            Spacer().frame(width: layout.leftArrows ? 20 : 10)
-            Button(action: game.undoMove) {
-                VStack(spacing: 0) {
-                    Fill(20).cornerRadius(10).opacity(0.00001)
-                    Text("undo")
-                        .font(.custom("Oligopoly Regular", size: 16))
-                        .accentColor(.label)
-                    Text(" ")
-    //                    .padding(.bottom, 10)
-    //                    .multilineTextAlignment(layout.leftArrows ? .trailing : .leading)
-                }
-            }
-            .frame(width: 75, height: bottomButtonHeight, alignment: layout.leftArrows ? .trailing : .leading)
-            .offset(y: -10)
-            .padding(.horizontal, 10)
-            .opacity(game.undoOpacity.rawValue)
-//            Spacer().frame(width: layout.leftArrows ? 10 : 20)
-        }
-    }
-    
-    private var arrowButtons: some View {
-        HStack(spacing: 0) {
-//            Spacer().frame(width: layout.leftArrows ? 30 : 0)
-            Button(action: game.prevMove) {
-                VStack(spacing: 0) {
-                    Fill(20).cornerRadius(10).opacity(0.00001)
-                    Text("←")
-                        .font(.custom("Oligopoly Regular", size: 25))
-                        .accentColor(.label)
-    //                    .padding(.bottom, 10)
-                    Blank(12)
-                }
-            }
-            .frame(width: 40, height: bottomButtonHeight)
-            .offset(y: -10)
-            .opacity(game.prevOpacity.rawValue)
-            Spacer().frame(width: 15)
-            Button(action: game.nextMove) {
-                VStack(spacing: 0) {
-                    Fill(20).cornerRadius(10).opacity(0.00001)
-                    Text("→")
-                        .font(.custom("Oligopoly Regular", size: 25))
-                        .accentColor(.label)
-    //                    .padding(.bottom, 10)
-                    Blank(12)
-                }
-            }
-            .frame(width: 40, height: bottomButtonHeight)
-            .offset(y: -10)
-            .opacity(game.nextOpacity.rawValue)
-//            Spacer().frame(width: layout.leftArrows ? 0 : 30)
-        }
     }
     
     var scrollGestures: some Gesture {
@@ -284,36 +215,20 @@ struct MainView: View {
     
     func switchLayout(to newLayout: ViewState, or otherLayout: ViewState? = nil) {
         if let nextView = (layout.current != newLayout) ? newLayout : otherLayout {
-            withAnimation(.easeInOut(duration: 0.4)) { //0.4
+			withAnimation(.easeInOut(duration: 0.4)) { //0.4
                 layout.current = nextView
             }
         }
     }
     
+	// TODO consider declaring in layout
     func goBack() {
-        if game.hideHintCard() { return }
-		if layout.current.gameView { layout.halfBack.toggle() }
-		else { layout.halfBack = false }
-		if layout.halfBack {
-            UIImpactFeedbackGenerator(style: .rigid).impactOccurred()
-        } else {
-            FB.main.cancelOnlineSearch?()
-            game.endGame(with: .myLeave)
-            withAnimation(.easeInOut(duration: 0.4)) { //0.4
-                layout.current = layout.current.back
-            }
-        }
-    }
-    
-    func cancelBack() -> Bool {
-        if game.hideHintCard() { return false }
-		if game.hideGameEndPopup() { return false }
-		if layout.halfBack {
-            UIImpactFeedbackGenerator(style: .light).impactOccurred()
-			layout.halfBack = false
-            return false
-        }
-        return true
+//        if game.hideHintCard() { return } // TODO consider removing
+		FB.main.cancelOnlineSearch?()
+		game.endGame(with: .myLeave)
+		withAnimation(.easeInOut(duration: 0.4)) { //0.4
+			layout.current = layout.current.back
+		}
     }
 }
 

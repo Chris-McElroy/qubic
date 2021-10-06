@@ -23,6 +23,9 @@ enum ViewState: CaseIterable {
     
     var gameView: Bool { self == .play || self == .solve || self == .train }
     var menuView: Bool { self == .playMenu || self == .solveMenu || self == .trainMenu }
+	var trainGame: Bool { self == .train || self == .trainMenu }
+	var solveGame: Bool { self == .solve || self == .solveMenu }
+	var playGame: Bool { self == .play || self == .playMenu }
     
     var back: ViewState {
         switch self {
@@ -125,7 +128,6 @@ class Layout: ObservableObject {
     @Published var current: ViewState = .main
     @Published var leftArrows: Bool = Storage.int(.arrowSide) == 0
     @Published var newDaily = Storage.int(.lastDC) != Date.int
-	@Published var halfBack: Bool = false
 	@Published var updateAvailable: Bool = false
 	@Published var trainSelection: [Int] = Storage.array(.lastTrainMenu) as? [Int] ?? [0,1,0]
 	@Published var solveSelection: [Int] = [0,0]
@@ -139,8 +141,12 @@ class Layout: ObservableObject {
     var menuHeight: CGFloat = 800
     var width: CGFloat = 0
     private var topGap: CGFloat = 80
-    private var bottomGap: CGFloat = 80
-    var bottomButtonsOffset: CGFloat = -800
+	private var bottomGap: CGFloat = 80
+    var bottomButtonsOffset: CGFloat {
+		let baseOffset = -2*safeHeight + (bottomButtonFrame - bottomButtonSpace)
+		// add the amount the start button travels if it's moving with the start button
+		return baseOffset + (current.gameView ? mainButtonHeight + bottomButtonSpace + bottomGap : 0)
+	}
     var feedbackTextSize: CGFloat = 90
     var feedbackSpacerSize: CGFloat = 15
     
@@ -160,7 +166,7 @@ class Layout: ObservableObject {
     }
     
     func bottomOf(_ view: LayoutView) -> CGFloat {
-        if current.gameView { return 0 }  // I'm not convinced a bottom gap is useful in any cases
+		if current.gameView { return current.bottom == view ? bottomGap : 0 }
         return current.bottom == view ? (safeHeight-menuHeight)/2 : 0
     }
     
@@ -169,13 +175,13 @@ class Layout: ObservableObject {
         width = screen.width
         topGap = screen.window?.safeAreaInsets.top ?? 0
         bottomGap = screen.window?.safeAreaInsets.bottom ?? 0
+		bottomButtonSpace = bottomButtonHeight - bottomGap/3
         safeHeight = fullHeight - topGap - bottomGap
         menuHeight = min(800, safeHeight)
         total = 5*safeHeight
         setLineWidth()
         setCube()
         setFeedbackText()
-        setOffsets()
         setFocusHeights()
         setTopSpacerHeights()
     }
@@ -202,7 +208,7 @@ class Layout: ObservableObject {
         
         // use that to calculate everything else
         for state in ViewState.allCases {
-            var space = (state.gameView ? safeHeight : menuHeight) - bottomButtonSpace + (defaultHeight[state.focus] ?? 0)
+            var space = (state.gameView ? safeHeight : menuHeight - bottomButtonSpace) + (defaultHeight[state.focus] ?? 0)
             for v in state.top.rawValue...state.bottom.rawValue {
                 guard let view = LayoutView.init(rawValue: v) else { break }
                 space -= defaultHeight[view] ?? 0
@@ -220,13 +226,7 @@ class Layout: ObservableObject {
             }
             topSpacerHeight[state] = space
         }
-    }
-    
-    private func setOffsets() {
-//        fillOffset = -3*mainHeight + 83 - 2*topGap
-        bottomButtonSpace = bottomButtonHeight - bottomGap/3
-        bottomButtonsOffset = -2*safeHeight + (bottomButtonFrame - bottomButtonSpace)
-    }
+	}
     
     private func setLineWidth() {
         switch safeHeight {

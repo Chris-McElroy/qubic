@@ -33,10 +33,10 @@ extension MainView {
         composeVC.messageComposeDelegate = messageComposeDelegate
 
         let message = MSMessage(session: MSSession())
-        message.summaryText = "4Play game"
+        message.summaryText = "qubic game"
         let layout = MSMessageTemplateLayout()
         layout.image = UIImage(named: "icon1024half")
-        layout.caption = "4Play"
+        layout.caption = "qubic"
         message.layout = layout
 //        let first: Bool = playSelection[1] == 1 ? 0 == .random(in: 0...1) : playSelection[1] == 0
         

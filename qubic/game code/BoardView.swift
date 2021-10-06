@@ -125,7 +125,6 @@ class BoardScene {
     }
     
     @objc func handleTap(_ gestureRecognize: UIGestureRecognizer) {
-        guard Game.main.cancelBack() else { return }
         let hit = gestureRecognize.location(in: view)
         let hitResults = view.hitTest(hit, options: [:])
         guard let result = hitResults.first?.node else {

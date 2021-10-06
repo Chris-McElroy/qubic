@@ -48,6 +48,10 @@ enum GameState: Int {
     }
 }
 
+enum GamePopup {
+	case none, analysis, options, gameEnd, gameEndPending
+}
+
 enum HintValue: Comparable {
 	case noW, c2, cm2, c2d1, w2, w2d1, c1, cm1, w1, w0
 }
@@ -76,25 +80,23 @@ class Move: Equatable {
 class Game: ObservableObject {
     static let main = Game()
     
-    @Published var hintCard: Bool = false
     @Published var currentMove: Move? = nil
     @Published var showDCAlert: Bool = false
 //    @Published var newStreak: Int? = nil
     @Published var undoOpacity: Opacity = .clear
     @Published var prevOpacity: Opacity = .clear
     @Published var nextOpacity: Opacity = .clear
+	@Published var optionsOpacity: Opacity = .clear
     @Published var moves: [Move] = []
     @Published var hints: Bool = false
     @Published var showWinsFor: Int? = nil
 	@Published var showAllHints: Bool = true
     @Published var currentTimes: [Int] = [0,0]
-	@Published var gameEndPopup: Bool = false
+	@Published var popup: GamePopup = .none
     
 	var gameNum: Int = 0
     var turn: Int { board.getTurn() }
     var realTurn: Int { gameState == .active ? moves.count % 2 : (gameState.myWin ? myTurn : (gameState.opWin ? myTurn^1 : 2)) }
-    var goBack: () -> Void = {}
-    var cancelBack: () -> Bool = { true }
     var myTurn: Int = 0
     var player: [Player] = [Player(b: Board(), n: 0), Player(b: Board(), n: 0)]
     var times: [[Double]] = [[], []]
@@ -115,7 +117,6 @@ class Game: ObservableObject {
     var ghostMoveStart: Int = 0
     var ghostMoveCount: Int = 0
     var newHints: () -> Void = {}
-	var animatingWin: Bool = false
     var timers: [Timer] = []
     var premoves: [Int] = []
 	var rematchRequested: Bool = false
@@ -137,6 +138,7 @@ class Game: ObservableObject {
         undoOpacity = .clear
         prevOpacity = .clear
         nextOpacity = .clear
+		optionsOpacity = .clear
         gameState = .new
         currentMove = nil
         moves = []
@@ -155,13 +157,11 @@ class Game: ObservableObject {
         movesBack = 0
         ghostMoveStart = 0
         ghostMoveCount = 0
-        hintCard = false
         replayMode = false
         premoves = []
 		showWinsFor = nil
 		showAllHints = true
-		gameEndPopup = false
-		animatingWin = false
+		popup = .none
 //        newStreak = nil
 		dayInt = Date.int
 		lastDC = Storage.int(.lastDC)
@@ -269,7 +269,7 @@ class Game: ObservableObject {
 //			case .picture4: op = Daily(b: board, n: myTurn^1, num: 3)
             default:        op = Novice(b: board, n: myTurn^1)
             }
-            if myColor == op.color { op.color = [4, 4, 1, 4, 6, 7, 4, 5, 7][myColor] }
+            if myColor == op.color { op.color = [4, 4, 4, 8, 6, 7, 4, 5, 3][myColor] }
             return op
         }
     }
@@ -313,6 +313,7 @@ class Game: ObservableObject {
             undoOpacity = hints || mode.solve ? .half : .clear
             prevOpacity = .half
             nextOpacity = .half
+			optionsOpacity = .full
         }
         if totalTime != nil {
             lastStart[turn] = Date.now+2
@@ -509,39 +510,15 @@ class Game: ObservableObject {
         }
     }
     
-	func showHintCard() {
-		if animatingWin { return }
+    @discardableResult func hidePopups() -> Bool {
+		if popup == .gameEnd { FB.main.cancelOnlineSearch?() }
+		if popup == .none { return false }
         withAnimation {
-            hintCard = true
-        }
-    }
-    
-    @discardableResult func hideHintCard() -> Bool {
-        if !hintCard { return false }
-        withAnimation {
-            hintCard = false
+			popup = .none
         }
         return true
     }
 	
-	func showGameEndPopup() {
-		Layout.main.halfBack = true
-		withAnimation {
-			gameEndPopup = true
-		}
-	}
-	
-	@discardableResult func hideGameEndPopup() -> Bool {
-		if !gameEndPopup { return false }
-		FB.main.cancelOnlineSearch?()
-		animatingWin = false
-		Layout.main.halfBack = false
-		withAnimation {
-			gameEndPopup = false
-		}
-		return true
-	}
-    
     func undoMove() {
         guard movesBack == 0 else {
             UINotificationFeedbackGenerator().notificationOccurred(.error)
@@ -648,8 +625,7 @@ class Game: ObservableObject {
 		gameState = end
 		premoves = []
 		BoardScene.main.spinMoves()
-		animatingWin = true
-		hideHintCard()
+		withAnimation { popup = .gameEndPending }
 		
 		let feedback = UINotificationFeedbackGenerator()
 		feedback.prepare()
@@ -696,7 +672,7 @@ class Game: ObservableObject {
         if end == .myLeave { turnOff() }
 		else {
 			timers.append(Timer.after(1) {
-				self.showGameEndPopup()
+				withAnimation { self.popup = .gameEnd }
 				feedback.notificationOccurred(end.myWin ? .error : .warning)
 			})
 		}
