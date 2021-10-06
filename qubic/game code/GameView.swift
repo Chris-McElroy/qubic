@@ -29,7 +29,7 @@ struct GameView: View {
 	@State var currentPriority: Int = 0
 	
 	let nameSpace: CGFloat = 65
-	let gameControlSpace: CGFloat = 45
+	let gameControlSpace: CGFloat = Layout.main.hasBottomGap ? 45 : 60
     
     var body: some View {
         ZStack {
@@ -46,7 +46,7 @@ struct GameView: View {
 			VStack(spacing: 0) {
 				Fill(100).offset(y: -100)
 				Spacer()
-				Fill(100).offset(y: 100)
+				Fill(100).offset(y: 85)
 			}
 			VStack(spacing: 0) {
 				names
@@ -124,10 +124,10 @@ struct GameView: View {
 			else { arrowButtons.frame(alignment: .top) }
 			Spacer().frame(width: 15)
 		}
-		.background(Fill())
-		.offset(y: 5)
 		.frame(width: layout.width, height: 40)
+		.background(Fill())
 		.buttonStyle(Solid())
+		.offset(y: layout.hasBottomGap ? 5 : -10)
 	}
 	
 	private var optionsButton: some View {
@@ -163,7 +163,7 @@ struct GameView: View {
 	//                    .multilineTextAlignment(layout.leftArrows ? .trailing : .leading)
 				}
 			}
-			.frame(width: 75, height: bottomButtonHeight, alignment: layout.leftArrows ? .trailing : .leading)
+			.frame(width: 75, alignment: layout.leftArrows ? .trailing : .leading)
 			.padding(.horizontal, 10)
 			.opacity(game.undoOpacity.rawValue)
 //            Spacer().frame(width: layout.leftArrows ? 10 : 20)
@@ -183,7 +183,7 @@ struct GameView: View {
 					Blank(12)
 				}
 			}
-			.frame(width: 40, height: bottomButtonHeight)
+			.frame(width: 40)
 			.opacity(game.prevOpacity.rawValue)
 			Spacer().frame(width: 15)
 			Button(action: game.nextMove) {
@@ -196,7 +196,7 @@ struct GameView: View {
 					Blank(12)
 				}
 			}
-			.frame(width: 40, height: bottomButtonHeight)
+			.frame(width: 40)
 			.opacity(game.nextOpacity.rawValue)
 //            Spacer().frame(width: layout.leftArrows ? 0 : 30)
 		}

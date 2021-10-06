@@ -9,7 +9,7 @@
 import SwiftUI
 
 let buildNumber = 30102
-let versionType: VersionType = .xCode
+let versionType: VersionType = .testFlight
 let solveButtonsEnabled = false
 
 struct MainView: View {
@@ -27,8 +27,8 @@ struct MainView: View {
             mainStack.zIndex(1)
             moreStack.zIndex(0)
             Spacer()
-            bottomButtons.modifier(LayoutModifier(for: .bottomButtons))
-				.offset(y: layout.bottomButtonsOffset)
+            backButton.modifier(LayoutModifier(for: .backButton))
+				.offset(y: layout.backButtonOffset)
                 .zIndex(10)
         }
         .onAppear {
@@ -155,16 +155,7 @@ struct MainView: View {
 //                .frame(height: heights.get(heights.friends), alignment: .top)
         }
     }
-    
-    private var bottomButtons: some View {
-//        ZStack {
-            VStack(spacing: 0) {
-				backButton
-                Spacer()
-            }
-			.frame(width: layout.width)
-            .background(Fill())
-            .buttonStyle(Solid())
+
 //            VStack {
 //                Text("\(layout.hue), \(layout.baseColor)").offset(y: -700)
 //                if #available(iOS 14.0, *) {
@@ -173,23 +164,28 @@ struct MainView: View {
 //                Slider(value: $layout.hue, in: 0...1).padding(.horizontal, 20).offset(y: -70)
 //            }
 //        }
-    }
     
     private var backButton: some View {
-		Button(action: layout.goBack ) {
-			VStack(spacing: 0) {
-				ZStack {
-					Text(layout.current == .main ? "more" : "back")
-						.font(.custom("Oligopoly Regular", size: 16))
-					Circle().frame(width: 12, height: 12).foregroundColor(.primary()).offset(x: 30, y: 2)
-						.opacity(layout.current == .main && layout.updateAvailable ? 1 : 0)
+		VStack(spacing: 0) {
+			Button(action: layout.goBack) {
+				VStack(spacing: 0) {
+					ZStack {
+						Text(layout.current == .main ? "more" : "back")
+							.font(.custom("Oligopoly Regular", size: 16))
+						Circle().frame(width: 12, height: 12).foregroundColor(.primary()).offset(x: 30, y: 2)
+							.opacity(layout.current == .main && layout.updateAvailable ? 1 : 0)
+					}
+					Text("↓")
+						.rotationEffect(Angle(degrees: layout.current == .main ? 0 : 180))
 				}
-				Text("↓")
-					.rotationEffect(Angle(degrees: layout.current == .main ? 0 : 180))
+				.frame(width: 110, height: backButtonHeight)
+				.background(Fill())
 			}
-			.frame(width: 110, height: bottomButtonHeight)
-			.background(Fill())
+			Spacer()
 		}
+		.frame(width: layout.width)
+		.background(Fill())
+		.buttonStyle(Solid())
 //            .padding(.horizontal, 0)// halfBack ? 0 : 20)
 //            .padding(.bottom, 10)
 //            .padding(.top, 5)
