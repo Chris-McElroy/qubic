@@ -37,6 +37,8 @@ enum Key: String {
     case messagesID = "messagesID"
     case email = "email"
     case feedback = "feedback"
+	case moveChecker = "moveChecker"
+	case confirmMoves = "confirmMoves"
     
     case myTurn = "myTurn"
     case myID = "myID"

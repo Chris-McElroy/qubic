@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-let buildNumber = 30102
+let buildNumber = 30103
 let versionType: VersionType = .testFlight
 let solveButtonsEnabled = false
 

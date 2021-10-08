@@ -34,6 +34,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             Key.notification.rawValue: 1,
             Key.premoves.rawValue: 1,
             Key.arrowSide.rawValue: 1,
+			Key.moveChecker.rawValue: 2,
+			Key.confirmMoves.rawValue: 0,
             Key.uuid.rawValue: "00000000000000000000000000000000"
         ])
         

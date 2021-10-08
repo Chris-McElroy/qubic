@@ -201,7 +201,11 @@ class Game: ObservableObject {
     
     func processGhostMove(_ move: Int) {
     }
-    
+	
+	func checkAndProcessMove(_ move: Int, for turn: Int, num: Int) {
+		processMove(move, for: turn, num: num)
+	}
+		
     private static func getDefaultColor(for n: Int) -> Int {
         return n == 4 ? 6 : 4
     }

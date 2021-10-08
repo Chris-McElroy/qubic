@@ -28,14 +28,16 @@ struct GameView: View {
     @State var centerNames: Bool = true
 	@State var currentPriority: Int = 0
 	
+//	var animation = Animation.linear.delay(0)
 	let nameSpace: CGFloat = 65
 	let gameControlSpace: CGFloat = Layout.main.hasBottomGap ? 45 : 60
     
     var body: some View {
         ZStack {
             VStack(spacing: 0) {
-                Fill(nameSpace)
+                Fill(nameSpace + 15)
                 BoardView()
+					.frame(width: layout.width)
                     .zIndex(0.0)
                     .opacity(hideBoard ? 0 : 1)
 				Fill(gameControlSpace)
@@ -57,6 +59,8 @@ struct GameView: View {
         .opacity(hideAll ? 0 : 1)
 		.gesture(swipe)
 		.alert(isPresented: $game.showDCAlert, content: { enableBadgesAlert })
+		.alert(isPresented: $game.showCubistAlert, content: { cubistAlert })
+		// TODO add alert for when you beat cubist for the first time
         .onAppear {
             Game.main.newHints = refreshHintPickerContent
             animateIntro()
@@ -99,6 +103,10 @@ struct GameView: View {
 								  }),
 								  secondaryButton: .cancel())
 	
+	let cubistAlert = Alert(title: Text("Congratulations!"),
+								  message: Text("You beat cubist in challenge mode, which unlocks the move checker feature! You can turn it on in settings."),
+								  dismissButton: .cancel(Text("OK")))
+	
 	var names: some View {
 		HStack {
 			PlayerName(turn: 0, game: game, text: $hintText, winsFor: $hintSelection[0])
@@ -107,7 +115,8 @@ struct GameView: View {
 		}
 		.padding(.horizontal, 22)
 		.padding(.top, 10)
-		.background(Fill().offset(y: -15))
+		.frame(width: layout.width)
+		.background(Fill())
 		.offset(y: centerNames ? Layout.main.safeHeight/2 - 50 : 0)
 		.zIndex(1.0)
 	}
@@ -232,7 +241,7 @@ struct GameView: View {
 			.padding(.top, 20)
 			.padding(.bottom, gameControlSpace)
 			.frame(width: layout.width)
-			.background(Fill().shadow(radius: 20))
+			.modifier(PopupModifier())
 			.offset(y: game.popup == .options ? 0 : 400)
 		}
 	}
@@ -251,7 +260,7 @@ struct GameView: View {
 			.padding(.vertical, 15)
 			.padding(.top, nameSpace)
 			.frame(width: layout.width)
-			.background(Fill().shadow(radius: 20))
+			.modifier(PopupModifier())
 			.offset(y: game.popup == .gameEnd ? 0 : -(130 + nameSpace))
 			
 			Spacer()
@@ -273,7 +282,7 @@ struct GameView: View {
 			.font(.custom("Oligopoly Regular", size: 18)) //.system(size: 18))
 			.buttonStyle(Solid())
 			.frame(width: layout.width)
-			.background(Fill().shadow(radius: 20))
+			.modifier(PopupModifier())
 			.offset(y: game.popup == .gameEnd ? 0 : 330)
 		}
 	}
@@ -323,25 +332,28 @@ struct GameView: View {
         hideBoard = true
         centerNames = true
 //        BoardScene.main.rotate(right: true) // this created a race condition
-        Timer.after(0.1) {
+		game.timers.append(Timer.after(0.1) {
             withAnimation {
                 hideAll = false
             }
-        }
-		Timer.after(1) {
+        })
+		
+		game.timers.append(Timer.after(1) {
             withAnimation {
                 centerNames = false
             }
-        }
-		Timer.after(1.1) {
+        })
+		
+		game.timers.append(Timer.after(1.1) {
             withAnimation {
                 hideBoard = false
             }
             BoardScene.main.rotate(right: false)
-        }
-		Timer.after(1.5) {
+        })
+		
+		game.timers.append(Timer.after(1.5) {
             game.startGame()
-        }
+        })
     }
 	
 	func animateGameChange(rematch: Bool) {
@@ -353,31 +365,32 @@ struct GameView: View {
 			game.optionsOpacity = .clear
 		}
 		
-		Timer.after(0.3) {
+		game.timers.append(Timer.after(0.3) {
 			withAnimation {
 				hideBoard = true
 			}
 			BoardScene.main.rotate(right: false)
-		}
+		})
 		
-		Timer.after(0.6) {
+		game.timers.append(Timer.after(0.6) {
 			hintSelection = [1, 2]
 			withAnimation { game.showWinsFor = nil }
 			game.turnOff()
 			if rematch { game.loadRematch() }
 			else { game.loadNextGame() }
-		}
-		
-		Timer.after(0.8) {
-			withAnimation {
-				hideBoard = false
-			}
-			BoardScene.main.rotate(right: false)
-		}
-		
-		Timer.after(1.2) {
-			game.startGame()
-		}
+			
+			// inside this one so they don't get cancled when the game turns off
+			game.timers.append(Timer.after(0.2) {
+				withAnimation {
+					hideBoard = false
+				}
+				BoardScene.main.rotate(right: false)
+			})
+			
+			game.timers.append(Timer.after(0.6) {
+				game.startGame()
+			})
+		})
 	}
     
     var solveButtons: some View {
@@ -518,10 +531,10 @@ struct GameView: View {
 			}
 			.multilineTextAlignment(.center)
 			.padding(.horizontal, 25)
-			.padding(.top, nameSpace - 10)
-			.frame(width: layout.width, height: 170)
-			.background(Fill().shadow(radius: 20))
-			.offset(y: game.popup == .analysis ? 0 : -(165 + 30 + nameSpace))
+			.padding(.top, nameSpace)
+			.frame(width: layout.width, height: 180)
+			.modifier(PopupModifier())
+			.offset(y: game.popup == .analysis ? 0 : -(180 + 30 + nameSpace))
 			Fill().opacity(game.popup == .analysis ? 0.015 : 0) // 0.015 seems to be about the minimum opacity to work
 				.onTapGesture { game.hidePopups() }
 				.zIndex(4)
@@ -557,7 +570,7 @@ struct GameView: View {
 			}
 			.padding(.bottom, gameControlSpace)
 			.frame(width: layout.width, height: 170)
-			.background(Fill().shadow(radius: 20))
+			.modifier(PopupModifier())
 			.offset(y: game.popup == .analysis && game.hints ? 0 : 200)
 		}
     }
@@ -631,13 +644,22 @@ struct GameView: View {
         }
     }
     
-    var animation = Animation.linear.delay(0)
     
 //    func showStreak() {
 //        withAnimation {
 //            
 //        }
 //    }
+	
+	struct PopupModifier: ViewModifier {
+		func body(content: Content) -> some View {
+			content.background(
+				Fill()
+					.frame(width: Layout.main.width + 100)
+					.shadow(radius: 20) // Z index didn't stop the shadows from covering
+			)
+		}
+	}
 }
 
 struct GameView_Previews: PreviewProvider {

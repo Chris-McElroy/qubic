@@ -189,6 +189,7 @@ class Layout: ObservableObject {
     }
 	
 	func goBack() {
+		Game.main.turnOff()
 		FB.main.cancelOnlineSearch?()
 		withAnimation(.easeInOut(duration: 0.4)) { //0.4
 			current = current.back

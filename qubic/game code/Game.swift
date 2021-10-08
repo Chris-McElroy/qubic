@@ -85,6 +85,7 @@ class Game: ObservableObject {
     
     @Published var currentMove: Move? = nil
     @Published var showDCAlert: Bool = false
+	@Published var showCubistAlert: Bool = false
 //    @Published var newStreak: Int? = nil
     @Published var undoOpacity: Opacity = .clear
     @Published var prevOpacity: Opacity = .clear
@@ -112,6 +113,8 @@ class Game: ObservableObject {
     var solveBoard: Int = 0
     var gameState: GameState = .new
     var replayMode: Bool = false
+	var processingMove: Bool = false
+	var lastCheck: Int = 0
     var solved: Bool = false
     var leaving: Bool = false
     private var board = Board()
@@ -146,6 +149,8 @@ class Game: ObservableObject {
         nextOpacity = .clear
 		optionsOpacity = .clear
 		gameEndOptions = false
+		processingMove = false
+		lastCheck = 0
         currentMove = nil
         moves = []
         totalTime = time
@@ -321,15 +326,16 @@ class Game: ObservableObject {
 			optionsOpacity = .full
         }
         if totalTime != nil {
+			let num = gameNum
             lastStart[turn] = Date.now+2
-            timers.append(Timer.every(0.1, run: getCurrentTime))
+			timers.append(Timer.every(0.1, run: { self.getCurrentTime(num: num) }))
         }
 		gameState = .active
         player[turn].move()
     }
     
-    func getCurrentTime() {
-        if gameState == .active {
+	func getCurrentTime(num: Int) {
+        if gameState == .active && num == gameNum {
             let newTime = max(0, Int(((times[realTurn].last ?? 0) + lastStart[realTurn] - Date.now).rounded()))
             if newTime < currentTimes[realTurn] {
                 currentTimes[realTurn] = newTime
@@ -357,9 +363,11 @@ class Game: ObservableObject {
 //			return
 //		}
         let move = Move(p)
+		if processingMove { return }
         guard gameState == .active else { return }
         guard turn == realTurn && num == moves.count else { print("Invalid turn!"); return }
         guard !moves.contains(move) && (0..<64).contains(move.p) else { print("Invalid move!"); return }
+		processingMove = true
         moves.append(move)
         if movesBack != 0 { movesBack += 1 }
         UIImpactFeedbackGenerator(style: .medium).impactOccurred()
@@ -367,19 +375,22 @@ class Game: ObservableObject {
 			FB.main.sendOnlineMove(p: move.p, time: times[turn].last ?? -1)
 		}
         getHints(for: moves, time: time)
-        guard movesBack == 0 else { return }
+		guard movesBack == 0 else { processingMove = false; return }
         board.addMove(move.p)
         currentMove = move
         newHints()
         BoardScene.main.showMove(move.p, wins: board.getWinLines(for: move.p))
         if undoOpacity == .half { withAnimation { undoOpacity = .full } }
         withAnimation { prevOpacity = .full }
+		processingMove = false
     }
-    
+	
     func processGhostMove(_ p: Int) {
         let move = Move(p)
+		if processingMove { return }
         guard board.pointEmpty(move.p) && (0..<64).contains(move.p) else { return }
         guard replayMode else { return }
+		processingMove = true
         board.addMove(move.p)
         if ghostMoveCount == 0 {
             ghostMoveStart = moves.count - movesBack
@@ -399,7 +410,102 @@ class Game: ObservableObject {
             prevOpacity = .full
             nextOpacity = .half
         }
+		processingMove = false
     }
+	
+	func checkAndProcessMove(_ p: Int, for turn: Int, num: Int, time: Double? = nil) {
+		let move = Move(p)
+		if processingMove { return }
+		guard gameState == .active else { return }
+		guard turn == realTurn && num == moves.count else { print("Invalid turn!"); return }
+		guard !moves.contains(move) && (0..<64).contains(move.p) else { print("Invalid move!"); return }
+		guard movesBack == 0 else { return }
+		processingMove = true
+		let lastBoard = Board(board)
+		board.addMove(move.p)
+		UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+		BoardScene.main.showMove(move.p, wins: board.getWinLines(for: move.p))
+		
+		if Storage.int(.moveChecker) == 2 || !hints || lastCheck == board.numMoves() {
+			confirmMove()
+			return
+		}
+		
+		let myW1s = lastBoard.getW1(for: turn)
+		if !myW1s.isEmpty {
+			if myW1s.contains(p) {
+				confirmMove()
+			} else {
+				cancelMove()
+			}
+			return
+		}
+		
+		let opW1s = lastBoard.getW1(for: turn^1)
+		if !opW1s.isEmpty {
+			if opW1s.contains(p) {
+				confirmMove()
+			} else {
+				cancelMove()
+			}
+			return
+		}
+		
+		guard Storage.int(.moveChecker) == 0 else {
+			confirmMove()
+			return
+		}
+		
+		let num = gameNum
+		hintQueue.addOperation {
+			let myW2s = lastBoard.getW2(for: turn, depth: 32, time: 4, valid: { num == self.gameNum }) ?? []
+			if !myW2s.isEmpty {
+				if myW2s.contains(p) {
+					DispatchQueue.main.async { confirmMove() }
+				} else {
+					DispatchQueue.main.async { cancelMove() }
+				}
+				return
+			}
+			
+			let opW2 = lastBoard.getW2Blocks(for: turn, depth: 32, time: 4, valid: { num == self.gameNum }) ?? []
+			if !opW2.isEmpty {
+				if opW2.contains(p) {
+					DispatchQueue.main.async { confirmMove() }
+				} else {
+					DispatchQueue.main.async { cancelMove() }
+				}
+				return
+			}
+			
+			DispatchQueue.main.async { confirmMove() }
+		}
+		
+		func confirmMove() {
+			moves.append(move)
+			if !player[turn^1].local {
+				FB.main.sendOnlineMove(p: move.p, time: times[turn].last ?? -1)
+			}
+			getHints(for: moves, time: time)
+			currentMove = move
+			newHints()
+			processingMove = false
+			if undoOpacity == .half { withAnimation { undoOpacity = .full } }
+			withAnimation { prevOpacity = .full }
+		}
+		
+		func cancelMove() {
+			timers.append(Timer.after(0.3) {
+				self.lastCheck = self.board.numMoves()
+				self.board.undoMove(for: turn)
+				BoardScene.main.undoMove(move.p)
+				UINotificationFeedbackGenerator().notificationOccurred(.error)
+				self.premoves = []
+				BoardScene.main.spinMoves()
+				self.processingMove = false
+			})
+		}
+	}
     
     func getHints(for moves: [Move], loading: Bool = false, time: Double? = nil) {
         let b = Board()
@@ -537,6 +643,7 @@ class Game: ObservableObject {
             return
         }
         guard undoOpacity == .full else { return }
+		if processingMove { return }
         guard gameState == .active else { return }
         guard let move = moves.popLast() else { return }
         UIImpactFeedbackGenerator(style: .medium).impactOccurred()
@@ -564,6 +671,7 @@ class Game: ObservableObject {
     
     func prevMove() {
         guard prevOpacity == .full else { return }
+		if processingMove { return }
         let i = moves.count - movesBack - 1
         guard i >= ((!hints && mode.solve) ? preset.count : 0) else { return }
         UIImpactFeedbackGenerator(style: .light).impactOccurred()
@@ -603,6 +711,7 @@ class Game: ObservableObject {
             return
         }
         guard nextOpacity == .full else { return }
+		if processingMove { return }
         guard movesBack > 0 else { return }
         let i = moves.count - movesBack
         guard board.pointEmpty(moves[i].p) && (0..<64).contains(moves[i].p) else { return }
@@ -664,6 +773,11 @@ class Game: ObservableObject {
 			else if mode == .common { recordSolve(type: .common, index: solveBoard) }
 			else if mode == .tricky { recordSolve(type: .tricky, index: solveBoard) }
 			else if let index = [.novice, .defender, .warrior, .tyrant, .oracle, .cubist].firstIndex(of: mode), !hints {
+				if mode == .cubist {
+					if let trainArray = Storage.array(.train) as? [Int], trainArray[5] == 0 {
+						self.showCubistAlert = true
+					}
+				}
 				recordSolve(type: .train, index: index)
 			}
 		}

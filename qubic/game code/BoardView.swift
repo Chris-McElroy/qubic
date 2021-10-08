@@ -33,6 +33,7 @@ class BoardScene {
 	var mostRecentRotate: CGPoint? = nil
 	var rotationStart: SCNVector4 = SCNVector4(0,0,0,0)
 	var mostRecentTap: Date? = nil
+	var potentialMove: Int? = nil
 //	var rotationSpeed: CGFloat = 0
 //	var lastRotationAngle: CGFloat = 0
 //	var lastRotationTime: Date = Date()
@@ -106,6 +107,8 @@ class BoardScene {
         for l in 0..<76 {
             winLines[l].removeFromParentNode()
         }
+		
+		potentialMove = nil
     }
     
     func resetSpaces() {
@@ -147,7 +150,18 @@ class BoardScene {
                 }
             }
             if let user = Game.main.player[turn] as? User, Game.main.premoves.isEmpty {
-                user.move(at: p)
+				if Storage.int(.confirmMoves) == 0 {
+					if p == potentialMove {
+						potentialMove = nil
+						spinMoves()
+						user.move(at: p)
+					} else {
+						potentialMove = potentialMove == nil ? p : nil
+						spinMoves()
+					}
+				} else {
+					user.move(at: p)
+				}
             } else if Game.main.gameState == .active && Storage.int(.premoves) == 0 {
                 if Game.main.premoves.contains(p) {
                     Game.main.premoves = []
@@ -314,6 +328,9 @@ class BoardScene {
     }
     
     func undoMove(_ move: Int) {
+		// TODO make sure this puts the spacer back at full brightness even if it wasn't done animating
+		// this is one of the ways we're losing spacers
+		// i think canceling animations on them and then waiting 0.1 seconds or so should be enough
         spinMoves()
         let cube = moves[move]
         let space = spaces[move]
@@ -341,7 +358,14 @@ class BoardScene {
     }
     
     func spinMoves() {
-		let list: Set<Int> = !Game.main.premoves.isEmpty ? Set(Game.main.premoves) : (Game.main.showWinsFor != nil ? Game.main.currentHintMoves ?? [] : [])
+		var list: Set<Int> = Set(Game.main.premoves)
+		if list.isEmpty {
+			if let potentialMove = potentialMove {
+				list = Set([potentialMove])
+			} else if Game.main.showWinsFor != nil {
+				list = Game.main.currentHintMoves ?? []
+			}
+		}
         for (i, space) in spaces.enumerated() {
             if space.actionKeys.contains(Key.spin.rawValue) != list.contains(i) {
                 if list.contains(i) {

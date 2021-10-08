@@ -77,6 +77,8 @@ private let trickyBoards = [
 	"cjdshVCq"				// 13 	11 seems impossible, only 2 solutions
 ]
 
+// this is a 14 move win apparently: "qMhdV9C6"
+
 func updateSolveBoardData() {
 	solveBoards = [
 		.daily: ["","","",""],

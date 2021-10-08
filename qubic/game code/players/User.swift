@@ -26,7 +26,7 @@ class User: Player {
             Game.main.processGhostMove(p)
         } else if Game.main.gameState == .active {
             if Game.main.premoves.isEmpty {
-                Game.main.processMove(p, for: n, num: b.numMoves())
+                Game.main.checkAndProcessMove(p, for: n, num: b.numMoves())
             }
         }
     }
@@ -37,15 +37,17 @@ class User: Player {
                 let p = Game.main.premoves.removeFirst()
 				// clause for allowing checkmate premoves
 				if let nextP = Game.main.premoves.first, b.pointFull(p) && b.getW1(for: n).contains(nextP) {
-					Game.main.processMove(nextP, for: n, num: b.numMoves())
 					Game.main.premoves = []
+					BoardScene.main.spinMoves()
+					Game.main.checkAndProcessMove(nextP, for: n, num: b.numMoves())
 				} else if (b.hasW1(n) != b.getW1(for: n).contains(p)) || b.pointFull(p) {
                     Game.main.premoves = []
+					BoardScene.main.spinMoves()
                 } else {
-                    Game.main.processMove(p, for: n, num: b.numMoves())
+					BoardScene.main.spinMoves()
+                    Game.main.checkAndProcessMove(p, for: n, num: b.numMoves())
                 }
             }
-            BoardScene.main.spinMoves()
         }
     }
 }
