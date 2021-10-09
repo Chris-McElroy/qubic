@@ -27,6 +27,10 @@ struct GameView: View {
     @State var hideBoard: Bool = true
     @State var centerNames: Bool = true
 	@State var currentPriority: Int = 0
+	@State var delayPopups: Bool = true
+	@State var settingsSelection1 = [Storage.int(.moveChecker), Storage.int(.premoves), Storage.int(.confirmMoves)]
+	@State var settingsSelection2 = [Storage.int(.arrowSide)]
+	@State var beatCubist = false
 	
 //	var animation = Animation.linear.delay(0)
 	let nameSpace: CGFloat = 65
@@ -45,6 +49,7 @@ struct GameView: View {
 			optionsPopup
 			gameEndPopup
 			analysisPopup
+			settingsPopup
 			VStack(spacing: 0) {
 				Fill(100).offset(y: -100)
 				Spacer()
@@ -60,29 +65,29 @@ struct GameView: View {
 		.gesture(swipe)
 		.alert(isPresented: $game.showDCAlert, content: { enableBadgesAlert })
 		.alert(isPresented: $game.showCubistAlert, content: { cubistAlert })
-		// TODO add alert for when you beat cubist for the first time
         .onAppear {
             Game.main.newHints = refreshHintPickerContent
             animateIntro()
+			updateSettings()
         }
     }
 	
-	let swipe = DragGesture(minimumDistance: 30)
+	var swipe: some Gesture { DragGesture(minimumDistance: 30)
 		.onEnded { drag in
 			let h = drag.translation.height
 			let w = drag.translation.width
 			if abs(w/h) < 1 && BoardScene.main.mostRecentRotate == nil {
 				if h > 0 {
-					if Game.main.popup == .options || Game.main.popup == .gameEnd {
-						Game.main.hidePopups()
+					if game.popup == .options || game.popup == .gameEnd || game.popup == .settings {
+						game.hidePopups()
 					} else if Game.main.popup == .none {
-						withAnimation { Game.main.popup = .analysis }
+						setPopups(to: .analysis)
 					}
 				} else {
-					if Game.main.popup == .analysis {
-						Game.main.hidePopups()
+					if game.popup == .analysis {
+						game.hidePopups()
 					} else if Game.main.popup == .none {
-						withAnimation { Game.main.popup = .options }
+						setPopups(to: .options)
 					}
 				}
 			}
@@ -95,6 +100,7 @@ struct GameView: View {
 				BoardScene.main.rotate(angle: w, start: drag.startLocation)
 			}
 		}
+	}
 	
 	let enableBadgesAlert = Alert(title: Text("Enable Badges"),
 								  message: Text("Allow qubic to show a badge when a daily challenge is available?"),
@@ -122,16 +128,12 @@ struct GameView: View {
 	}
 	
 	var gameControls: some View {
-		HStack(spacing: 0) {
-			Spacer().frame(width: 15)
-			if layout.leftArrows { arrowButtons }
-			else { undoButton.frame(alignment: .top) }
-			Spacer()
+		let distance: CGFloat = (layout.width - 95)/2 - 15
+		
+		return ZStack {
 			optionsButton
-			Spacer()
-			if layout.leftArrows { undoButton }
-			else { arrowButtons.frame(alignment: .top) }
-			Spacer().frame(width: 15)
+			undoButton.offset(x: layout.leftArrows ? distance : -distance)
+			arrowButtons.offset(x: layout.leftArrows ? -distance : distance)
 		}
 		.frame(width: layout.width, height: 40)
 		.background(Fill())
@@ -216,12 +218,12 @@ struct GameView: View {
 			Spacer()
 			VStack(spacing: 20) {
 //				Text("share board")
-//				Text("settings")
+				Button("settings") { setPopups(to: .settings) }
 				if game.hints || game.solved {
 					Button("analysis") { withAnimation { game.popup = .analysis } }
 				}
 //				Text("game insights")
-				if game.gameEndOptions {
+				if game.reviewingGame {
 					if !(game.mode == .local || (game.mode == .daily && game.solveBoard == 3) || game.mode == .cubist) {
 						newGameButton
 					}
@@ -374,6 +376,7 @@ struct GameView: View {
 		
 		game.timers.append(Timer.after(0.6) {
 			hintSelection = [1, 2]
+			updateSettings()
 			withAnimation { game.showWinsFor = nil }
 			game.turnOff()
 			if rematch { game.loadRematch() }
@@ -542,7 +545,7 @@ struct GameView: View {
 				// HPickers
 				VStack(spacing: 0) {
 					Spacer()
-					HPicker(content: $hintPickerContent, dim: (70, 50), selected: $hintSelection, action: onSelection)
+					HPicker(content: $hintPickerContent, dim: (70, 50), selected: $hintSelection, action: onAnalysisSelection)
 					 .frame(height: 100)
 				}
 				// Mask
@@ -571,11 +574,12 @@ struct GameView: View {
 			.padding(.bottom, gameControlSpace)
 			.frame(width: layout.width, height: 170)
 			.modifier(PopupModifier())
-			.offset(y: game.popup == .analysis && game.hints ? 0 : 200)
+			.offset(y: game.popup == .analysis && game.hints && !delayPopups ? 0 : 200)
+//			.animation(.none) // TODO delay the animation on the lower boys, which also helps them cross over each other less
 		}
     }
     
-    func onSelection(row: Int, component: Int) {
+    func onAnalysisSelection(row: Int, component: Int) {
         withAnimation {
             if component == 1 { // changing show options
                 if row < 2 {
@@ -593,6 +597,83 @@ struct GameView: View {
         }
         BoardScene.main.spinMoves()
     }
+	
+	var settingsPopup: some View {
+		let picker1Content: [[Any]] = [["all", "checks", "off"], ["on", "off"], ["on", "off"]]
+		let picker2Content: [[Any]] = [["left", "right"]]
+		
+		return VStack(spacing: 0) {
+			Spacer()
+			ZStack {
+				VStack(spacing: 0) {
+					Fill(32)
+					HPicker(content: .constant(picker1Content), dim: (60,55), selected: $settingsSelection1, action: onSettingsSelection1)
+						.frame(height: 165)
+						.zIndex(1)
+					Fill(9)
+					HPicker(content: .constant(picker2Content), dim: (60,55), selected: $settingsSelection2, action: onSettingsSelection2)
+						.frame(height: 55)
+						.zIndex(0)
+				}
+				VStack(spacing: 0) {
+					Fill(5)
+					Text("confirm moves").bold().frame(height: 20)
+					Blank(40)
+					Text("premoves").bold().frame(height: 20)
+					Blank(40)
+					Text("move checker").bold().frame(height: 20)
+					if beatCubist {
+						Blank(40)
+					} else {
+						Text("beat cubist in challenge mode to unlock!")
+							.foregroundColor(.secondary)
+							.frame(width: layout.width, height: 40)
+							.background(Fill())
+					}
+					Text("arrow side").bold().frame(height: 20)
+					Blank(40)
+				}
+			}
+			.padding(.bottom, gameControlSpace - 20)
+			.frame(width: layout.width)
+			.modifier(PopupModifier())
+			.offset(y: game.popup == .settings ? 0 : 400)
+		}
+	}
+	
+	func updateSettings() {
+		settingsSelection1 = [Storage.int(.moveChecker), Storage.int(.premoves), Storage.int(.confirmMoves)]
+		settingsSelection2 = [Storage.int(.arrowSide)]
+		if let trainArray = Storage.array(.train) as? [Int] {
+			beatCubist = trainArray[5] == 1
+			settingsSelection1[0] = Storage.int(.moveChecker) // handles if they fucked it up
+		}
+	}
+	
+	func onSettingsSelection1(row: Int, component: Int) -> Void {
+		if component == 2 {
+			Storage.set(row, for: .confirmMoves)
+			if row == 0 {
+				Storage.set(1, for: .premoves)
+				settingsSelection1[1] = 1
+			}
+		} else if component == 1 {
+			Storage.set(row, for: .premoves)
+			if row == 0 {
+				Storage.set(1, for: .confirmMoves)
+				settingsSelection1[2] = 1
+			}
+		} else if component == 0 {
+			if beatCubist {
+				Storage.set(row, for: .moveChecker)
+			}
+		}
+	}
+	
+	func onSettingsSelection2(row: Int, component: Int) -> Void {
+		Storage.set(row, for: .arrowSide)
+		withAnimation { layout.leftArrows = row == 0 }
+	}
     
     struct PlayerName: View {
         let turn: Int
@@ -650,6 +731,16 @@ struct GameView: View {
 //            
 //        }
 //    }
+	
+	func setPopups(to newSetting: GamePopup) {
+		withAnimation {
+			game.popup = newSetting
+			delayPopups = true
+		}
+		Timer.after(0.15) {
+			withAnimation { delayPopups = false }
+		}
+	}
 	
 	struct PopupModifier: ViewModifier {
 		func body(content: Content) -> some View {

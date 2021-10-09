@@ -48,7 +48,7 @@ enum GameState: Int {
 }
 
 enum GamePopup {
-	case none, analysis, options, gameEnd, gameEndPending
+	case none, analysis, options, gameEnd, gameEndPending, settings
 	
 	var up: Bool {
 		!(self == .none || self == .gameEndPending)
@@ -112,7 +112,6 @@ class Game: ObservableObject {
 	var lastDC: Int = 0
     var solveBoard: Int = 0
     var gameState: GameState = .new
-    var replayMode: Bool = false
 	var processingMove: Bool = false
 	var lastCheck: Int = 0
     var solved: Bool = false
@@ -126,7 +125,7 @@ class Game: ObservableObject {
     var timers: [Timer] = []
     var premoves: [Int] = []
 	var rematchRequested: Bool = false
-	var gameEndOptions: Bool = false
+	var reviewingGame: Bool = false
 	var mostRecentGame: (GameMode, Int, Int?, Bool, Double?) = (.novice, 0, nil, false, nil)
     var currentHintMoves: Set<Int>? {
 		guard let winsFor = showWinsFor else { return nil }
@@ -148,7 +147,7 @@ class Game: ObservableObject {
         prevOpacity = .clear
         nextOpacity = .clear
 		optionsOpacity = .clear
-		gameEndOptions = false
+		reviewingGame = false
 		processingMove = false
 		lastCheck = 0
         currentMove = nil
@@ -168,7 +167,6 @@ class Game: ObservableObject {
         movesBack = 0
         ghostMoveStart = 0
         ghostMoveCount = 0
-        replayMode = false
         premoves = []
 		showWinsFor = nil
 		showAllHints = true
@@ -362,6 +360,7 @@ class Game: ObservableObject {
 //			Timer.after(mode == .picture2 ? 1.5 : mode == .picture3 ? 4 : 0, run: { self.endGame(with: .myWin) })
 //			return
 //		}
+		Layout.main.leftArrows.toggle()
         let move = Move(p)
 		if processingMove { return }
         guard gameState == .active else { return }
@@ -389,7 +388,7 @@ class Game: ObservableObject {
         let move = Move(p)
 		if processingMove { return }
         guard board.pointEmpty(move.p) && (0..<64).contains(move.p) else { return }
-        guard replayMode else { return }
+        guard reviewingGame else { return }
 		processingMove = true
         board.addMove(move.p)
         if ghostMoveCount == 0 {
@@ -623,7 +622,7 @@ class Game: ObservableObject {
     
     @discardableResult func hidePopups() -> Bool {
 		if popup == .gameEnd {
-			gameEndOptions = true
+			reviewingGame = true
 			FB.main.cancelOnlineSearch?()
 		}
 		if popup == .none { return false }
@@ -679,7 +678,6 @@ class Game: ObservableObject {
         board.undoMove(for: turn^1)
         currentMove = i > 0 ? moves[i-1] : nil
         if gameState != .active {
-            replayMode = true
             if totalTime != nil && ghostMoveCount == 0 {
                 currentTimes[turn] = max(0, Int((times[turn][board.move[turn].count]).rounded()))
             }

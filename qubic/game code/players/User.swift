@@ -22,7 +22,7 @@ class User: Player {
     }
     
     func move(at p: Int) {
-        if Game.main.replayMode {
+        if Game.main.reviewingGame {
             Game.main.processGhostMove(p)
         } else if Game.main.gameState == .active {
             if Game.main.premoves.isEmpty {

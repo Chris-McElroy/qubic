@@ -16,10 +16,22 @@ struct SettingsView: View {
     @State var username = Storage.string(.name) ?? "me"
     @State var showNotificationAlert = false
 	@State var beatCubist = false
+	@State var showInfo: Bool = false
+	@State var infoFor: Int = 0
 //    @State var lineSize = lineWidth
     
     let picker1Content: [[Any]] = [["all", "checks", "off"], ["on", "off"], ["on", "off"]]
     let picker2Content: [[Any]] = [cubeImages(), ["on", "off"], ["left", "right"]]
+	
+	let info: [[String]] = [
+		["confirm moves", "Tap once to select a move and a second time to confirm it. Tap any other move to cancel. Incompatible with premoves."],
+		["premoves", "Intended for advanced players. Tap moves during your opponent’s move to preselect them. As soon as it’s your turn, these moves are made automatically in the order you tapped, unless you have a 3 in a row open elsewhere. You can premove checkmates by preselecting both possible wins. Incompatible with confirm moves."],
+		["move checker", "Unlocks when you have beaten cubist in challenge mode. If analysis is enabled, once per turn the move checker verifies that your move didn’t miss any immediate wins for either player. If you did miss something, the move is automatically undone and you have the opportunity to try again (or check the analysis to see what you missed). In \"checks\" mode this works for first order wins and checks. In \"all\" mode this works for second order wins and checks as well (this occasionally takes some time)."],
+		["arrow side", "Controls which side the previous and next arrows appear on in game. Setting this to the same side you hold your device from can make usage easier."],
+		["notifications", "Displays a badge on the app icon for qubic whenever there are daily puzzles you haven’t solved yet."],
+		["color / app icon", "Sets the color for your moves, name, app menus, and app icon."],
+		["username", "Sets your displayed name. It can include spaces, emojis, and other unicode characters, and it does not need to be unique."]
+	]
 	
 	var confirmMovesSetting: Int { selected1[2] }
 	func setConfirmMoves(to v: Int) {
@@ -130,11 +142,11 @@ struct SettingsView: View {
                     VStack(spacing: 0) {
                         Fill(5)
                         VStack(spacing: 0) {
-							Text("confirm moves").bold().frame(height: 20)
+							getSettingTitle(name: "confirm moves", number: 0)
 							Blank(40)
-							Text("premoves").bold().frame(height: 20)
+							getSettingTitle(name: "premoves", number: 1)
 							Blank(40)
-							Text("move checker").bold().frame(height: 20)
+							getSettingTitle(name: "move checker", number: 2)
 							if beatCubist {
 								Blank(40)
 							} else {
@@ -145,14 +157,14 @@ struct SettingsView: View {
 							}
 						}
 						VStack(spacing: 0) {
-							Text("arrow side").bold().frame(height: 20)
+							getSettingTitle(name: "arrow side", number: 3)
                             Blank(40)
-							Text("notifications").bold().frame(height: 20)
+							getSettingTitle(name: "notifications", number: 4)
 							Blank(40)
-							Text("color / app icon").bold().frame(height: 20)
+							getSettingTitle(name: "color / app icon", number: 5)
                             Blank(40)
 						}
-						Text("username").bold().frame(height: 20)
+						getSettingTitle(name: "username", number: 6)
                         Fill(7)
                         TextField("enter name", text: $username, onEditingChanged: { starting in
                             if !starting && username != Storage.string(.name) {
@@ -171,6 +183,7 @@ struct SettingsView: View {
 								guard let url = URL(string: urlString) else { return }
                                 UIApplication.shared.open(url, options: [:], completionHandler: nil)
                             }
+							.buttonStyle(DefaultButtonStyle())
 							.frame(height: 20)
                         }
                     }.zIndex(3)
@@ -178,7 +191,29 @@ struct SettingsView: View {
                 Spacer()
             }
             .alert(isPresented: $showNotificationAlert, content: { Notifications.notificationAlert })
+			if layout.current == .settings {
+				VStack(spacing: 0) {
+					Fill().opacity(showInfo ? 0.015 : 0).onTapGesture { withAnimation { showInfo = false } }
+					VStack(spacing: 0) {
+						Text(info[infoFor][0]).bold()
+						Blank(4)
+//						ScrollView(.vertical, showsIndicators: false) {
+						Text(info[infoFor][1])
+					}
+					.multilineTextAlignment(.center)
+					.padding(.horizontal, 25)
+					.padding(.top, 15)
+					.frame(width: layout.width)
+					.fixedSize()
+					.background(Fill().frame(width: Layout.main.width + 100).shadow(radius: 20))
+					.offset(y: showInfo ? 0 : 500)
+					.onDisappear {
+						showInfo = false
+					}
+				}
+			}
         }
+		.buttonStyle(Solid())
         .background(Fill().onTapGesture { hideKeyboard() })
     }
     
@@ -186,6 +221,22 @@ struct SettingsView: View {
 //        Storage.set(row, for: .dot)
 //    }
     
+	func getSettingTitle(name: String, number: Int) -> some View {
+		Button(action: {
+			infoFor = number
+			withAnimation { showInfo = true }
+		}, label: {
+			HStack(spacing: 6) {
+				Text("ⓘ").opacity(0)
+				Text(name).bold()
+				Text("ⓘ")
+			}
+			.frame(height: 20)
+			.padding(.horizontal, 40)
+			.background(Fill())
+		})
+	}
+	
     func onSelection1(row: Int, component: Int) -> Void {
 		if component == 2 {
 			Storage.set(row, for: .confirmMoves)

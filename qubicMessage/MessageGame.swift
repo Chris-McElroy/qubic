@@ -78,7 +78,7 @@ class Game: ObservableObject {
     var player: [Player] = [Player(b: Board(), n: 0), Player(b: Board(), n: 0)]
     var preset: [Int] = []
     var mode: GameMode = .local
-    var replayMode: Bool = false
+    var reviewingGame: Bool = false
     var nextOpacity: Opacity = .clear
     var gameState: GameState = .new
     private var board = Board()
