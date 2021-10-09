@@ -121,6 +121,19 @@ class BoardScene {
             base.addChildNode(space)
         }
     }
+	
+	func updateSpaceColors() {
+		for (p, space) in spaces.enumerated() {
+			for part in space.childNodes {
+				if part.name == "clear" {
+					part.setColor(.clear)
+				} else {
+					part.setColor(.label)
+				}
+			}
+			space.opacity = moves[p].parent == nil ? 1 : 0
+		}
+	}
     
     static func coords(for p: Int) -> SCNVector3 {
         let flat = SIMD3<Float>(Float(p%4), Float(p/16), Float((p/4)%4)) - 1.5
@@ -320,17 +333,10 @@ class BoardScene {
         let placeAction = SCNAction.group([translate, rotate, fade])
         cube.runAction(placeAction)
         
-        Game.main.timers.append(Timer.after(0.2, run: {  }))
-        
-        let dotFade = SCNAction.fadeOut(duration: 0.21)
-        dotFade.timingFunction = { time in time > 0.2 ? 0 : 1 }
-        spaces[move].runAction(dotFade)
+        Game.main.timers.append(Timer.after(0.2, run: updateSpaceColors))
     }
     
     func undoMove(_ move: Int) {
-		// TODO make sure this puts the spacer back at full brightness even if it wasn't done animating
-		// this is one of the ways we're losing spacers
-		// i think canceling animations on them and then waiting 0.1 seconds or so should be enough
         spinMoves()
         let cube = moves[move]
         let space = spaces[move]
@@ -345,7 +351,10 @@ class BoardScene {
         translate.timingMode = .easeIn
         let unPlaceAction = SCNAction.group([translate, rotate, fade])
         cube.runAction(unPlaceAction)
-        Game.main.timers.append(Timer.after(0.2, run: cube.removeFromParentNode))
+		Game.main.timers.append(Timer.after(0.2) {
+			cube.removeFromParentNode()
+			self.updateSpaceColors()
+		})
         hideWins(Board.linesThruPoint[move])
     }
     

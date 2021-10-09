@@ -146,7 +146,7 @@ struct GameView: View {
 		
 		return Button(action: {
 			if game.popup == .none || game.popup == .analysis {
-				withAnimation { game.popup = .options }
+				setPopups(to: .options)
 			} else if game.popup.up {
 				game.hidePopups()
 			}
@@ -220,7 +220,7 @@ struct GameView: View {
 //				Text("share board")
 				Button("settings") { setPopups(to: .settings) }
 				if game.hints || game.solved {
-					Button("analysis") { withAnimation { game.popup = .analysis } }
+					Button("analysis") { setPopups(to: .analysis) }
 				}
 //				Text("game insights")
 				if game.reviewingGame {
@@ -575,7 +575,6 @@ struct GameView: View {
 			.frame(width: layout.width, height: 170)
 			.modifier(PopupModifier())
 			.offset(y: game.popup == .analysis && game.hints && !delayPopups ? 0 : 200)
-//			.animation(.none) // TODO delay the animation on the lower boys, which also helps them cross over each other less
 		}
     }
     
@@ -737,7 +736,7 @@ struct GameView: View {
 			game.popup = newSetting
 			delayPopups = true
 		}
-		Timer.after(0.15) {
+		Timer.after(0.1) {
 			withAnimation { delayPopups = false }
 		}
 	}

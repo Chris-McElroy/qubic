@@ -360,7 +360,6 @@ class Game: ObservableObject {
 //			Timer.after(mode == .picture2 ? 1.5 : mode == .picture3 ? 4 : 0, run: { self.endGame(with: .myWin) })
 //			return
 //		}
-		Layout.main.leftArrows.toggle()
         let move = Move(p)
 		if processingMove { return }
         guard gameState == .active else { return }

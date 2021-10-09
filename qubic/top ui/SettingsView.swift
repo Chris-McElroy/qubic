@@ -88,24 +88,16 @@ struct SettingsView: View {
             if layout.current == .settings {
                 // HPickers
                 VStack(spacing: 0) {
-                    Fill(70)
+                    Fill(73)
                     HPicker(content: .constant(picker1Content), dim: (60,55), selected: $selected1, action: onSelection1)
                         .frame(height: 165)
                         .onAppear {
-							if let trainArray = Storage.array(.train) as? [Int] {
-								beatCubist = trainArray[5] == 1
-								setMoveChecker(to: Storage.int(.moveChecker)) // handles if they fucked it up
-							}
+							updateSelections()
                         }
-                    Fill(16)
+                    Fill(15)
                     HPicker(content: .constant(picker2Content), dim: (60,55), selected: $selected2, action: onSelection2)
                         .frame(height: 165)
 						.zIndex(-1)
-						.onAppear {
-							Notifications.ifDenied {
-								setNotifications(to: 1)
-							}
-						}
 //                    Fill(102)
 //                    HPicker(content: .constant(SettingsView.boardStyleContent),
 //                            dim: (80,30), selected: $style, action: setDots)
@@ -158,11 +150,11 @@ struct SettingsView: View {
 						}
 						VStack(spacing: 0) {
 							getSettingTitle(name: "arrow side", number: 3)
-                            Blank(40)
+							Blank(40)
 							getSettingTitle(name: "notifications", number: 4)
 							Blank(40)
 							getSettingTitle(name: "color / app icon", number: 5)
-                            Blank(40)
+							Blank(40)
 						}
 						getSettingTitle(name: "username", number: 6)
                         Fill(7)
@@ -274,6 +266,18 @@ struct SettingsView: View {
 			}
         }
     }
+	
+	func updateSelections() {
+		selected1 = [Storage.int(.moveChecker), Storage.int(.premoves), Storage.int(.confirmMoves)]
+		selected2 = [Storage.int(.color), Storage.int(.notification), Storage.int(.arrowSide)]
+		if let trainArray = Storage.array(.train) as? [Int] {
+			beatCubist = trainArray[5] == 1
+			selected1[0] = Storage.int(.moveChecker) // handles if they fucked it up
+		}
+		Notifications.ifDenied {
+			setNotifications(to: 1)
+		}
+	}
     
     func notificationsAllowed(success: Bool) {
         guard success else {
