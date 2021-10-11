@@ -24,7 +24,7 @@ class BoardScene {
     let scene = SCNScene()
     let base = SCNNode()
     var spaces: [SCNNode] = (0..<64).map { _ in SceneHelper.getSpace(size: 0.86-3*lineWidth) } // size was color: .primary(33), size: 0.68
-    let moves: [SCNNode] = (0..<64).map { _ in SceneHelper.makeBox(size: 0.86) }
+	let moves: [SCNNode] = (0..<64).map { _ in SceneHelper.makeBox(size: 0.86, name: "cube") }
     let winLines: [SCNNode] = (0..<76).map {
         let start = SIMD3<Float>(coords(for: Board.pointsInLine[$0][0]))
         let end = SIMD3<Float>(coords(for: Board.pointsInLine[$0][3]))
@@ -45,6 +45,8 @@ class BoardScene {
         scene.rootNode.addChildNode(SceneHelper.makeAmbiLight())
         for (p, space) in spaces.enumerated() {
             space.position = BoardScene.coords(for: p)
+			moves[p].opacity = 0
+			space.addChildNode(moves[p])
             base.addChildNode(space)
         }
         scene.rootNode.addChildNode(base)
@@ -79,21 +81,16 @@ class BoardScene {
 			self.base.rotation = SCNVector4(x: 0, y: 0, z: 0, w: 0)
 		})
         
-        for (p, move) in moves.enumerated() {
-            move.removeFromParentNode()
+        for move in moves {
             move.removeAllActions()
 			Timer.after(0.1, run: {
 				move.rotation = SCNVector4(x: 0, y: 0, z: 0, w: 0)
 			})
-			// TODO change the fuckin color of these maybe also??
-            move.position = spaces[p].position
+			move.opacity = 0
+			move.position = SCNVector3(0,0,0)
         }
         for space in spaces {
-            space.opacity = 1
             space.removeAllActions()
-//			for node in space.childNodes {
-//				if node.
-//			}
 			Timer.after(0.1, run: {
 				space.rotation = SCNVector4(x: 0, y: 0, z: 0, w: 0)
 			})
@@ -118,6 +115,7 @@ class BoardScene {
         spaces = (0..<64).map { _ in SceneHelper.getSpace(size: 0.86-3*lineWidth) }
         for (p, space) in spaces.enumerated() {
             space.position = BoardScene.coords(for: p)
+			space.addChildNode(moves[p])
             base.addChildNode(space)
         }
     }
@@ -127,11 +125,12 @@ class BoardScene {
 			for part in space.childNodes {
 				if part.name == "clear" {
 					part.setColor(.clear)
-				} else {
+				} else if part.name != "cube" {
 					part.setColor(.label)
 				}
 			}
-			space.opacity = moves[p].parent == nil ? 1 : 0
+			let moveDown = moves[p].parent != nil && moves[p].position.y == space.position.y
+			space.opacity = moveDown ? 0 : 1
 		}
 	}
     
@@ -154,9 +153,16 @@ class BoardScene {
 			return
 		}
         if let p = spaces.firstIndex(where: { $0.childNodes.contains(result) || $0 == result }) {
+			if moves[p].opacity > 0 {
+				// make sure it's settled to avoid rowen's bug
+				if moves[p].position.y == 0 {
+					spaces[p].runAction(SceneHelper.getFullRotate(1.0))
+				}
+				return
+			}
             let turn = Game.main.gameState == .active ? Game.main.turn : Game.main.myTurn
             if Game.main.gameState == .active && Game.main.nextOpacity == .full {
-                UINotificationFeedbackGenerator().notificationOccurred(.error)
+				Game.main.notificationGenerator.notificationOccurred(.error)
                 for delay in stride(from: 0.0, to: 0.4, by: 0.3) {
                     Game.main.timers.append(Timer.after(delay, run: { Game.main.nextOpacity = .half }))
                     Game.main.timers.append(Timer.after(delay + 0.15, run: { Game.main.nextOpacity = .full }))
@@ -183,9 +189,7 @@ class BoardScene {
                 }
                 spinMoves()
             }
-        } else if moves.contains(result) == true {
-            result.runAction(SceneHelper.getFullRotate(1.0))
-        }
+		}
     }
     
     func showMove(_ move: Int, wins: [Int]?, ghost: Bool = false) {
@@ -309,61 +313,43 @@ class BoardScene {
     func addCube(move: Int, color: UIColor, opacity: CGFloat = 1.0) {
         let cube = moves[move]
         cube.setColor(color)
-        base.addChildNode(cube)
-        cube.position = spaces[move].position
+        spaces[move].addChildNode(cube)
+        cube.position = SCNVector3(0,0,0)
         cube.rotation = SCNVector4(x: 0, y: 0, z: 0, w: 0)
         cube.opacity = opacity
-        spaces[move].opacity = 0
     }
     
     func placeCube(move: Int, color: UIColor, opacity: CGFloat = 1.0) {
         let cube = moves[move]
         cube.setColor(color)
-        base.addChildNode(cube)
-        var newPos = spaces[move].position
-        newPos.y += 0.4
         cube.opacity = 0.3
-        cube.position = newPos
+        cube.position = SCNVector3(0,0.4,0)
         cube.rotation = SCNVector4(.random(in: -1...1), 0, .random(in: -1...1), .random(in: 0.20...0.4))
-        let translate = SCNAction.move(to: spaces[move].position, duration: 0.16)
+        let translate = SCNAction.move(to: SCNVector3(0,0,0), duration: 0.16)
         let rotate = SCNAction.rotate(toAxisAngle: SCNVector4(x: 0, y: 0, z: 0, w: 0), duration: 0.16)
         let fade = SCNAction.fadeOpacity(to: opacity, duration: 0.15)
         rotate.timingMode = .easeIn
         translate.timingMode = .easeIn
         let placeAction = SCNAction.group([translate, rotate, fade])
         cube.runAction(placeAction)
-        
-        Game.main.timers.append(Timer.after(0.2, run: updateSpaceColors))
     }
     
     func undoMove(_ move: Int) {
         spinMoves()
         let cube = moves[move]
-        let space = spaces[move]
-        space.opacity = 1
-        var upPos = cube.position
-        upPos.y += 0.4
         let newRot = SCNVector4(.random(in: -1...1), 0, .random(in: -1...1), .random(in: 0.20...0.4))
-        let translate = SCNAction.move(to: upPos, duration: 0.16)
+        let translate = SCNAction.move(to: SCNVector3(0, 0.4, 0), duration: 0.16)
         let rotate = SCNAction.rotate(toAxisAngle: newRot, duration: 0.16)
         let fade = SCNAction.fadeOut(duration: 0.15)
         rotate.timingMode = .easeIn
         translate.timingMode = .easeIn
         let unPlaceAction = SCNAction.group([translate, rotate, fade])
         cube.runAction(unPlaceAction)
-		Game.main.timers.append(Timer.after(0.2) {
-			cube.removeFromParentNode()
-			self.updateSpaceColors()
-		})
         hideWins(Board.linesThruPoint[move])
     }
     
     func remove(_ move: Int) {
-        let cube = moves[move]
-        let space = spaces[move]
-        space.opacity = 1 
-        cube.opacity = 0
-        cube.removeFromParentNode()
+		moves[move].opacity = 0
     }
     
     func spinMoves() {

@@ -47,9 +47,10 @@ class SceneHelper {
         return ambiLightNode
     }
     
-    static func makeBox(size: CGFloat = 1.0) -> SCNNode {
+	static func makeBox(size: CGFloat = 1.0, name: String? = nil) -> SCNNode {
         let box = SCNBox(width: size, height: size, length: size, chamferRadius: 0)
         let boxNode = SCNNode(geometry: box)
+		boxNode.name = name
         return boxNode
     }
     

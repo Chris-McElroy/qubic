@@ -131,6 +131,9 @@ class Game: ObservableObject {
 		guard let winsFor = showWinsFor else { return nil }
 		return showAllHints ? currentMove?.allMoves[winsFor] : currentMove?.bestMoves[winsFor]
     }
+	let notificationGenerator = UINotificationFeedbackGenerator()
+	let moveImpactGenerator = UIImpactFeedbackGenerator(style: .medium)
+	let arrowImpactGenerator = UIImpactFeedbackGenerator(style: .light)
     
     init() {
         hintQueue.qualityOfService = .userInitiated
@@ -317,6 +320,7 @@ class Game: ObservableObject {
 	}
     
     func startGame() {
+		moveImpactGenerator.prepare()
         withAnimation {
             undoOpacity = hints || mode.solve ? .half : .clear
             prevOpacity = .half
@@ -368,7 +372,7 @@ class Game: ObservableObject {
 		processingMove = true
         moves.append(move)
         if movesBack != 0 { movesBack += 1 }
-        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+        moveImpactGenerator.impactOccurred()
 		if !player[turn^1].local {
 			FB.main.sendOnlineMove(p: move.p, time: times[turn].last ?? -1)
 		}
@@ -421,10 +425,10 @@ class Game: ObservableObject {
 		processingMove = true
 		let lastBoard = Board(board)
 		board.addMove(move.p)
-		UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+		moveImpactGenerator.impactOccurred()
 		BoardScene.main.showMove(move.p, wins: board.getWinLines(for: move.p))
 		
-		if Storage.int(.moveChecker) == 2 || !hints || lastCheck == board.numMoves() {
+		if Storage.int(.moveChecker) == 2 || !hints || lastCheck >= board.numMoves() {
 			confirmMove()
 			return
 		}
@@ -494,10 +498,11 @@ class Game: ObservableObject {
 		
 		func cancelMove() {
 			timers.append(Timer.after(0.3) {
-				self.lastCheck = self.board.numMoves()
+				let newCheck = self.board.numMoves()
 				self.board.undoMove(for: turn)
 				BoardScene.main.undoMove(move.p)
-				UINotificationFeedbackGenerator().notificationOccurred(.error)
+				self.lastCheck = newCheck
+				self.notificationGenerator.notificationOccurred(.error)
 				self.premoves = []
 				BoardScene.main.spinMoves()
 				self.processingMove = false
@@ -633,7 +638,7 @@ class Game: ObservableObject {
 	
     func undoMove() {
         guard movesBack == 0 else {
-            UINotificationFeedbackGenerator().notificationOccurred(.error)
+            notificationGenerator.notificationOccurred(.error)
             for delay in stride(from: 0.0, to: 0.4, by: 0.3) {
                 Game.main.timers.append(Timer.after(delay, run: { Game.main.nextOpacity = .half }))
                 Game.main.timers.append(Timer.after(delay + 0.15, run: { Game.main.nextOpacity = .full }))
@@ -644,7 +649,7 @@ class Game: ObservableObject {
 		if processingMove { return }
         guard gameState == .active else { return }
         guard let move = moves.popLast() else { return }
-        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+        moveImpactGenerator.impactOccurred()
         player[0].cancelMove()
         player[1].cancelMove()
 		board.undoMove(for: turn^1)
@@ -672,7 +677,7 @@ class Game: ObservableObject {
 		if processingMove { return }
         let i = moves.count - movesBack - 1
         guard i >= ((!hints && mode.solve) ? preset.count : 0) else { return }
-        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+        arrowImpactGenerator.impactOccurred()
         movesBack += 1
         board.undoMove(for: turn^1)
         currentMove = i > 0 ? moves[i-1] : nil
@@ -699,7 +704,7 @@ class Game: ObservableObject {
     func nextMove() {
         guard ghostMoveCount == 0 || ghostMoveStart + ghostMoveCount > moves.count - movesBack else {
             if prevOpacity == .full && movesBack != 0 {
-                UINotificationFeedbackGenerator().notificationOccurred(.error)
+                notificationGenerator.notificationOccurred(.error)
                 for delay in stride(from: 0.0, to: 0.4, by: 0.3) {
                     timers.append(Timer.after(delay, run: { self.prevOpacity = .half }))
                     timers.append(Timer.after(delay + 0.15, run: { self.prevOpacity = .full }))
@@ -712,7 +717,7 @@ class Game: ObservableObject {
         guard movesBack > 0 else { return }
         let i = moves.count - movesBack
         guard board.pointEmpty(moves[i].p) && (0..<64).contains(moves[i].p) else { return }
-        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+        arrowImpactGenerator.impactOccurred()
         board.addMove(moves[i].p)
         movesBack -= 1
         currentMove = moves[i]
@@ -740,9 +745,7 @@ class Game: ObservableObject {
 		premoves = []
 		BoardScene.main.spinMoves()
 		withAnimation { popup = .gameEndPending }
-		
-		let feedback = UINotificationFeedbackGenerator()
-		feedback.prepare()
+		notificationGenerator.prepare()
 		
 		if end.myWin {
 			if mode == .daily {
@@ -790,7 +793,7 @@ class Game: ObservableObject {
         
 		timers.append(Timer.after(end == .myResign ? 0 : 1) {
 			withAnimation { self.popup = .gameEnd }
-			feedback.notificationOccurred(end.myWin ? .error : .warning)
+			self.notificationGenerator.notificationOccurred(end.myWin ? .error : .warning)
 		})
         
 		func recordSolve(type: Key, index: Int) {
@@ -827,6 +830,6 @@ class Game: ObservableObject {
     
     func uploadSolveBoard(_ key: String) {
         FB.main.uploadSolveBoard(board.getMoveString(), key: key)
-        UINotificationFeedbackGenerator().notificationOccurred(.success)
+        notificationGenerator.notificationOccurred(.success)
     }
 }

@@ -655,13 +655,21 @@ struct GameView: View {
 			if row == 0 {
 				Storage.set(1, for: .premoves)
 				settingsSelection1[1] = 1
+				Game.main.premoves = []
+			} else {
+				BoardScene.main.potentialMove = nil
 			}
+			BoardScene.main.spinMoves()
 		} else if component == 1 {
 			Storage.set(row, for: .premoves)
 			if row == 0 {
 				Storage.set(1, for: .confirmMoves)
 				settingsSelection1[2] = 1
+				BoardScene.main.potentialMove = nil
+			} else {
+				Game.main.premoves = []
 			}
+			BoardScene.main.spinMoves()
 		} else if component == 0 {
 			if beatCubist {
 				Storage.set(row, for: .moveChecker)

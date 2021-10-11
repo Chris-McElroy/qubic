@@ -88,6 +88,8 @@ class Game: ObservableObject {
     var movesBack: Int = 0
     var showWinsFor: Int? = nil
     var currentHintMoves: Set<Int>? = []
+	let notificationGenerator = UINotificationFeedbackGenerator()
+	let moveImpactGenerator = UIImpactFeedbackGenerator(style: .medium)
     
     init() { }
     
@@ -111,6 +113,7 @@ class Game: ObservableObject {
         if me.color == op.color { op.color = Game.getDefaultColor(for: me.color) }
         player = myTurn == 0 ? [me, op] : [op, me]
         player[self.turn].move()
+		moveImpactGenerator.prepare()
     }
     
     func load(from url: URL?, movable: Bool) {
@@ -185,9 +188,7 @@ class Game: ObservableObject {
         preset.append(move)
         board.addMove(move, for: turn)
         moves.append(Move(move))
-        if player[turn].rounded {
-            UIImpactFeedbackGenerator(style: .medium).impactOccurred()
-        }
+		moveImpactGenerator.impactOccurred()
         BoardScene.main.showMove(move, wins: board.getWinLines(for: move))
         if board.hasW0(turn^1) {
             gameState = turn^1 == myTurn ? .myWin : .opWin
