@@ -498,13 +498,14 @@ class Game: ObservableObject {
 		
 		func cancelMove() {
 			timers.append(Timer.after(0.3) {
-				let newCheck = self.board.numMoves()
 				self.board.undoMove(for: turn)
+				self.lastCheck = self.board.numMoves()
 				BoardScene.main.undoMove(move.p)
-				self.lastCheck = newCheck
 				self.notificationGenerator.notificationOccurred(.error)
 				self.premoves = []
 				BoardScene.main.spinMoves()
+				self.player[0].cancelMove()
+				self.player[1].cancelMove()
 				self.processingMove = false
 			})
 		}
@@ -636,7 +637,7 @@ class Game: ObservableObject {
         return true
     }
 	
-    func undoMove() {
+	func undoMove() {
         guard movesBack == 0 else {
             notificationGenerator.notificationOccurred(.error)
             for delay in stride(from: 0.0, to: 0.4, by: 0.3) {
@@ -655,6 +656,7 @@ class Game: ObservableObject {
 		board.undoMove(for: turn^1)
 		premoves = []
         currentMove = moves.last
+		lastCheck = 0
         newHints()
         if totalTime != nil {
             times[turn].removeLast()

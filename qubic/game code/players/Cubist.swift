@@ -76,6 +76,10 @@ class Cubist: Player {
 		41: [3, 22, 41, 60],
 		42: [0, 21, 42, 63]
 	]
+	func adjacent(_ p1: Int, _ p2: Int) -> Bool {
+		let difference = abs(p1 - p2)
+		return difference == 3 || difference == 12 || difference == 48 || difference == 1 || difference == 4 || difference == 16
+	}
 	
     override init(b: Board, n: Int) {
         super.init(b: b, n: n, name: "cubist", color: 8)
@@ -83,43 +87,40 @@ class Cubist: Player {
 	
 	override func move() {
 		cancelMove()
-		let numMoves = b.numMoves()
+		let moveBoard = Board(b)
+		let numMoves = moveBoard.numMoves()
 		
 		moveQueue.async { [self] in
-//			print("num moves", b.numMoves())
-//			if b.numMoves() == 0 { go(in: [0])}
-//			else if b.numMoves() == 2 { go(in: [3])}
-//			else if b.numMoves() == 4 { go(in: [63])}
+			if moveBoard.hasW1(n) { go(in: moveBoard.getW1(for: n)) }
 			
-			// TODO make sure i can undo shit as much as i want, prolly just make a separate board for evaluating
+			else if moveBoard.hasW1(o) { go(in: moveBoard.getW1(for: o)) }
 			
-			if b.hasW1(n) { go(in: b.getW1(for: n)) }
-			
-			else if b.hasW1(o) { go(in: b.getW1(for: o)) }
-			
-			else if b.hasW2(n, depth: 12, time: 4, valid: { gameNum == Game.main.gameNum }) == true {
-				let wins = b.getW2(for: n, depth: b.cachedHasW2[n] ?? 12, time: 20, valid: { gameNum == Game.main.gameNum })
+			else if moveBoard.hasW2(n, depth: 12, time: 4, valid: { gameNum == Game.main.gameNum }) == true {
+				let wins = moveBoard.getW2(for: n, depth: moveBoard.cachedHasW2[n] ?? 12, time: 20, valid: { gameNum == Game.main.gameNum })
 				if wins == nil { print("error - empty win after finding one") }
 				go(in: wins ?? [])
 			}
 			
 			else {
-				if b.numMoves() < 2 {
+				let myMoves = moveBoard.move[n]
+				let opMoves = moveBoard.move[o]
+				
+				if moveBoard.numMoves() < 2 {
 					
 					// FIRST MOVE
-					go(in: Set(Board.rich).filter({ b.pointEmpty($0) }))
+					go(in: Set(Board.rich).filter({ moveBoard.pointEmpty($0) }))
 					return
 				}
 				
-				if b.numMoves() == 3 {
+				if moveBoard.numMoves() == 3 {
 					
 					// SECOND MOVE AS P2
-					go(in: Set(Board.rich).filter({ b.pointEmpty($0) && !adjacents[$0]!.contains(b.move[1][0]) }))
+					go(in: Set(Board.rich).filter({ moveBoard.pointEmpty($0) && !adjacents[$0]!.contains(myMoves[0]) }))
 					return
 				}
 				
-				if n == 0 && b.move[0].count < 5 {
-					let allMoves = b.move.joined()
+				if n == 0 && myMoves.count < 5 {
+					let allMoves = myMoves + opMoves
 					var allCorners = true
 					var allCenters = true
 					
@@ -129,76 +130,66 @@ class Cubist: Player {
 					}
 					
 					if allCorners || allCenters {
-						if b.move[0].count == 1 {
+						if myMoves.count == 1 {
 							
 							// SECOND MOVE
-							go(in: (adjacents[b.move[0][0]] ?? Set(0..<64)).filter({ b.pointEmpty($0) }))
+							go(in: (adjacents[myMoves[0]] ?? Set(0..<64)).filter({ moveBoard.pointEmpty($0) }))
 							return
-						} else if b.move[0].count == 2 {
-							guard let opFirstAdj = adjacents[b.move[1][0]] else { print("cubist error 1"); return }
-							if b.move[1].count != 2 { return }
-							// TODO change out b.move[0] and b.move[1] with mymoves and opmoves to avoid crashes
-							if opFirstAdj.contains(b.move[1][1]) {
-								// TODO CMAN WE CAN DO BETTER
-								
+						} else if myMoves.count == 2 {
+							if opMoves.count != 2 { return }
+							if adjacent(opMoves[0], opMoves[1]) {
 								
 								// THIRD MOVE, OP MOVED ADJ
-								var options: Set<Int> = []
-								
-								for nextMove in allCorners ? corners : centers where b.pointEmpty(nextMove) {
-									for square in allCorners ? cornerSquares : centerSquares {
-										let rem = square.subtracting(b.move[0] + [nextMove])
-										if rem.count == 1 {
-											if b.pointEmpty(rem.first!) {
-												let opMoves = rem.union(b.move[1])
-												for opMove in opMoves {
-													if adjacents[opMove]?.intersection(opMoves).count == 2 {
-														options.insert(nextMove)
-														break
-													}
-												}
-											}
-											break
-										}
-									}
+								let opposite0 = myMoves.contains(opposite(opMoves[0]))
+								let opposite1 = myMoves.contains(opposite(opMoves[1]))
+								if opposite0 && opposite1 {
+									go(in: Set(Board.rich).filter({ moveBoard.pointEmpty($0) }))
+								} else if opposite0 || opposite1 {
+									go(in: Set([opposite(opMoves[opposite0 ? 1 : 0])]))
+								} else {
+									go(in: Set(myMoves.map { opposite($0) }))
 								}
-								
-								go(in: options)
-							} else if opposite(b.move[1][0]) == b.move[1][1] {
+							} else if opposite(opMoves[0]) == opMoves[1] {
 								
 								// THIRD MOVE, OP MOVED MD
-								go(in: Set(b.move[0].map { opposite($0) }))
-							} else if b.move[1].contains(opposite(b.move[0][0])) {
+								go(in: Set(myMoves.map { opposite($0) }))
+							} else if opMoves.contains(opposite(myMoves[0])) {
 								
 								// THIRD MOVE, OP BLOCKED YOUR 1st MD
-								go(in: adjacents[b.move[0][0]]!.filter({ b.pointEmpty($0) }))
-							} else if b.move[1].contains(opposite(b.move[0][1])) {
+								go(in: adjacents[myMoves[0]]!.filter({ moveBoard.pointEmpty($0) }))
+							} else if opMoves.contains(opposite(myMoves[1])) {
 								
 								// THIRD MOVE, OP BLOCKED YOUR 2nd MD
-								go(in: adjacents[b.move[0][1]]!.filter({ b.pointEmpty($0) }))
+								go(in: adjacents[myMoves[1]]!.filter({ moveBoard.pointEmpty($0) }))
 							} else {
 								
 								// THIRD MOVE, OP MOVED DIA ADJ TO YOU
-								if adjacents[b.move[0][0]]!.contains(b.move[1][0]) {
-									go(in: Set([opposite(b.move[0][0])]))
+								if adjacent(myMoves[0], opMoves[0]) {
+									go(in: Set([opposite(myMoves[0])]))
 								} else {
-									go(in: Set([opposite(b.move[0][1])]))
+									go(in: Set([opposite(myMoves[1])]))
 								}
 							}
 							return
 						} else {
-							if b.move[1].contains(where: { adjacents[$0]!.subtracting(b.move[1]).count == 1 }) {
+							let op1Diagonal = opMoves.contains(where: { adjacents[$0]!.subtracting(opMoves).count == 1 })
+							let my1Diagonal = myMoves.contains(where: { adjacents[$0]!.subtracting(myMoves).count == 1 })
+							if op1Diagonal && my1Diagonal {
 								
-								// FOURTH MOVE, OP IS IN 1-DIAGONAL
-								go(in: Set(allCorners ? corners : centers).filter({ b.pointEmpty($0) }))
-							} else if b.move[0].contains(where: { adjacents[$0]!.subtracting(b.move[0]).count == 1 }) {
+								// FOURTH MOVE, BOTH IN 1-DIAGONAL
+								go(in: Set(myMoves.map { opposite($0) }).filter { moveBoard.pointEmpty($0) })
+							} else if op1Diagonal {
+								
+								// FOURTH MOVE, OP IN 1-DIAGONAL
+								go(in: Set(allCorners ? corners : centers).filter({ moveBoard.pointEmpty($0) }))
+							} else if my1Diagonal {
 								
 								// FOURTH MOVE, CUBIST IS IN 1-DIAGONAL
-								go(in: Set(allCorners ? centers : corners).filter({ mainDiagonal[$0]!.subtracting(b.move[1]).count != 1 }))
+								go(in: Set(allCorners ? centers : corners).filter({ mainDiagonal[$0]!.subtracting(opMoves).count != 1 }))
 							} else {
 								
 								// FOURTH MOVE, BOTH HAVE 2-DIAGONALS
-								go(in: Set(allCorners ? corners : centers).filter({ b.pointEmpty($0) && adjacents[$0]!.subtracting(b.move[0]).count == 2 }))
+								go(in: Set(allCorners ? corners : centers).filter({ moveBoard.pointEmpty($0) && adjacents[$0]!.subtracting(myMoves).count == 2 }))
 							}
 							return
 						}
@@ -227,7 +218,7 @@ class Cubist: Player {
 					minimaxBoard.undoMove(for: n)
 				}
 				
-				print("going on minimax!", best, bestOptions)
+//				print("going on minimax!", best, bestOptions)
 				go(in: bestOptions)
 			}
 		}
@@ -237,7 +228,7 @@ class Cubist: Player {
 			if let choice = set.randomElement() { move = choice }
 			else {
 				print("error - empty set")
-				move = (0..<64).first(where: { b.pointEmpty($0) }) ?? 0
+				move = (0..<64).first(where: { moveBoard.pointEmpty($0) }) ?? 0
 			}
 			
 			DispatchQueue.main.async {

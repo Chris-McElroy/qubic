@@ -115,7 +115,7 @@ struct PlayView: View {
     }
     
     static let tips: [String] = [
-		"swipe up on the board for analysis!", // TODO change do down (and maybe edit that elsewhere too?)
+		"swipe down in game for analysis!",
 		"you can change your name and color in settings!",
 		"your name can include emojis and other i̴͍͈̱̊͐͑n̵̠̍̊̎t̸̹͗̈́͜͝e̸̗̝̻͠r̸̰̀ê̶̼͍s̵̰̯̅̀t̴̢͂̾̎ị̴̏̎n̸̡̨̟̍̐g̶͓̙̺̊̒ characters!",
 		"the \"auto\" option will match you with a bot if you don’t match with a human in time!",

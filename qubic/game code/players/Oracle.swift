@@ -11,11 +11,11 @@ import Foundation
 class Oracle: Player {
     override init(b: Board, n: Int) {
         super.init(b: b, n: n, name: "oracle", color: 2,
-				   lineP: [3: 1.96, -3: 2.2, 2: 1.0],
+				   lineP: [3: 1.0, -3: 1.0, 2: 1.5],
                    dirStats: Player.setStats(hs: 1.0, vs: 1.0, hd: 1.0, vd: 0.995, md: 1.0),
                    depth: 16,
-                   w2BlockP: 0.8,
-                   lineScore: [0,0,-1,10,1,3,5,0,0], // my points on the left
+				   w2BlockP: 1.0,
+                   lineScore: [0,0,-2,10,1,3,0,0,0], // my points on the left
                    bucketP: 0.9)
     }
     

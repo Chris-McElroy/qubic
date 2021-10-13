@@ -9,7 +9,7 @@
 import SwiftUI
 
 let buildNumber = 30105
-let versionType: VersionType = .xCode
+let versionType: VersionType = .testFlight
 let solveButtonsEnabled = false
 
 struct MainView: View {
@@ -32,7 +32,7 @@ struct MainView: View {
                 .zIndex(10)
         }
         .onAppear {
-//            FB.main.start() TODO put this back
+            FB.main.start()
             layout.load(for: screen)
             layout.current = .main
 			updateSolveBoardData()

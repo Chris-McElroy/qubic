@@ -112,8 +112,8 @@ class Player {
     
     func myW1() -> Int? { shouldMove(in: b.getW1(for: n), s: 3) }
     func opW1() -> Int? { shouldMove(in: b.getW1(for: o), s: -3) }
-	func myW2() -> Int? { shouldMove(in: b.getW2(for: n, depth: depth, valid: { gameNum == Game.main.gameNum }) ?? [], s: 2) }
-	func opW2() -> Set<Int>? { w2BlockP > .random(in: 0..<1) ? b.getW2Blocks(for: n, depth: depth, valid: { gameNum == Game.main.gameNum }) : nil }
+	func myW2() -> Int? { shouldMove(in: b.getW2(for: n, depth: depth, time: 10, valid: { gameNum == Game.main.gameNum }) ?? [], s: 2) }
+	func opW2() -> Set<Int>? { w2BlockP > .random(in: 0..<1) ? b.getW2Blocks(for: n, depth: depth, time: 10, valid: { gameNum == Game.main.gameNum }) : nil }
     
     func shouldMove(in set: Set<Int>, s: Int) -> Int? {
         let baseP = lineP[s] ?? 0
