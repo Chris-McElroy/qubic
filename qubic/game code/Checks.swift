@@ -124,6 +124,7 @@ extension Board {
     
 	func hasW2(_ n: Int, depth: Int = 32, time: TimeInterval = 30, valid: () -> Bool = { true }) -> Bool? {
 		if depth == 0 { return false }
+		guard valid() else { return nil }
 		if let w2 = cachedHasW2[n] { return w2 <= depth }
         let o = n^1
         var stack: Set<W2Board> = [W2Board(board: self, n: n, starts: [])]

@@ -9,18 +9,349 @@
 import Foundation
 
 class Cubist: Player {
+	let corners = [0, 3, 12, 15, 48, 51, 60, 63]
+	let centers = [21, 22, 25, 26, 37, 38, 41, 42]
+	let adjacents: [Int: Set<Int>] = [
+		0: [3, 12, 48],
+		3: [0, 15, 51],
+		12: [0, 15, 60],
+		15: [3, 12, 63],
+		48: [0, 60, 51],
+		51: [48, 3, 63],
+		60: [63, 12, 48],
+		63: [60, 51, 15],
+		21: [22, 25, 37],
+		22: [21, 26, 38],
+		25: [26, 21, 41],
+		26: [25, 22, 42],
+		37: [38, 41, 25],
+		38: [37, 42, 22],
+		41: [42, 37, 25],
+		42: [41, 38, 26]
+	]
+	let cornerSquares: [Set<Int>] = [
+		[0, 3, 12, 15],
+		[0, 3, 60, 63],
+		[0, 3, 48, 51],
+		[12, 15, 48, 51],
+		[12, 15, 60, 63],
+		[0, 12, 48, 60],
+		[0, 12, 51, 63],
+		[3, 15, 48, 60],
+		[3, 15, 51, 63],
+		[48, 51, 60, 63],
+		[0, 15, 48, 63],
+		[3, 12, 51, 60]
+	]
+	let centerSquares: [Set<Int>] = [
+		[21, 22, 25, 26],
+		[21, 22, 41, 42],
+		[21, 22, 37, 38],
+		[25, 26, 37, 38],
+		[25, 26, 41, 42],
+		[21, 25, 37, 41],
+		[21, 25, 38, 42],
+		[22, 26, 37, 41],
+		[22, 26, 38, 42],
+		[37, 38, 41, 42],
+		[21, 26, 37, 42],
+		[22, 25, 38, 41]
+	]
+	func opposite(_ p: Int) -> Int { 63 - p }
+	let mainDiagonal: [Int: Set<Int>] = [
+		0:  [21, 42, 63],
+		3:  [3, 22, 41, 60],
+		12: [12, 25, 38, 51],
+		15: [15, 26, 37, 48],
+		48: [15, 26, 37, 48],
+		51: [12, 25, 38, 51],
+		60: [3, 22, 41, 60],
+		63: [0, 21, 42, 63],
+		21: [0, 21, 42, 63],
+		22: [3, 22, 41, 60],
+		25: [12, 25, 38, 51],
+		26: [15, 26, 37, 48],
+		37: [15, 26, 37, 48],
+		38: [12, 25, 38, 51],
+		41: [3, 22, 41, 60],
+		42: [0, 21, 42, 63]
+	]
+	
     override init(b: Board, n: Int) {
-        super.init(b: b, n: n, name: "cubist", color: 8,
-                   lineP: [3: 1.0, -3: 1.0, 2: 1.0],
-                   dirStats: Player.setStats(hs: 1.0, vs: 1.0, hd: 1.0, vd: 1.0, md: 1.0),
-                   depth: 10,
-                   w2BlockP: 1.0,
-                   lineScore: [0,0,-3,8,3,4,1,0,0], // my points on the left
-                   bucketP: 1.0)
+        super.init(b: b, n: n, name: "cubist", color: 8)
     }
-    
-    override func getPause() -> Double {
-        1
-    }
+	
+	override func move() {
+		cancelMove()
+		let numMoves = b.numMoves()
+		
+		moveQueue.async { [self] in
+//			print("num moves", b.numMoves())
+//			if b.numMoves() == 0 { go(in: [0])}
+//			else if b.numMoves() == 2 { go(in: [3])}
+//			else if b.numMoves() == 4 { go(in: [63])}
+			
+			// TODO make sure i can undo shit as much as i want, prolly just make a separate board for evaluating
+			
+			if b.hasW1(n) { go(in: b.getW1(for: n)) }
+			
+			else if b.hasW1(o) { go(in: b.getW1(for: o)) }
+			
+			else if b.hasW2(n, depth: 12, time: 4, valid: { gameNum == Game.main.gameNum }) == true {
+				let wins = b.getW2(for: n, depth: b.cachedHasW2[n] ?? 12, time: 20, valid: { gameNum == Game.main.gameNum })
+				if wins == nil { print("error - empty win after finding one") }
+				go(in: wins ?? [])
+			}
+			
+			else {
+				if b.numMoves() < 2 {
+					
+					// FIRST MOVE
+					go(in: Set(Board.rich).filter({ b.pointEmpty($0) }))
+					return
+				}
+				
+				if b.numMoves() == 3 {
+					
+					// SECOND MOVE AS P2
+					go(in: Set(Board.rich).filter({ b.pointEmpty($0) && !adjacents[$0]!.contains(b.move[1][0]) }))
+					return
+				}
+				
+				if n == 0 && b.move[0].count < 5 {
+					let allMoves = b.move.joined()
+					var allCorners = true
+					var allCenters = true
+					
+					for move in allMoves {
+						if !corners.contains(move) { allCorners = false }
+						if !centers.contains(move) { allCenters = false }
+					}
+					
+					if allCorners || allCenters {
+						if b.move[0].count == 1 {
+							
+							// SECOND MOVE
+							go(in: (adjacents[b.move[0][0]] ?? Set(0..<64)).filter({ b.pointEmpty($0) }))
+							return
+						} else if b.move[0].count == 2 {
+							guard let opFirstAdj = adjacents[b.move[1][0]] else { print("cubist error 1"); return }
+							if b.move[1].count != 2 { return }
+							// TODO change out b.move[0] and b.move[1] with mymoves and opmoves to avoid crashes
+							if opFirstAdj.contains(b.move[1][1]) {
+								// TODO CMAN WE CAN DO BETTER
+								
+								
+								// THIRD MOVE, OP MOVED ADJ
+								var options: Set<Int> = []
+								
+								for nextMove in allCorners ? corners : centers where b.pointEmpty(nextMove) {
+									for square in allCorners ? cornerSquares : centerSquares {
+										let rem = square.subtracting(b.move[0] + [nextMove])
+										if rem.count == 1 {
+											if b.pointEmpty(rem.first!) {
+												let opMoves = rem.union(b.move[1])
+												for opMove in opMoves {
+													if adjacents[opMove]?.intersection(opMoves).count == 2 {
+														options.insert(nextMove)
+														break
+													}
+												}
+											}
+											break
+										}
+									}
+								}
+								
+								go(in: options)
+							} else if opposite(b.move[1][0]) == b.move[1][1] {
+								
+								// THIRD MOVE, OP MOVED MD
+								go(in: Set(b.move[0].map { opposite($0) }))
+							} else if b.move[1].contains(opposite(b.move[0][0])) {
+								
+								// THIRD MOVE, OP BLOCKED YOUR 1st MD
+								go(in: adjacents[b.move[0][0]]!.filter({ b.pointEmpty($0) }))
+							} else if b.move[1].contains(opposite(b.move[0][1])) {
+								
+								// THIRD MOVE, OP BLOCKED YOUR 2nd MD
+								go(in: adjacents[b.move[0][1]]!.filter({ b.pointEmpty($0) }))
+							} else {
+								
+								// THIRD MOVE, OP MOVED DIA ADJ TO YOU
+								if adjacents[b.move[0][0]]!.contains(b.move[1][0]) {
+									go(in: Set([opposite(b.move[0][0])]))
+								} else {
+									go(in: Set([opposite(b.move[0][1])]))
+								}
+							}
+							return
+						} else {
+							if b.move[1].contains(where: { adjacents[$0]!.subtracting(b.move[1]).count == 1 }) {
+								
+								// FOURTH MOVE, OP IS IN 1-DIAGONAL
+								go(in: Set(allCorners ? corners : centers).filter({ b.pointEmpty($0) }))
+							} else if b.move[0].contains(where: { adjacents[$0]!.subtracting(b.move[0]).count == 1 }) {
+								
+								// FOURTH MOVE, CUBIST IS IN 1-DIAGONAL
+								go(in: Set(allCorners ? centers : corners).filter({ mainDiagonal[$0]!.subtracting(b.move[1]).count != 1 }))
+							} else {
+								
+								// FOURTH MOVE, BOTH HAVE 2-DIAGONALS
+								go(in: Set(allCorners ? corners : centers).filter({ b.pointEmpty($0) && adjacents[$0]!.subtracting(b.move[0]).count == 2 }))
+							}
+							return
+						}
+					}
+				}
+				
+				var best = Int.min
+				var bestOptions: Set<Int> = []
+				let minimaxBoard = Board(b)
+//				var tried = 0
+				let options = getOptions(board: minimaxBoard, depth: 12, time: 5, useEmtpyBlocks: true)
+				var alpha = Int.min
+				
+				for option in options {
+//					tried += 1
+//					print("MAIN", tried, "out of", options.count)
+//					if n != minimaxBoard.getTurn() { print("WRONG ADD MAIN") }
+					minimaxBoard.addMove(option, for: n)
+					let m = minimax(on: minimaxBoard, depth: 1, alpha: alpha, beta: Int.max)
+					alpha = max(alpha, m)
+					if m > best {
+						bestOptions = [option]
+						best = m
+					}
+					else if m == best { bestOptions.insert(option) }
+					minimaxBoard.undoMove(for: n)
+				}
+				
+				print("going on minimax!", best, bestOptions)
+				go(in: bestOptions)
+			}
+		}
+		
+		func go(in set: Set<Int>) {
+			let move: Int
+			if let choice = set.randomElement() { move = choice }
+			else {
+				print("error - empty set")
+				move = (0..<64).first(where: { b.pointEmpty($0) }) ?? 0
+			}
+			
+			DispatchQueue.main.async {
+				self.moveTimer = Timer.after(1) {
+					Game.main.processMove(move, for: self.n, num: numMoves)
+				}
+			}
+		}
+	}
+	
+	func minimax(on board: Board, depth: Int, alpha: Int, beta: Int) -> Int {
+		var a = alpha
+		var b = beta
+		
+		var value: Int = board.getTurn() == n ? Int.min : Int.max
+		
+		if depth == 0 {
+			if board.hasW1(n) { return Int.min }
+			if board.hasW2(n, depth: 2, time: 1) == true {
+				let blocks = board.getW2Blocks(for: o, depth: 2, time: 10)
+//				print("found a win!", board.move[n].last ?? -1, blocks ?? [-1])
+				if blocks == nil {
+//					print("ran out of time finding blocks!")
+					value = Int.min
+				} else if blocks == [] {
+//					print("unblockable!", board.move[n][3])
+					value = Int.max
+				} else {
+					value = 0
+					for block in blocks ?? [] {
+						value += Board.rich.contains(block) ? 2 : 1
+					}
+//					print("value!", value, board.move[n].last ?? -1)
+				}
+			} else {
+				value = 0
+			}
+		} else if board.getTurn() == n {
+			if board.hasW1(o) {
+				let w1Blocks = board.getW1(for: o)
+				if w1Blocks.count > 1 {
+					value = Int.min
+				} else {
+					board.addMove(w1Blocks.first ?? 0, for: n)
+					value = minimax(on: board, depth: depth-1, alpha: a, beta: b)
+					board.undoMove(for: n)
+				}
+			} else {
+				let options = getOptions(board: board, depth: 2, time: 1, useEmtpyBlocks: true)
+//				var tried = 0
+				for option in options {
+//					tried += 1
+//					print("in 2!", tried, "out of", options.count)
+					board.addMove(option, for: n)
+					value = max(value, minimax(on: board, depth: depth-1, alpha: a, beta: b))
+					board.undoMove(for: n)
+					a = max(a, value)
+					if value >= b {
+//						print("breaking 2", value == Int.min ? "min" : value == Int.max ? "max" : String(value), a, b)
+						break
+					}
+				}
+			}
+		} else {
+			if board.hasW1(n) {
+				let w1Blocks = board.getW1(for: n)
+				if w1Blocks.count > 1 {
+//					print("is this it?", board.move[n][3])
+					value = Int.max
+				} else {
+					board.addMove(w1Blocks.first ?? 0, for: o)
+					value = minimax(on: board, depth: depth, alpha: a, beta: b)
+					board.undoMove(for: o)
+				}
+			} else {
+				let options = getOptions(board: board, depth: 2, time: 1, useEmtpyBlocks: true)
+//				var tried = 0
+				for option in options {
+//					tried += 1
+//					print("in 1!", tried, "out of", options.count)
+					board.addMove(option, for: o)
+					value = min(value, minimax(on: board, depth: depth, alpha: a, beta: b))
+					board.undoMove(for: o)
+					b = min(b, value)
+					if value <= a {
+//						print("breaking 1", value == Int.min ? "min" : value == Int.max ? "max" : String(value), a, b)
+						break
+					}
+				}
+			}
+		}
+		
+//		if value == Int.max {
+//			print("returning max", depth, board.getTurn() == n, board.move[n])
+//		}
+		return value
+	}
+	
+	func getOptions(board: Board, depth: Int, time: Double, useEmtpyBlocks: Bool) -> Set<Int> {
+		var options = Set((0..<64).filter { board.pointEmpty($0) })
+		let turn = board.nextTurn() == 0 ? 0 : 1 // I was getting errors without this when undoing
+		if board.hasW2(turn, depth: depth, time: time/10, valid: { gameNum == Game.main.gameNum }) == true {
+			if let blocks = board.getW2Blocks(for: turn^1, depth: depth, time: time, valid: { gameNum == Game.main.gameNum }) {
+				if useEmtpyBlocks || !blocks.isEmpty {
+					options = blocks
+				}
+			} else {
+//				print("ran out of time", depth, time, useEmtpyBlocks)
+			}
+		}
+		let richOptions = options.intersection(Board.rich)
+		if !richOptions.isEmpty { options = richOptions }
+		
+		return options
+	}
 }
 
