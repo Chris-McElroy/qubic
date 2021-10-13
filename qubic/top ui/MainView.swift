@@ -8,8 +8,8 @@
 
 import SwiftUI
 
-let buildNumber = 30105
-let versionType: VersionType = .testFlight
+let buildNumber = 30106
+let versionType: VersionType = .appStore
 let solveButtonsEnabled = false
 
 struct MainView: View {
@@ -32,11 +32,8 @@ struct MainView: View {
                 .zIndex(10)
         }
         .onAppear {
-            FB.main.start()
             layout.load(for: screen)
             layout.current = .main
-			updateSolveBoardData()
-            Notifications.setBadge(justSolved: false)
         }
         .onReceive(screen.objectWillChange) { layout.load(for: screen) }
         .frame(height: layout.total)

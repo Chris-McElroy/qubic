@@ -251,6 +251,7 @@ struct GameView: View {
 	var gameEndPopup: some View {
 		var titleText = game.gameState.myWin ? "you won!" : "you lost!"
 		if game.gameState == .draw { titleText = "draw" }
+		if game.gameState == .error { titleText = "game over" }
 		if game.mode == .daily && Storage.int(.lastDC) > game.lastDC { titleText = "\(Storage.int(.streak)) day streak!" }
 //		if game.mode == .picture4 { titleText = "8 day streak!"; rematchText = "try again" }
 		
@@ -687,6 +688,7 @@ struct GameView: View {
         @ObservedObject var game: Game
         @Binding var text: [[String]?]
 		@Binding var winsFor: Int
+		@Environment(\.colorScheme) var colorScheme
         var color: Color { .of(n: game.player[turn].color) }
         var rounded: Bool { game.player[turn].rounded }
         var glow: Color { game.realTurn == turn ? color : .clear }
@@ -706,11 +708,11 @@ struct GameView: View {
                         .frame(minWidth: 140, maxWidth: 160, minHeight: 40)
 						.background(Rectangle()
 										.foregroundColor(color)
-										.opacity(game.realTurn == turn || game.gameState == .new ? 1 : 0.7)
+										.opacity(game.realTurn == turn || game.gameState == .new ? 1 : 0.55)
 						)
 						.background(Rectangle().foregroundColor(.systemBackground))
                         .cornerRadius(rounded ? 100 : 4)
-                        .shadow(color: glow, radius: 8, y: 0)
+						.shadow(color: glow, radius: colorScheme == .dark ? 15 : 8, y: 0)
                         .animation(.easeIn(duration: 0.3))
                         .rotation3DEffect(game.showWinsFor == turn ? .radians(.pi/2) : .zero, axis: (x: 1, y: 0, z: 0), anchor: .top)
                 }

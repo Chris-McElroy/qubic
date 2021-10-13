@@ -32,7 +32,7 @@ class FB {
                 self.updateMyData()
 				self.updateMyStats()
 				self.startActiveTimer()
-                self.finishedOnlineGame(with: .error)
+				// removed finished online game
             } else {
                 // should only happen once, when they first use the app
                 Auth.auth().signInAnonymously() { (authResult, error) in
@@ -46,6 +46,7 @@ class FB {
 	
 	func startActiveTimer() {
 		let myActiveRef = ref.child("active/\(myID)")
+		myActiveRef.setValue(Date.ms)
 		Timer.every(30, run: {
 			myActiveRef.setValue(Date.ms)
 		})

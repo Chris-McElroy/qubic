@@ -200,7 +200,7 @@ class Cubist: Player {
 				var bestOptions: Set<Int> = []
 				let minimaxBoard = Board(b)
 //				var tried = 0
-				let options = getOptions(board: minimaxBoard, depth: 12, time: 5, useEmtpyBlocks: true)
+				let options = getOptions(board: minimaxBoard, depth: 12, time: 10, needsOptions: true)
 				var alpha = Int.min
 				
 				for option in options {
@@ -218,7 +218,7 @@ class Cubist: Player {
 					minimaxBoard.undoMove(for: n)
 				}
 				
-//				print("going on minimax!", best, bestOptions)
+				print("going on minimax!", best, bestOptions)
 				go(in: bestOptions)
 			}
 		}
@@ -277,7 +277,7 @@ class Cubist: Player {
 					board.undoMove(for: n)
 				}
 			} else {
-				let options = getOptions(board: board, depth: 2, time: 1, useEmtpyBlocks: true)
+				let options = getOptions(board: board, depth: 2, time: 1, needsOptions: false)
 //				var tried = 0
 				for option in options {
 //					tried += 1
@@ -304,7 +304,7 @@ class Cubist: Player {
 					board.undoMove(for: o)
 				}
 			} else {
-				let options = getOptions(board: board, depth: 2, time: 1, useEmtpyBlocks: true)
+				let options = getOptions(board: board, depth: 2, time: 1, needsOptions: false)
 //				var tried = 0
 				for option in options {
 //					tried += 1
@@ -327,16 +327,23 @@ class Cubist: Player {
 		return value
 	}
 	
-	func getOptions(board: Board, depth: Int, time: Double, useEmtpyBlocks: Bool) -> Set<Int> {
+	func getOptions(board: Board, depth: Int, time: Double, needsOptions: Bool) -> Set<Int> {
 		var options = Set((0..<64).filter { board.pointEmpty($0) })
 		let turn = board.nextTurn() == 0 ? 0 : 1 // I was getting errors without this when undoing
 		if board.hasW2(turn, depth: depth, time: time/10, valid: { gameNum == Game.main.gameNum }) == true {
 			if let blocks = board.getW2Blocks(for: turn^1, depth: depth, time: time, valid: { gameNum == Game.main.gameNum }) {
-				if useEmtpyBlocks || !blocks.isEmpty {
+				if !needsOptions || !blocks.isEmpty {
 					options = blocks
+					if needsOptions { print("succeeded at", depth, "depth") }
+				} else {
+					print("failed at", depth, "depth, going to", depth/2)
+					options = getOptions(board: board, depth: depth/2, time: time/2, needsOptions: true)
 				}
 			} else {
-//				print("ran out of time", depth, time, useEmtpyBlocks)
+				if needsOptions {
+					print("ran out of time at", depth, "depth, going to", depth/2)
+					options = getOptions(board: board, depth: depth/2, time: time/2, needsOptions: true)
+				}
 			}
 		}
 		let richOptions = options.intersection(Board.rich)
