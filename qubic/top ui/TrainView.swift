@@ -45,7 +45,7 @@ struct TrainView: View {
     
     var mode: GameMode {
 		switch layout.trainSelection[0] {
-		case 0: return .novice
+		case 0: return .novice // .picture1
 		case 1: return .defender
 		case 2: return .warrior
 		case 3: return .tyrant

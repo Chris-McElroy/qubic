@@ -360,7 +360,7 @@ class Game: ObservableObject {
     }
     
     func processMove(_ p: Int, for turn: Int, num: Int, time: Double? = nil) {
-//		if [.picture2, .picture3, .picture4].contains(mode) && turn != myTurn || mode == .picture1 {
+//		if [.picture2, .picture3, .picture4].contains(mode) {
 //			Timer.after(mode == .picture2 ? 1.5 : mode == .picture3 ? 4 : 0, run: { self.endGame(with: .myWin) })
 //			return
 //		}
@@ -416,6 +416,10 @@ class Game: ObservableObject {
     }
 	
 	func checkAndProcessMove(_ p: Int, for turn: Int, num: Int, time: Double? = nil) {
+//		if mode == .picture1 {
+//			endGame(with: .myWin)
+//			return
+//		}
 		let move = Move(p)
 		if processingMove { return }
 		guard gameState == .active else { return }

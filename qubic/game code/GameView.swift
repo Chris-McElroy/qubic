@@ -253,7 +253,7 @@ struct GameView: View {
 		if game.gameState == .draw { titleText = "draw" }
 		if game.gameState == .error { titleText = "game over" }
 		if game.mode == .daily && Storage.int(.lastDC) > game.lastDC { titleText = "\(Storage.int(.streak)) day streak!" }
-//		if game.mode == .picture4 { titleText = "8 day streak!"; rematchText = "try again" }
+//		if game.mode == .picture4 { titleText = "8 day streak!" }
 		
 		return VStack(spacing: 0) {
 			VStack(spacing: 15) {
@@ -291,7 +291,7 @@ struct GameView: View {
 	}
 	
 	var rematchButton: some View {
-		Button(game.mode.solve ? "try again" : "rematch") { animateGameChange(rematch: true) }
+		Button(game.mode.solve ? "try again" : "rematch") { animateGameChange(rematch: true) } // game.mode == .picture4 ||
 	}
 	
 	var newGameButton: some View {
