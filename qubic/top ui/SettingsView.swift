@@ -10,7 +10,6 @@ import SwiftUI
 
 struct SettingsView: View {
     @ObservedObject var layout = Layout.main
-    var mainButtonAction: () -> Void
 	@State var selected1 = [Storage.int(.moveChecker), Storage.int(.premoves), Storage.int(.confirmMoves)]
 	@State var selected2 = [Storage.int(.color), Storage.int(.notification), Storage.int(.arrowSide)]
     @State var username = Storage.string(.name) ?? "me"
@@ -120,7 +119,9 @@ struct SettingsView: View {
             VStack(spacing: 0) {
                 ZStack {
                     Fill().frame(height: moreButtonHeight)
-                    Button(action: mainButtonAction) {
+                    Button(action:  {
+						layout.change(to: .settings)
+				 }) {
                         ZStack {
                             Text("settings")
                             Circle().frame(width: 12, height: 12).foregroundColor(.primary()).offset(x: 53, y: 2)
@@ -299,6 +300,6 @@ struct SettingsView: View {
 
 struct SettingsView_Previews: PreviewProvider {
     static var previews: some View {
-        SettingsView() {}
+        SettingsView()
     }
 }

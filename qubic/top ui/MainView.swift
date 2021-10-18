@@ -83,20 +83,20 @@ struct MainView: View {
 				FB.main.getOnlineMatch(onMatch: { layout.current = .play })
 			} else if layout.shouldSendInvite() {
 				presentMessageCompose()
-			} else { switchLayout(to: view1, or: view2) }
+			} else { layout.change(to: view1, or: view2) }
 		}
         
         return VStack(spacing: 0) {
             TrainView()
                 .modifier(LayoutModifier(for: .trainView))
-            mainButton(views: [.trainMenu, .train], text: trainText, color: .tertiary(), action: switchLayout)
+            mainButton(views: [.trainMenu, .train], text: trainText, color: .tertiary(), action: layout.change)
                 .modifier(LayoutModifier(for: .trainButton))
                 .zIndex(5)
             SolveView()
                 .modifier(LayoutModifier(for: .solveView))//, alignment: .bottom)
                 .zIndex(0)
             ZStack {
-                mainButton(views: [.solveMenu, .solve], text: solveText, color: .secondary(), action: switchLayout)
+                mainButton(views: [.solveMenu, .solve], text: solveText, color: .secondary(), action: layout.change)
                 Circle()
                     .frame(width: 24, height: 24)
                     .foregroundColor(layout.current == .solveMenu ? .secondary() : .primary())
@@ -136,15 +136,19 @@ struct MainView: View {
     private var moreStack: some View {
         VStack(spacing: 0) {
             Fill().modifier(LayoutModifier(for: .moreSpacer))
-            AboutView() { self.switchLayout(to: .about) }
+            AboutView()
                 .frame(alignment: .top)
                 .modifier(LayoutModifier(for: .about))
-                .zIndex(3)
-            SettingsView() { self.switchLayout(to: .settings) }
+                .zIndex(4)
+			TutorialButton()
+				.frame(alignment: .top)
+				.modifier(LayoutModifier(for: .tutorial))
+				.zIndex(3)
+            SettingsView()
                 .frame(alignment: .top)
                 .modifier(LayoutModifier(for: .settings))
                 .zIndex(2)
-            FeedbackView() { self.switchLayout(to: .feedback) }
+            FeedbackView()
                 .frame(alignment: .top)
                 .modifier(LayoutModifier(for: .feedback))
                 .zIndex(1)
@@ -200,7 +204,7 @@ struct MainView: View {
                 let w = drag.translation.width
                 if abs(h)/abs(w) > 1 {
                     if self.layout.current == .main {
-                        if h < 0 { self.switchLayout(to: .more) }
+                        if h < 0 { layout.change(to: .more) }
                         else { self.cube.flipCube() }
                     } else if h > 0 || self.layout.current.menuView {
 						self.layout.goBack()
@@ -209,14 +213,6 @@ struct MainView: View {
                     self.cube.rotate(right: w > 0)
                 }
             }
-    }
-    
-    func switchLayout(to newLayout: ViewState, or otherLayout: ViewState? = nil) {
-        if let nextView = (layout.current != newLayout) ? newLayout : otherLayout {
-			withAnimation(.easeInOut(duration: 0.4)) { //0.4
-                layout.current = nextView
-            }
-        }
     }
 }
 

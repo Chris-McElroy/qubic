@@ -18,6 +18,7 @@ enum ViewState: CaseIterable {
     case playMenu
     case play
     case about
+	case tutorial
     case settings
     case feedback
     
@@ -34,6 +35,7 @@ enum ViewState: CaseIterable {
         case .solve: return .solveMenu
         case .play: return .playMenu
         case .about: return .more
+		case .tutorial: return .more
         case .settings: return .more
         case .feedback: return .more
         default: return .main
@@ -62,6 +64,7 @@ enum ViewState: CaseIterable {
         .play: (top: .playView, focus: .playView, bottom: .playView),
         .more: (top: .trainView, focus: .moreSpacer, bottom: .feedback),
         .about: (top: .about, focus: .about, bottom: .about),
+		.tutorial: (top: .tutorial, focus: .tutorial, bottom: .tutorial),
         .settings: (top: .settings, focus: .settings, bottom: .settings),
         .feedback: (top: .feedback, focus: .feedback, bottom: .feedback),
     ]
@@ -71,7 +74,7 @@ enum LayoutView: Int, Comparable {
     case topSpacer
     case title, cube, mainSpacer
     case trainView, trainButton, solveView, solveButton, playView, playButton
-    case moreSpacer, about, settings, feedback
+    case moreSpacer, about, tutorial, settings, feedback
     case backButton
     
     static func < (lhs: LayoutView, rhs: LayoutView) -> Bool {
@@ -117,6 +120,7 @@ class Layout: ObservableObject {
         .playButton: mainButtonHeight,
         .moreSpacer: 0,
         .about: moreButtonHeight,
+		.tutorial: moreButtonHeight,
         .settings: moreButtonHeight,
         .feedback: moreButtonHeight,
         .backButton: backButtonFrame
@@ -301,6 +305,14 @@ class Layout: ObservableObject {
 	
 	func shouldSendInvite() -> Bool {
 		current == .playMenu && playSelection[0] == 2
+	}
+	
+	func change(to newLayout: ViewState, or otherLayout: ViewState? = nil) {
+		if let nextView = (current != newLayout) ? newLayout : otherLayout {
+			withAnimation(.easeInOut(duration: 0.4)) { //0.4
+				current = nextView
+			}
+		}
 	}
 }
 

@@ -10,7 +10,6 @@ import SwiftUI
 
 struct AboutView: View {
     @ObservedObject var layout = Layout.main
-    var mainButtonAction: () -> Void
     let pickerContent: [[Any]] = [["how to play", "using the app", "developer bio", "helpful links"]]
     @State var selected: [Int] = [0]
     @State var page: Int = 0
@@ -20,7 +19,9 @@ struct AboutView: View {
         VStack {
             ZStack {
                 Fill().frame(height: moreButtonHeight)
-                Button(action: mainButtonAction) {
+				Button(action: {
+					layout.change(to: .about)
+				}) {
                     Text("about")
                 }
                 .buttonStyle(MoreStyle())
@@ -157,6 +158,6 @@ struct AboutView: View {
 
 struct AboutView_Previews: PreviewProvider {
     static var previews: some View {
-        AboutView() {}
+        AboutView()
     }
 }

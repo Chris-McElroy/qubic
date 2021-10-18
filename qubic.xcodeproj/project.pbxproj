@@ -50,6 +50,7 @@
 		1E74FA2425AA41FA0049BE6B /* Player.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EC2788C2585ACC600F6A5EB /* Player.swift */; };
 		1E74FA2725AA41FC0049BE6B /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EBD920025897ED90082B65E /* User.swift */; };
 		1E74FA2D25AA438B0049BE6B /* MessageGame.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E74FA2C25AA438B0049BE6B /* MessageGame.swift */; };
+		1E776157271E372200D83000 /* TutorialView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E776156271E372200D83000 /* TutorialView.swift */; };
 		1E7A91942584B0A800AE3BE7 /* Defender.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E7A91932584B0A800AE3BE7 /* Defender.swift */; };
 		1E7B117D2586B33400A0CD9F /* NotificationHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E7B117C2586B33400A0CD9F /* NotificationHelper.swift */; };
 		1E7B959224D34015004B3C80 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E7B959124D34015004B3C80 /* SettingsView.swift */; };
@@ -259,6 +260,7 @@
 		1E726EEE263359A400640651 /* OldTextEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OldTextEditor.swift; sourceTree = "<group>"; };
 		1E74F9E125AA20FA0049BE6B /* qubicMessage.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = qubicMessage.entitlements; sourceTree = "<group>"; };
 		1E74FA2C25AA438B0049BE6B /* MessageGame.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageGame.swift; sourceTree = "<group>"; };
+		1E776156271E372200D83000 /* TutorialView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TutorialView.swift; sourceTree = "<group>"; };
 		1E7A91932584B0A800AE3BE7 /* Defender.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Defender.swift; sourceTree = "<group>"; };
 		1E7B117C2586B33400A0CD9F /* NotificationHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationHelper.swift; sourceTree = "<group>"; };
 		1E7B959124D34015004B3C80 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
@@ -718,6 +720,7 @@
 				1E3335D4253405E100966EA6 /* game code */,
 				1E3335DA25342BFF00966EA6 /* top ui */,
 				1E3335D825342BE600966EA6 /* helpers */,
+				1E776158271E373800D83000 /* tutorial */,
 				1E00AA962706715500666AF0 /* app icons */,
 				1E68179824CC973D001713E7 /* Assets.xcassets */,
 				1E3A697E24CE1F02000930A4 /* Oligopoly Regular.otf */,
@@ -735,6 +738,14 @@
 				1E68179B24CC973D001713E7 /* Preview Assets.xcassets */,
 			);
 			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		1E776158271E373800D83000 /* tutorial */ = {
+			isa = PBXGroup;
+			children = (
+				1E776156271E372200D83000 /* TutorialView.swift */,
+			);
+			path = tutorial;
 			sourceTree = "<group>";
 		};
 		1EB5266627068D2D00B1344A /* purple */ = {
@@ -1112,6 +1123,7 @@
 				1EFB9680270F88CF007152FC /* NewHPicker.swift in Sources */,
 				1EBD920125897ED90082B65E /* User.swift in Sources */,
 				1E5A5AAE24CD077900F31124 /* TrainView.swift in Sources */,
+				1E776157271E372200D83000 /* TutorialView.swift in Sources */,
 				1EB693952599A1470025B080 /* Warrior.swift in Sources */,
 				1E7B117D2586B33400A0CD9F /* NotificationHelper.swift in Sources */,
 				1E3335D2253400FD00966EA6 /* Cubist.swift in Sources */,

@@ -9,7 +9,6 @@
 import SwiftUI
 
 struct FeedbackView: View {
-    var mainButtonAction: () -> Void
     @ObservedObject var layout = Layout.main
     @State var name = ""
     @State var email = ""
@@ -20,8 +19,13 @@ struct FeedbackView: View {
         VStack {
             ZStack {
                 Fill().frame(height: moreButtonHeight)
-                Button("feedback", action: mainButtonAction)
-                    .buttonStyle(MoreStyle())
+				VStack {
+					Button("feedback", action:  {
+						layout.change(to: .feedback)
+					})
+						.buttonStyle(MoreStyle())
+					Spacer()
+				}
             }.zIndex(4)
             if layout.current == .feedback {
                 if #available(iOS 14.0, *) {
