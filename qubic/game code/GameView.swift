@@ -467,9 +467,9 @@ struct GameView: View {
 			.multilineTextAlignment(.center)
 			.padding(.horizontal, 25)
 			.padding(.top, nameSpace)
-			.frame(width: layout.width, height: 180)
+			.frame(width: layout.width, height: 200)
 			.modifier(PopupModifier())
-			.offset(y: gameLayout.popup == .analysis ? 0 : -(180 + 30 + nameSpace))
+			.offset(y: gameLayout.popup == .analysis ? 0 : -(200 + 30 + nameSpace))
 			Fill().opacity(gameLayout.popup == .analysis ? 0.015 : 0) // 0.015 seems to be about the minimum opacity to work
 				.onTapGesture { gameLayout.hidePopups() }
 				.zIndex(4)
@@ -508,6 +508,7 @@ struct GameView: View {
 			.modifier(PopupModifier())
 			.offset(y: gameLayout.popup == .analysis && game.hints && !gameLayout.delayPopups ? 0 : 200)
 		}
+		.modifier(BoundSize(min: .large, max: .extraLarge))
     }
     
     func onAnalysisSelection(row: Int, component: Int) {

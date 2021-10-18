@@ -46,7 +46,7 @@ struct MainView: View {
     private var top: some View {
         VStack(spacing: 0) {
 			Text("qubic")  // + (versionType == .testFlight ? " beta" : ""))
-                .font(.custom("Oligopoly Regular", size: 45))
+                .font(.custom("Oligopoly Regular", size: 42))
                 .padding(.top, 10)
                 .modifier(LayoutModifier(for: .title))
 				.modifier(BoundSize(min: .large, max: .extraExtraExtraLarge))
