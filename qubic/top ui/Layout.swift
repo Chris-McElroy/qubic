@@ -1,5 +1,5 @@
 //
-//  LayoutHelper.swift
+//  Layout.swift
 //  qubic
 //
 //  Created by 4 on 8/19/20.

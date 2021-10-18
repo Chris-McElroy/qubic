@@ -47,14 +47,6 @@ enum GameState: Int {
     }
 }
 
-enum GamePopup {
-	case none, analysis, options, gameEnd, gameEndPending, settings
-	
-	var up: Bool {
-		!(self == .none || self == .gameEndPending)
-	}
-}
-
 enum HintValue: Comparable {
 	case noW, c2, cm2, c2d1, w2, w2d1, c1, cm1, w1, w0
 }
@@ -83,20 +75,10 @@ class Move: Equatable {
 class Game: ObservableObject {
     static let main = Game()
     
-    @Published var currentMove: Move? = nil
-    @Published var showDCAlert: Bool = false
-	@Published var showCubistAlert: Bool = false
-//    @Published var newStreak: Int? = nil
-    @Published var undoOpacity: Opacity = .clear
-    @Published var prevOpacity: Opacity = .clear
-    @Published var nextOpacity: Opacity = .clear
-	@Published var optionsOpacity: Opacity = .clear
     @Published var moves: [Move] = []
+	@Published var currentMove: Move? = nil
     @Published var hints: Bool = false
-    @Published var showWinsFor: Int? = nil
-	@Published var showAllHints: Bool = true
     @Published var currentTimes: [Int] = [0,0]
-	@Published var popup: GamePopup = .none
     
 	var gameNum: Int = 0
     var turn: Int { board.getTurn() }
@@ -127,10 +109,6 @@ class Game: ObservableObject {
 	var rematchRequested: Bool = false
 	var reviewingGame: Bool = false
 	var mostRecentGame: (GameMode, Int, Int?, Bool, Double?) = (.novice, 0, nil, false, nil)
-    var currentHintMoves: Set<Int>? {
-		guard let winsFor = showWinsFor else { return nil }
-		return showAllHints ? currentMove?.allMoves[winsFor] : currentMove?.bestMoves[winsFor]
-    }
 	let notificationGenerator = UINotificationFeedbackGenerator()
 	let moveImpactGenerator = UIImpactFeedbackGenerator(style: .medium)
 	let arrowImpactGenerator = UIImpactFeedbackGenerator(style: .light)
@@ -146,10 +124,7 @@ class Game: ObservableObject {
         board = Board()
         BoardScene.main.reset()
 		gameNum += 1
-        undoOpacity = .clear
-        prevOpacity = .clear
-        nextOpacity = .clear
-		optionsOpacity = .clear
+		GameLayout.main.loadGameOpacities()
 		reviewingGame = false
 		processingMove = false
 		lastCheck = 0
@@ -171,9 +146,9 @@ class Game: ObservableObject {
         ghostMoveStart = 0
         ghostMoveCount = 0
         premoves = []
-		showWinsFor = nil
-		showAllHints = true
-		popup = .none
+		GameLayout.main.showWinsFor = nil
+		GameLayout.main.showAllHints = true
+		GameLayout.main.popup = .none
 //        newStreak = nil
 		dayInt = Date.int
 		lastDC = Storage.int(.lastDC)
@@ -321,12 +296,7 @@ class Game: ObservableObject {
     
     func startGame() {
 		moveImpactGenerator.prepare()
-        withAnimation {
-            undoOpacity = hints || mode.solve ? .half : .clear
-            prevOpacity = .half
-            nextOpacity = .half
-			optionsOpacity = .full
-        }
+		GameLayout.main.startGameOpacities()
         if totalTime != nil {
 			let num = gameNum
             lastStart[turn] = Date.now+2
@@ -382,8 +352,7 @@ class Game: ObservableObject {
         currentMove = move
         newHints()
         BoardScene.main.showMove(move.p, wins: board.getWinLines(for: move.p))
-        if undoOpacity == .half { withAnimation { undoOpacity = .full } }
-        withAnimation { prevOpacity = .full }
+		GameLayout.main.newMoveOpacities()
 		processingMove = false
     }
 	
@@ -408,10 +377,7 @@ class Game: ObservableObject {
         ghostMoveCount += 1
         getHints(for: moves.dropLast(movesBack))
         BoardScene.main.showMove(move.p, wins: board.getWinLines(for: move.p), ghost: true)
-        withAnimation {
-            prevOpacity = .full
-            nextOpacity = .half
-        }
+		GameLayout.main.newGhostMoveOpacities()
 		processingMove = false
     }
 	
@@ -496,8 +462,7 @@ class Game: ObservableObject {
 			currentMove = move
 			newHints()
 			processingMove = false
-			if undoOpacity == .half { withAnimation { undoOpacity = .full } }
-			withAnimation { prevOpacity = .full }
+			GameLayout.main.newMoveOpacities()
 		}
 		
 		func cancelMove() {
@@ -601,7 +566,7 @@ class Game: ObservableObject {
 			// show hint for == 1 -> my wins
 			// if i go first then that's showWinFor = 0
 			// no what i'm testing for here is that showWinFor is equal to the person who's move it is
-			if self.myTurn == turn ? self.showWinsFor == 0 : self.showWinsFor == 1 {
+			if self.myTurn == turn ? GameLayout.main.showWinsFor == 0 : GameLayout.main.showWinsFor == 1 {
                 DispatchQueue.main.async { BoardScene.main.spinMoves() }
             }
 
@@ -623,34 +588,19 @@ class Game: ObservableObject {
 			guard num == self.gameNum else { return }
 			moves.last?.allMoves[turn^1] = oAllMoves
 			moves.last?.bestMoves[turn^1] = oBestMoves
-			if self.myTurn == turn ? self.showWinsFor == 1 : self.showWinsFor == 0 {
+			if GameLayout.main.showWinsFor == (self.myTurn == turn ? 1 : 0) {
                 DispatchQueue.main.async { BoardScene.main.spinMoves() }
             }
         }
-    }
-    
-    @discardableResult func hidePopups() -> Bool {
-		if popup == .gameEnd {
-			reviewingGame = true
-			FB.main.cancelOnlineSearch?()
-		}
-		if popup == .none { return false }
-        withAnimation {
-			popup = .none
-        }
-        return true
     }
 	
 	func undoMove() {
         guard movesBack == 0 else {
             notificationGenerator.notificationOccurred(.error)
-            for delay in stride(from: 0.0, to: 0.4, by: 0.3) {
-                Game.main.timers.append(Timer.after(delay, run: { Game.main.nextOpacity = .half }))
-                Game.main.timers.append(Timer.after(delay + 0.15, run: { Game.main.nextOpacity = .full }))
-            }
+			GameLayout.main.flashNextArrow()
             return
         }
-        guard undoOpacity == .full else { return }
+		guard GameLayout.main.undoOpacity == .full else { return }
 		if processingMove { return }
         guard gameState == .active else { return }
         guard let move = moves.popLast() else { return }
@@ -669,17 +619,12 @@ class Game: ObservableObject {
             lastStart[turn] = Date.now + 0.5
         }
         BoardScene.main.undoMove(move.p)
-        if moves.count == preset.count {
-            withAnimation {
-                undoOpacity = .half
-                prevOpacity = .half
-            }
-        }
+		GameLayout.main.undoMoveOpacities()
         timers.append(Timer.after(0.5, run: player[turn].move))
     }
     
     func prevMove() {
-        guard prevOpacity == .full else { return }
+		guard GameLayout.main.prevOpacity == .full else { return }
 		if processingMove { return }
         let i = moves.count - movesBack - 1
         guard i >= ((!hints && mode.solve) ? preset.count : 0) else { return }
@@ -699,26 +644,18 @@ class Game: ObservableObject {
             movesBack -= ghostMoveCount
             ghostMoveCount = 0
         }
-        withAnimation {
-            nextOpacity = movesBack > 0 ? .full : .half
-            if undoOpacity == .full { undoOpacity = .half }
-			let minMoves = mode.solve && (gameState == .active || !hints) ? preset.count : 0
-            if moves.count - movesBack == minMoves { prevOpacity = .half }
-        }
+		GameLayout.main.prevMoveOpacities()
     }
     
     func nextMove() {
         guard ghostMoveCount == 0 || ghostMoveStart + ghostMoveCount > moves.count - movesBack else {
-            if prevOpacity == .full && movesBack != 0 {
+			if GameLayout.main.prevOpacity == .full && movesBack != 0 {
                 notificationGenerator.notificationOccurred(.error)
-                for delay in stride(from: 0.0, to: 0.4, by: 0.3) {
-                    timers.append(Timer.after(delay, run: { self.prevOpacity = .half }))
-                    timers.append(Timer.after(delay + 0.15, run: { self.prevOpacity = .full }))
-                }
+				GameLayout.main.flashPrevArrow()
             }
             return
         }
-        guard nextOpacity == .full else { return }
+		guard GameLayout.main.nextOpacity == .full else { return }
 		if processingMove { return }
         guard movesBack > 0 else { return }
         let i = moves.count - movesBack
@@ -732,13 +669,7 @@ class Game: ObservableObject {
         }
         newHints()
         BoardScene.main.showMove(moves[i].p, wins: board.getWinLines(for: moves[i].p), ghost: ghostMoveCount != 0)
-        withAnimation {
-            prevOpacity = .full
-            if movesBack == 0 {
-                if undoOpacity == .half { undoOpacity = .full }
-                nextOpacity = .half
-            }
-        }
+		GameLayout.main.nextMoveOpacities()
         if gameState == .active && movesBack == 0 {
             player[turn].move()
         }
@@ -750,7 +681,7 @@ class Game: ObservableObject {
 		gameState = end
 		premoves = []
 		BoardScene.main.spinMoves()
-		withAnimation { popup = .gameEndPending }
+		withAnimation { GameLayout.main.popup = .gameEndPending }
 		notificationGenerator.prepare()
 		
 		if end.myWin {
@@ -764,7 +695,7 @@ class Game: ObservableObject {
 					verifyDailyData()
 					Notifications.ifUndetermined {
 						DispatchQueue.main.async {
-							self.showDCAlert = true
+							GameLayout.main.showDCAlert = true
 						}
 					}
 					Notifications.setBadge(justSolved: true, dayInt: dayInt)
@@ -781,7 +712,7 @@ class Game: ObservableObject {
 			else if let index = [.novice, .defender, .warrior, .tyrant, .oracle, .cubist].firstIndex(of: mode), !hints {
 				if mode == .cubist {
 					if let trainArray = Storage.array(.train) as? [Int], trainArray[5] == 0 {
-						self.showCubistAlert = true
+						GameLayout.main.showCubistAlert = true
 					}
 				}
 				recordSolve(type: .train, index: index)
@@ -789,7 +720,7 @@ class Game: ObservableObject {
 		}
 		
         if !mode.solve || end.myWin { hints = true }
-        withAnimation { undoOpacity = .clear }
+		withAnimation { GameLayout.main.undoOpacity = .clear }
     
         if !player[myTurn^1].local {
             FB.main.finishedOnlineGame(with: gameState)
@@ -798,7 +729,7 @@ class Game: ObservableObject {
         if end == .myTimeout || end == .opTimeout { BoardScene.main.spinBoard() }
         
 		timers.append(Timer.after(end == .myResign ? 0 : 1) {
-			withAnimation { self.popup = .gameEnd }
+			withAnimation { GameLayout.main.popup = .gameEnd }
 			self.notificationGenerator.notificationOccurred(end.myWin ? .error : .warning)
 		})
         

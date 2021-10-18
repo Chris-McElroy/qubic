@@ -66,6 +66,16 @@ class Move {
     }
 }
 
+class GameLayout {
+	static let main = GameLayout()
+	var nextOpacity: Opacity = .clear
+	var showWinsFor: Int? = nil
+	var currentHintMoves: Set<Int>? = nil
+	
+	func hidePopups() -> Bool { false }
+	func flashNextArrow() {}
+}
+
 class Game: ObservableObject {
     static let main = Game()
     var sendMessage: (Character) -> Void = { _ in }
@@ -79,14 +89,12 @@ class Game: ObservableObject {
     var preset: [Int] = []
     var mode: GameMode = .local
     var reviewingGame: Bool = false
-    var nextOpacity: Opacity = .clear
     var gameState: GameState = .new
     private var board = Board()
     var moves: [Move] = []
     var timers: [Timer] = []
     var premoves: [Int] = []
     var movesBack: Int = 0
-    var showWinsFor: Int? = nil
     var currentHintMoves: Set<Int>? = []
 	let notificationGenerator = UINotificationFeedbackGenerator()
 	let moveImpactGenerator = UIImpactFeedbackGenerator(style: .medium)
@@ -210,8 +218,6 @@ class Game: ObservableObject {
     private static func getDefaultColor(for n: Int) -> Int {
         return n == 4 ? 6 : 4
     }
-	
-	func hidePopups() -> Bool { false }
 }
 
 //class Game: ObservableObject {

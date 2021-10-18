@@ -140,7 +140,7 @@ class BoardScene {
     }
     
     @objc func handleTap(_ gestureRecognize: UIGestureRecognizer) {
-		if Game.main.hidePopups() { return }
+		if GameLayout.main.hidePopups() { return }
         let hit = gestureRecognize.location(in: view)
         let hitResults = view.hitTest(hit, options: [:])
         guard let result = hitResults.first?.node else {
@@ -161,12 +161,10 @@ class BoardScene {
 				return
 			}
             let turn = Game.main.gameState == .active ? Game.main.turn : Game.main.myTurn
-            if Game.main.gameState == .active && Game.main.nextOpacity == .full {
+			if Game.main.gameState == .active && GameLayout.main.nextOpacity == .full {
 				Game.main.notificationGenerator.notificationOccurred(.error)
-                for delay in stride(from: 0.0, to: 0.4, by: 0.3) {
-                    Game.main.timers.append(Timer.after(delay, run: { Game.main.nextOpacity = .half }))
-                    Game.main.timers.append(Timer.after(delay + 0.15, run: { Game.main.nextOpacity = .full }))
-                }
+				GameLayout.main.flashNextArrow()
+				// TODO shouldn't this return here??
             }
             if let user = Game.main.player[turn] as? User, Game.main.premoves.isEmpty {
 				if Storage.int(.confirmMoves) == 0 {
@@ -357,8 +355,8 @@ class BoardScene {
 		if list.isEmpty {
 			if let potentialMove = potentialMove {
 				list = Set([potentialMove])
-			} else if Game.main.showWinsFor != nil {
-				list = Game.main.currentHintMoves ?? []
+			} else if GameLayout.main.showWinsFor != nil {
+				list = GameLayout.main.currentHintMoves ?? []
 			}
 		}
         for (i, space) in spaces.enumerated() {

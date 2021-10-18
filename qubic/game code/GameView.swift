@@ -11,11 +11,8 @@ import SceneKit
 
 struct GameView: View {
     @ObservedObject var game: Game = Game.main
+	@ObservedObject var gameLayout: GameLayout = GameLayout.main
 	@ObservedObject var layout: Layout = Layout.main
-    @State var cubeHeight: CGFloat = 10
-    @State var rotateMe = false
-    @State var isRotated = false
-    @State var cont = false
 	@State var hintSelection = [1,2]
     @State var hintPickerContent: [[Any]] = [
         ["first", "priority", "second"],
@@ -23,11 +20,7 @@ struct GameView: View {
     ]
     @State var hintText: [[String]?] = [nil, nil, nil]
     @State var currentSolveType: SolveType? = nil
-    @State var hideAll: Bool = true
-    @State var hideBoard: Bool = true
-    @State var centerNames: Bool = true
 	@State var currentPriority: Int = 0
-	@State var delayPopups: Bool = true
 	@State var settingsSelection1 = [Storage.int(.moveChecker), Storage.int(.premoves), Storage.int(.confirmMoves)]
 	@State var settingsSelection2 = [Storage.int(.arrowSide)]
 	@State var beatCubist = false
@@ -43,7 +36,7 @@ struct GameView: View {
                 BoardView()
 					.frame(width: layout.width)
                     .zIndex(0.0)
-                    .opacity(hideBoard ? 0 : 1)
+					.opacity(gameLayout.hideBoard ? 0 : 1)
 				Fill(gameControlSpace)
             }
 			optionsPopup
@@ -61,13 +54,13 @@ struct GameView: View {
 				gameControls
 			}
         }
-        .opacity(hideAll ? 0 : 1)
+		.opacity(gameLayout.hideAll ? 0 : 1)
 		.gesture(swipe)
-		.alert(isPresented: $game.showDCAlert, content: { enableBadgesAlert })
-		.alert(isPresented: $game.showCubistAlert, content: { cubistAlert })
+		.alert(isPresented: $gameLayout.showDCAlert, content: { enableBadgesAlert })
+		.alert(isPresented: $gameLayout.showCubistAlert, content: { cubistAlert })
         .onAppear {
-            Game.main.newHints = refreshHintPickerContent
-            animateIntro()
+            game.newHints = refreshHintPickerContent
+			gameLayout.animateIntro()
 			updateSettings()
         }
 		.modifier(BoundSize(min: .large, max: .extraExtraExtraLarge))
@@ -79,16 +72,16 @@ struct GameView: View {
 			let w = drag.translation.width
 			if abs(w/h) < 1 && BoardScene.main.mostRecentRotate == nil {
 				if h > 0 {
-					if game.popup == .options || game.popup == .gameEnd || game.popup == .settings {
-						game.hidePopups()
-					} else if Game.main.popup == .none {
-						setPopups(to: .analysis)
+					if gameLayout.popup == .options || gameLayout.popup == .gameEnd || gameLayout.popup == .settings {
+						gameLayout.hidePopups()
+					} else if gameLayout.popup == .none {
+						gameLayout.setPopups(to: .analysis)
 					}
 				} else {
-					if game.popup == .analysis {
-						game.hidePopups()
-					} else if Game.main.popup == .none {
-						setPopups(to: .options)
+					if gameLayout.popup == .analysis {
+						gameLayout.hidePopups()
+					} else if gameLayout.popup == .none {
+						gameLayout.setPopups(to: .options)
 					}
 				}
 			}
@@ -97,7 +90,7 @@ struct GameView: View {
 		.onChanged { drag in
 			let h = drag.translation.height
 			let w = drag.translation.width
-			if abs(w/h) > 1 && Game.main.popup == .none {
+			if abs(w/h) > 1 && gameLayout.popup == .none {
 				BoardScene.main.rotate(angle: w, start: drag.startLocation)
 			}
 		}
@@ -116,15 +109,15 @@ struct GameView: View {
 	
 	var names: some View {
 		HStack {
-			PlayerName(turn: 0, game: game, text: $hintText, winsFor: $hintSelection[0])
-			Spacer().frame(minWidth: 15).frame(width: centerNames && layout.width > 320 ? 15 : nil)
-			PlayerName(turn: 1, game: game, text: $hintText, winsFor: $hintSelection[0])
+			PlayerName(turn: 0, text: $hintText, winsFor: $hintSelection[0])
+			Spacer().frame(minWidth: 15).frame(width: gameLayout.centerNames && layout.width > 320 ? 15 : nil)
+			PlayerName(turn: 1, text: $hintText, winsFor: $hintSelection[0])
 		}
 		.padding(.horizontal, 22)
 		.padding(.top, 10)
 		.frame(width: layout.width)
 		.background(Fill())
-		.offset(y: centerNames ? Layout.main.safeHeight/2 - 50 : 0)
+		.offset(y: gameLayout.centerNames ? Layout.main.safeHeight/2 - 50 : 0)
 		.zIndex(1.0)
 	}
 	
@@ -143,13 +136,13 @@ struct GameView: View {
 	}
 	
 	private var optionsButton: some View {
-		let vShape: Bool = game.popup == .options || game.popup == .gameEnd || (game.popup == .gameEndPending && game.gameState == .myResign)
+		let vShape: Bool = gameLayout.popup == .options || gameLayout.popup == .gameEnd || (gameLayout.popup == .gameEndPending && game.gameState == .myResign)
 		
 		return Button(action: {
-			if game.popup == .none || game.popup == .analysis {
-				setPopups(to: .options)
-			} else if game.popup.up {
-				game.hidePopups()
+			if gameLayout.popup == .none || gameLayout.popup == .analysis {
+				gameLayout.setPopups(to: .options)
+			} else if gameLayout.popup.up {
+				gameLayout.hidePopups()
 			}
 		}, label: {
 			HStack (spacing: 7) {
@@ -158,7 +151,7 @@ struct GameView: View {
 				Text("·").bold().offset(y: vShape ? -6 : 0)
 			}
 			.font(.system(size: 28))
-		}).opacity(game.optionsOpacity.rawValue)
+		}).opacity(gameLayout.optionsOpacity.rawValue)
 	}
 	
 	private var undoButton: some View {
@@ -177,7 +170,7 @@ struct GameView: View {
 			}
 			.frame(width: 75, alignment: layout.leftArrows ? .trailing : .leading)
 			.padding(.horizontal, 10)
-			.opacity(game.undoOpacity.rawValue)
+			.opacity(gameLayout.undoOpacity.rawValue)
 //            Spacer().frame(width: layout.leftArrows ? 10 : 20)
 		}
 	}
@@ -196,7 +189,7 @@ struct GameView: View {
 				}
 			}
 			.frame(width: 40)
-			.opacity(game.prevOpacity.rawValue)
+			.opacity(gameLayout.prevOpacity.rawValue)
 			Spacer().frame(width: 15)
 			Button(action: game.nextMove) {
 				VStack(spacing: 0) {
@@ -209,7 +202,7 @@ struct GameView: View {
 				}
 			}
 			.frame(width: 40)
-			.opacity(game.nextOpacity.rawValue)
+			.opacity(gameLayout.nextOpacity.rawValue)
 //            Spacer().frame(width: layout.leftArrows ? 0 : 30)
 		}
 	}
@@ -219,9 +212,9 @@ struct GameView: View {
 			Spacer()
 			VStack(spacing: 20) {
 //				Text("share board")
-				Button("settings") { setPopups(to: .settings) }
+				Button("settings") { gameLayout.setPopups(to: .settings) }
 				if game.hints || game.solved {
-					Button("analysis") { setPopups(to: .analysis) }
+					Button("analysis") { gameLayout.setPopups(to: .analysis) }
 				}
 //				Text("game insights")
 				if game.reviewingGame {
@@ -234,7 +227,11 @@ struct GameView: View {
 					Button("menu") { layout.goBack() }
 				} else {
 					if game.mode.solve {
-						Button("restart") { animateGameChange(rematch: true) }
+						Button("restart") {
+							gameLayout.animateGameChange(rematch: true)
+							hintSelection = [1, 2]
+							updateSettings()
+						}
 					}
 					Button("resign") { game.endGame(with: .myResign) }
 				}
@@ -245,7 +242,7 @@ struct GameView: View {
 			.padding(.bottom, gameControlSpace)
 			.frame(width: layout.width)
 			.modifier(PopupModifier())
-			.offset(y: game.popup == .options ? 0 : 400)
+			.offset(y: gameLayout.popup == .options ? 0 : 400)
 		}
 	}
 	
@@ -265,13 +262,13 @@ struct GameView: View {
 			.padding(.top, nameSpace)
 			.frame(width: layout.width)
 			.modifier(PopupModifier())
-			.offset(y: game.popup == .gameEnd ? 0 : -(130 + nameSpace))
+			.offset(y: gameLayout.popup == .gameEnd ? 0 : -(130 + nameSpace))
 			
 			Spacer()
 			
 			VStack(spacing: 15) {
 //				Text("share board")
-				Button("review game") { game.hidePopups() }
+				Button("review game") { gameLayout.hidePopups() }
 //				Text("game insights")
 				if !(game.mode == .local || (game.mode == .daily && game.solveBoard == 3) || game.mode == .cubist) { // || game.mode == .picture4) {
 					newGameButton
@@ -287,12 +284,12 @@ struct GameView: View {
 			.buttonStyle(Solid())
 			.frame(width: layout.width)
 			.modifier(PopupModifier())
-			.offset(y: game.popup == .gameEnd ? 0 : 330)
+			.offset(y: gameLayout.popup == .gameEnd ? 0 : 330)
 		}
 	}
 	
 	var rematchButton: some View {
-		Button(game.mode.solve ? "try again" : "rematch") { animateGameChange(rematch: true) } // game.mode == .picture4 ||
+		Button(game.mode.solve ? "try again" : "rematch") { gameLayout.animateGameChange(rematch: true) } // game.mode == .picture4 ||
 	}
 	
 	var newGameButton: some View {
@@ -319,9 +316,9 @@ struct GameView: View {
 		return ZStack {
 			Button(newGameText) {
 				if layout.shouldStartOnlineGame() {
-					FB.main.getOnlineMatch(onMatch: { animateGameChange(rematch: false) })
+					FB.main.getOnlineMatch(onMatch: { gameLayout.animateGameChange(rematch: false) })
 				} else {
-					animateGameChange(rematch: false)
+					gameLayout.animateGameChange(rematch: false)
 				}
 			}
 			.opacity(layout.searchingOnline ? 0 : 1)
@@ -329,73 +326,6 @@ struct GameView: View {
 				.offset(x: 1, y: 1)
 				.opacity(layout.searchingOnline ? 1 : 0)
 		}
-	}
-    
-    func animateIntro() {
-        hideAll = true
-        hideBoard = true
-        centerNames = true
-//        BoardScene.main.rotate(right: true) // this created a race condition
-		game.timers.append(Timer.after(0.1) {
-            withAnimation {
-                hideAll = false
-            }
-        })
-		
-		game.timers.append(Timer.after(1) {
-            withAnimation {
-                centerNames = false
-            }
-        })
-		
-		game.timers.append(Timer.after(1.1) {
-            withAnimation {
-                hideBoard = false
-            }
-            BoardScene.main.rotate(right: false)
-        })
-		
-		game.timers.append(Timer.after(1.5) {
-            game.startGame()
-        })
-    }
-	
-	func animateGameChange(rematch: Bool) {
-		game.hidePopups()
-		withAnimation {
-			game.undoOpacity = .clear
-			game.prevOpacity = .clear
-			game.nextOpacity = .clear
-			game.optionsOpacity = .clear
-		}
-		
-		game.timers.append(Timer.after(0.3) {
-			withAnimation {
-				hideBoard = true
-			}
-			BoardScene.main.rotate(right: false)
-		})
-		
-		game.timers.append(Timer.after(0.6) {
-			hintSelection = [1, 2]
-			updateSettings()
-			withAnimation { game.showWinsFor = nil }
-			game.turnOff()
-			if rematch { game.loadRematch() }
-			else { game.loadNextGame() }
-			
-			// inside this one so they don't get cancled when the game turns off
-			game.timers.append(Timer.after(0.2) {
-				withAnimation {
-					hideBoard = false
-				}
-				BoardScene.main.rotate(right: false)
-			})
-			
-			game.timers.append(Timer.after(0.6) {
-				game.startGame()
-			})
-		})
 	}
     
     var solveButtons: some View {
@@ -465,7 +395,7 @@ struct GameView: View {
 		if firstHint == nil || secondHint == nil {
 			priorityHint = nil
 			priorityText = nil
-			currentPriority = game.showWinsFor ?? game.myTurn
+			currentPriority = gameLayout.showWinsFor ?? game.myTurn
 		} else if firstHint == .noW && secondHint == .noW {
 			priorityHint = .noW
 			priorityText = myText
@@ -495,7 +425,7 @@ struct GameView: View {
 			Timer.after(0.06) {
 				withAnimation {
 	//				print("old show wins:", game.showWinsFor, "new show wins:", currentPriority)
-					self.game.showWinsFor = self.currentPriority
+					self.gameLayout.showWinsFor = self.currentPriority
 				}
 				BoardScene.main.spinMoves()
 			}
@@ -522,7 +452,7 @@ struct GameView: View {
 							Button("yes") { withAnimation {
 								game.hints = true
 								if game.gameState != .active && !game.moves.isEmpty {
-									game.prevOpacity = .full
+									gameLayout.prevOpacity = .full
 								}
 							} }
 								.buttonStyle(Solid())
@@ -539,9 +469,9 @@ struct GameView: View {
 			.padding(.top, nameSpace)
 			.frame(width: layout.width, height: 180)
 			.modifier(PopupModifier())
-			.offset(y: game.popup == .analysis ? 0 : -(180 + 30 + nameSpace))
-			Fill().opacity(game.popup == .analysis ? 0.015 : 0) // 0.015 seems to be about the minimum opacity to work
-				.onTapGesture { game.hidePopups() }
+			.offset(y: gameLayout.popup == .analysis ? 0 : -(180 + 30 + nameSpace))
+			Fill().opacity(gameLayout.popup == .analysis ? 0.015 : 0) // 0.015 seems to be about the minimum opacity to work
+				.onTapGesture { gameLayout.hidePopups() }
 				.zIndex(4)
 			ZStack {
 				// HPickers
@@ -576,7 +506,7 @@ struct GameView: View {
 			.padding(.bottom, gameControlSpace)
 			.frame(width: layout.width, height: 170)
 			.modifier(PopupModifier())
-			.offset(y: game.popup == .analysis && game.hints && !delayPopups ? 0 : 200)
+			.offset(y: gameLayout.popup == .analysis && game.hints && !gameLayout.delayPopups ? 0 : 200)
 		}
     }
     
@@ -585,15 +515,15 @@ struct GameView: View {
             if component == 1 { // changing show options
                 if row < 2 {
 //					print("old show wins:", game.showWinsFor, "new show wins:", currentPriority)
-					game.showWinsFor = hintSelection[0] == 1 ? currentPriority : hintSelection[0]/2
-					game.showAllHints = row == 0
-                    game.hidePopups()
+					gameLayout.showWinsFor = hintSelection[0] == 1 ? currentPriority : hintSelection[0]/2
+					gameLayout.showAllHints = row == 0
+					gameLayout.hidePopups()
                 } else {
-                    game.showWinsFor = nil
+					gameLayout.showWinsFor = nil
                 }
             } else {            // changing first/priority/second
                 hintSelection[1] = 2
-                game.showWinsFor = nil
+				gameLayout.showWinsFor = nil
             }
         }
         BoardScene.main.spinMoves()
@@ -639,7 +569,7 @@ struct GameView: View {
 			.padding(.bottom, gameControlSpace - 20)
 			.frame(width: layout.width)
 			.modifier(PopupModifier())
-			.offset(y: game.popup == .settings ? 0 : 400)
+			.offset(y: gameLayout.popup == .settings ? 0 : 400)
 		}
 	}
 	
@@ -687,7 +617,8 @@ struct GameView: View {
     
     struct PlayerName: View {
         let turn: Int
-        @ObservedObject var game: Game
+		@ObservedObject var game: Game = Game.main
+		@ObservedObject var gameLayout: GameLayout = GameLayout.main
         @Binding var text: [[String]?]
 		@Binding var winsFor: Int
 		@Environment(\.colorScheme) var colorScheme
@@ -699,7 +630,7 @@ struct GameView: View {
         var body: some View {
             VStack(spacing: 3) {
                 ZStack {
-                    Text(game.showWinsFor == turn ? text[winsFor]?[0] ?? "loading..." : "")
+					Text(gameLayout.showWinsFor == turn ? text[winsFor]?[0] ?? "loading..." : "")
                         .animation(.none)
                         .multilineTextAlignment(.center)
                         .frame(height: 45)
@@ -716,7 +647,7 @@ struct GameView: View {
                         .cornerRadius(rounded ? 100 : 4)
 						.shadow(color: glow, radius: colorScheme == .dark ? 15 : 8, y: 0)
                         .animation(.easeIn(duration: 0.3))
-                        .rotation3DEffect(game.showWinsFor == turn ? .radians(.pi/2) : .zero, axis: (x: 1, y: 0, z: 0), anchor: .top)
+						.rotation3DEffect(gameLayout.showWinsFor == turn ? .radians(.pi/2) : .zero, axis: (x: 1, y: 0, z: 0), anchor: .top)
                 }
 //				ZStack {
 				Text(String(format: "%01d:%02d", (game.currentTimes[turn]/60) % 100, game.currentTimes[turn] % 60))
@@ -735,33 +666,6 @@ struct GameView: View {
             }
         }
     }
-    
-    
-//    func showStreak() {
-//        withAnimation {
-//            
-//        }
-//    }
-	
-	func setPopups(to newSetting: GamePopup) {
-		withAnimation {
-			game.popup = newSetting
-			delayPopups = true
-		}
-		Timer.after(0.1) {
-			withAnimation { delayPopups = false }
-		}
-	}
-	
-	struct PopupModifier: ViewModifier {
-		func body(content: Content) -> some View {
-			content.background(
-				Fill()
-					.frame(width: Layout.main.width + 100)
-					.shadow(radius: 20) // Z index didn't stop the shadows from covering
-			)
-		}
-	}
 }
 
 struct GameView_Previews: PreviewProvider {

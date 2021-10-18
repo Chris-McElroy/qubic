@@ -201,7 +201,7 @@ struct SettingsView: View {
 					.padding(.horizontal, 25)
 					.padding(.top, 15)
 					.frame(width: layout.width)
-					.fixedSize()
+					.fixedSize() // means that other views can't resize it, its spacers get priority
 					.background(Fill().frame(width: Layout.main.width + 100).shadow(radius: 20))
 					.offset(y: showInfo ? 0 : 500)
 					.onDisappear {
