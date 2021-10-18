@@ -146,6 +146,7 @@ struct SettingsView: View {
 									.foregroundColor(.secondary)
 									.frame(width: layout.width, height: 40)
 									.background(Fill())
+									.environment(\.sizeCategory, .large)
 							}
 						}
 						VStack(spacing: 0) {
@@ -178,7 +179,9 @@ struct SettingsView: View {
 							.buttonStyle(DefaultButtonStyle())
 							.frame(height: 20)
                         }
-                    }.zIndex(3)
+                    }
+					.zIndex(3)
+					.modifier(BoundSize(min: .medium, max: .extraLarge))
                 }
                 Spacer()
             }
@@ -188,9 +191,11 @@ struct SettingsView: View {
 					Fill().opacity(showInfo ? 0.015 : 0).onTapGesture { withAnimation { showInfo = false } }
 					VStack(spacing: 0) {
 						Text(info[infoFor][0]).bold()
+							.modifier(BoundSize(min: .medium, max: .extraLarge))
 						Blank(4)
 //						ScrollView(.vertical, showsIndicators: false) {
 						Text(info[infoFor][1])
+							.environment(\.sizeCategory, .large)
 					}
 					.multilineTextAlignment(.center)
 					.padding(.horizontal, 25)

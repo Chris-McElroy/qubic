@@ -51,6 +51,7 @@ struct FeedbackView: View {
                     .border(Color.primary)
                     .padding(.horizontal, 20)
                 }
+				.modifier(BoundSize(min: .medium, max: .extraExtraLarge))
                 Blank(10)
                 Button(sendLabel) {
                     hideKeyboard()

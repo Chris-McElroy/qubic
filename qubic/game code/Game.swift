@@ -502,8 +502,8 @@ class Game: ObservableObject {
 		
 		func cancelMove() {
 			timers.append(Timer.after(0.3) {
-				self.board.undoMove(for: turn)
 				self.lastCheck = self.board.numMoves()
+				self.board.undoMove(for: turn)
 				BoardScene.main.undoMove(move.p)
 				self.notificationGenerator.notificationOccurred(.error)
 				self.premoves = []
@@ -820,8 +820,8 @@ class Game: ObservableObject {
     }
     
     func turnOff() {
-        guard gameState != .off else { return }
-		gameState = .off
+//        guard gameState != .off else { return }
+//		gameState = .off
 		
 		for timer in self.timers {
 			timer.invalidate()
@@ -831,7 +831,6 @@ class Game: ObservableObject {
 		hintQueue.cancelAllOperations()
 		player[0].cancelMove()
 		player[1].cancelMove()
-		
     }
     
     func uploadSolveBoard(_ key: String) {

@@ -45,10 +45,12 @@ struct MainView: View {
     
     private var top: some View {
         VStack(spacing: 0) {
-			Text("qubic" + (versionType == .testFlight ? " beta" : ""))
-                .font(.custom("Oligopoly Regular", size: 26))
+			Text("qubic")  // + (versionType == .testFlight ? " beta" : ""))
+                .font(.custom("Oligopoly Regular", size: 45))
                 .padding(.top, 10)
                 .modifier(LayoutModifier(for: .title))
+				.modifier(BoundSize(min: .large, max: .extraExtraExtraLarge))
+				.zIndex(3)
             cube
                 .onTapGesture(count: 2) { self.cube.resetCube() }
                 .modifier(LayoutModifier(for: .cube))
@@ -113,6 +115,7 @@ struct MainView: View {
             }
             .modifier(LayoutModifier(for: .playButton))
         }
+		.modifier(BoundSize(min: .medium, max: .accessibilityMedium))
     }
     
     private struct mainButton: View {
@@ -151,6 +154,7 @@ struct MainView: View {
 //            FriendsView() { self.switchView(to: .friends) }
 //                .frame(height: heights.get(heights.friends), alignment: .top)
         }
+		.modifier(BoundSize(min: .medium, max: .accessibilityMedium))
     }
 
 //            VStack {
@@ -180,6 +184,7 @@ struct MainView: View {
 			}
 			Spacer()
 		}
+		.modifier(BoundSize(min: .extraSmall, max: .extraExtraLarge))
 		.frame(width: layout.width)
 		.background(Fill())
 		.buttonStyle(Solid())

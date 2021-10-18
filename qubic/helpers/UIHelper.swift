@@ -197,6 +197,46 @@ extension UILabel {
     }
 }
 
+struct BoundSize: ViewModifier {
+	/*
+	 sizes:
+	 
+	 extraSmall
+	 small
+	 medium
+	 large
+	 extraLarge
+	 extraExtraLarge
+	 extraExtraExtraLarge
+	 accessibilityMedium
+	 accessibilityLarge
+	 accessibilityExtraLarge
+	 accessibilityExtraExtraLarge
+	 accessibilityExtraExtraExtraLarge
+	 */
+	
+	@Environment(\.sizeCategory) var currentSize
+	let min: ContentSizeCategory
+	let max: ContentSizeCategory
+	var size: ContentSizeCategory {
+		if #available(iOS 14.0, *) {
+			if currentSize < min {
+				return min
+			} else if currentSize > max {
+				return max
+			}
+			return currentSize
+		} else {
+			return .large // standard
+		}
+	}
+	
+	func body(content: Content) -> some View {
+		content
+			.environment(\.sizeCategory, size)
+	}
+}
+
 //extension View {
 //    func navigate<SomeView: View>(to view: SomeView, when binding: Binding<Bool>) -> some View {
 //        modifier(NavigateModifier(destination: view, binding: binding))

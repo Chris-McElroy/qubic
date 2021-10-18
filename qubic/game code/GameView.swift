@@ -70,6 +70,7 @@ struct GameView: View {
             animateIntro()
 			updateSettings()
         }
+		.modifier(BoundSize(min: .large, max: .extraExtraExtraLarge))
     }
 	
 	var swipe: some Gesture { DragGesture(minimumDistance: 30)
@@ -629,6 +630,7 @@ struct GameView: View {
 							.foregroundColor(.secondary)
 							.frame(width: layout.width, height: 40)
 							.background(Fill())
+							.environment(\.sizeCategory, .large)
 					}
 					Text("arrow side").bold().frame(height: 20)
 					Blank(40)
