@@ -18,9 +18,10 @@ enum ViewState: CaseIterable {
     case playMenu
     case play
     case about
-	case tutorial
+	case tutorialMenu
     case settings
     case feedback
+	case tutorial
     
     var gameView: Bool { self == .play || self == .solve || self == .train }
     var menuView: Bool { self == .playMenu || self == .solveMenu || self == .trainMenu }
@@ -35,7 +36,7 @@ enum ViewState: CaseIterable {
         case .solve: return .solveMenu
         case .play: return .playMenu
         case .about: return .more
-		case .tutorial: return .more
+		case .tutorialMenu: return .more
         case .settings: return .more
         case .feedback: return .more
         default: return .main
@@ -64,9 +65,10 @@ enum ViewState: CaseIterable {
         .play: (top: .playView, focus: .playView, bottom: .playView),
         .more: (top: .trainView, focus: .moreSpacer, bottom: .feedback),
         .about: (top: .about, focus: .about, bottom: .about),
-		.tutorial: (top: .tutorial, focus: .tutorial, bottom: .tutorial),
+		.tutorialMenu: (top: .tutorialMenu, focus: .tutorialMenu, bottom: .tutorialMenu),
         .settings: (top: .settings, focus: .settings, bottom: .settings),
         .feedback: (top: .feedback, focus: .feedback, bottom: .feedback),
+		.tutorial: (top: .tutorial, focus: .tutorial, bottom: .tutorial)
     ]
 }
 
@@ -74,8 +76,9 @@ enum LayoutView: Int, Comparable {
     case topSpacer
     case title, cube, mainSpacer
     case trainView, trainButton, solveView, solveButton, playView, playButton
-    case moreSpacer, about, tutorial, settings, feedback
+    case moreSpacer, about, tutorialMenu, settings, feedback
     case backButton
+	case tutorial
     
     static func < (lhs: LayoutView, rhs: LayoutView) -> Bool {
         lhs.rawValue < rhs.rawValue
@@ -120,7 +123,7 @@ class Layout: ObservableObject {
         .playButton: mainButtonHeight,
         .moreSpacer: 0,
         .about: moreButtonHeight,
-		.tutorial: moreButtonHeight,
+		.tutorialMenu: moreButtonHeight,
         .settings: moreButtonHeight,
         .feedback: moreButtonHeight,
         .backButton: backButtonFrame

@@ -143,7 +143,7 @@ class Cubist: Player {
 								let opposite0 = myMoves.contains(opposite(opMoves[0]))
 								let opposite1 = myMoves.contains(opposite(opMoves[1]))
 								if opposite0 && opposite1 {
-									go(in: Set(Board.rich).filter({ moveBoard.pointEmpty($0) }))
+									go(in: Set(allCorners ? corners : centers).filter({ moveBoard.pointEmpty($0) }))
 								} else if opposite0 || opposite1 {
 									go(in: Set([opposite(opMoves[opposite0 ? 1 : 0])]))
 								} else {

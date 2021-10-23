@@ -36,6 +36,11 @@ class GameLayout: ObservableObject {
 	@Published var showDCAlert: Bool = false
 	@Published var showCubistAlert: Bool = false
 	
+	@Published var beatCubist = false
+	@Published var hintSelection = [1,2]
+	@Published var settingsSelection1 = [Storage.int(.moveChecker), Storage.int(.premoves), Storage.int(.confirmMoves)]
+	@Published var settingsSelection2 = [Storage.int(.arrowSide)]
+	
 	var currentHintMoves: Set<Int>? {
 		guard let winsFor = showWinsFor else { return nil }
 		return showAllHints ? Game.main.currentMove?.allMoves[winsFor] : Game.main.currentMove?.bestMoves[winsFor]
@@ -45,6 +50,9 @@ class GameLayout: ObservableObject {
 		hideAll = true
 		hideBoard = true
 		centerNames = true
+		hintSelection = [1,2]
+		updateSettings()
+		
 //        BoardScene.main.rotate(right: true) // this created a race condition
 		Game.main.timers.append(Timer.after(0.1) {
 			withAnimation {
@@ -72,6 +80,9 @@ class GameLayout: ObservableObject {
 	
 	func animateGameChange(rematch: Bool) {
 		hidePopups()
+		hintSelection = [1,2]
+		updateSettings()
+		
 		withAnimation {
 			undoOpacity = .clear
 			prevOpacity = .clear
@@ -201,5 +212,47 @@ class GameLayout: ObservableObject {
 		Timer.after(0.1) {
 			withAnimation { self.delayPopups = false }
 		}
+	}
+	
+	func updateSettings() {
+		settingsSelection1 = [Storage.int(.moveChecker), Storage.int(.premoves), Storage.int(.confirmMoves)]
+		settingsSelection2 = [Storage.int(.arrowSide)]
+		if let trainArray = Storage.array(.train) as? [Int] {
+			beatCubist = trainArray[5] == 1
+			settingsSelection1[0] = Storage.int(.moveChecker) // handles if they fucked it up
+		}
+	}
+	
+	func onSettingsSelection1(row: Int, component: Int) -> Void {
+		if component == 2 {
+			Storage.set(row, for: .confirmMoves)
+			if row == 0 {
+				Storage.set(1, for: .premoves)
+				settingsSelection1[1] = 1
+				Game.main.premoves = []
+			} else {
+				BoardScene.main.potentialMove = nil
+			}
+			BoardScene.main.spinMoves()
+		} else if component == 1 {
+			Storage.set(row, for: .premoves)
+			if row == 0 {
+				Storage.set(1, for: .confirmMoves)
+				settingsSelection1[2] = 1
+				BoardScene.main.potentialMove = nil
+			} else {
+				Game.main.premoves = []
+			}
+			BoardScene.main.spinMoves()
+		} else if component == 0 {
+			if beatCubist {
+				Storage.set(row, for: .moveChecker)
+			}
+		}
+	}
+	
+	func onSettingsSelection2(row: Int, component: Int) -> Void {
+		Storage.set(row, for: .arrowSide)
+		withAnimation { Layout.main.leftArrows = row == 0 }
 	}
 }

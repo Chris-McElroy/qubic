@@ -13,7 +13,6 @@ struct GameView: View {
     @ObservedObject var game: Game = Game.main
 	@ObservedObject var gameLayout: GameLayout = GameLayout.main
 	@ObservedObject var layout: Layout = Layout.main
-	@State var hintSelection = [1,2]
     @State var hintPickerContent: [[Any]] = [
         ["first", "priority", "second"],
 		["all", "best", "off"]
@@ -21,9 +20,6 @@ struct GameView: View {
     @State var hintText: [[String]?] = [nil, nil, nil]
     @State var currentSolveType: SolveType? = nil
 	@State var currentPriority: Int = 0
-	@State var settingsSelection1 = [Storage.int(.moveChecker), Storage.int(.premoves), Storage.int(.confirmMoves)]
-	@State var settingsSelection2 = [Storage.int(.arrowSide)]
-	@State var beatCubist = false
 	
 //	var animation = Animation.linear.delay(0)
 	let nameSpace: CGFloat = 65
@@ -61,7 +57,6 @@ struct GameView: View {
         .onAppear {
             game.newHints = refreshHintPickerContent
 			gameLayout.animateIntro()
-			updateSettings()
         }
 		.modifier(BoundSize(min: .large, max: .extraExtraExtraLarge))
     }
@@ -109,9 +104,9 @@ struct GameView: View {
 	
 	var names: some View {
 		HStack {
-			PlayerName(turn: 0, text: $hintText, winsFor: $hintSelection[0])
+			PlayerName(turn: 0, text: $hintText, winsFor: $gameLayout.hintSelection[0])
 			Spacer().frame(minWidth: 15).frame(width: gameLayout.centerNames && layout.width > 320 ? 15 : nil)
-			PlayerName(turn: 1, text: $hintText, winsFor: $hintSelection[0])
+			PlayerName(turn: 1, text: $hintText, winsFor: $gameLayout.hintSelection[0])
 		}
 		.padding(.horizontal, 22)
 		.padding(.top, 10)
@@ -227,11 +222,7 @@ struct GameView: View {
 					Button("menu") { layout.goBack() }
 				} else {
 					if game.mode.solve {
-						Button("restart") {
-							gameLayout.animateGameChange(rematch: true)
-							hintSelection = [1, 2]
-							updateSettings()
-						}
+						Button("restart") { gameLayout.animateGameChange(rematch: true) }
 					}
 					Button("resign") { game.endGame(with: .myResign) }
 				}
@@ -421,7 +412,7 @@ struct GameView: View {
 			hintText = game.myTurn == 0 ? [myText, priorityText,  opText] : [opText, priorityText, myText]
 		}
 		
-		if hintSelection[1] != 2 && hintSelection[0] == 1 {
+		if gameLayout.hintSelection[1] != 2 && gameLayout.hintSelection[0] == 1 {
 			Timer.after(0.06) {
 				withAnimation {
 	//				print("old show wins:", game.showWinsFor, "new show wins:", currentPriority)
@@ -437,7 +428,7 @@ struct GameView: View {
 			VStack(spacing: 0) {
 				if game.hints {
 					Spacer()
-					if let text = hintText[hintSelection[0]] {
+					if let text = hintText[gameLayout.hintSelection[0]] {
 						Text(text[0]).bold()
 						Blank(4)
 						Text(text[1])
@@ -477,7 +468,7 @@ struct GameView: View {
 				// HPickers
 				VStack(spacing: 0) {
 					Spacer()
-					HPicker(content: $hintPickerContent, dim: (70, 50), selected: $hintSelection, action: onAnalysisSelection)
+					HPicker(content: $hintPickerContent, dim: (70, 50), selected: $gameLayout.hintSelection, action: onAnalysisSelection)
 					 .frame(height: 100)
 				}
 				// Mask
@@ -516,14 +507,14 @@ struct GameView: View {
             if component == 1 { // changing show options
                 if row < 2 {
 //					print("old show wins:", game.showWinsFor, "new show wins:", currentPriority)
-					gameLayout.showWinsFor = hintSelection[0] == 1 ? currentPriority : hintSelection[0]/2
+					gameLayout.showWinsFor = gameLayout.hintSelection[0] == 1 ? currentPriority : gameLayout.hintSelection[0]/2
 					gameLayout.showAllHints = row == 0
 					gameLayout.hidePopups()
                 } else {
 					gameLayout.showWinsFor = nil
                 }
             } else {            // changing first/priority/second
-                hintSelection[1] = 2
+				gameLayout.hintSelection[1] = 2
 				gameLayout.showWinsFor = nil
             }
         }
@@ -539,11 +530,11 @@ struct GameView: View {
 			ZStack {
 				VStack(spacing: 0) {
 					Fill(32)
-					HPicker(content: .constant(picker1Content), dim: (60,55), selected: $settingsSelection1, action: onSettingsSelection1)
+					HPicker(content: .constant(picker1Content), dim: (60,55), selected: $gameLayout.settingsSelection1, action: gameLayout.onSettingsSelection1)
 						.frame(height: 165)
 						.zIndex(1)
 					Fill(9)
-					HPicker(content: .constant(picker2Content), dim: (60,55), selected: $settingsSelection2, action: onSettingsSelection2)
+					HPicker(content: .constant(picker2Content), dim: (60,55), selected: $gameLayout.settingsSelection2, action: gameLayout.onSettingsSelection2)
 						.frame(height: 55)
 						.zIndex(0)
 				}
@@ -554,7 +545,7 @@ struct GameView: View {
 					Text("premoves").bold().frame(height: 20)
 					Blank(40)
 					Text("move checker").bold().frame(height: 20)
-					if beatCubist {
+					if gameLayout.beatCubist {
 						Blank(40)
 					} else {
 						Text("beat cubist in challenge mode to unlock!")
@@ -574,48 +565,6 @@ struct GameView: View {
 		}
 	}
 	
-	func updateSettings() {
-		settingsSelection1 = [Storage.int(.moveChecker), Storage.int(.premoves), Storage.int(.confirmMoves)]
-		settingsSelection2 = [Storage.int(.arrowSide)]
-		if let trainArray = Storage.array(.train) as? [Int] {
-			beatCubist = trainArray[5] == 1
-			settingsSelection1[0] = Storage.int(.moveChecker) // handles if they fucked it up
-		}
-	}
-	
-	func onSettingsSelection1(row: Int, component: Int) -> Void {
-		if component == 2 {
-			Storage.set(row, for: .confirmMoves)
-			if row == 0 {
-				Storage.set(1, for: .premoves)
-				settingsSelection1[1] = 1
-				Game.main.premoves = []
-			} else {
-				BoardScene.main.potentialMove = nil
-			}
-			BoardScene.main.spinMoves()
-		} else if component == 1 {
-			Storage.set(row, for: .premoves)
-			if row == 0 {
-				Storage.set(1, for: .confirmMoves)
-				settingsSelection1[2] = 1
-				BoardScene.main.potentialMove = nil
-			} else {
-				Game.main.premoves = []
-			}
-			BoardScene.main.spinMoves()
-		} else if component == 0 {
-			if beatCubist {
-				Storage.set(row, for: .moveChecker)
-			}
-		}
-	}
-	
-	func onSettingsSelection2(row: Int, component: Int) -> Void {
-		Storage.set(row, for: .arrowSide)
-		withAnimation { layout.leftArrows = row == 0 }
-	}
-    
     struct PlayerName: View {
         let turn: Int
 		@ObservedObject var game: Game = Game.main

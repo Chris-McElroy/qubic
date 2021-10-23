@@ -98,16 +98,17 @@ extension Board {
         }
         
         func addAllForces(_ n: Int, _ stack: inout Set<W2Board>, _ first: Bool) -> Set<Int>? {
+			var winningStarts: Set<Int> = []
             for pair in board.open[2+4*n].values {
                 let b1 = W2Board(board: board, n: n, starts: first ? [pair[0]] : starts)
                 b1.board.addMove(pair[0], for: n)
                 b1.board.addMove(pair[1], for: n^1)
-                if b1.board.hasW1(n) { return b1.starts }
+				if b1.board.hasW1(n) { winningStarts.formUnion(b1.starts) }
                 
                 let b2 = W2Board(board: board, n: n, starts: first ? [pair[1]] : starts)
                 b2.board.addMove(pair[1], for: n)
                 b2.board.addMove(pair[0], for: n^1)
-                if b2.board.hasW1(n) { return b2.starts }
+				if b2.board.hasW1(n) { winningStarts.formUnion(b2.starts) }
                 
                 if var other1 = stack.update(with: b1) {
                     other1.starts.formUnion(b1.starts)
@@ -118,7 +119,7 @@ extension Board {
                     stack.update(with: other2)
                 }
             }
-            return nil
+			return winningStarts.isEmpty ? nil : winningStarts
         }
 	}
     
@@ -186,7 +187,7 @@ extension Board {
             }
             stack = nextStack
             nextStack = []
-            if Date.now > start + time { return wins }
+			if Date.now > start + time { return wins }
 			cachedGetW2[n][d] = wins
         }
         return wins

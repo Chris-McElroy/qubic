@@ -23,6 +23,9 @@ class MessagesViewController: MSMessagesAppViewController {
         super.viewDidLoad()
         
         Storage.set(4, for: .color)
+		Storage.set(1, for: .confirmMoves)
+		Storage.set(1, for: .premoves)
+		Storage.set(2, for: .moveChecker)
 		
 		picker.picker.frame = CGRect(x: view.center.x-200, y: 50, width: 400, height: 100)
 		picker.picker.isHidden = true
@@ -85,6 +88,7 @@ class MessagesViewController: MSMessagesAppViewController {
         
         // Use this method to configure the extension and restore previously stored state.
         if let message = conversation.selectedMessage {
+			// this doesn't work virtually, they can just always send moves
             newMessage(message, movable: message.senderParticipantIdentifier != conversation.localParticipantIdentifier)
 //            selected = newMessage
 //            loadButton.isHidden = true

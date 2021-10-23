@@ -164,7 +164,7 @@ class BoardScene {
 			if Game.main.gameState == .active && GameLayout.main.nextOpacity == .full {
 				Game.main.notificationGenerator.notificationOccurred(.error)
 				GameLayout.main.flashNextArrow()
-				// TODO shouldn't this return here??
+				return
             }
             if let user = Game.main.player[turn] as? User, Game.main.premoves.isEmpty {
 				if Storage.int(.confirmMoves) == 0 {

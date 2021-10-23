@@ -21,24 +21,30 @@ struct MainView: View {
     let messageComposeDelegate = MessageDelegate()
     
     var body: some View {
-		VStack(alignment: .center, spacing: 0) {
-            Spacer().modifier(LayoutModifier(for: .topSpacer))
-            top.zIndex(9)
-            mainStack.zIndex(1)
-            moreStack.zIndex(0)
-            Spacer()
-            backButton.modifier(LayoutModifier(for: .backButton))
-				.offset(y: layout.backButtonOffset)
-                .zIndex(10)
-        }
-        .onAppear {
-            layout.load(for: screen)
-            layout.current = .main
-        }
-        .onReceive(screen.objectWillChange) { layout.load(for: screen) }
-        .frame(height: layout.total)
-        .background(Fill())
-        .gesture(scrollGestures)
+		if layout.current == .tutorial {
+			TutorialView()
+				.onAppear { layout.load(for: screen) }
+				.onReceive(screen.objectWillChange) { layout.load(for: screen) }
+		} else {
+			VStack(alignment: .center, spacing: 0) {
+				Spacer().modifier(LayoutModifier(for: .topSpacer))
+				top.zIndex(9)
+				mainStack.zIndex(1)
+				moreStack.zIndex(0)
+				Spacer()
+				backButton.modifier(LayoutModifier(for: .backButton))
+					.offset(y: layout.backButtonOffset)
+					.zIndex(10)
+			}
+			.onAppear {
+				layout.load(for: screen)
+				layout.current = .main
+			}
+			.onReceive(screen.objectWillChange) { layout.load(for: screen) }
+			.frame(height: layout.total)
+			.background(Fill())
+			.gesture(scrollGestures)
+		}
     }
     
     let cube = CubeView()
@@ -140,9 +146,9 @@ struct MainView: View {
                 .frame(alignment: .top)
                 .modifier(LayoutModifier(for: .about))
                 .zIndex(4)
-			TutorialButton()
+			TutorialMenuView()
 				.frame(alignment: .top)
-				.modifier(LayoutModifier(for: .tutorial))
+				.modifier(LayoutModifier(for: .tutorialMenu))
 				.zIndex(3)
             SettingsView()
                 .frame(alignment: .top)

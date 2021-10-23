@@ -50,7 +50,7 @@
 		1E74FA2425AA41FA0049BE6B /* Player.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EC2788C2585ACC600F6A5EB /* Player.swift */; };
 		1E74FA2725AA41FC0049BE6B /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EBD920025897ED90082B65E /* User.swift */; };
 		1E74FA2D25AA438B0049BE6B /* MessageGame.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E74FA2C25AA438B0049BE6B /* MessageGame.swift */; };
-		1E776157271E372200D83000 /* TutorialView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E776156271E372200D83000 /* TutorialView.swift */; };
+		1E776157271E372200D83000 /* TutorialMenuView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E776156271E372200D83000 /* TutorialMenuView.swift */; };
 		1E7A91942584B0A800AE3BE7 /* Defender.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E7A91932584B0A800AE3BE7 /* Defender.swift */; };
 		1E7B117D2586B33400A0CD9F /* NotificationHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E7B117C2586B33400A0CD9F /* NotificationHelper.swift */; };
 		1E7B959224D34015004B3C80 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E7B959124D34015004B3C80 /* SettingsView.swift */; };
@@ -60,6 +60,7 @@
 		1E9A545A26112F90001FC204 /* FBHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E9A545926112F90001FC204 /* FBHelper.swift */; };
 		1E9E9FBE24CDEB4700002500 /* SceneHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E9E9FBD24CDEB4700002500 /* SceneHelper.swift */; };
 		1EA0CABA2580468D00C200E8 /* HPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EA0CAB92580468D00C200E8 /* HPicker.swift */; };
+		1EA8935C2724B6620015C900 /* TutorialView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EA8935B2724B6620015C900 /* TutorialView.swift */; };
 		1EAE5F6A263121D6000C8270 /* FeedbackView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EAE5F69263121D6000C8270 /* FeedbackView.swift */; };
 		1EAEE3BB24D9DA1400490530 /* FriendsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EAEE3BA24D9DA1400490530 /* FriendsView.swift */; };
 		1EAEE3BD24D9DCBA00490530 /* ReplaysView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EAEE3BC24D9DCBA00490530 /* ReplaysView.swift */; };
@@ -260,7 +261,7 @@
 		1E726EEE263359A400640651 /* OldTextEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OldTextEditor.swift; sourceTree = "<group>"; };
 		1E74F9E125AA20FA0049BE6B /* qubicMessage.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = qubicMessage.entitlements; sourceTree = "<group>"; };
 		1E74FA2C25AA438B0049BE6B /* MessageGame.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageGame.swift; sourceTree = "<group>"; };
-		1E776156271E372200D83000 /* TutorialView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TutorialView.swift; sourceTree = "<group>"; };
+		1E776156271E372200D83000 /* TutorialMenuView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TutorialMenuView.swift; sourceTree = "<group>"; };
 		1E7A91932584B0A800AE3BE7 /* Defender.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Defender.swift; sourceTree = "<group>"; };
 		1E7B117C2586B33400A0CD9F /* NotificationHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationHelper.swift; sourceTree = "<group>"; };
 		1E7B959124D34015004B3C80 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
@@ -270,6 +271,7 @@
 		1E9A545926112F90001FC204 /* FBHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FBHelper.swift; sourceTree = "<group>"; };
 		1E9E9FBD24CDEB4700002500 /* SceneHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneHelper.swift; sourceTree = "<group>"; };
 		1EA0CAB92580468D00C200E8 /* HPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HPicker.swift; sourceTree = "<group>"; };
+		1EA8935B2724B6620015C900 /* TutorialView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TutorialView.swift; sourceTree = "<group>"; };
 		1EAE5F69263121D6000C8270 /* FeedbackView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedbackView.swift; sourceTree = "<group>"; };
 		1EAEE3BA24D9DA1400490530 /* FriendsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendsView.swift; sourceTree = "<group>"; };
 		1EAEE3BC24D9DCBA00490530 /* ReplaysView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReplaysView.swift; sourceTree = "<group>"; };
@@ -633,24 +635,24 @@
 		1E3335D825342BE600966EA6 /* helpers */ = {
 			isa = PBXGroup;
 			children = (
+				1E4645F42616970500862260 /* KeyHelper.swift */,
+				1E68179224CC973B001713E7 /* AppDelegate.swift */,
+				1E68179424CC973B001713E7 /* SceneDelegate.swift */,
 				1EFAFB19271D215400F377E7 /* GeneralHelper.swift */,
 				1EE4C75B24EB7ADC0038C1E2 /* UIHelper.swift */,
-				1E4645F42616970500862260 /* KeyHelper.swift */,
+				1EA0CAB92580468D00C200E8 /* HPicker.swift */,
 				1EFB12C426ED5052001A7B48 /* SolveHelper.swift */,
 				1E6C428F24FCE1F20065BDF5 /* BoardHelper.swift */,
 				1E9A545926112F90001FC204 /* FBHelper.swift */,
-				1E92D5F6261A608500D0D19C /* ActivityIndicator.swift */,
 				1EB1CB50260ECC6300A2DCDC /* BotList.swift */,
-				1EA0CAB92580468D00C200E8 /* HPicker.swift */,
-				1EFB967F270F88CF007152FC /* NewHPicker.swift */,
 				1EFCD1E52693A25B006A5430 /* StorageHelper.swift */,
-				1E726EEE263359A400640651 /* OldTextEditor.swift */,
 				1E9E9FBD24CDEB4700002500 /* SceneHelper.swift */,
 				1E7B117C2586B33400A0CD9F /* NotificationHelper.swift */,
 				1EEB0D4D24CF3780008F5B4B /* ColorHelper.swift */,
-				1E68179224CC973B001713E7 /* AppDelegate.swift */,
+				1E92D5F6261A608500D0D19C /* ActivityIndicator.swift */,
 				1EDAE0DE260814EC006173B4 /* MessageHelper.swift */,
-				1E68179424CC973B001713E7 /* SceneDelegate.swift */,
+				1E726EEE263359A400640651 /* OldTextEditor.swift */,
+				1EFB967F270F88CF007152FC /* NewHPicker.swift */,
 				1E68179D24CC973D001713E7 /* LaunchScreen.storyboard */,
 			);
 			path = helpers;
@@ -665,6 +667,7 @@
 				1E017B9F24CDB71A00CF979A /* PlayView.swift */,
 				1E6D2E4A24CE9729001EFE85 /* CubeView.swift */,
 				1E02D59A24CE5696001BF62B /* AboutView.swift */,
+				1E776156271E372200D83000 /* TutorialMenuView.swift */,
 				1E7B959124D34015004B3C80 /* SettingsView.swift */,
 				1EAE5F69263121D6000C8270 /* FeedbackView.swift */,
 				1EAEE3BA24D9DA1400490530 /* FriendsView.swift */,
@@ -743,7 +746,7 @@
 		1E776158271E373800D83000 /* tutorial */ = {
 			isa = PBXGroup;
 			children = (
-				1E776156271E372200D83000 /* TutorialView.swift */,
+				1EA8935B2724B6620015C900 /* TutorialView.swift */,
 			);
 			path = tutorial;
 			sourceTree = "<group>";
@@ -1094,6 +1097,7 @@
 				1EFAFB17271D170500F377E7 /* GameLayout.swift in Sources */,
 				1E6C429024FCE1F20065BDF5 /* BoardHelper.swift in Sources */,
 				1E726EEF263359A400640651 /* OldTextEditor.swift in Sources */,
+				1EA8935C2724B6620015C900 /* TutorialView.swift in Sources */,
 				1E713370258184B600059BC3 /* Novice.swift in Sources */,
 				1EEB0D4E24CF3780008F5B4B /* ColorHelper.swift in Sources */,
 				1E017BA024CDB71A00CF979A /* PlayView.swift in Sources */,
@@ -1123,7 +1127,7 @@
 				1EFB9680270F88CF007152FC /* NewHPicker.swift in Sources */,
 				1EBD920125897ED90082B65E /* User.swift in Sources */,
 				1E5A5AAE24CD077900F31124 /* TrainView.swift in Sources */,
-				1E776157271E372200D83000 /* TutorialView.swift in Sources */,
+				1E776157271E372200D83000 /* TutorialMenuView.swift in Sources */,
 				1EB693952599A1470025B080 /* Warrior.swift in Sources */,
 				1E7B117D2586B33400A0CD9F /* NotificationHelper.swift in Sources */,
 				1E3335D2253400FD00966EA6 /* Cubist.swift in Sources */,
