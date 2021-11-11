@@ -37,8 +37,8 @@ struct CubeView : UIViewRepresentable {
         cube.runAction(rotateAction)
     }
     
-    func flipCube() {
-        let rotateAction = SCNAction.rotate(by: .pi, around: SCNVector3(1,0,1), duration: 0.5)
+	func flipCube(duration: TimeInterval = 0.5) {
+        let rotateAction = SCNAction.rotate(by: .pi, around: SCNVector3(1,0,1), duration: duration)
         rotateAction.timingMode = .easeInEaseOut
         cube.runAction(rotateAction)
     }

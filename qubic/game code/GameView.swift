@@ -156,7 +156,7 @@ struct GameView: View {
 				VStack(spacing: 0) {
 					Fill(20).cornerRadius(10).opacity(0.00001)
 					Text("undo")
-						.font(.custom("Oligopoly Regular", size: 16))
+						.modifier(CustomFont(size: 16))
 						.accentColor(.label)
 					Text(" ")
 	//                    .padding(.bottom, 10)
@@ -177,7 +177,7 @@ struct GameView: View {
 				VStack(spacing: 0) {
 					Fill(20).cornerRadius(10).opacity(0.00001)
 					Text("←")
-						.font(.custom("Oligopoly Regular", size: 25))
+						.modifier(CustomFont(size: 25))
 						.accentColor(.label)
 	//                    .padding(.bottom, 10)
 					Blank(12)
@@ -190,7 +190,7 @@ struct GameView: View {
 				VStack(spacing: 0) {
 					Fill(20).cornerRadius(10).opacity(0.00001)
 					Text("→")
-						.font(.custom("Oligopoly Regular", size: 25))
+						.modifier(CustomFont(size: 25))
 						.accentColor(.label)
 	//                    .padding(.bottom, 10)
 					Blank(12)
@@ -227,7 +227,7 @@ struct GameView: View {
 					Button("resign") { game.endGame(with: .myResign) }
 				}
 			}
-			.font(.custom("Oligopoly Regular", size: 18))
+			.modifier(CustomFont(size: 18))
 			.buttonStyle(Solid())
 			.padding(.top, 20)
 			.padding(.bottom, gameControlSpace)
@@ -246,7 +246,7 @@ struct GameView: View {
 		
 		return VStack(spacing: 0) {
 			VStack(spacing: 15) {
-				Text(titleText).font(.custom("Oligopoly Regular", size: 24)) // .system(.largeTitle))
+				Text(titleText).modifier(CustomFont(size: 24)) // .system(.largeTitle))
 //				Text("a little something about the game")
 			}
 			.padding(.vertical, 15)
@@ -271,7 +271,7 @@ struct GameView: View {
 			}
 			.padding(.top, 15)
 			.padding(.bottom, gameControlSpace)
-			.font(.custom("Oligopoly Regular", size: 18)) //.system(size: 18))
+			.modifier(CustomFont(size: 18)) //.system(size: 18))
 			.buttonStyle(Solid())
 			.frame(width: layout.width)
 			.modifier(PopupModifier())

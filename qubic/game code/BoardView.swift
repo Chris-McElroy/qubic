@@ -23,6 +23,7 @@ class BoardScene {
     let view =  SCNView()
     let scene = SCNScene()
     let base = SCNNode()
+	let camera = SceneHelper.makeCamera()
     var spaces: [SCNNode] = (0..<64).map { _ in SceneHelper.getSpace(size: 0.86-3*lineWidth) } // size was color: .primary(33), size: 0.68
 	let moves: [SCNNode] = (0..<64).map { _ in SceneHelper.makeBox(size: 0.86, name: "cube") }
     let winLines: [SCNNode] = (0..<76).map {
@@ -40,7 +41,7 @@ class BoardScene {
 //	var wentSlow: Bool = true
 	
     init() {
-        scene.rootNode.addChildNode(SceneHelper.makeCamera())
+        scene.rootNode.addChildNode(camera)
         scene.rootNode.addChildNode(SceneHelper.makeOmniLight())
         scene.rootNode.addChildNode(SceneHelper.makeAmbiLight())
         for (p, space) in spaces.enumerated() {
@@ -129,8 +130,8 @@ class BoardScene {
 					part.setColor(.label)
 				}
 			}
-			let moveDown = moves[p].parent != nil && moves[p].position.y == space.position.y
-			space.opacity = moveDown ? 0 : 1
+//			let moveDown = moves[p].parent != nil && moves[p].position.y == space.position.y
+//			space.opacity = moveDown ? 0 : 1
 		}
 	}
     

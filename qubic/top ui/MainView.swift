@@ -36,10 +36,7 @@ struct MainView: View {
 					.offset(y: layout.backButtonOffset)
 					.zIndex(10)
 			}
-			.onAppear {
-				layout.load(for: screen)
-				layout.current = .main
-			}
+			.onAppear { layout.load(for: screen) }
 			.onReceive(screen.objectWillChange) { layout.load(for: screen) }
 			.frame(height: layout.total)
 			.background(Fill())
@@ -52,7 +49,7 @@ struct MainView: View {
     private var top: some View {
         VStack(spacing: 0) {
 			Text("qubic")  // + (versionType == .testFlight ? " beta" : ""))
-                .font(.custom("Oligopoly Regular", size: 42))
+				.modifier(CustomFont(size: 42))
                 .padding(.top, 10)
                 .modifier(LayoutModifier(for: .title))
 				.modifier(BoundSize(min: .large, max: .extraExtraExtraLarge))
@@ -182,7 +179,7 @@ struct MainView: View {
 				VStack(spacing: 0) {
 					ZStack {
 						Text(layout.current == .main ? "more" : "back")
-							.font(.custom("Oligopoly Regular", size: 16))
+							.modifier(CustomFont(size: 16))
 						Circle().frame(width: 12, height: 12).foregroundColor(.primary()).offset(x: 30, y: 2)
 							.opacity(layout.current == .main && layout.updateAvailable ? 1 : 0)
 					}

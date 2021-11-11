@@ -15,6 +15,8 @@
 		1E22E0F2260C21EB007F627A /* Online.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E22E0F1260C21EB007F627A /* Online.swift */; };
 		1E2E74BC24E86AA600218E55 /* GameView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E2E74BB24E86AA600218E55 /* GameView.swift */; };
 		1E2E74BE24E86B6500218E55 /* BoardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E2E74BD24E86B6500218E55 /* BoardView.swift */; };
+		1E31208A273D9BF6005BA437 /* WelcomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E312089273D9BF6005BA437 /* WelcomeView.swift */; };
+		1E31208C273D9C1E005BA437 /* TicTacToeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E31208B273D9C1E005BA437 /* TicTacToeView.swift */; };
 		1E3170F425AA0C7500FCCEA4 /* Messages.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1E3170F325AA0C7500FCCEA4 /* Messages.framework */; };
 		1E3170F725AA0C7500FCCEA4 /* MessagesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E3170F625AA0C7500FCCEA4 /* MessagesViewController.swift */; };
 		1E3170FA25AA0C7500FCCEA4 /* MainInterface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1E3170F825AA0C7500FCCEA4 /* MainInterface.storyboard */; };
@@ -184,6 +186,10 @@
 		1EC86B1325AABDE000DA434A /* HPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EC86B1225AABDE000DA434A /* HPicker.swift */; };
 		1EDAE0DF260814EC006173B4 /* MessageHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EDAE0DE260814EC006173B4 /* MessageHelper.swift */; };
 		1EDDE19024FAC70800B7742C /* Board.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EDDE18F24FAC70800B7742C /* Board.swift */; };
+		1EE2D5F9273897BB00DE309F /* TutorialLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EE2D5F8273897BA00DE309F /* TutorialLayout.swift */; };
+		1EE2D5FB2738A3F500DE309F /* TutorialGameView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EE2D5FA2738A3F500DE309F /* TutorialGameView.swift */; };
+		1EE2D5FD2738A3FC00DE309F /* TutorialGame.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EE2D5FC2738A3FC00DE309F /* TutorialGame.swift */; };
+		1EE2D5FF2738A40500DE309F /* TutorialBoardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EE2D5FE2738A40500DE309F /* TutorialBoardView.swift */; };
 		1EE4C75C24EB7ADC0038C1E2 /* UIHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EE4C75B24EB7ADC0038C1E2 /* UIHelper.swift */; };
 		1EEB0D4E24CF3780008F5B4B /* ColorHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EEB0D4D24CF3780008F5B4B /* ColorHelper.swift */; };
 		1EFAFB17271D170500F377E7 /* GameLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EFAFB16271D170500F377E7 /* GameLayout.swift */; };
@@ -230,6 +236,8 @@
 		1E22E0F1260C21EB007F627A /* Online.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Online.swift; sourceTree = "<group>"; };
 		1E2E74BB24E86AA600218E55 /* GameView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameView.swift; sourceTree = "<group>"; };
 		1E2E74BD24E86B6500218E55 /* BoardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardView.swift; sourceTree = "<group>"; };
+		1E312089273D9BF6005BA437 /* WelcomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeView.swift; sourceTree = "<group>"; };
+		1E31208B273D9C1E005BA437 /* TicTacToeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TicTacToeView.swift; sourceTree = "<group>"; };
 		1E3170F125AA0C7500FCCEA4 /* qubicMessage.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = qubicMessage.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		1E3170F325AA0C7500FCCEA4 /* Messages.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Messages.framework; path = System/Library/Frameworks/Messages.framework; sourceTree = SDKROOT; };
 		1E3170F625AA0C7500FCCEA4 /* MessagesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessagesViewController.swift; sourceTree = "<group>"; };
@@ -395,6 +403,10 @@
 		1EC86B1225AABDE000DA434A /* HPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HPicker.swift; sourceTree = "<group>"; };
 		1EDAE0DE260814EC006173B4 /* MessageHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageHelper.swift; sourceTree = "<group>"; };
 		1EDDE18F24FAC70800B7742C /* Board.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Board.swift; sourceTree = "<group>"; };
+		1EE2D5F8273897BA00DE309F /* TutorialLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TutorialLayout.swift; sourceTree = "<group>"; };
+		1EE2D5FA2738A3F500DE309F /* TutorialGameView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TutorialGameView.swift; sourceTree = "<group>"; };
+		1EE2D5FC2738A3FC00DE309F /* TutorialGame.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TutorialGame.swift; sourceTree = "<group>"; };
+		1EE2D5FE2738A40500DE309F /* TutorialBoardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TutorialBoardView.swift; sourceTree = "<group>"; };
 		1EE4C75B24EB7ADC0038C1E2 /* UIHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIHelper.swift; sourceTree = "<group>"; };
 		1EEB0D4D24CF3780008F5B4B /* ColorHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorHelper.swift; sourceTree = "<group>"; };
 		1EFAFB16271D170500F377E7 /* GameLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameLayout.swift; sourceTree = "<group>"; };
@@ -747,6 +759,12 @@
 			isa = PBXGroup;
 			children = (
 				1EA8935B2724B6620015C900 /* TutorialView.swift */,
+				1EE2D5F8273897BA00DE309F /* TutorialLayout.swift */,
+				1E312089273D9BF6005BA437 /* WelcomeView.swift */,
+				1E31208B273D9C1E005BA437 /* TicTacToeView.swift */,
+				1EE2D5FA2738A3F500DE309F /* TutorialGameView.swift */,
+				1EE2D5FC2738A3FC00DE309F /* TutorialGame.swift */,
+				1EE2D5FE2738A40500DE309F /* TutorialBoardView.swift */,
 			);
 			path = tutorial;
 			sourceTree = "<group>";
@@ -1120,12 +1138,16 @@
 				1EDAE0DF260814EC006173B4 /* MessageHelper.swift in Sources */,
 				1EB693982599A14D0025B080 /* Tyrant.swift in Sources */,
 				1EFCD1E62693A25B006A5430 /* StorageHelper.swift in Sources */,
+				1EE2D5FD2738A3FC00DE309F /* TutorialGame.swift in Sources */,
 				1EAEE3BB24D9DA1400490530 /* FriendsView.swift in Sources */,
+				1EE2D5FF2738A40500DE309F /* TutorialBoardView.swift in Sources */,
 				1EC2788D2585ACC600F6A5EB /* Player.swift in Sources */,
 				1E68179524CC973B001713E7 /* SceneDelegate.swift in Sources */,
 				1EB6939B2599A1530025B080 /* Oracle.swift in Sources */,
 				1EFB9680270F88CF007152FC /* NewHPicker.swift in Sources */,
+				1EE2D5F9273897BB00DE309F /* TutorialLayout.swift in Sources */,
 				1EBD920125897ED90082B65E /* User.swift in Sources */,
+				1EE2D5FB2738A3F500DE309F /* TutorialGameView.swift in Sources */,
 				1E5A5AAE24CD077900F31124 /* TrainView.swift in Sources */,
 				1E776157271E372200D83000 /* TutorialMenuView.swift in Sources */,
 				1EB693952599A1470025B080 /* Warrior.swift in Sources */,
@@ -1134,7 +1156,9 @@
 				1EAE5F6A263121D6000C8270 /* FeedbackView.swift in Sources */,
 				1E636FBB258A8687005B8D4F /* Daily.swift in Sources */,
 				1E636FC0258A882B005B8D4F /* Tricky.swift in Sources */,
+				1E31208C273D9C1E005BA437 /* TicTacToeView.swift in Sources */,
 				1E017B9E24CDB70D00CF979A /* SolveView.swift in Sources */,
+				1E31208A273D9BF6005BA437 /* WelcomeView.swift in Sources */,
 				1EFAFB1A271D215400F377E7 /* GeneralHelper.swift in Sources */,
 				1E2E74BE24E86B6500218E55 /* BoardView.swift in Sources */,
 				1E6D2E4B24CE9729001EFE85 /* CubeView.swift in Sources */,

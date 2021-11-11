@@ -132,7 +132,7 @@ class Layout: ObservableObject {
     private var focusHeight: [ViewState: CGFloat] = [:]
     private var topSpacerHeight: [ViewState: CGFloat] = [:]
     
-    @Published var current: ViewState = .main
+    @Published var current: ViewState = .tutorial // TODO have this automatically check
     @Published var leftArrows: Bool = Storage.int(.arrowSide) == 0
     @Published var newDaily = Storage.int(.lastDC) != Date.int
 	@Published var updateAvailable: Bool = false
@@ -183,7 +183,6 @@ class Layout: ObservableObject {
         width = screen.width
         topGap = screen.window?.safeAreaInsets.top ?? 0
         bottomGap = screen.window?.safeAreaInsets.bottom ?? 0
-		print("bottom gap:", bottomGap)
 		backButtonSpace = backButtonHeight - bottomGap/3
         safeHeight = fullHeight - topGap - bottomGap
         menuHeight = min(800, safeHeight)
