@@ -16,7 +16,7 @@
 
 #import "GoogleDataTransport/GDTCCTLibrary/Public/GDTCOREvent+GDTCCTSupport.h"
 
-#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORConsoleLogger.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCORConsoleLogger.h"
 
 NSString *const GDTCCTNeedsNetworkConnectionInfo = @"needs_network_connection_info";
 
@@ -130,6 +130,10 @@ NSString *const GDTCCTEventCodeInfo = @"event_code_info";
                                                                 options:0
                                                                   error:&error];
       NSString *base64Data = bytesDict[GDTCCTNetworkConnectionInfo];
+      if (base64Data == nil) {
+        return nil;
+      }
+
       NSData *networkConnectionInfoData = [[NSData alloc] initWithBase64EncodedString:base64Data
                                                                               options:0];
       if (error) {

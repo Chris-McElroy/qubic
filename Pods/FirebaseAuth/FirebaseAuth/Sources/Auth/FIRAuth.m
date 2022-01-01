@@ -22,11 +22,11 @@
 #import <UIKit/UIKit.h>
 #endif
 
-#import "FirebaseAuth/Sources/Public/FirebaseAuth.h"
+#import <GoogleUtilities/GULAppDelegateSwizzler.h>
+#import <GoogleUtilities/GULAppEnvironmentUtil.h>
+#import <GoogleUtilities/GULSceneDelegateSwizzler.h>
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FirebaseAuth.h"
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
-#import "GoogleUtilities/AppDelegateSwizzler/Private/GULAppDelegateSwizzler.h"
-#import "GoogleUtilities/Environment/Private/GULAppEnvironmentUtil.h"
-#import "GoogleUtilities/SceneDelegateSwizzler/Private/GULSceneDelegateSwizzler.h"
 
 #import "FirebaseAuth/Sources/Auth/FIRAuthDataResult_Internal.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuthDispatcher.h"
@@ -80,6 +80,9 @@
 #endif
 
 NS_ASSUME_NONNULL_BEGIN
+
+#pragma mark-- Logger Service String.
+FIRLoggerService kFIRLoggerAuth = @"[Firebase/Auth]";
 
 #pragma mark - Constants
 
@@ -203,15 +206,6 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 @end
 
 @implementation FIRActionCodeInfo
-
-- (NSString *)dataForKey:(FIRActionDataKey)key {
-  switch (key) {
-    case FIRActionCodeEmailKey:
-      return self.email;
-    case FIRActionCodeFromEmailKey:
-      return self.previousEmail;
-  }
-}
 
 - (instancetype)initWithOperation:(FIRActionCodeOperation)operation
                             email:(NSString *)email
@@ -429,9 +423,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 }
 
 + (void)load {
-  [FIRApp registerInternalLibrary:(Class<FIRLibrary>)self
-                         withName:@"fire-auth"
-                      withVersion:[NSString stringWithUTF8String:FirebaseAuthVersionStr]];
+  [FIRApp registerInternalLibrary:(Class<FIRLibrary>)self withName:@"fire-auth"];
 }
 
 + (void)initialize {
@@ -441,12 +433,13 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 + (FIRAuth *)auth {
   FIRApp *defaultApp = [FIRApp defaultApp];
   if (!defaultApp) {
-    [NSException raise:NSInternalInconsistencyException
-                format:@"The default FIRApp instance must be configured before the default FIRAuth"
-                       @"instance can be initialized. One way to ensure that is to call "
-                       @"`[FIRApp configure];` (`FirebaseApp.configure()` in Swift) in the App "
-                       @"Delegate's `application:didFinishLaunchingWithOptions:` "
-                       @"(`application(_:didFinishLaunchingWithOptions:)` in Swift)."];
+    [NSException
+         raise:NSInternalInconsistencyException
+        format:@"The default FirebaseApp instance must be configured before the default Auth"
+               @"instance can be initialized. One way to ensure this is to call "
+               @"`FirebaseApp.configure()` in the App Delegate's "
+               @"`application(_:didFinishLaunchingWithOptions:)` (or the `@main` struct's "
+               @"initializer in SwiftUI)."];
   }
   return [self authWithApp:defaultApp];
 }
@@ -517,6 +510,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
         if (!storedUserAccessGroup) {
           FIRUser *user;
           if ([strongSelf getUser:&user error:&error]) {
+            strongSelf.tenantID = user.tenantID;
             [strongSelf updateCurrentUser:user byForce:NO savingToDisk:NO error:&error];
             self->_lastNotifiedUserToken = user.rawAccessToken;
           } else {
@@ -586,25 +580,6 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     result = self->_currentUser;
   });
   return result;
-}
-
-- (void)fetchProvidersForEmail:(NSString *)email
-                    completion:(nullable FIRProviderQueryCallback)completion {
-  dispatch_async(FIRAuthGlobalWorkQueue(), ^{
-    FIRCreateAuthURIRequest *request =
-        [[FIRCreateAuthURIRequest alloc] initWithIdentifier:email
-                                                continueURI:@"http://www.google.com/"
-                                       requestConfiguration:self->_requestConfiguration];
-    [FIRAuthBackend
-        createAuthURI:request
-             callback:^(FIRCreateAuthURIResponse *_Nullable response, NSError *_Nullable error) {
-               if (completion) {
-                 dispatch_async(dispatch_get_main_queue(), ^{
-                   completion(response.allProviders, error);
-                 });
-               }
-             }];
-  });
 }
 
 - (void)signInWithProvider:(id<FIRFederatedAuthProvider>)provider
@@ -857,16 +832,8 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
              }];
 }
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 - (void)signInWithCredential:(FIRAuthCredential *)credential
                   completion:(nullable FIRAuthDataResultCallback)completion {
-  [self signInAndRetrieveDataWithCredential:credential completion:completion];
-}
-#pragma clang diagnostic pop
-
-- (void)signInAndRetrieveDataWithCredential:(FIRAuthCredential *)credential
-                                 completion:(nullable FIRAuthDataResultCallback)completion {
   dispatch_async(FIRAuthGlobalWorkQueue(), ^{
     FIRAuthDataResultCallback callback =
         [self signInFlowAuthDataResultCallbackByDecoratingCallback:completion];
@@ -1427,7 +1394,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 - (FIRIDTokenDidChangeListenerHandle)addIDTokenDidChangeListener:
     (FIRIDTokenDidChangeListenerBlock)listener {
   if (!listener) {
-    [NSException raise:NSInvalidArgumentException format:@"listener must not be nil."];
+    [NSException raise:NSInvalidArgumentException format:@"Listener must not be nil."];
     return nil;
   }
   FIRAuthStateDidChangeListenerHandle handle;
@@ -1458,6 +1425,26 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 - (void)useAppLanguage {
   dispatch_sync(FIRAuthGlobalWorkQueue(), ^{
     self->_requestConfiguration.languageCode = [[NSLocale preferredLanguages] firstObject];
+  });
+}
+
+- (void)useEmulatorWithHost:(NSString *)host port:(NSInteger)port {
+  NSAssert(host.length > 0, @"Cannot connect to nil or empty host");
+
+  NSString *formattedHost;
+  if ([host containsString:@":"]) {
+    // Host is an IPv6 address and should be formatted with surrounding brackets.
+    formattedHost = [NSString stringWithFormat:@"[%@]", host];
+  } else {
+    formattedHost = host;
+  }
+
+  dispatch_sync(FIRAuthGlobalWorkQueue(), ^{
+    self->_requestConfiguration.emulatorHostAndPort =
+        [NSString stringWithFormat:@"%@:%ld", formattedHost, (long)port];
+#if TARGET_OS_IOS
+    self->_settings.appVerificationDisabledForTesting = YES;
+#endif
   });
 }
 
@@ -1513,6 +1500,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     didReceiveRemoteNotification:(NSDictionary *)userInfo
           fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
   [self canHandleNotification:userInfo];
+  completionHandler(UIBackgroundFetchResultNoData);
 }
 
 // iOS 10 deprecation
@@ -1975,6 +1963,15 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     [self possiblyPostAuthStateChangeNotification];
     return YES;
   }
+  if (user) {
+    if ((user.tenantID || self.tenantID) && ![self.tenantID isEqualToString:user.tenantID]) {
+      if (error) {
+        *error = [FIRAuthErrorUtils tenantIDMismatchError];
+      }
+      return NO;
+    }
+  }
+
   BOOL success = YES;
   if (saveToDisk) {
     success = [self saveUser:user error:error];
@@ -2000,6 +1997,9 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     if (!user) {
       success = [_keychainServices removeDataForKey:userKey error:outError];
     } else {
+#if TARGET_OS_WATCH
+      NSKeyedArchiver *archiver = [[NSKeyedArchiver alloc] initRequiringSecureCoding:false];
+#else
       // Encode the user object.
       NSMutableData *archiveData = [NSMutableData data];
 // iOS 12 deprecation
@@ -2008,20 +2008,28 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
       NSKeyedArchiver *archiver =
           [[NSKeyedArchiver alloc] initForWritingWithMutableData:archiveData];
 #pragma clang diagnostic pop
+#endif  // TARGET_OS_WATCH
       [archiver encodeObject:user forKey:userKey];
       [archiver finishEncoding];
+
+#if TARGET_OS_WATCH
+      NSData *archiveData = archiver.encodedData;
+#endif  // TARGET_OS_WATCH
 
       // Save the user object's encoded value.
       success = [_keychainServices setData:archiveData forKey:userKey error:outError];
     }
   } else {
     if (!user) {
-      success = [self.storedUserManager removeStoredUserForAccessGroup:self.userAccessGroup
-                                                     projectIdentifier:self.app.options.APIKey
-                                                                 error:outError];
+      success =
+          [self.storedUserManager removeStoredUserForAccessGroup:self.userAccessGroup
+                                     shareAuthStateAcrossDevices:self.shareAuthStateAcrossDevices
+                                               projectIdentifier:self.app.options.APIKey
+                                                           error:outError];
     } else {
       success = [self.storedUserManager setStoredUser:user
                                        forAccessGroup:self.userAccessGroup
+                          shareAuthStateAcrossDevices:self.shareAuthStateAcrossDevices
                                     projectIdentifier:self.app.options.APIKey
                                                 error:outError];
     }
@@ -2053,21 +2061,31 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
       *outUser = nil;
       return YES;
     }
+#if TARGET_OS_WATCH
+    NSKeyedUnarchiver *unarchiver =
+        [[NSKeyedUnarchiver alloc] initForReadingFromData:encodedUserData error:error];
+    if (error && *error) {
+      return NO;
+    }
+#else
 // iOS 12 deprecation
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
     NSKeyedUnarchiver *unarchiver =
         [[NSKeyedUnarchiver alloc] initForReadingWithData:encodedUserData];
 #pragma clang diagnostic pop
+#endif  // TARGET_OS_WATCH
     FIRUser *user = [unarchiver decodeObjectOfClass:[FIRUser class] forKey:userKey];
     user.auth = self;
     *outUser = user;
 
     return YES;
   } else {
-    FIRUser *user = [self.storedUserManager getStoredUserForAccessGroup:self.userAccessGroup
-                                                      projectIdentifier:self.app.options.APIKey
-                                                                  error:error];
+    FIRUser *user =
+        [self.storedUserManager getStoredUserForAccessGroup:self.userAccessGroup
+                                shareAuthStateAcrossDevices:self.shareAuthStateAcrossDevices
+                                          projectIdentifier:self.app.options.APIKey
+                                                      error:error];
     user.auth = self;
     *outUser = user;
     if (user) {
@@ -2225,15 +2243,24 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
       return nil;
     }
 
+#if TARGET_OS_WATCH
+    NSKeyedUnarchiver *unarchiver =
+        [[NSKeyedUnarchiver alloc] initForReadingFromData:encodedUserData error:outError];
+    if (outError && *outError) {
+      return nil;
+    }
+#else
 // iOS 12 deprecation
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
     NSKeyedUnarchiver *unarchiver =
         [[NSKeyedUnarchiver alloc] initForReadingWithData:encodedUserData];
 #pragma clang diagnostic pop
+#endif  // TARGET_OS_WATCH
     user = [unarchiver decodeObjectOfClass:[FIRUser class] forKey:userKey];
   } else {
-    user = [self.storedUserManager getStoredUserForAccessGroup:self.userAccessGroup
+    user = [self.storedUserManager getStoredUserForAccessGroup:accessGroup
+                                   shareAuthStateAcrossDevices:self.shareAuthStateAcrossDevices
                                              projectIdentifier:self.app.options.APIKey
                                                          error:outError];
   }

@@ -1,5 +1,61 @@
+# 8.9.0
+- [changed] Improved error logging. (#8704)
+- [added] Added MFA support for email link sign-in. (#8705)
+
+# 8.8.0
+- [fixed] Fall back to reCAPTCHA for phone auth app verification if the push notification is not received before the timeout. (#8653)
+
+# 8.6.0
+- [fixed] Annotated platform-level availability using `API_UNAVAILABLE` instead of conditionally compiling certain methods with `#if` directives. (#8451)
+
+# 8.5.0
+- [fixed] Fixed an analyze issue introduced in Xcode 12.5. (#8411)
+
+# 8.2.0
+- [fixed] Fixed analyze issues introduced in Xcode 12.5. (#8210)
+- [fixed] Fixed a bug in the link with email link, Game Center, and phone auth flows. (#8196)
+
+# 8.0.0
+- [fixed] Fixed a crash that occurred when assigning auth settings. (#7670)
+
+# 7.8.0
+- [fixed] Fixed auth state sharing during first app launch. (#7472)
+
+# 7.6.0
+- [fixed] Auth emulator now works across the local network. (#7350)
+- [fixed] Fixed incorrect import for watchOS (#7425)
+
+# 7.4.0
+- [fixed] Check if the reverse client ID is configured as a custom URL scheme before setting it as the callback scheme. (#7211)
+- [added] Add ability to sync auth state across devices. (#6924)
+- [fixed] Add multi-tenancy support for email link sign-in. (#7246)
+
+# 7.3.0
+- [fixed] Catalyst browser issue with `verifyPhoneNumber` API. (#7049)
+
+# 7.1.0
+- [fixed] Fixed completion handler issue in `application(_:didReceiveRemoteNotification:fetchCompletionHandler:)` method. (#6863)
+
+# 7.0.0
+- [removed] Remove deprecated APIs `dataForKey`,`fetchProvidersForEmail:completion`, `signInAndRetrieveDataWithCredential:completion`, `reauthenticateAndRetrieveDataWithCredential:completion`, `linkAndRetrieveDataWithCredential:completion`. (#6607)
+- [added] Add support for the auth emulator. (#6624)
+- [changed] The global variables `FirebaseAuthVersionNum` and `FirebaseAuthVersionStr` are deleted.
+  `FirebaseVersion()` or `FIRFirebaseVersion()` should be used instead.
+
+# v6.9.1
+- [fixed] Internal source documentation. (#6371)
+
+# v6.9.0
+- [added] Added support for multi-tenancy (#6142).
+- [added] Added basic watchOS support. (#4621)
+- [changed] Improved Xcode completion of public API completion handlers in Swift. (#6283)
+
+# v6.8.0
+- [fixed] Fix bug where multiple keychain entries would result in user persistence failure. (#5906)
+- [changed] Added support for using GOOGLE_APP_ID in generic IDP and phone auth reCAPTCHA fallback flows. (#6121)
+
 # v6.7.1
-- [fixed] Fixed a multithreaded memory access issue on iOS (#5979).
+- [fixed] Fixed a multithreaded memory access issue on iOS. (#5979)
 
 # v6.7.0
 - [changed] Functionally neutral source reorganization for preliminary Swift Package Manager support. (#5856)

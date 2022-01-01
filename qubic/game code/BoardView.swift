@@ -122,7 +122,7 @@ class BoardScene {
     }
 	
 	func updateSpaceColors() {
-		for (p, space) in spaces.enumerated() {
+		for (_, space) in spaces.enumerated() {
 			for part in space.childNodes {
 				if part.name == "clear" {
 					part.setColor(.clear)

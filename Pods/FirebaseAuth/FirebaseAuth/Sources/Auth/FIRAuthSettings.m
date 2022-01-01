@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FirebaseAuth/Sources/Public/FIRAuthSettings.h"
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthSettings.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -26,6 +26,13 @@ NS_ASSUME_NONNULL_BEGIN
     _appVerificationDisabledForTesting = NO;
   }
   return self;
+}
+
+- (instancetype)copyWithZone:(NSZone *__unused _Nullable)zone {
+  // Auth settings are mutable, so always return a copy.
+  FIRAuthSettings *newSettings = [[FIRAuthSettings alloc] init];
+  newSettings.appVerificationDisabledForTesting = self.isAppVerificationDisabledForTesting;
+  return newSettings;
 }
 
 @end

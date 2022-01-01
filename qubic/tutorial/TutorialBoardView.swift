@@ -51,7 +51,7 @@ class TutorialBoardScene: BoardScene {
 		
 		let duration1 = 1.2
 		let zoomAction = SCNAction.customAction(duration: duration1, action: { node, time in
-			node.camera?.orthographicScale = 6.7 + (9.5 - 6.7)*(time / duration1)
+			node.camera?.orthographicScale = 6.7 + (9.6 - 6.7)*(time / duration1)
 		})
 		let moveAction1 = SCNAction.move(to: SCNVector3(x: 0, y: 10, z: 0), duration: duration1)
 		let rotateAction1 = SCNAction.rotate(by: -0.53, around: SCNVector3(0,1,0), duration: duration1)

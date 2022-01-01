@@ -23,7 +23,7 @@
 #import <GTMSessionFetcher/GTMSessionFetcherService.h>
 #endif
 
-#import "FirebaseAuth/Sources/Public/FirebaseAuth.h"
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FirebaseAuth.h"
 
 #import "FirebaseAuth/Sources/Auth/FIRAuthGlobalWorkQueue.h"
 #import "FirebaseAuth/Sources/AuthProvider/OAuth/FIROAuthCredential_Internal.h"
@@ -62,9 +62,10 @@
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyPhoneNumberRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyPhoneNumberResponse.h"
 #import "FirebaseAuth/Sources/Utilities/FIRAuthErrorUtils.h"
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
 #if TARGET_OS_IOS
-#import "FirebaseAuth/Sources/Public/FIRPhoneAuthProvider.h"
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRPhoneAuthProvider.h"
 
 #import "FirebaseAuth/Sources/AuthProvider/Phone/FIRPhoneAuthCredential_Internal.h"
 #import "FirebaseAuth/Sources/MultiFactor/Phone/FIRPhoneMultiFactorInfo+Internal.h"
@@ -295,7 +296,7 @@ static NSString *const kMissingAndroidPackageNameErrorMessage = @"MISSING_ANDROI
 
 /** @var kUnauthorizedDomainErrorMessage
     @brief This is the error message the server will respond with if the domain of the continue URL
-        specified is not whitelisted in the firebase console.
+        specified is not allowlisted in the Firebase console.
  */
 static NSString *const kUnauthorizedDomainErrorMessage = @"UNAUTHORIZED_DOMAIN";
 
@@ -395,6 +396,17 @@ static NSString *const kMissingClientIdentifier = @"MISSING_CLIENT_IDENTIFIER";
         invalid.
  */
 static NSString *const kCaptchaCheckFailedErrorMessage = @"CAPTCHA_CHECK_FAILED";
+
+/** @var kTenantIDMismatch
+    @brief This is the error message the server will respond with if the tenant id mismatches.
+ */
+static NSString *const kTenantIDMismatch = @"TENANT_ID_MISMATCH";
+
+/** @var kUnsupportedTenantOperation
+    @brief This is the error message the server will respond with if the operation does not support
+   multi-tenant.
+ */
+static NSString *const kUnsupportedTenantOperation = @"UNSUPPORTED_TENANT_OPERATION";
 
 /** @var kMissingMFAPendingCredentialErrorMessage
  @brief This is the error message the server will respond with if the MFA pending credential is
@@ -584,7 +596,7 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
 }
 
 + (NSString *)authUserAgent {
-  return [NSString stringWithFormat:@"FirebaseAuth.iOS/%s %@", FirebaseAuthVersionStr,
+  return [NSString stringWithFormat:@"FirebaseAuth.iOS/%@ %@", FIRFirebaseVersion(),
                                     GTMFetcherStandardUserAgentString(nil)];
 }
 
@@ -624,7 +636,7 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
   NSString *additionalFrameworkMarker =
       requestConfiguration.additionalFrameworkMarker ?: kFirebaseAuthCoreFrameworkMarker;
   NSString *clientVersion = [NSString
-      stringWithFormat:@"iOS/FirebaseSDK/%s/%@", FirebaseAuthVersionStr, additionalFrameworkMarker];
+      stringWithFormat:@"iOS/FirebaseSDK/%@/%@", FIRFirebaseVersion(), additionalFrameworkMarker];
   [request setValue:clientVersion forHTTPHeaderField:kClientVersionHeader];
   NSString *bundleID = [[NSBundle mainBundle] bundleIdentifier];
   [request setValue:bundleID forHTTPHeaderField:kIosBundleIdentifierHeader];
@@ -639,6 +651,11 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
     [request setValue:languageCode forHTTPHeaderField:kFirebaseLocalHeader];
   }
   GTMSessionFetcher *fetcher = [_fetcherService fetcherWithRequest:request];
+  NSString *emulatorHostAndPort = requestConfiguration.emulatorHostAndPort;
+  if (emulatorHostAndPort) {
+    fetcher.allowLocalhostRequest = YES;
+    fetcher.allowedInsecureSchemes = @[ @"http" ];
+  }
   fetcher.bodyData = body;
   [fetcher beginFetchWithCompletionHandler:handler];
 }
@@ -788,15 +805,31 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
 - (void)emailLinkSignin:(FIREmailLinkSignInRequest *)request
                callback:(FIREmailLinkSigninResponseCallback)callback {
   FIREmailLinkSignInResponse *response = [[FIREmailLinkSignInResponse alloc] init];
-  [self postWithRequest:request
-               response:response
-               callback:^(NSError *error) {
-                 if (error) {
-                   callback(nil, error);
+  [self
+      postWithRequest:request
+             response:response
+             callback:^(NSError *error) {
+               if (error) {
+                 callback(nil, error);
+               } else {
+                 if (!response.IDToken && response.MFAInfo) {
+#if TARGET_OS_IOS
+                   NSMutableArray<FIRMultiFactorInfo *> *multiFactorInfo = [NSMutableArray array];
+                   for (FIRAuthProtoMFAEnrollment *MFAEnrollment in response.MFAInfo) {
+                     FIRPhoneMultiFactorInfo *info =
+                         [[FIRPhoneMultiFactorInfo alloc] initWithProto:MFAEnrollment];
+                     [multiFactorInfo addObject:info];
+                   }
+                   NSError *multiFactorRequiredError = [FIRAuthErrorUtils
+                       secondFactorRequiredErrorWithPendingCredential:response.MFAPendingCredential
+                                                                hints:multiFactorInfo];
+                   callback(nil, multiFactorRequiredError);
+#endif
                  } else {
                    callback(response, nil);
                  }
-               }];
+               }
+             }];
 }
 
 - (void)secureToken:(FIRSecureTokenRequest *)request
@@ -1025,7 +1058,8 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
                              if (![dictionary isKindOfClass:[NSDictionary class]]) {
                                if (error) {
                                  callback([FIRAuthErrorUtils
-                                     unexpectedErrorResponseWithDeserializedResponse:dictionary]);
+                                     unexpectedErrorResponseWithDeserializedResponse:dictionary
+                                                                     underlyingError:error]);
                                } else {
                                  callback([FIRAuthErrorUtils
                                      unexpectedResponseWithDeserializedResponse:dictionary]);
@@ -1059,14 +1093,16 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
                                  if (errorMessage) {
                                    NSError *unexpecterErrorResponse = [FIRAuthErrorUtils
                                        unexpectedErrorResponseWithDeserializedResponse:
-                                           errorDictionary];
+                                           errorDictionary
+                                                                       underlyingError:error];
                                    callback(unexpecterErrorResponse);
                                    return;
                                  }
                                }
                                // No error message at all, return the decoded response.
                                callback([FIRAuthErrorUtils
-                                   unexpectedErrorResponseWithDeserializedResponse:dictionary]);
+                                   unexpectedErrorResponseWithDeserializedResponse:dictionary
+                                                                   underlyingError:error]);
                                return;
                              }
 
@@ -1378,6 +1414,14 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
   if ([shortErrorMessage isEqualToString:kEmailChangeNeedsVerificationErrorMessage]) {
     return [FIRAuthErrorUtils errorWithCode:FIRAuthInternalErrorCodeEmailChangeNeedsVerification
                                     message:serverErrorMessage];
+  }
+
+  if ([shortErrorMessage isEqualToString:kTenantIDMismatch]) {
+    return [FIRAuthErrorUtils tenantIDMismatchError];
+  }
+
+  if ([shortErrorMessage isEqualToString:kUnsupportedTenantOperation]) {
+    return [FIRAuthErrorUtils unsupportedTenantOperationError];
   }
 
   // In this case we handle an error that might be specified in the underlying errors dictionary,
