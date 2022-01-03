@@ -53,6 +53,10 @@ struct TicTacToeView: View {
 					pannedOut = true
 				}
 			}
+			
+			Timer.after(14) {
+				Layout.main.current = .main
+			}
 		}
 	}
 	

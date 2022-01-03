@@ -27,7 +27,6 @@ struct TutorialMenuView: View {
 				
 				Button(action: {
 					layout.change(to: .tutorial)
-					Storage.set(1, for: .playedTutorial)
 				}) {
 					Text((Storage.int(.playedTutorial) == 1 ? "re" : "") + "play tutorial")
 				}

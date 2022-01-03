@@ -91,6 +91,7 @@ class FB {
 		let tricky = Storage.array(.tricky) as? [Bool] ?? []
 		let solves = Storage.array(.solvedBoards) as? [String] ?? []
 		let solveBoardVersion = Storage.int(.solveBoardsVersion)
+		let tutorialPlays = Storage.int(.playedTutorial)
 		myStatsRef.setValue([
 			Key.buildNumber.rawValue: buildNumber,
 			Key.versionType.rawValue: versionType.rawValue,
@@ -103,7 +104,8 @@ class FB {
 			Key.common.rawValue: common,
 			Key.tricky.rawValue: tricky,
 			Key.solvedBoards.rawValue: solves,
-			Key.solveBoardsVersion.rawValue: solveBoardVersion
+			Key.solveBoardsVersion.rawValue: solveBoardVersion,
+			Key.playedTutorial.rawValue: tutorialPlays
 		])
 	}
     

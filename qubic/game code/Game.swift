@@ -291,7 +291,9 @@ class Game: ObservableObject {
 			}
 		}
 		
-		load(mode: newMode, boardNum: newBoardNum, turn: mostRecentGame.2, hints: mostRecentGame.3, time: mostRecentGame.4)
+		let newTurn = newMode == .online ? FB.main.myGameData?.myTurn : mostRecentGame.2
+		
+		load(mode: newMode, boardNum: newBoardNum, turn: newTurn, hints: mostRecentGame.3, time: mostRecentGame.4)
 	}
     
     func startGame() {
