@@ -132,7 +132,7 @@ class Layout: ObservableObject {
     private var focusHeight: [ViewState: CGFloat] = [:]
     private var topSpacerHeight: [ViewState: CGFloat] = [:]
     
-	@Published var current: ViewState = Storage.int(.playedTutorial) == 1 ? .main : .tutorial
+	@Published var current: ViewState = Storage.int(.playedTutorial) > 0 ? .main : .tutorial
     @Published var leftArrows: Bool = Storage.int(.arrowSide) == 0
     @Published var newDaily = Storage.int(.lastDC) != Date.int
 	@Published var updateAvailable: Bool = false

@@ -17,6 +17,7 @@ struct CubeView : UIViewRepresentable {
     func makeUIView(context: Context) -> SCNView {
         let pos = SCNVector3(-2.0,2.0,2.0)
         let rot = SCNVector3(-0.615479709,-.pi/4,0.0) // magic number is -atan(1/sqrt(2))
+		scene.rootNode.childNodes.forEach { $0.removeFromParentNode() }
         scene.rootNode.addChildNode(SceneHelper.makeCamera(pos: pos, rot: rot, scale: 1))
         scene.rootNode.addChildNode(SceneHelper.makeOmniLight())
         scene.rootNode.addChildNode(SceneHelper.makeAmbiLight())

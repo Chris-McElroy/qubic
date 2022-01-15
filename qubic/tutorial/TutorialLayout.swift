@@ -34,4 +34,10 @@ class TutorialLayout: ObservableObject {
 		withAnimation { current = .blank }
 		Timer.after(0.3) { withAnimation { self.current = next } }
 	}
+	
+	func exitTutorial() {
+		withAnimation {
+			Layout.main.current = Storage.int(.playedTutorial) > 1 ? .tutorialMenu : .main
+		}
+	}
 }
