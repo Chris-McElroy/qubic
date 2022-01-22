@@ -191,6 +191,7 @@
 		1EE2D5FD2738A3FC00DE309F /* TutorialGame.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EE2D5FC2738A3FC00DE309F /* TutorialGame.swift */; };
 		1EE2D5FF2738A40500DE309F /* TutorialBoardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EE2D5FE2738A40500DE309F /* TutorialBoardView.swift */; };
 		1EE4C75C24EB7ADC0038C1E2 /* UIHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EE4C75B24EB7ADC0038C1E2 /* UIHelper.swift */; };
+		1EEAA5A4279C69D500E026C2 /* PracticeGameView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EEAA5A3279C69D500E026C2 /* PracticeGameView.swift */; };
 		1EEB0D4E24CF3780008F5B4B /* ColorHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EEB0D4D24CF3780008F5B4B /* ColorHelper.swift */; };
 		1EFAFB17271D170500F377E7 /* GameLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EFAFB16271D170500F377E7 /* GameLayout.swift */; };
 		1EFAFB1A271D215400F377E7 /* GeneralHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EFAFB19271D215400F377E7 /* GeneralHelper.swift */; };
@@ -408,6 +409,7 @@
 		1EE2D5FC2738A3FC00DE309F /* TutorialGame.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TutorialGame.swift; sourceTree = "<group>"; };
 		1EE2D5FE2738A40500DE309F /* TutorialBoardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TutorialBoardView.swift; sourceTree = "<group>"; };
 		1EE4C75B24EB7ADC0038C1E2 /* UIHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIHelper.swift; sourceTree = "<group>"; };
+		1EEAA5A3279C69D500E026C2 /* PracticeGameView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeGameView.swift; sourceTree = "<group>"; };
 		1EEB0D4D24CF3780008F5B4B /* ColorHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorHelper.swift; sourceTree = "<group>"; };
 		1EFAFB16271D170500F377E7 /* GameLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameLayout.swift; sourceTree = "<group>"; };
 		1EFAFB19271D215400F377E7 /* GeneralHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeneralHelper.swift; sourceTree = "<group>"; };
@@ -762,6 +764,7 @@
 				1EE2D5F8273897BA00DE309F /* TutorialLayout.swift */,
 				1E312089273D9BF6005BA437 /* WelcomeView.swift */,
 				1E31208B273D9C1E005BA437 /* TicTacToeView.swift */,
+				1EEAA5A3279C69D500E026C2 /* PracticeGameView.swift */,
 				1EE2D5FA2738A3F500DE309F /* TutorialGameView.swift */,
 				1EE2D5FC2738A3FC00DE309F /* TutorialGame.swift */,
 				1EE2D5FE2738A40500DE309F /* TutorialBoardView.swift */,
@@ -1136,6 +1139,7 @@
 				1EE4C75C24EB7ADC0038C1E2 /* UIHelper.swift in Sources */,
 				1E9E9FBE24CDEB4700002500 /* SceneHelper.swift in Sources */,
 				1EDAE0DF260814EC006173B4 /* MessageHelper.swift in Sources */,
+				1EEAA5A4279C69D500E026C2 /* PracticeGameView.swift in Sources */,
 				1EB693982599A14D0025B080 /* Tyrant.swift in Sources */,
 				1EFCD1E62693A25B006A5430 /* StorageHelper.swift in Sources */,
 				1EE2D5FD2738A3FC00DE309F /* TutorialGame.swift in Sources */,

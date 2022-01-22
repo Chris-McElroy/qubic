@@ -20,16 +20,16 @@ struct TicTacToeView: View {
 	}
 	
 	enum Step {
-		case threes, fours, find, practice, nice
+		case threes, fours, find, line1, line2, line3, line4, nice
 	}
 	
 	var body: some View {
 		ZStack {
 			VStack(spacing: 0) {
-				Fill(50)
+				Fill(60)
 				TutorialBoardView()
 					.opacity(boardStyle != .none ? 1 : 0)
-				Fill(50)
+				Fill(40)
 			}
 			VStack(spacing: 0) {
 				if boardStyle != .large {
@@ -38,37 +38,27 @@ struct TicTacToeView: View {
 				Text(text)
 					.multilineTextAlignment(.center)
 					.padding(.horizontal, 50)
-					.offset(y: boardStyle == .small ? -150 : 0) // TODO still not relative
-					.zIndex(4)
+					.offset(y: boardStyle == .small ? -Layout.main.width/2 : 0)
+				if [.line1, .line2, .line3, .line4].contains(step) {
+					Text("practice by filling in each one")
+						.padding(.horizontal, 50)
+				}
 				Spacer()
 				HStack {
 					Button("exit tutorial") { layout.exitTutorial() }
 					.opacity(exitOpacity.rawValue)
 					Spacer()
-					Button("next", action: nextAction)
+					Button(layout.readyToContinue ? "continue" : "next", action: nextAction)
 						.opacity(nextOpacity.rawValue)
 				 }
 				 .padding(20)
 				 .buttonStyle(Solid())
 			}
 		}
-		
 		.onAppear {
-			TutorialBoardScene.tutorialMain.reset()
-			print(Layout.main.width)
-//			Timer.after(2.5) { withAnimation(.easeInOut(duration: 0.6)) { textOffset = -160 } }
+			layout.readyToContinue = false
+			layout.next = nextAction
 			tttWins()
-			
-//			Timer.after(9.5) {
-//				step = .fours
-//			}
-			
-//			Timer.after(10) {
-//				TutorialBoardScene.tutorialMain.panOut()
-//				withAnimation {
-//					pannedOut = true
-//				}
-//			}
 		}
 	}
 	
@@ -80,8 +70,8 @@ struct TicTacToeView: View {
 			return "in 4x4x4 tic tac toe, you need 4 in a row along any line to win"
 		case .find:
 			return "some lines are hard to find"
-		case .practice:
-			return "some lines are hard to find\npractice by filling in each one" // TODO use two different text fields for this effect
+		case .line1, .line2, .line3, .line4:
+			return "some lines are hard to find"
 		case .nice:
 			return "nice job! now you're ready to try a game!"
 		}
@@ -89,69 +79,132 @@ struct TicTacToeView: View {
 	
 	func nextAction() {
 		guard nextOpacity == .full else { return }
+		layout.readyToContinue = false
 		switch step {
 		case .threes:
 			step = .fours
 			boardStyle = .small
+			layout.resetTTTLinesTimers()
+			clearTTTWins()
 			TutorialBoardScene.tutorialMain.panOut()
 			withAnimation(.easeInOut(duration: 1.0)) {
 				boardStyle = .large
 			}
-			Timer.after(2) { nextOpacity = .full }
+			Timer.after(2) { setNextToContinue(for: .fours) }
 		case .fours:
-			nextOpacity = .half
+			boardStyle = .large
 			step = .find
 			Timer.after(1.5) {
-				withAnimation { step = .practice }
-				nextOpacity = .full
+				if step == .find {
+					withAnimation { step = .line1 }
+					practiceLine([15, 14, 13, 12], answer: 3, color: .of(n: 3), for: .line1)
+				}
 			}
 		case .find:
-			break // shouldn't reach here
-		case .practice:
+			step = .line1
+			practiceLine([15, 14, 13, 12], answer: 3, color: .of(n: 4), for: .line1)
+			break
+		case .line1:
+			step = .line2
+			practiceLine([0, 16, 32, 48], answer: 1, color: .of(n: 8), for: .line2)
+			break
+		case .line2:
+			step = .line3
+			practiceLine([14, 26, 38, 50], answer: 2, color: .of(n: 5), for: .line3)
+			break
+		case .line3:
+			step = .line4
+			practiceLine([60, 41, 22, 3], answer: 0, color: .of(n: 2), for: .line4)
+			break
+		case .line4:
+			if TutorialBoardScene.tutorialMain.moves[41].opacity == 0 {
+				Timer.after(0.2) {
+					step = .nice
+					setNextToContinue(for: .nice)
+				}
+			} else {
+				TutorialBoardScene.tutorialMain.clearMoves()
+				step = .nice
+				setNextToContinue(for: .nice)
+			}
 			break
 		case .nice:
+			layout.advance()
 			break
 		}
+	}
+	
+	func practiceLine(_ moves: [Int], answer: Int, color: UIColor, for currentStep: Step) {
+//		layout.resetTTTLinesTimers()
+		TutorialBoardScene.tutorialMain.clearMoves()
+		
+		for (i, move) in moves.enumerated() where i != answer {
+			layout.tttLinesTimers.append(Timer.after(0.3*Double(i) - (i > answer ? 0.3 : 0)) {
+				guard step == currentStep else { return }
+				TutorialBoardScene.tutorialMain.placeCube(move: move, color: color)
+			})
+		}
+		
+		TutorialBoardScene.tutorialMain.answer = moves[answer]
+		TutorialBoardScene.tutorialMain.line = moves
+		TutorialBoardScene.tutorialMain.currentColor = color
+	}
+	
+//	func flashNext() {
+//		nextOpacity = .half
+//		layout.tttTimers.append(Timer.after(0.2) { nextOpacity = .full })
+//		layout.tttTimers.append(Timer.after(0.4) { nextOpacity = .half })
+//		layout.tttTimers.append(Timer.after(0.6) { nextOpacity = .full })
+//		layout.tttTimers.append(Timer.after(0.8) { nextOpacity = .half })
+//		layout.tttTimers.append(Timer.after(1) { nextOpacity = .full })
+//	}
+	
+	func setNextToContinue(for currentStep: Step) {
+		guard step == currentStep else { return }
+		nextOpacity = .clear
+		layout.readyToContinue = true
+		Timer.after(0.2) { nextOpacity = .full }
 	}
 	
 	func placeAndRemove(_ moves: [Int], color: UIColor) {
 		for (i, move) in moves.enumerated() {
 			guard step == .threes else { break }
-			// TODO put this timer in a bank of timers that gets reset when the tutorial is reset
-			Timer.after(0.3*Double(i)) { TutorialBoardScene.tutorialMain.placeCube(move: move, color: color) }
+			layout.tttLinesTimers.append(Timer.after(0.3*Double(i)) {
+				TutorialBoardScene.tutorialMain.placeCube(move: move, color: color)
+			})
 		}
 		
-		Timer.after(1.5) {
+		layout.tttLinesTimers.append(Timer.after(1.5) {
 			for move in moves {
 				TutorialBoardScene.tutorialMain.undoMove(move)
 			}
+		})
+	}
+	
+	func clearTTTWins() {
+		for move in [1, 5, 9, 4, 6, 8, 2] {
+			TutorialBoardScene.tutorialMain.undoMove(move)
 		}
 	}
 	
 	func tttWins() {
-		Timer.after(1) {
+		layout.tttLinesTimers.append(Timer.after(1) {
 			withAnimation {
 				nextOpacity = .full
 				exitOpacity = .full
 			}
-		}
+		})
 		
-		Timer.after(2) {
+		layout.tttLinesTimers.append(Timer.after(2) {
 			withAnimation(.easeInOut(duration: 0.4)) {
 				boardStyle = .small
 			}
-		}
+		})
 		
-		Timer.after(4) { placeAndRemove([1, 5, 9], color: .of(n: 1)) }
-		Timer.after(6) { placeAndRemove([4, 5, 6], color: .of(n: 3)) }
-		Timer.after(8) { placeAndRemove([8, 5, 2], color: .of(n: 4)) }
+		layout.tttLinesTimers.append(Timer.after(3) { placeAndRemove([1, 5, 9], color: .of(n: 1)) })
+		layout.tttLinesTimers.append(Timer.after(5) { placeAndRemove([4, 5, 6], color: .of(n: 3)) })
+		layout.tttLinesTimers.append(Timer.after(7) { placeAndRemove([8, 5, 2], color: .of(n: 4)) })
 		
-		guard step == .threes else { return }
-		Timer.after(10) { nextOpacity = .half }
-		Timer.after(10.2) { nextOpacity = .full }
-		Timer.after(10.4) { nextOpacity = .half }
-		Timer.after(10.6) { nextOpacity = .full }
-		Timer.after(10.8) { nextOpacity = .half }
-		Timer.after(11) { nextOpacity = .full }
+		layout.tttLinesTimers.append(Timer.after(9) { setNextToContinue(for: .threes) })
 	}
 }

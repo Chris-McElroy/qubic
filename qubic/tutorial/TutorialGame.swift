@@ -7,6 +7,3 @@
 //
 
 import Foundation
-
-class TutorialGame: Game {
-}

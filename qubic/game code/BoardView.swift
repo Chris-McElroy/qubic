@@ -360,24 +360,26 @@ class BoardScene {
 				list = GameLayout.main.currentHintMoves ?? []
 			}
 		}
-        for (i, space) in spaces.enumerated() {
-            if space.actionKeys.contains(Key.spin.rawValue) != list.contains(i) {
-                if list.contains(i) {
-                    let spin = SCNAction.rotate(by: .pi*2, around: SCNVector3(0,1,0), duration: 1.0)
-                    let longSpin = SCNAction.repeatForever(spin)
-                    space.removeAllActions()
-                    space.runAction(longSpin, forKey: Key.spin.rawValue)
-                } else {
-                    let dir: Float = space.rotation.y > 0 ? 1 : -1
-                    let next = dir*((dir*space.rotation.w/(.pi/2)).rounded(.up))*(.pi/2)
-                    let dist = abs(next - space.rotation.w)
-                    let spinBack = SCNAction.rotate(toAxisAngle: SCNVector4(0,dir,0,next), duration: Double(dist/(.pi*2)))
-                    space.removeAllActions()
-                    space.runAction(spinBack)
-                }
-            }
+        for (i, space) in spaces.enumerated() where space.actionKeys.contains(Key.spin.rawValue) != list.contains(i) {
+			spinMove(i, space: space, spin: list.contains(i))
         }
     }
+	
+	func spinMove(_ i: Int, space: SCNNode, spin: Bool) {
+		if spin {
+			let spin = SCNAction.rotate(by: .pi*2, around: SCNVector3(0,1,0), duration: 1.0)
+			let longSpin = SCNAction.repeatForever(spin)
+			space.removeAllActions()
+			space.runAction(longSpin, forKey: Key.spin.rawValue)
+		} else {
+			let dir: Float = space.rotation.y > 0 ? 1 : -1
+			let next = dir*((dir*space.rotation.w/(.pi/2)).rounded(.up))*(.pi/2)
+			let dist = abs(next - space.rotation.w)
+			let spinBack = SCNAction.rotate(toAxisAngle: SCNVector4(0,dir,0,next), duration: Double(dist/(.pi*2)))
+			space.removeAllActions()
+			space.runAction(spinBack)
+		}
+	}
 }
 
 struct BoardView_Previews: PreviewProvider {

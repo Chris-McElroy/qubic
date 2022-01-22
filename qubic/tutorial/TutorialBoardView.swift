@@ -17,6 +17,9 @@ struct TutorialBoardView: UIViewRepresentable {
 class TutorialBoardScene: BoardScene {
 	static let tutorialMain = TutorialBoardScene()
 	var pannedOut = false
+	var line: [Int]? = nil
+	var answer: Int? = nil
+	var currentColor: UIColor? = nil
 	
 	override init() {
 		super.init()
@@ -38,11 +41,81 @@ class TutorialBoardScene: BoardScene {
 	}
 	
 	@objc override func handleTap(_ gestureRecognize: UIGestureRecognizer) {
-		guard pannedOut else {
-			if TutorialLayout.main.readyToContinue {
-				panOut()
+		if TutorialLayout.main.readyToContinue {
+			TutorialLayout.main.next()
+			return
+		}
+		guard pannedOut else { return }
+		if GameLayout.main.hidePopups() { return } // TODO make this a tutorial game layout thing once I have one
+		let hit = gestureRecognize.location(in: view)
+		let hitResults = view.hitTest(hit, options: [:])
+		guard let result = hitResults.first?.node else {
+			if let oldTap = mostRecentTap, oldTap.distance(to: Date()) < 0.5 {
+				resetRotation()
+				mostRecentTap = nil
+			} else {
+				mostRecentTap = Date()
 			}
 			return
+		}
+		if let p = spaces.firstIndex(where: { $0.childNodes.contains(result) || $0 == result }) {
+			if moves[p].opacity > 0 {
+				// make sure it's settled to avoid rowen's bug
+				if moves[p].position.y == 0 {
+					spaces[p].runAction(SceneHelper.getFullRotate(1.0))
+				}
+				return
+			}
+//			let turn = Game.main.gameState == .active ? Game.main.turn : Game.main.myTurn
+//			if Game.main.gameState == .active && GameLayout.main.nextOpacity == .full {
+//				Game.main.notificationGenerator.notificationOccurred(.error)
+//				GameLayout.main.flashNextArrow()
+//				return
+//			}
+			if answer == p {
+				placeCube(move: p, color: currentColor ?? .primary())
+				
+				for (i, move) in (line ?? []).enumerated() {
+					Timer.after(0.16*Double(i) + 0) { self.spinMove(move, space: self.spaces[move], spin: true) }
+					Timer.after(0.12*Double(i) + 0.6) { self.undoMove(move) }
+				}
+				
+				let currentLine = line
+				Timer.after(1.2) {
+					if self.line == currentLine {
+						TutorialLayout.main.next()
+					}
+				}
+			}
+//			if let user = Game.main.player[turn] as? User, Game.main.premoves.isEmpty {
+//				if Storage.int(.confirmMoves) == 0 {
+//					if p == potentialMove {
+//						potentialMove = nil
+//						spinMoves()
+//						user.move(at: p)
+//					} else {
+//						potentialMove = potentialMove == nil ? p : nil
+//						spinMoves()
+//					}
+//				} else {
+//					user.move(at: p)
+//				}
+//			} else if Game.main.gameState == .active && Storage.int(.premoves) == 0 {
+//				if Game.main.premoves.contains(p) {
+//					Game.main.premoves = []
+//				} else {
+//					Game.main.premoves.append(p)
+//				}
+//				spinMoves()
+//			}
+		}
+	}
+	
+	func clearMoves() {
+		for (p, cube) in moves.enumerated() {
+			if cube.opacity != 0 {
+				self.undoMove(p)
+			}
 		}
 	}
 	

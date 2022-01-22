@@ -16,8 +16,13 @@ struct TutorialView: View {
 			switch layout.current {
 			case .welcome: WelcomeView()
 			case .tictactoe: TicTacToeView()
+			case .practiceGame: PracticeGameView()
 			default: Spacer()
 			}
+		}
+		.onAppear {
+			Storage.set(Storage.int(.playedTutorial) + 1, for: .playedTutorial)
+			layout.reset()
 		}
 	}
 }

@@ -23,10 +23,7 @@ struct MainView: View {
     var body: some View {
 		if layout.current == .tutorial {
 			TutorialView()
-				.onAppear {
-					layout.load(for: screen)
-					Storage.set(Storage.int(.playedTutorial) + 1, for: .playedTutorial)
-				}
+				.onAppear { layout.load(for: screen) }
 				.onReceive(screen.objectWillChange) { layout.load(for: screen) }
 		} else {
 			VStack(alignment: .center, spacing: 0) {

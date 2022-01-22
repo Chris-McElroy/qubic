@@ -98,7 +98,7 @@ class Game: ObservableObject {
 	var lastCheck: Int = 0
     var solved: Bool = false
     var leaving: Bool = false
-    private var board = Board()
+    fileprivate var board = Board()
 	let hintQueue = OperationQueue()
     var movesBack: Int = 0
     var ghostMoveStart: Int = 0
@@ -770,4 +770,44 @@ class Game: ObservableObject {
         FB.main.uploadSolveBoard(board.getMoveString(), key: key)
         notificationGenerator.notificationOccurred(.success)
     }
+}
+
+class TutorialGame: Game {
+	static var tutorialMain = TutorialGame()
+	
+	func load() {
+		gameState = .new
+		self.mode = mode
+		board = Board()
+		BoardScene.main.reset()
+		gameNum += 1
+		GameLayout.main.loadGameOpacities()
+		reviewingGame = false
+		processingMove = false
+		lastCheck = 0
+		currentMove = nil
+		moves = []
+		totalTime = nil
+		movesBack = 0
+		ghostMoveStart = 0
+		ghostMoveCount = 0
+		premoves = []
+		GameLayout.main.showWinsFor = nil
+		GameLayout.main.showAllHints = true
+		GameLayout.main.popup = .none
+		dayInt = Date.int
+		lastDC = Storage.int(.lastDC)
+		solveBoard = 0
+		preset = [0,1,2,3,4]
+		solved = false
+		myTurn = 0
+		hints = true
+		let me = User(b: board, n: myTurn, name: "your name")
+		let op = Player(b: board, n: 1, name: "opponent", color: 3)
+
+		player = myTurn == 0 ? [me, op] : [op, me]
+		for p in preset { loadMove(p) }
+		for _ in preset { prevMove() }
+		newHints()
+	}
 }
