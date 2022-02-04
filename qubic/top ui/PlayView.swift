@@ -43,7 +43,7 @@ struct PlayView: View {
 								VStack(spacing: 0) {
 									Text("tip")
 										.bold()
-										.modifier(CustomFont(size: 16))
+										.modifier(Oligopoly(size: 16))
 										.padding(.top, 20)
 									Fill(3)
 									Text(tip)

@@ -49,7 +49,7 @@ struct MainView: View {
     private var top: some View {
         VStack(spacing: 0) {
 			Text("qubic")  // + (versionType == .testFlight ? " beta" : ""))
-				.modifier(CustomFont(size: 42))
+				.modifier(Oligopoly(size: 42))
                 .padding(.top, 10)
                 .modifier(LayoutModifier(for: .title))
 				.modifier(BoundSize(min: .large, max: .extraExtraExtraLarge))
@@ -179,7 +179,7 @@ struct MainView: View {
 				VStack(spacing: 0) {
 					ZStack {
 						Text(layout.current == .main ? "more" : "back")
-							.modifier(CustomFont(size: 16))
+							.modifier(Oligopoly(size: 16))
 						Circle().frame(width: 12, height: 12).foregroundColor(.primary()).offset(x: 30, y: 2)
 							.opacity(layout.current == .main && layout.updateAvailable ? 1 : 0)
 					}

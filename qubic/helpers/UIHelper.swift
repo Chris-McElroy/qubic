@@ -48,7 +48,7 @@ struct MainStyle: ButtonStyle {
     
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-			.modifier(CustomFont(size: 26))
+			.modifier(Oligopoly(size: 26))
             .foregroundColor(.white)
             .frame(width: 200, height: mainButtonHeight-22)
             .background(Rectangle().foregroundColor(color).cornerRadius(100))
@@ -65,7 +65,7 @@ struct MainStyle: ButtonStyle {
 struct MoreStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-			.modifier(CustomFont(size: 20))
+			.modifier(Oligopoly(size: 20))
             .foregroundColor(.primary)
             .padding(8)
             .frame(height: moreButtonHeight)
@@ -137,7 +137,7 @@ extension UILabel {
     }
 }
 
-struct CustomFont: ViewModifier {
+struct Oligopoly: ViewModifier {
 	let size: CGFloat
 	
 	func body(content: Content) -> some View {

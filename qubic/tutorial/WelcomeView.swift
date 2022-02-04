@@ -21,7 +21,7 @@ struct WelcomeView: View {
 				.frame(height: 180)
 				.offset(y: cubeDown ? 0 : -(Layout.main.fullHeight/2 + 100))
 			Text("welcome to qubic")
-				.modifier(CustomFont(size: 24))
+				.modifier(Oligopoly(size: 24))
 			Blank(6)
 			Text("tap to continue")
 				.foregroundColor(.secondary)

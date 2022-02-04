@@ -23,6 +23,68 @@ struct TicTacToeView: View {
 		case threes, fours, find, line1, line2, line3, line4, nice
 	}
 	
+	///  triggers when you hit next or continue
+	///  action is based on what step currently is
+	///  if step is .nice it advances to the practice game view
+	func nextAction() {
+		guard nextOpacity == .full else { return }
+		layout.readyToContinue = false
+		switch step {
+		case .threes:
+			step = .fours
+			boardStyle = .small
+			layout.resetTTTLinesTimers()
+			clearTTTWins()
+			TutorialBoardScene.tutorialMain.panOut()
+			withAnimation(.easeInOut(duration: 1.0)) {
+				boardStyle = .large
+			}
+			Timer.after(2.5) { setNextToContinue(for: .fours) }
+		case .fours:
+			boardStyle = .large
+			step = .find
+			Timer.after(1.5) {
+				if step == .find {
+					withAnimation { step = .line1 }
+					practiceLine([15, 14, 13, 12], answer: 3, color: .of(n: 3), for: .line1)
+				}
+			}
+		case .find:
+			step = .line1
+			practiceLine([15, 14, 13, 12], answer: 3, color: .of(n: 4), for: .line1)
+			break
+		case .line1:
+			step = .line2
+			practiceLine([0, 16, 32, 48], answer: 1, color: .of(n: 8), for: .line2)
+			break
+		case .line2:
+			step = .line3
+			practiceLine([14, 26, 38, 50], answer: 2, color: .of(n: 5), for: .line3)
+			break
+		case .line3:
+			step = .line4
+			practiceLine([51, 38, 25, 12], answer: 0, color: .of(n: 2), for: .line4)
+			break
+		case .line4:
+			if TutorialBoardScene.tutorialMain.answer == nil {
+				Timer.after(0.2) {
+					step = .nice
+					setNextToContinue(for: .nice)
+				}
+			} else {
+				TutorialBoardScene.tutorialMain.clearMoves()
+				step = .nice
+				setNextToContinue(for: .nice)
+			}
+			break
+		case .nice:
+			layout.resetTTTLinesTimers()
+			TutorialBoardScene.tutorialMain.clearMoves()
+			layout.advance()
+			break
+		}
+	}
+	
 	var body: some View {
 		ZStack {
 			VStack(spacing: 0) {
@@ -53,6 +115,7 @@ struct TicTacToeView: View {
 				 }
 				 .padding(20)
 				 .buttonStyle(Solid())
+				 .modifier(Oligopoly(size: 16))
 			}
 		}
 		.onAppear {
@@ -74,63 +137,6 @@ struct TicTacToeView: View {
 			return "some lines are hard to find"
 		case .nice:
 			return "nice job! now you're ready to try a game!"
-		}
-	}
-	
-	func nextAction() {
-		guard nextOpacity == .full else { return }
-		layout.readyToContinue = false
-		switch step {
-		case .threes:
-			step = .fours
-			boardStyle = .small
-			layout.resetTTTLinesTimers()
-			clearTTTWins()
-			TutorialBoardScene.tutorialMain.panOut()
-			withAnimation(.easeInOut(duration: 1.0)) {
-				boardStyle = .large
-			}
-			Timer.after(2) { setNextToContinue(for: .fours) }
-		case .fours:
-			boardStyle = .large
-			step = .find
-			Timer.after(1.5) {
-				if step == .find {
-					withAnimation { step = .line1 }
-					practiceLine([15, 14, 13, 12], answer: 3, color: .of(n: 3), for: .line1)
-				}
-			}
-		case .find:
-			step = .line1
-			practiceLine([15, 14, 13, 12], answer: 3, color: .of(n: 4), for: .line1)
-			break
-		case .line1:
-			step = .line2
-			practiceLine([0, 16, 32, 48], answer: 1, color: .of(n: 8), for: .line2)
-			break
-		case .line2:
-			step = .line3
-			practiceLine([14, 26, 38, 50], answer: 2, color: .of(n: 5), for: .line3)
-			break
-		case .line3:
-			step = .line4
-			practiceLine([60, 41, 22, 3], answer: 0, color: .of(n: 2), for: .line4)
-			break
-		case .line4:
-			if TutorialBoardScene.tutorialMain.moves[41].opacity == 0 {
-				Timer.after(0.2) {
-					step = .nice
-					setNextToContinue(for: .nice)
-				}
-			} else {
-				TutorialBoardScene.tutorialMain.clearMoves()
-				step = .nice
-				setNextToContinue(for: .nice)
-			}
-			break
-		case .nice:
-			layout.advance()
-			break
 		}
 	}
 	

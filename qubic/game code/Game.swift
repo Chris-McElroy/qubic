@@ -82,6 +82,7 @@ class Game: ObservableObject {
     
 	var gameNum: Int = 0
     var turn: Int { board.getTurn() }
+	var boardScene: BoardScene { BoardScene.main }
     var realTurn: Int { gameState == .active ? moves.count % 2 : (gameState.myWin ? myTurn : (gameState.opWin ? myTurn^1 : 2)) }
     var myTurn: Int = 0
     var player: [Player] = [Player(b: Board(), n: 0), Player(b: Board(), n: 0)]
@@ -118,6 +119,7 @@ class Game: ObservableObject {
     }
     
     func load(mode: GameMode, boardNum: Int = 0, turn: Int? = nil, hints: Bool = false, time: Double? = nil) {
+		GameLayout.main.game = self
 		gameState = .new
 		self.mode = mode
 		mostRecentGame = (mode, boardNum, turn, hints, time)
@@ -774,12 +776,14 @@ class Game: ObservableObject {
 
 class TutorialGame: Game {
 	static var tutorialMain = TutorialGame()
+	override var boardScene: BoardScene { TutorialBoardScene.tutorialMain }
 	
 	func load() {
+		GameLayout.main.game = self
 		gameState = .new
 		self.mode = mode
 		board = Board()
-		BoardScene.main.reset()
+		TutorialBoardScene.main.reset()
 		gameNum += 1
 		GameLayout.main.loadGameOpacities()
 		reviewingGame = false
@@ -803,9 +807,9 @@ class TutorialGame: Game {
 		myTurn = 0
 		hints = true
 		let me = User(b: board, n: myTurn, name: "your name")
-		let op = Player(b: board, n: 1, name: "opponent", color: 3)
+		let op = TutorialPlayer(b: board, n: 1)
 
-		player = myTurn == 0 ? [me, op] : [op, me]
+		player = [me, op]
 		for p in preset { loadMove(p) }
 		for _ in preset { prevMove() }
 		newHints()

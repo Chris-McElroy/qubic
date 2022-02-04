@@ -18,6 +18,7 @@ enum GamePopup {
 
 class GameLayout: ObservableObject {
 	static let main = GameLayout()
+	var game = Game.main
 	
 	@Published var undoOpacity: Opacity = .clear
 	@Published var prevOpacity: Opacity = .clear
@@ -43,7 +44,7 @@ class GameLayout: ObservableObject {
 	
 	var currentHintMoves: Set<Int>? {
 		guard let winsFor = showWinsFor else { return nil }
-		return showAllHints ? Game.main.currentMove?.allMoves[winsFor] : Game.main.currentMove?.bestMoves[winsFor]
+		return showAllHints ? game.currentMove?.allMoves[winsFor] : game.currentMove?.bestMoves[winsFor]
 	}
 	
 	func animateIntro() {
@@ -54,27 +55,27 @@ class GameLayout: ObservableObject {
 		updateSettings()
 		
 //        BoardScene.main.rotate(right: true) // this created a race condition
-		Game.main.timers.append(Timer.after(0.1) {
+		game.timers.append(Timer.after(0.1) {
 			withAnimation {
 				self.hideAll = false
 			}
 		})
 		
-		Game.main.timers.append(Timer.after(1) {
+		game.timers.append(Timer.after(1) {
 			withAnimation {
 				self.centerNames = false
 			}
 		})
 		
-		Game.main.timers.append(Timer.after(1.1) {
+		game.timers.append(Timer.after(1.1) {
 			withAnimation {
 				self.hideBoard = false
 			}
 			BoardScene.main.rotate(right: false)
 		})
 		
-		Game.main.timers.append(Timer.after(1.5) {
-			Game.main.startGame()
+		game.timers.append(Timer.after(1.5) {
+			self.game.startGame()
 		})
 	}
 	
@@ -90,29 +91,29 @@ class GameLayout: ObservableObject {
 			optionsOpacity = .clear
 		}
 		
-		Game.main.timers.append(Timer.after(0.3) {
+		game.timers.append(Timer.after(0.3) {
 			withAnimation {
 				self.hideBoard = true
 			}
 			BoardScene.main.rotate(right: false)
 		})
 		
-		Game.main.timers.append(Timer.after(0.6) {
+		game.timers.append(Timer.after(0.6) {
 			withAnimation { self.showWinsFor = nil }
-			Game.main.turnOff()
-			if rematch { Game.main.loadRematch() }
-			else { Game.main.loadNextGame() }
+			self.game.turnOff()
+			if rematch { self.game.loadRematch() }
+			else { self.game.loadNextGame() }
 			
 			// inside this one so they don't get cancled when the game turns off
-			Game.main.timers.append(Timer.after(0.2) {
+			self.game.timers.append(Timer.after(0.2) {
 				withAnimation {
 					self.hideBoard = false
 				}
 				BoardScene.main.rotate(right: false)
 			})
 			
-			Game.main.timers.append(Timer.after(0.6) {
-				Game.main.startGame()
+			self.game.timers.append(Timer.after(0.6) {
+				self.game.startGame()
 			})
 		})
 	}
@@ -127,7 +128,7 @@ class GameLayout: ObservableObject {
 	
 	func startGameOpacities() {
 		withAnimation {
-			undoOpacity = Game.main.hints || Game.main.mode.solve ? .half : .clear
+			undoOpacity = game.hints || game.mode.solve ? .half : .clear
 			prevOpacity = .half
 			nextOpacity = .half
 			optionsOpacity = .full
@@ -148,7 +149,7 @@ class GameLayout: ObservableObject {
 	}
 	
 	func undoMoveOpacities() {
-		if Game.main.moves.count == Game.main.preset.count {
+		if game.moves.count == game.preset.count {
 			withAnimation {
 				undoOpacity = .half
 				prevOpacity = .half
@@ -158,20 +159,20 @@ class GameLayout: ObservableObject {
 	
 	func prevMoveOpacities() {
 		withAnimation {
-			nextOpacity = Game.main.movesBack > 0 ? .full : .half
+			nextOpacity = game.movesBack > 0 ? .full : .half
 			if undoOpacity == .full { undoOpacity = .half }
 			var minMoves = 0
-			if Game.main.mode.solve && (Game.main.gameState == .active || !Game.main.hints) {
-				minMoves = Game.main.preset.count
+			if game.mode.solve && (game.gameState == .active || !game.hints) {
+				minMoves = game.preset.count
 			}
-			if Game.main.moves.count - Game.main.movesBack == minMoves { prevOpacity = .half }
+			if game.moves.count - game.movesBack == minMoves { prevOpacity = .half }
 		}
 	}
 	
 	func nextMoveOpacities() {
 		withAnimation {
 			prevOpacity = .full
-			if Game.main.movesBack == 0 {
+			if game.movesBack == 0 {
 				if undoOpacity == .half { undoOpacity = .full }
 				nextOpacity = .half
 			}
@@ -180,26 +181,26 @@ class GameLayout: ObservableObject {
 	
 	func flashNextArrow() {
 		for delay in stride(from: 0.0, to: 0.4, by: 0.3) {
-			Game.main.timers.append(Timer.after(delay, run: { self.nextOpacity = .half }))
-			Game.main.timers.append(Timer.after(delay + 0.15, run: { self.nextOpacity = .full }))
+			game.timers.append(Timer.after(delay, run: { self.nextOpacity = .half }))
+			game.timers.append(Timer.after(delay + 0.15, run: { self.nextOpacity = .full }))
 		}
 	}
 	
 	func flashPrevArrow() {
 		for delay in stride(from: 0.0, to: 0.4, by: 0.3) {
-			Game.main.timers.append(Timer.after(delay, run: { self.prevOpacity = .half }))
-			Game.main.timers.append(Timer.after(delay + 0.15, run: { self.prevOpacity = .full }))
+			game.timers.append(Timer.after(delay, run: { self.prevOpacity = .half }))
+			game.timers.append(Timer.after(delay + 0.15, run: { self.prevOpacity = .full }))
 		}
 	}
 	
 	@discardableResult func hidePopups() -> Bool {
-		if GameLayout.main.popup == .gameEnd {
-			Game.main.reviewingGame = true
+		if popup == .gameEnd {
+			game.reviewingGame = true
 			FB.main.cancelOnlineSearch?()
 		}
-		if GameLayout.main.popup == .none { return false }
+		if popup == .none { return false }
 		withAnimation {
-			GameLayout.main.popup = .none
+			popup = .none
 		}
 		return true
 	}
@@ -229,7 +230,7 @@ class GameLayout: ObservableObject {
 			if row == 0 {
 				Storage.set(1, for: .premoves)
 				settingsSelection1[1] = 1
-				Game.main.premoves = []
+				game.premoves = []
 			} else {
 				BoardScene.main.potentialMove = nil
 			}
@@ -241,7 +242,7 @@ class GameLayout: ObservableObject {
 				settingsSelection1[2] = 1
 				BoardScene.main.potentialMove = nil
 			} else {
-				Game.main.premoves = []
+				game.premoves = []
 			}
 			BoardScene.main.spinMoves()
 		} else if component == 0 {

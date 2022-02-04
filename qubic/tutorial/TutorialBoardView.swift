@@ -41,6 +41,7 @@ class TutorialBoardScene: BoardScene {
 	}
 	
 	@objc override func handleTap(_ gestureRecognize: UIGestureRecognizer) {
+		print("tapped")
 		if TutorialLayout.main.readyToContinue {
 			TutorialLayout.main.next()
 			return
@@ -66,13 +67,9 @@ class TutorialBoardScene: BoardScene {
 				}
 				return
 			}
-//			let turn = Game.main.gameState == .active ? Game.main.turn : Game.main.myTurn
-//			if Game.main.gameState == .active && GameLayout.main.nextOpacity == .full {
-//				Game.main.notificationGenerator.notificationOccurred(.error)
-//				GameLayout.main.flashNextArrow()
-//				return
-//			}
 			if answer == p {
+				answer = nil
+				
 				placeCube(move: p, color: currentColor ?? .primary())
 				
 				for (i, move) in (line ?? []).enumerated() {
@@ -86,27 +83,38 @@ class TutorialBoardScene: BoardScene {
 						TutorialLayout.main.next()
 					}
 				}
+				return
 			}
-//			if let user = Game.main.player[turn] as? User, Game.main.premoves.isEmpty {
-//				if Storage.int(.confirmMoves) == 0 {
-//					if p == potentialMove {
-//						potentialMove = nil
-//						spinMoves()
-//						user.move(at: p)
-//					} else {
-//						potentialMove = potentialMove == nil ? p : nil
-//						spinMoves()
-//					}
+			let turn = TutorialGame.tutorialMain.gameState == .active ? TutorialGame.tutorialMain.turn : TutorialGame.tutorialMain.myTurn
+			if TutorialGame.tutorialMain.gameState == .active && GameLayout.main.nextOpacity == .full {
+				TutorialGame.tutorialMain.notificationGenerator.notificationOccurred(.error)
+				GameLayout.main.flashNextArrow()
+				return
+			}
+			if let user = TutorialGame.tutorialMain.player[turn] as? User, TutorialGame.tutorialMain.premoves.isEmpty {
+				if Storage.int(.confirmMoves) == 0 {
+					if p == potentialMove {
+						potentialMove = nil
+						spinMoves()
+						user.move(at: p)
+					} else {
+						potentialMove = potentialMove == nil ? p : nil
+						spinMoves()
+					}
+				} else {
+					user.move(at: p)
+				}
+			} // not tryna do premoves here bc spin moves doesn't even work and i want to hide settings anyway
+//			} else if TutorialGame.tutorialMain.gameState == .active && Storage.int(.premoves) == 0 {
+//				print("b")
+//				if TutorialGame.tutorialMain.premoves.contains(p) {
+//					TutorialGame.tutorialMain.premoves = []
 //				} else {
-//					user.move(at: p)
-//				}
-//			} else if Game.main.gameState == .active && Storage.int(.premoves) == 0 {
-//				if Game.main.premoves.contains(p) {
-//					Game.main.premoves = []
-//				} else {
-//					Game.main.premoves.append(p)
+//					TutorialGame.tutorialMain.premoves.append(p)
 //				}
 //				spinMoves()
+//			} else {
+//				print("C")
 //			}
 		}
 	}
