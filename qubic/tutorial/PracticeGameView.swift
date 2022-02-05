@@ -20,26 +20,74 @@ struct PracticeGameView: View {
 	@State var hintText: [[String]?] = [nil, nil, nil]
 	@State var currentSolveType: SolveType? = nil
 	@State var currentPriority: Int = 0
+	@State var step: Step = .left
 	
 //	var animation = Animation.linear.delay(0)
 	let nameSpace: CGFloat = 65
 	let gameControlSpace: CGFloat = Layout.main.hasBottomGap ? 45 : 60
 	
 	enum Step {
-		case threes, fours, find, line1, line2, line3, line4, nice
+		case left, adv, analysis, block, stop, show, tap, great, post, options, leave
 	}
 	
 	///  triggers when you hit next or continue
 	///  action is based on what step currently is
 	///  if step is .nice it advances to the practice game view
 	func nextAction() {
-		guard nextOpacity == .full else { return }
-		layout.readyToContinue = false
+		guard gameLayout.optionsOpacity == .full else { return }
+		tutorialLayout.readyToContinue = false
 		switch step {
-		case .threes:
+		case .left:
+			step = .adv
+		case .adv:
+			step = .analysis
+		case .analysis:
+			step = .block
+		case .block:
+			step = .stop
+		case .stop:
+			step = .show
+		case .show:
+			step = .tap
+		case .tap:
+			step = .great
+		case .great:
+			step = .post
+		case .post:
+			step = .options
+		case .options:
+			step = .leave
+		case .leave:
+			tutorialLayout.exitTutorial()
 		}
 	}
 	
+	var tutorialText: String {
+		switch step {
+		case .left:
+			return "player one is on the left, so you moved first in this game"
+		case .adv:
+			return "this game already has some moves down, so you can’t move until you’re caught up\nuse the → button to see what moves have been played"
+		case .analysis:
+			return "this game is being played in sandbox mode, so you can analyze the board as you play!\ntap next, then swipe down to see the current board’s analysis"
+		case .block:
+			return "oh no! your opponent has a win!\nmaybe you could have blocked it with your previous move\nuse the ← button to go back a move"
+		case .stop:
+			return "looks like you could have stopped their win!\nyou need to go back to the current board to undo your move\npress → and then undo"
+		case .show:
+			return "show moves lets you see how you can block their win\nswitch it to “best” or “all” to see the options"
+		case .tap:
+			return "the spinning moves are the ones that block their win\ntap one of them to stop them!"
+		case .great:
+			return "great job! they resigned\nnow you can see what might have happened!\npress review game or tap the board to stay in this game"
+		case .post:
+			return "you can now place hypothetical moves and use the analysis even if it wasn’t available in game"
+		case .options:
+			return "use the ∙∙∙ button or swipe up for in-game options"
+		case .leave:
+			return "tap menu to leave the game"
+		}
+	}
 	
 	var body: some View {
 		ZStack {
@@ -54,7 +102,7 @@ struct PracticeGameView: View {
 			optionsPopup
 			gameEndPopup
 			analysisPopup
-			settingsPopup
+			tutorialPopup
 			VStack(spacing: 0) {
 				Fill(100).offset(y: -100)
 				Spacer()
@@ -63,11 +111,12 @@ struct PracticeGameView: View {
 			VStack(spacing: 0) {
 				names
 				Spacer()
-				Button(tutorialLayout.readyToContinue ? "continue" : "next") {}
-				.opacity(gameLayout.optionsOpacity.rawValue)
-				.offset(x: (layout.width - 95)/2 - 15)
-				.buttonStyle(Solid())
-				.modifier(Oligopoly(size: 16))
+				Button(tutorialLayout.readyToContinue ? "continue" : "next", action: nextAction)
+					.opacity(gameLayout.optionsOpacity.rawValue)
+					.offset(x: (layout.width - 95)/2 - 15)
+					.offset(y: layout.hasBottomGap ? 5 : -10)
+					.buttonStyle(Solid())
+					.modifier(Oligopoly(size: 16))
 				gameControls
 			}
 		}
@@ -76,6 +125,7 @@ struct PracticeGameView: View {
 		.alert(isPresented: $gameLayout.showDCAlert, content: { enableBadgesAlert })
 		.alert(isPresented: $gameLayout.showCubistAlert, content: { cubistAlert })
 		.onAppear {
+			// TODO make sure the board is all the way up
 			TutorialGame.tutorialMain.load()
 			game.newHints = refreshHintPickerContent
 			gameLayout.animateIntro()
@@ -229,7 +279,7 @@ struct PracticeGameView: View {
 			Spacer()
 			VStack(spacing: 20) {
 //				Text("share board")
-				Button("settings") { gameLayout.setPopups(to: .settings) }
+				Button("tutorial") { gameLayout.setPopups(to: .settings) }
 				if game.hints || game.solved {
 					Button("analysis") { gameLayout.setPopups(to: .analysis) }
 				}
@@ -543,47 +593,26 @@ struct PracticeGameView: View {
 		BoardScene.main.spinMoves()
 	}
 	
-	var settingsPopup: some View {
-		let picker1Content: [[Any]] = [["all", "checks", "off"], ["on", "off"], ["on", "off"]]
-		let picker2Content: [[Any]] = [["left", "right"]]
-		
-		return VStack(spacing: 0) {
+	var tutorialPopup: some View {
+		VStack(spacing: 0) {
 			Spacer()
-			ZStack {
-				VStack(spacing: 0) {
-					Fill(32)
-					HPicker(content: .constant(picker1Content), dim: (60,55), selected: $gameLayout.settingsSelection1, action: gameLayout.onSettingsSelection1)
-						.frame(height: 165)
-						.zIndex(1)
-					Fill(9)
-					HPicker(content: .constant(picker2Content), dim: (60,55), selected: $gameLayout.settingsSelection2, action: gameLayout.onSettingsSelection2)
-						.frame(height: 55)
-						.zIndex(0)
-				}
-				VStack(spacing: 0) {
-					Fill(5)
-					Text("confirm moves").bold().frame(height: 20)
-					Blank(40)
-					Text("premoves").bold().frame(height: 20)
-					Blank(40)
-					Text("move checker").bold().frame(height: 20)
-					if gameLayout.beatCubist {
-						Blank(40)
-					} else {
-						Text("beat cubist in challenge mode to unlock!")
-							.foregroundColor(.secondary)
-							.frame(width: layout.width, height: 40)
-							.background(Fill())
-							.environment(\.sizeCategory, .large)
-					}
-					Text("arrow side").bold().frame(height: 20)
-					Blank(40)
-				}
+			VStack(spacing: 0) {
+				Spacer()
+				Text(tutorialText)
+					.multilineTextAlignment(.center)
+				Spacer()
+				Blank(10)
+				Button("exit tutorial") { tutorialLayout.exitTutorial() }
+				.buttonStyle(Solid())
+				.modifier(Oligopoly(size: 16))
+				.offset(x: -((layout.width - 95)/2 - 15))
+				Blank(10)
 			}
 			.padding(.bottom, gameControlSpace - 20)
-			.frame(width: layout.width)
+			.frame(width: layout.width, height: 200)
 			.modifier(PopupModifier())
 			.offset(y: gameLayout.popup == .settings ? 0 : 400)
+			.onAppear { print("bottom", layout.hasBottomGap) }
 		}
 	}
 	

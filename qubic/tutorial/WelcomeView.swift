@@ -29,7 +29,7 @@ struct WelcomeView: View {
 			Blank()
 		}
 		.background(Fill())
-		.onTapGesture { layout.advance() }
+		.onTapGesture { layout.advance(to: .tictactoe, while: .welcome) }
 		.onAppear {
 			Timer.after(0.5) {
 				withAnimation(.easeOut(duration: 0.6)) { cubeDown = true }

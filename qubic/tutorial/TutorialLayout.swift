@@ -16,17 +16,14 @@ class TutorialLayout: ObservableObject {
 	static var main = TutorialLayout()
 	
 	@Published var current: TutorialState = .welcome
-	@Published var readyToContinue: Bool = false
+	@Published var readyToContinue: Bool = true
 	var tttLinesTimers: [Timer] = []
 	var tttTimers: [Timer] = []
 	var next: () -> Void = {}
 	
-	func advance() {
+	func advance(to next: TutorialState, while still: TutorialState) {
+		guard current == still else { return }
 		readyToContinue = false
-		guard let next = TutorialState(rawValue: current.rawValue + 1) else {
-			exitTutorial()
-			return
-		}
 		withAnimation { current = .blank }
 		Timer.after(0.3) { withAnimation { self.current = next } }
 	}
@@ -43,6 +40,7 @@ class TutorialLayout: ObservableObject {
 //	}
 	
 	func exitTutorial() {
+		// TODO make them get a name if they haven't yet
 		withAnimation {
 			Layout.main.current = Storage.int(.playedTutorial) > 1 ? .tutorialMenu : .main
 		}

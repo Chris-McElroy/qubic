@@ -52,19 +52,15 @@ struct TicTacToeView: View {
 		case .find:
 			step = .line1
 			practiceLine([15, 14, 13, 12], answer: 3, color: .of(n: 4), for: .line1)
-			break
 		case .line1:
 			step = .line2
 			practiceLine([0, 16, 32, 48], answer: 1, color: .of(n: 8), for: .line2)
-			break
 		case .line2:
 			step = .line3
 			practiceLine([14, 26, 38, 50], answer: 2, color: .of(n: 5), for: .line3)
-			break
 		case .line3:
 			step = .line4
 			practiceLine([51, 38, 25, 12], answer: 0, color: .of(n: 2), for: .line4)
-			break
 		case .line4:
 			if TutorialBoardScene.tutorialMain.answer == nil {
 				Timer.after(0.2) {
@@ -76,12 +72,11 @@ struct TicTacToeView: View {
 				step = .nice
 				setNextToContinue(for: .nice)
 			}
-			break
 		case .nice:
+			// TODO clear the continue button before it turns back to next
 			layout.resetTTTLinesTimers()
 			TutorialBoardScene.tutorialMain.clearMoves()
-			layout.advance()
-			break
+			layout.advance(to: .practiceGame, while: .tictactoe)
 		}
 	}
 	
