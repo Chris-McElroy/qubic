@@ -17,6 +17,7 @@ struct TutorialView: View {
 			case .welcome: WelcomeView()
 			case .tictactoe: TicTacToeView()
 			case .practiceGame: PracticeGameView()
+			case .setName: SetNameView()
 			default: Spacer()
 			}
 		}

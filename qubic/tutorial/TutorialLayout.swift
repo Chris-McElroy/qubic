@@ -9,21 +9,21 @@
 import SwiftUI
 
 enum TutorialState: Int {
-	case blank, welcome, tictactoe, practiceGame
+	case blank, welcome, tictactoe, practiceGame, setName
 }
 
 class TutorialLayout: ObservableObject {
 	static var main = TutorialLayout()
 	
 	@Published var current: TutorialState = .welcome
-	@Published var readyToContinue: Bool = true
+	@Published var readyToContinue: Bool = false
+	@Published var readyToAdvance: Bool = false
 	var tttLinesTimers: [Timer] = []
 	var tttTimers: [Timer] = []
 	var next: () -> Void = {}
 	
 	func advance(to next: TutorialState, while still: TutorialState) {
 		guard current == still else { return }
-		readyToContinue = false
 		withAnimation { current = .blank }
 		Timer.after(0.3) { withAnimation { self.current = next } }
 	}
@@ -40,7 +40,12 @@ class TutorialLayout: ObservableObject {
 //	}
 	
 	func exitTutorial() {
-		// TODO make them get a name if they haven't yet
+		print("a1")
+		if Storage.string(.name) == "new player" && current != .setName {
+			print("b1")
+			advance(to: .setName, while: current)
+			return
+		}
 		withAnimation {
 			Layout.main.current = Storage.int(.playedTutorial) > 1 ? .tutorialMenu : .main
 		}

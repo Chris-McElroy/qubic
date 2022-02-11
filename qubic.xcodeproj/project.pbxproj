@@ -41,6 +41,7 @@
 		1E68179C24CC973D001713E7 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1E68179B24CC973D001713E7 /* Preview Assets.xcassets */; };
 		1E68179F24CC973D001713E7 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1E68179D24CC973D001713E7 /* LaunchScreen.storyboard */; };
 		1E6817A724CC977B001713E7 /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E6817A624CC977B001713E7 /* MainView.swift */; };
+		1E69288027B5E079000FF0D6 /* SetNameView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E69287F27B5E079000FF0D6 /* SetNameView.swift */; };
 		1E6C429024FCE1F20065BDF5 /* BoardHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E6C428F24FCE1F20065BDF5 /* BoardHelper.swift */; };
 		1E6D2E4B24CE9729001EFE85 /* CubeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E6D2E4A24CE9729001EFE85 /* CubeView.swift */; };
 		1E713370258184B600059BC3 /* Novice.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E71336F258184B600059BC3 /* Novice.swift */; };
@@ -263,6 +264,7 @@
 		1E68179E24CC973D001713E7 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		1E6817A024CC973D001713E7 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		1E6817A624CC977B001713E7 /* MainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainView.swift; sourceTree = "<group>"; };
+		1E69287F27B5E079000FF0D6 /* SetNameView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetNameView.swift; sourceTree = "<group>"; };
 		1E6C428F24FCE1F20065BDF5 /* BoardHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardHelper.swift; sourceTree = "<group>"; };
 		1E6D2E4A24CE9729001EFE85 /* CubeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CubeView.swift; sourceTree = "<group>"; };
 		1E6E46B3253CCB4400DEC992 /* qubic.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = qubic.entitlements; sourceTree = "<group>"; };
@@ -763,6 +765,7 @@
 				1E312089273D9BF6005BA437 /* WelcomeView.swift */,
 				1E31208B273D9C1E005BA437 /* TicTacToeView.swift */,
 				1EE2D5FA2738A3F500DE309F /* PracticeGameView.swift */,
+				1E69287F27B5E079000FF0D6 /* SetNameView.swift */,
 				1EE2D5FE2738A40500DE309F /* TutorialBoardView.swift */,
 				1E516DFF27A50474004938ED /* TutorialPlayer.swift */,
 			);
@@ -1137,6 +1140,7 @@
 				1E9E9FBE24CDEB4700002500 /* SceneHelper.swift in Sources */,
 				1EDAE0DF260814EC006173B4 /* MessageHelper.swift in Sources */,
 				1EB693982599A14D0025B080 /* Tyrant.swift in Sources */,
+				1E69288027B5E079000FF0D6 /* SetNameView.swift in Sources */,
 				1EFCD1E62693A25B006A5430 /* StorageHelper.swift in Sources */,
 				1EAEE3BB24D9DA1400490530 /* FriendsView.swift in Sources */,
 				1EE2D5FF2738A40500DE309F /* TutorialBoardView.swift in Sources */,

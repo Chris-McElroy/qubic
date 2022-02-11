@@ -27,7 +27,7 @@ struct PracticeGameView: View {
 	let gameControlSpace: CGFloat = Layout.main.hasBottomGap ? 45 : 60
 	
 	enum Step {
-		case left, adv, analysis, block, stop, show, tap, great, post, options, leave
+		case left, adv, analysis, block, stop, show, tap, great, post, options
 	}
 	
 	///  triggers when you hit next or continue
@@ -55,9 +55,8 @@ struct PracticeGameView: View {
 			step = .post
 		case .post:
 			step = .options
+			tutorialLayout.readyToAdvance = true
 		case .options:
-			step = .leave
-		case .leave:
 			tutorialLayout.exitTutorial()
 		}
 	}
@@ -83,9 +82,7 @@ struct PracticeGameView: View {
 		case .post:
 			return "you can now place hypothetical moves and use the analysis even if it wasn’t available in game"
 		case .options:
-			return "use the ∙∙∙ button or swipe up for in-game options"
-		case .leave:
-			return "tap menu to leave the game"
+			return "use the ∙∙∙ button or swipe up for in-game options\ntap menu to leave the game"
 		}
 	}
 	
@@ -111,7 +108,7 @@ struct PracticeGameView: View {
 			VStack(spacing: 0) {
 				names
 				Spacer()
-				Button(tutorialLayout.readyToContinue ? "continue" : "next", action: nextAction)
+				Button(tutorialLayout.readyToContinue || tutorialLayout.readyToAdvance ? "continue" : "next", action: nextAction)
 					.opacity(gameLayout.optionsOpacity.rawValue)
 					.offset(x: (layout.width - 95)/2 - 15)
 					.offset(y: layout.hasBottomGap ? 5 : -10)
@@ -126,6 +123,8 @@ struct PracticeGameView: View {
 		.alert(isPresented: $gameLayout.showCubistAlert, content: { cubistAlert })
 		.onAppear {
 			// TODO make sure the board is all the way up
+			tutorialLayout.readyToAdvance = false
+			tutorialLayout.readyToContinue = false
 			TutorialGame.tutorialMain.load()
 			game.newHints = refreshHintPickerContent
 			gameLayout.animateIntro()

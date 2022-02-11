@@ -39,7 +39,7 @@ struct TicTacToeView: View {
 			withAnimation(.easeInOut(duration: 1.0)) {
 				boardStyle = .large
 			}
-			Timer.after(2.5) { setNextToContinue(for: .fours) }
+			Timer.after(2.5) { readyToContinue(from: .fours) }
 		case .fours:
 			boardStyle = .large
 			step = .find
@@ -65,15 +65,15 @@ struct TicTacToeView: View {
 			if TutorialBoardScene.tutorialMain.answer == nil {
 				Timer.after(0.2) {
 					step = .nice
-					setNextToContinue(for: .nice)
+					layout.readyToAdvance = true
 				}
 			} else {
 				TutorialBoardScene.tutorialMain.clearMoves()
 				step = .nice
-				setNextToContinue(for: .nice)
+				layout.readyToAdvance = true
 			}
 		case .nice:
-			// TODO clear the continue button before it turns back to next
+			withAnimation { nextOpacity = .clear }
 			layout.resetTTTLinesTimers()
 			TutorialBoardScene.tutorialMain.clearMoves()
 			layout.advance(to: .practiceGame, while: .tictactoe)
@@ -105,7 +105,7 @@ struct TicTacToeView: View {
 					Button("exit tutorial") { layout.exitTutorial() }
 					.opacity(exitOpacity.rawValue)
 					Spacer()
-					Button(layout.readyToContinue ? "continue" : "next", action: nextAction)
+					Button(layout.readyToContinue || layout.readyToAdvance ? "continue" : "next", action: nextAction)
 						.opacity(nextOpacity.rawValue)
 				 }
 				 .padding(20)
@@ -114,6 +114,7 @@ struct TicTacToeView: View {
 			}
 		}
 		.onAppear {
+			layout.readyToAdvance = false
 			layout.readyToContinue = false
 			layout.next = nextAction
 			tttWins()
@@ -160,11 +161,9 @@ struct TicTacToeView: View {
 //		layout.tttTimers.append(Timer.after(1) { nextOpacity = .full })
 //	}
 	
-	func setNextToContinue(for currentStep: Step) {
+	func readyToContinue(from currentStep: Step) {
 		guard step == currentStep else { return }
-		nextOpacity = .clear
 		layout.readyToContinue = true
-		Timer.after(0.2) { nextOpacity = .full }
 	}
 	
 	func placeAndRemove(_ moves: [Int], color: UIColor) {
@@ -206,6 +205,6 @@ struct TicTacToeView: View {
 		layout.tttLinesTimers.append(Timer.after(5) { placeAndRemove([4, 5, 6], color: .of(n: 3)) })
 		layout.tttLinesTimers.append(Timer.after(7) { placeAndRemove([8, 5, 2], color: .of(n: 4)) })
 		
-		layout.tttLinesTimers.append(Timer.after(9) { setNextToContinue(for: .threes) })
+		layout.tttLinesTimers.append(Timer.after(9) { readyToContinue(from: .threes) })
 	}
 }

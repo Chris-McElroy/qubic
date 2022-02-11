@@ -235,7 +235,7 @@ struct SettingsView: View {
 		})
 	}
 	
-    func onSelection1(row: Int, component: Int) -> Void {
+    func onSelection1(row: Int, component: Int) {
 		if component == 2 {
 			Storage.set(row, for: .confirmMoves)
 			if row == 0 {
@@ -253,7 +253,7 @@ struct SettingsView: View {
         }
     }
     
-    func onSelection2(row: Int, component: Int) -> Void {
+    func onSelection2(row: Int, component: Int) {
 		if component == 2 {
 			Storage.set(row, for: .arrowSide)
 			layout.leftArrows = row == 0
