@@ -20,17 +20,17 @@ struct SetNameView: View {
 		ZStack {
 			VStack(spacing: 0) {
 				Spacer()
+				Blank(240)
 				HPicker(content: .constant(pickerContent), dim: (60,55), selected: $selected, action: onSelection)
 					.frame(height: 55)
-				Fill(200)
+				Spacer()
+				Spacer()
 			}
 			VStack(spacing: 0) {
-				Spacer()
+				Blank(40) // TODO this layout doesn't work on smallest
 				VStack(spacing: 5) {
 					Text("username").modifier(Oligopoly(size: 18))
-					Fill(3)
 					Text("Choose your displayed name. It can include spaces, emojis, and other unicode characters, and it does not need to be unique.")
-					Fill(7)
 					TextField("enter name", text: $username, onEditingChanged: { starting in
 						if !starting && username != Storage.string(.name) {
 							Storage.set(username, for: .name)
@@ -39,15 +39,17 @@ struct SetNameView: View {
 						}
 					})
 						.disableAutocorrection(true)
+						.keyboardType(.alphabet) // stops predictive text/text suggestions
 						.accentColor(.primary())
 						.frame(width: 200, height: 20)
 				}
-				Spacer()
+				Blank(40)
 				VStack(spacing: 5) {
 					Text("color / app icon").modifier(Oligopoly(size: 18))
 					Text("Choose the color for your moves, name, app menus, and app icon.")
 					Blank(55)
 				}
+				Blank(30)
 				Button("continue") { if continueOpacity == .full { layout.exitTutorial() } }
 					.opacity(continueOpacity.rawValue)
 					.buttonStyle(Solid())
@@ -56,9 +58,6 @@ struct SetNameView: View {
 			}
 		}
 		.multilineTextAlignment(.center)
-		.onAppear {
-			print("hweuf")
-		}
 	}
 	
 	static func cubeImages() -> [() -> UIView] {

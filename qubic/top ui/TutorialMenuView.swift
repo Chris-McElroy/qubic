@@ -26,7 +26,7 @@ struct TutorialMenuView: View {
 				Blank(20)
 				
 				Button(action: {
-					TutorialLayout.main.current = .tictactoe
+					TutorialLayout.main.current = .setName // .tictactoe
 					layout.change(to: .tutorial)
 				}) {
 					Text((Storage.int(.playedTutorial) > 0 ? "re" : "") + "play tutorial")

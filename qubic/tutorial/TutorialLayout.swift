@@ -40,9 +40,7 @@ class TutorialLayout: ObservableObject {
 //	}
 	
 	func exitTutorial() {
-		print("a1")
 		if Storage.string(.name) == "new player" && current != .setName {
-			print("b1")
 			advance(to: .setName, while: current)
 			return
 		}
