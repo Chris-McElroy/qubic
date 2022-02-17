@@ -118,6 +118,11 @@ class FB {
         let solveRef = ref.child("solveBoards/\(myID)/\(key)/\(Date.ms)")
         solveRef.setValue(string)
     }
+	
+	func uploadDaily(_ string: String, key: String) {
+		let dailyRef = ref.child("possDailyBoards/\(myID)/\(key)/\(Date.ms)")
+		dailyRef.setValue(string)
+	}
     
 	func getOnlineMatch(onMatch: @escaping () -> Void) {
 		Layout.main.searchingOnline = true
