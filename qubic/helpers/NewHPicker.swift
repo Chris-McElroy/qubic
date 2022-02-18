@@ -22,7 +22,8 @@ struct NewHPicker: View {
 			Spacer()
 				.frame(width: max(0,(CGFloat(content.count) - focus)) * width)
 				.gesture(swipe)
-			ForEach(0..<content.count) { i in
+			// id shit is super sus, it's from https://stackoverflow.com/questions/69527614/swiftui-why-does-foreach-need-an-id
+			ForEach(0..<Int(content.count), id: \.self) { i in
 				Button(action: {
 					withAnimation(.easeInOut(duration: 0.19 + Double(abs(focus - CGFloat(i)))*0.06)) {
 						selected = i

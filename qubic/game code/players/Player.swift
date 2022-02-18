@@ -103,7 +103,7 @@ class Player {
             let delay = getPause()
             
             DispatchQueue.main.async {
-                moveTimer = Timer.after(delay) {
+				self.moveTimer = Timer.after(delay) {
                     Game.main.processMove(move, for: self.n, num: numMoves)
                 }
             }

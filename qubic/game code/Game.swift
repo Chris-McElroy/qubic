@@ -467,7 +467,7 @@ class Game: ObservableObject {
 			newHints()
 			processingMove = false
 			GameLayout.main.newMoveOpacities()
-			if !hints && (mode == .online || mode.train) { findDaily() }
+			if !hints && (mode == .online || mode.train) { findMisses() }
 		}
 		
 		func cancelMove() {
@@ -484,11 +484,11 @@ class Game: ObservableObject {
 			})
 		}
 		
-		func findDaily() {
+		func findMisses() {
 			let myW1s = lastBoard.getW1(for: turn)
 			if !myW1s.isEmpty {
 				if !myW1s.contains(p) {
-					FB.main.uploadDaily(lastBoard.getMoveString(), key: "d1")
+					FB.main.uploadMisses(lastBoard.getMoveString(), key: "d1")
 				}
 				return
 			}
@@ -498,13 +498,16 @@ class Game: ObservableObject {
 			
 			let num = gameNum
 			hintQueue.addOperation {
-				let myW2s = lastBoard.getW2(for: turn, depth: 4, time: 1.0, valid: { num == self.gameNum }) ?? []
+				let myW2s = lastBoard.getW2(for: turn, depth: 3, time: 1.0, valid: { num == self.gameNum }) ?? []
 				if !myW2s.isEmpty {
-					if !myW2s.contains(p) {
-						let depth = [1, 2, 3].first(where: {
-							lastBoard.cachedGetW2[turn].keys.contains($0)
-						}) ?? 4
-						FB.main.uploadDaily(lastBoard.getMoveString(), key: "d\(depth + 1)")
+					for depth in 1...3 {
+						let wins = lastBoard.cachedGetW2[turn][depth] ?? []
+						if !wins.isEmpty {
+							if !wins.contains(p) {
+								FB.main.uploadMisses(lastBoard.getMoveString(), key: "d\(depth + 1)")
+							}
+							return
+						}
 					}
 				}
 			}

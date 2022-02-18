@@ -115,13 +115,11 @@ class FB {
     }
     
     func uploadSolveBoard(_ string: String, key: String) {
-        let solveRef = ref.child("solveBoards/\(myID)/\(key)/\(Date.ms)")
-        solveRef.setValue(string)
+		ref.child("solveBoards/\(myID)/\(key)/\(Date.ms)").setValue(string)
     }
 	
-	func uploadDaily(_ string: String, key: String) {
-		let dailyRef = ref.child("possDailyBoards/\(myID)/\(key)/\(Date.ms)")
-		dailyRef.setValue(string)
+	func uploadMisses(_ string: String, key: String) {
+		ref.child("misses/\(myID)/\(key)/\(Date.ms)").setValue(string)
 	}
     
 	func getOnlineMatch(onMatch: @escaping () -> Void) {
