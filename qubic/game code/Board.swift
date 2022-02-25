@@ -119,6 +119,10 @@ class Board {
 //        if !printed { print("nothing") }
 //    }
     
+	func getSetup() -> [Int] {
+		(0..<numMoves()).map { move[$0 % 2][$0/2] }
+	}
+	
     func getWinLines(for p: Int) -> [Int]? {
         let lines = Board.linesThruPoint[p].filter({ status[$0] == 8 || status[$0] == 0 })
         return !lines.isEmpty || numMoves() == 64 ? lines : nil

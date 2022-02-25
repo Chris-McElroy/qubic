@@ -41,9 +41,10 @@ class Online: Player {
     }
     
     override func move() {
+		let setup = b.getSetup()
         if self.op != nil {
             FB.main.gotOnlineMove = { move, time, num in
-                Game.main.processMove(move, for: self.n, num: num, time: time)
+				Game.main.processMove(move, for: self.n, setup: setup, time: time)
             }
         } else {
             let rush = Game.main.totalTime == nil ? 1 : max(1, 1+4*(1-(Game.main.times[n].last ?? 1)/50))

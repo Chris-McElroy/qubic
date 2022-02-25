@@ -333,7 +333,7 @@ class Game: ObservableObject {
         BoardScene.main.addCube(move: move.p, color: .of(n: player[turn^1].color))
     }
     
-    func processMove(_ p: Int, for turn: Int, num: Int, time: Double? = nil) {
+    func processMove(_ p: Int, for turn: Int, setup: [Int], time: Double? = nil) {
 //		if [.picture2, .picture3, .picture4].contains(mode) {
 //			Timer.after(mode == .picture2 ? 1.5 : mode == .picture3 ? 4 : 0, run: { self.endGame(with: .myWin) })
 //			return
@@ -341,21 +341,22 @@ class Game: ObservableObject {
         let move = Move(p)
 		if processingMove { return }
         guard gameState == .active else { return }
-        guard turn == realTurn && num == moves.count else { print("Invalid turn!"); return }
+		guard turn == realTurn else { print("Invalid turn!"); return }
+		guard setup == moves.map({ $0.p }) else { print("Invalid setup!"); return }
         guard !moves.contains(move) && (0..<64).contains(move.p) else { print("Invalid move!"); return }
 		processingMove = true
         moves.append(move)
         if movesBack != 0 { movesBack += 1 }
         moveImpactGenerator.impactOccurred()
 		if !player[turn^1].local {
-			FB.main.sendOnlineMove(p: move.p, time: times[turn].last ?? -1)
+			FB.main.sendOnlineMove(p: p, time: times[turn].last ?? -1)
 		}
         getHints(for: moves, time: time)
 		guard movesBack == 0 else { processingMove = false; return }
-        board.addMove(move.p)
+        board.addMove(p)
         currentMove = move
         newHints()
-        BoardScene.main.showMove(move.p, wins: board.getWinLines(for: move.p))
+        BoardScene.main.showMove(p, wins: board.getWinLines(for: p))
 		GameLayout.main.newMoveOpacities()
 		processingMove = false
     }
@@ -385,7 +386,7 @@ class Game: ObservableObject {
 		processingMove = false
     }
 	
-	func checkAndProcessMove(_ p: Int, for turn: Int, num: Int, time: Double? = nil) {
+	func checkAndProcessMove(_ p: Int, for turn: Int, setup: [Int], time: Double? = nil) {
 //		if mode == .picture1 {
 //			endGame(with: .myWin)
 //			return
@@ -393,14 +394,15 @@ class Game: ObservableObject {
 		let move = Move(p)
 		if processingMove { return }
 		guard gameState == .active else { return }
-		guard turn == realTurn && num == moves.count else { print("Invalid turn!"); return }
+		guard turn == realTurn else { print("Invalid turn!"); return }
+		guard setup == moves.map({ $0.p }) else { print("Invalid setup!"); return }
 		guard !moves.contains(move) && (0..<64).contains(move.p) else { print("Invalid move!"); return }
 		guard movesBack == 0 else { return }
 		processingMove = true
 		let lastBoard = Board(board)
-		board.addMove(move.p)
+		board.addMove(p)
 		moveImpactGenerator.impactOccurred()
-		BoardScene.main.showMove(move.p, wins: board.getWinLines(for: move.p))
+		BoardScene.main.showMove(p, wins: board.getWinLines(for: move.p))
 		
 		if Storage.int(.moveChecker) == 2 || !hints || lastCheck >= board.numMoves() {
 			confirmMove()

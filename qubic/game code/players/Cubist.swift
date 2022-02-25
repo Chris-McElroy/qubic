@@ -88,7 +88,7 @@ class Cubist: Player {
 	override func move() {
 		cancelMove()
 		let moveBoard = Board(b)
-		let numMoves = moveBoard.numMoves()
+		let setup = moveBoard.getSetup()
 		
 		moveQueue.async { [self] in
 			if moveBoard.hasW1(n) { go(in: moveBoard.getW1(for: n)) }
@@ -233,7 +233,7 @@ class Cubist: Player {
 			
 			DispatchQueue.main.async {
 				self.moveTimer = Timer.after(1) {
-					Game.main.processMove(move, for: self.n, num: numMoves)
+					Game.main.processMove(move, for: self.n, setup: setup)
 				}
 			}
 		}

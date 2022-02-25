@@ -26,7 +26,7 @@ class User: Player {
             Game.main.processGhostMove(p)
         } else if Game.main.gameState == .active {
             if Game.main.premoves.isEmpty {
-                Game.main.checkAndProcessMove(p, for: n, num: b.numMoves())
+                Game.main.checkAndProcessMove(p, for: n, setup: b.getSetup())
             }
         }
     }
@@ -39,13 +39,13 @@ class User: Player {
 				if let nextP = Game.main.premoves.first, b.pointFull(p) && b.getW1(for: n).contains(nextP) {
 					Game.main.premoves = []
 					BoardScene.main.spinMoves()
-					Game.main.checkAndProcessMove(nextP, for: n, num: b.numMoves())
+					Game.main.checkAndProcessMove(nextP, for: n, setup: b.getSetup())
 				} else if (b.hasW1(n) != b.getW1(for: n).contains(p)) || b.pointFull(p) {
                     Game.main.premoves = []
 					BoardScene.main.spinMoves()
                 } else {
 					BoardScene.main.spinMoves()
-                    Game.main.checkAndProcessMove(p, for: n, num: b.numMoves())
+                    Game.main.checkAndProcessMove(p, for: n, setup: b.getSetup())
                 }
             }
         }

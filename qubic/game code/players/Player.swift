@@ -90,11 +90,13 @@ class Player {
     }
     
     func move() {
+		let startState = b.board
+		let setup: [Int] = b.getSetup()
+		
         cancelMove()
         
         moveQueue.async { [self] in
             let move: Int
-            let numMoves = b.numMoves()
             
             if let m =      myW1() { move = m }
             else if let m = opW1() { move = m }
@@ -104,7 +106,8 @@ class Player {
             
             DispatchQueue.main.async {
 				self.moveTimer = Timer.after(delay) {
-                    Game.main.processMove(move, for: self.n, num: numMoves)
+					if self.b.board != startState { print("GOTTEM") }
+					Game.main.processMove(move, for: self.n, setup: setup)
                 }
             }
         }
@@ -120,7 +123,7 @@ class Player {
         let status = 4 + s*(2*n-1)
         for m in set.shuffled() {
             for l in Board.linesThruPoint[m].shuffled() {
-                if status == b.status[l] && baseP*dirStats[l] > .random(in: 0..<1) {
+				if status == b.status[l] && baseP*dirStats[l] > .random(in: 0..<1) {
                     return m
                 }
             }

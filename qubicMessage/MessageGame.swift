@@ -54,7 +54,7 @@ enum HintValue {
     case noW
 }
 
-class Move {
+class Move: Equatable {
     let p: Int
     var myHint: HintValue?
     var opHint: HintValue?
@@ -64,6 +64,10 @@ class Move {
         myHint = nil
         opHint = nil
     }
+	
+	static func == (lhs: Move, rhs: Move) -> Bool {
+		lhs.p == rhs.p
+	}
 }
 
 class GameLayout {
@@ -188,16 +192,18 @@ class Game: ObservableObject {
         }
     }
     
-    func processMove(_ move: Int, for turn: Int, num: Int) {
-        guard !moved else { print("wrong turn!"); return }
-        guard turn == self.turn && num == moves.count else { print("invalid turn!"); return }
-        guard !moves.map({ $0.p }).contains(move) && (0..<64).contains(move) else { return }
+    func processMove(_ p: Int, for turn: Int, setup: [Int]) {
+		let move = Move(p)
+        guard !moved else { print("Wrong turn!"); return }
+        guard turn == self.turn else { print("Invalid turn!"); return }
+		guard setup == moves.map({ $0.p }) else { print("Invalid setup!"); return }
+		guard !moves.contains(move) && (0..<64).contains(move.p) else { print("Invalid move!"); return }
         moved = true
-        preset.append(move)
-        board.addMove(move, for: turn)
-        moves.append(Move(move))
+        preset.append(p)
+        board.addMove(p, for: turn)
+        moves.append(move)
 		moveImpactGenerator.impactOccurred()
-        BoardScene.main.showMove(move, wins: board.getWinLines(for: move))
+        BoardScene.main.showMove(p, wins: board.getWinLines(for: p))
         if board.hasW0(turn^1) {
             gameState = turn^1 == myTurn ? .myWin : .opWin
         } else {
@@ -205,14 +211,14 @@ class Game: ObservableObject {
                 self.player[self.turn].move()
             })
         }
-        sendMessage(moveStringMap[move])
+        sendMessage(moveStringMap[p])
     }
     
     func processGhostMove(_ move: Int) {
     }
 	
-	func checkAndProcessMove(_ move: Int, for turn: Int, num: Int) {
-		processMove(move, for: turn, num: num)
+	func checkAndProcessMove(_ move: Int, for turn: Int, setup: [Int]) {
+		processMove(move, for: turn, setup: setup)
 	}
 		
     private static func getDefaultColor(for n: Int) -> Int {
