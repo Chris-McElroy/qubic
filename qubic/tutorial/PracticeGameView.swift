@@ -90,7 +90,7 @@ struct PracticeGameView: View {
 		ZStack {
 			VStack(spacing: 0) {
 				Fill(nameSpace + 15)
-				TutorialBoardView()
+				BoardView()
 					.frame(width: layout.width)
 					.zIndex(0.0)
 					.opacity(gameLayout.hideBoard ? 0 : 1)
@@ -122,12 +122,12 @@ struct PracticeGameView: View {
 		.alert(isPresented: $gameLayout.showDCAlert, content: { enableBadgesAlert })
 		.alert(isPresented: $gameLayout.showCubistAlert, content: { cubistAlert })
 		.onAppear {
-			// TODO make sure the board is all the way up
 			tutorialLayout.readyToAdvance = false
 			tutorialLayout.readyToContinue = false
 			TutorialGame.tutorialMain.load()
 			game.newHints = refreshHintPickerContent
-			gameLayout.animateIntro()
+			gameLayout.game = TutorialGame.tutorialMain
+			gameLayout.animateIntro(for: game)
 		}
 		.modifier(BoundSize(min: .large, max: .extraExtraExtraLarge))
 	}
@@ -284,18 +284,7 @@ struct PracticeGameView: View {
 				}
 //				Text("game insights")
 				if game.reviewingGame {
-					if !(game.mode == .local || (game.mode == .daily && game.solveBoard == 3) || game.mode == .cubist) {
-						newGameButton
-					}
-					if game.mode != .online {
-						rematchButton
-					}
-					Button("menu") { layout.goBack() }
-				} else {
-					if game.mode.solve {
-						Button("restart") { gameLayout.animateGameChange(rematch: true) }
-					}
-					Button("resign") { game.endGame(with: .myResign) }
+					Button("menu") { tutorialLayout.exitTutorial() }
 				}
 			}
 			.modifier(Oligopoly(size: 18))
@@ -332,12 +321,6 @@ struct PracticeGameView: View {
 //				Text("share board")
 				Button("review game") { gameLayout.hidePopups() }
 //				Text("game insights")
-				if !(game.mode == .local || (game.mode == .daily && game.solveBoard == 3) || game.mode == .cubist) { // || game.mode == .picture4) {
-					newGameButton
-				}
-				if game.mode != .online {
-					rematchButton
-				}
 				Button("menu") { layout.goBack() }
 			}
 			.padding(.top, 15)
@@ -347,46 +330,6 @@ struct PracticeGameView: View {
 			.frame(width: layout.width)
 			.modifier(PopupModifier())
 			.offset(y: gameLayout.popup == .gameEnd ? 0 : 330)
-		}
-	}
-	
-	var rematchButton: some View {
-		Button(game.mode.solve ? "try again" : "rematch") { gameLayout.animateGameChange(rematch: true) } // game.mode == .picture4 ||
-	}
-	
-	var newGameButton: some View {
-		let newGameText: String
-		switch game.mode {
-		case .novice: newGameText = "play defender"
-		case .defender: newGameText = "play warrior"
-		case .warrior: newGameText = "play tyrant"
-		case .tyrant: newGameText = "play oracle"
-		case .oracle: newGameText = "play cubist"
-		case .daily, .simple, .common, .tricky:
-			let key: Key = [.simple: .simple, .common: .common, .tricky: .tricky][game.mode, default: .daily]
-			let type: String = [.simple: "simple", .common: "common", .tricky: "tricky"][game.mode, default: "daily"]
-			if game.solveBoard == solveBoardCount(key) {
-				newGameText = "new \(type) ?"
-			} else if game.solveBoard == solveBoardCount(key) - 1 {
-				newGameText = "try \(type) ?"
-			} else {
-				newGameText = "try \(type) \(game.solveBoard + 2)"
-			}
-		default: newGameText = "new online game"
-		}
-		
-		return ZStack {
-			Button(newGameText) {
-				if layout.shouldStartOnlineGame() {
-					FB.main.getOnlineMatch(onMatch: { gameLayout.animateGameChange(rematch: false) })
-				} else {
-					gameLayout.animateGameChange(rematch: false)
-				}
-			}
-			.opacity(layout.searchingOnline ? 0 : 1)
-			ActivityIndicator(color: .label, size: .medium)
-				.offset(x: 1, y: 1)
-				.opacity(layout.searchingOnline ? 1 : 0)
 		}
 	}
 	

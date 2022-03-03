@@ -19,6 +19,7 @@ struct BoardView: UIViewRepresentable {
 
 class BoardScene {
     static let main = BoardScene()
+	var game = Game.main
     
     let view =  SCNView()
     let scene = SCNScene()
@@ -76,7 +77,8 @@ class BoardScene {
 //        }
 //    }
     
-    func reset() {
+	func reset(for game: Game) {
+		self.game = game
 		base.removeAllActions()
 		Timer.after(0.1, run: {
 			self.base.rotation = SCNVector4(x: 0, y: 0, z: 0, w: 0)
@@ -161,13 +163,13 @@ class BoardScene {
 				}
 				return
 			}
-            let turn = Game.main.gameState == .active ? Game.main.turn : Game.main.myTurn
-			if Game.main.gameState == .active && GameLayout.main.nextOpacity == .full {
-				Game.main.notificationGenerator.notificationOccurred(.error)
+            let turn = game.gameState == .active ? game.turn : game.myTurn
+			if game.gameState == .active && GameLayout.main.nextOpacity == .full {
+				game.notificationGenerator.notificationOccurred(.error)
 				GameLayout.main.flashNextArrow()
 				return
             }
-            if let user = Game.main.player[turn] as? User, Game.main.premoves.isEmpty {
+            if let user = game.player[turn] as? User, game.premoves.isEmpty {
 				if Storage.int(.confirmMoves) == 0 {
 					if p == potentialMove {
 						potentialMove = nil
@@ -180,11 +182,11 @@ class BoardScene {
 				} else {
 					user.move(at: p)
 				}
-            } else if Game.main.gameState == .active && Storage.int(.premoves) == 0 {
-                if Game.main.premoves.contains(p) {
-                    Game.main.premoves = []
+            } else if game.gameState == .active && Storage.int(.premoves) == 0 {
+                if game.premoves.contains(p) {
+                    game.premoves = []
                 } else {
-                    Game.main.premoves.append(p)
+                    game.premoves.append(p)
                 }
                 spinMoves()
             }
@@ -194,14 +196,14 @@ class BoardScene {
     func showMove(_ move: Int, wins: [Int]?, ghost: Bool = false) {
 //        let delay = moveCube(move: move, color: game.colors[turn]) + 0.1
         spinMoves()
-        let turn = Game.main.turn^1
-        let color = UIColor.of(n: Game.main.player[turn].color)
+        let turn = game.turn^1
+        let color = UIColor.of(n: game.player[turn].color)
         placeCube(move: move, color: color, opacity: ghost ? 0.7 : 1)
         
         if let lines = wins {
             showWins(lines, color: color, ghost: ghost)
-        } else if !ghost && Game.main.gameState != .active && Game.main.movesBack == 0 {
-			print("got here", Game.main.gameState)
+        } else if !ghost && game.gameState != .active && game.movesBack == 0 {
+			print("got here", game.gameState)
             spinBoard()
         }
         
@@ -213,7 +215,7 @@ class BoardScene {
     }
     
     private func showWins(_ lines: [Int], color: UIColor, ghost: Bool = false) {
-        Game.main.timers.append(Timer.after(0.2, run: {
+        game.timers.append(Timer.after(0.2, run: {
             for line in lines {
                 self.winLines[line].setColor(color)
                 self.winLines[line].opacity = ghost ? 0.3 : 1
@@ -261,7 +263,7 @@ class BoardScene {
 	
 	func resetRotation() {
 		base.removeAllActions()
-		Game.main.timers.append(Timer.after(0.1, run: {
+		game.timers.append(Timer.after(0.1, run: {
 			let newW = (self.base.rotation.w / (.pi/2)).rounded(.toNearestOrAwayFromZero) * .pi/2
 			let distance = Double(abs(self.base.rotation.w - newW))
 			let newRot = SCNVector4(0, self.base.rotation.y, 0, newW)
@@ -352,7 +354,7 @@ class BoardScene {
     }
     
     func spinMoves() {
-		var list: Set<Int> = Set(Game.main.premoves)
+		var list: Set<Int> = Set(game.premoves)
 		if list.isEmpty {
 			if let potentialMove = potentialMove {
 				list = Set([potentialMove])

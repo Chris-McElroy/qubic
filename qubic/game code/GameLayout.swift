@@ -47,7 +47,8 @@ class GameLayout: ObservableObject {
 		return showAllHints ? game.currentMove?.allMoves[winsFor] : game.currentMove?.bestMoves[winsFor]
 	}
 	
-	func animateIntro() {
+	func animateIntro(for game: Game) {
+		self.game = game
 		hideAll = true
 		hideBoard = true
 		centerNames = true
@@ -75,7 +76,9 @@ class GameLayout: ObservableObject {
 		})
 		
 		game.timers.append(Timer.after(1.5) {
+			print("starting", self.game.gameState, self.game.movesBack, self.game.preset)
 			self.game.startGame()
+			print("started", self.game.gameState, self.game.movesBack, self.game.preset)
 		})
 	}
 	
@@ -130,7 +133,8 @@ class GameLayout: ObservableObject {
 		withAnimation {
 			undoOpacity = game.hints || game.mode.solve ? .half : .clear
 			prevOpacity = .half
-			nextOpacity = .half
+			nextOpacity = game.movesBack > 0 ? .full : .half // for tutorial
+			print("mb", game.movesBack)
 			optionsOpacity = .full
 		}
 	}

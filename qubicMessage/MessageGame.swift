@@ -108,12 +108,12 @@ class Game: ObservableObject {
     func turnOff() {
         guard mode != .off else { return }
         board = Board()
-        BoardScene.main.reset()
+		BoardScene.main.reset(for: self)
         self.mode = .off
     }
     
     func load(mode: GameMode, boardNum: Int = 0, turn: Int, hints: Bool = false) {
-        BoardScene.main.reset()
+		BoardScene.main.reset(for: self)
         board = Board()
         gameState = .active
         moves = []

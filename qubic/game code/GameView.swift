@@ -56,7 +56,7 @@ struct GameView: View {
 		.alert(isPresented: $gameLayout.showCubistAlert, content: { cubistAlert })
         .onAppear {
             game.newHints = refreshHintPickerContent
-			gameLayout.animateIntro()
+			gameLayout.animateIntro(for: game)
         }
 		.modifier(BoundSize(min: .large, max: .extraExtraExtraLarge))
     }

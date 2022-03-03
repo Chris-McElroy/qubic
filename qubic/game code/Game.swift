@@ -82,7 +82,6 @@ class Game: ObservableObject {
     
 	var gameNum: Int = 0
     var turn: Int { board.getTurn() }
-	var boardScene: BoardScene { BoardScene.main }
     var realTurn: Int { gameState == .active ? moves.count % 2 : (gameState.myWin ? myTurn : (gameState.opWin ? myTurn^1 : 2)) }
     var myTurn: Int = 0
     var player: [Player] = [Player(b: Board(), n: 0), Player(b: Board(), n: 0)]
@@ -124,7 +123,7 @@ class Game: ObservableObject {
 		self.mode = mode
 		mostRecentGame = (mode, boardNum, turn, hints, time)
         board = Board()
-        BoardScene.main.reset()
+		BoardScene.main.reset(for: self)
 		gameNum += 1
 		GameLayout.main.loadGameOpacities()
 		reviewingGame = false
@@ -808,14 +807,13 @@ class Game: ObservableObject {
 
 class TutorialGame: Game {
 	static var tutorialMain = TutorialGame()
-	override var boardScene: BoardScene { TutorialBoardScene.tutorialMain }
 	
 	func load() {
 		GameLayout.main.game = self
 		gameState = .new
 		self.mode = mode
 		board = Board()
-		TutorialBoardScene.main.reset()
+		BoardScene.main.reset(for: self)
 		gameNum += 1
 		GameLayout.main.loadGameOpacities()
 		reviewingGame = false
@@ -842,8 +840,21 @@ class TutorialGame: Game {
 		let op = TutorialPlayer(b: board, n: 1)
 
 		player = [me, op]
-		for p in preset { loadMove(p) }
-		for _ in preset { prevMove() }
+		print("loading moves", preset, movesBack)
+		for p in preset { loadFutureMove(p) }
+		print("loaded moves", preset, moves.count, movesBack)
 		newHints()
+	}
+	
+	func loadFutureMove(_ p: Int) {
+		// Assumes no wins and an empty board
+		let move = Move(p)
+		guard !moves.contains(move) && (0..<64).contains(move.p) else { return }
+		moves.append(move)
+		currentMove = move
+		getHints(for: moves, loading: true)
+		
+		movesBack += 1
+		currentMove = nil
 	}
 }

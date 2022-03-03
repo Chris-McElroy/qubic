@@ -26,8 +26,8 @@ class TutorialBoardScene: BoardScene {
 		reset()
 	}
 	
-	override func reset() {
-		super.reset()
+	func reset() {
+		super.reset(for: Game.main)
 		
 		camera.position = SCNVector3(-1, 10, -1)
 		camera.rotation = SCNVector4(1, 0, 0, -Float.pi/2)
