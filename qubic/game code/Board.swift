@@ -127,12 +127,16 @@ class Board {
         let lines = Board.linesThruPoint[p].filter({ status[$0] == 8 || status[$0] == 0 })
         return !lines.isEmpty || numMoves() == 64 ? lines : nil
     }
+	
+	func getMoveArray() -> [Int] {
+		var array: [Int] = []
+		for i in 0..<numMoves() {
+			array.append(move[i%2][i/2])
+		}
+		return array
+	}
     
     func getMoveString() -> String {
-        var string = ""
-        for i in 0..<numMoves() {
-            string.append(moveStringMap[move[i%2][i/2]])
-        }
-        return string
+		String(getMoveArray().map { moveStringMap[$0] })
     }
 }

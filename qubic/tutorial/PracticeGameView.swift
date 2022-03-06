@@ -27,37 +27,66 @@ struct PracticeGameView: View {
 	let gameControlSpace: CGFloat = Layout.main.hasBottomGap ? 45 : 60
 	
 	enum Step {
-		case left, adv, analysis, block, stop, show, tap, great, post, options
+		case left, adv, swipe, analysis, block, stop, show, tap, great, post, options
 	}
 	
 	///  triggers when you hit next or continue
 	///  action is based on what step currently is
-	///  if step is .nice it advances to the practice game view
+	///  if step is .options it exits the tutorial
 	func nextAction() {
 		guard gameLayout.optionsOpacity == .full else { return }
 		tutorialLayout.readyToContinue = false
 		switch step {
 		case .left:
 			step = .adv
+			gameLayout.setPopups(to: .settings)
 		case .adv:
+			advIfNecessary()
+		case .swipe:
 			step = .analysis
+			gameLayout.setPopups(to: .analysis)
 		case .analysis:
 			step = .block
+			gameLayout.setPopups(to: .settings)
 		case .block:
 			step = .stop
+			gameLayout.setPopups(to: .settings)
 		case .stop:
 			step = .show
+			gameLayout.setPopups(to: .settings)
 		case .show:
 			step = .tap
+			gameLayout.setPopups(to: .settings)
 		case .tap:
 			step = .great
+			gameLayout.setPopups(to: .settings)
 		case .great:
 			step = .post
+			gameLayout.setPopups(to: .settings)
 		case .post:
 			step = .options
 			tutorialLayout.readyToAdvance = true
+			gameLayout.setPopups(to: .settings)
 		case .options:
 			tutorialLayout.exitTutorial()
+		}
+		
+		func advIfNecessary() {
+			if game.movesBack != 0 {
+				if gameLayout.popup != .none {
+					gameLayout.setPopups(to: .none)
+				} else {
+					game.nextMove()
+				}
+				Timer.after(0.4) {
+					advIfNecessary()
+				}
+			} else {
+				step = .swipe
+				Timer.after(0.4) {
+					gameLayout.setPopups(to: .settings)
+				}
+			}
 		}
 	}
 	
@@ -67,8 +96,8 @@ struct PracticeGameView: View {
 			return "player one is on the left, so you moved first in this game"
 		case .adv:
 			return "this game already has some moves down, so you can’t move until you’re caught up\nuse the → button to see what moves have been played"
-		case .analysis:
-			return "this game is being played in sandbox mode, so you can analyze the board as you play!\ntap next, then swipe down to see the current board’s analysis"
+		case .swipe, .analysis:
+			return "this game is being played in sandbox mode, so you can analyze the board as you play!\nswipe down to see the current board’s analysis"
 		case .block:
 			return "oh no! your opponent has a win!\nmaybe you could have blocked it with your previous move\nuse the ← button to go back a move"
 		case .stop:
@@ -128,6 +157,9 @@ struct PracticeGameView: View {
 			game.newHints = refreshHintPickerContent
 			gameLayout.game = TutorialGame.tutorialMain
 			gameLayout.animateIntro(for: game)
+			game.timers.append(Timer.after(1.2) {
+				gameLayout.setPopups(to: .settings)
+			})
 		}
 		.modifier(BoundSize(min: .large, max: .extraExtraExtraLarge))
 	}
@@ -138,7 +170,10 @@ struct PracticeGameView: View {
 			let w = drag.translation.width
 			if abs(w/h) < 1 && BoardScene.main.mostRecentRotate == nil {
 				if h > 0 {
-					if gameLayout.popup == .options || gameLayout.popup == .gameEnd || gameLayout.popup == .settings {
+					if gameLayout.popup == .settings && step == .swipe {
+						gameLayout.setPopups(to: .analysis)
+						step = .analysis
+					} else if gameLayout.popup == .options || gameLayout.popup == .gameEnd || gameLayout.popup == .settings {
 						gameLayout.hidePopups()
 					} else if gameLayout.popup == .none {
 						gameLayout.setPopups(to: .analysis)
@@ -246,7 +281,7 @@ struct PracticeGameView: View {
 //            Spacer().frame(width: layout.leftArrows ? 30 : 0)
 			Button(action: game.prevMove) {
 				VStack(spacing: 0) {
-					Fill(20).cornerRadius(10).opacity(0.00001)
+					Blank(20)
 					Text("←")
 						.modifier(Oligopoly(size: 25))
 						.accentColor(.label)
@@ -257,9 +292,17 @@ struct PracticeGameView: View {
 			.frame(width: 40)
 			.opacity(gameLayout.prevOpacity.rawValue)
 			Spacer().frame(width: 15)
-			Button(action: game.nextMove) {
+			Button(action: {
+				if gameLayout.popup == .settings && step == .adv {
+					gameLayout.setPopups(to: .none)
+				}
+				game.nextMove()
+				if step == .adv && game.movesBack == 0 {
+					nextAction()
+				}
+			}) {
 				VStack(spacing: 0) {
-					Fill(20).cornerRadius(10).opacity(0.00001)
+					Blank(20)
 					Text("→")
 						.modifier(Oligopoly(size: 25))
 						.accentColor(.label)
@@ -284,7 +327,14 @@ struct PracticeGameView: View {
 				}
 //				Text("game insights")
 				if game.reviewingGame {
+					newGameButton
+					rematchButton
 					Button("menu") { tutorialLayout.exitTutorial() }
+				} else {
+					if game.mode.solve {
+						Button("restart") { gameLayout.animateGameChange(rematch: true) }
+					}
+					Button("resign") { game.endGame(with: .myResign) }
 				}
 			}
 			.modifier(Oligopoly(size: 18))
@@ -321,6 +371,8 @@ struct PracticeGameView: View {
 //				Text("share board")
 				Button("review game") { gameLayout.hidePopups() }
 //				Text("game insights")
+				newGameButton
+				rematchButton
 				Button("menu") { layout.goBack() }
 			}
 			.padding(.top, 15)
@@ -331,6 +383,16 @@ struct PracticeGameView: View {
 			.modifier(PopupModifier())
 			.offset(y: gameLayout.popup == .gameEnd ? 0 : 330)
 		}
+	}
+	
+	var rematchButton: some View {
+		Button("rematch") {}
+			.opacity(Opacity.half.rawValue)
+	}
+	
+	var newGameButton: some View {
+		Button("new game") {}
+			.opacity(Opacity.half.rawValue)
 	}
 	
 	var solveButtons: some View {
@@ -542,6 +604,7 @@ struct PracticeGameView: View {
 				Spacer()
 				Text(tutorialText)
 					.multilineTextAlignment(.center)
+					.padding(.horizontal, 10)
 				Spacer()
 				Blank(10)
 				Button("exit tutorial") { tutorialLayout.exitTutorial() }

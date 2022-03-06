@@ -683,6 +683,8 @@ class Game: ObservableObject {
     }
     
     func nextMove() {
+		// for geting the board state
+//		print(board.getMoveArray(), board.getMoveString())
         guard ghostMoveCount == 0 || ghostMoveStart + ghostMoveCount > moves.count - movesBack else {
 			if GameLayout.main.prevOpacity == .full && movesBack != 0 {
                 notificationGenerator.notificationOccurred(.error)
@@ -832,7 +834,7 @@ class TutorialGame: Game {
 		dayInt = Date.int
 		lastDC = Storage.int(.lastDC)
 		solveBoard = 0
-		preset = [0,1,2,3,4]
+		preset = [42, 63, 51, 12, 22, 62, 25]
 		solved = false
 		myTurn = 0
 		hints = true
