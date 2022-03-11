@@ -27,7 +27,7 @@ struct PracticeGameView: View {
 	let gameControlSpace: CGFloat = Layout.main.hasBottomGap ? 45 : 60
 	
 	enum Step {
-		case left, adv, swipe, analysis, block, stop, show, tap, great, post, options
+		case left, adv1, swipe1, analysis1, block, swipe2, analysis2, adv2, undo, swipe3, show, tap, great, post, options
 	}
 	
 	///  triggers when you hit next or continue
@@ -38,25 +38,58 @@ struct PracticeGameView: View {
 		tutorialLayout.readyToContinue = false
 		switch step {
 		case .left:
-			step = .adv
+			step = .adv1
 			gameLayout.setPopups(to: .settings)
-		case .adv:
-			advIfNecessary()
-		case .swipe:
-			step = .analysis
+		case .adv1:
+			advIfNecessary1()
+		case .swipe1:
+			step = .analysis1
 			gameLayout.setPopups(to: .analysis)
-		case .analysis:
+		case .analysis1:
 			step = .block
 			gameLayout.setPopups(to: .settings)
 		case .block:
-			step = .stop
+			if game.movesBack == 0 {
+				game.prevMove()
+			}
+			step = .swipe2
 			gameLayout.setPopups(to: .settings)
-		case .stop:
+		case .swipe2:
+			step = .analysis2
+			gameLayout.setPopups(to: .analysis)
+		case .analysis2:
+			step = .adv2
+			gameLayout.setPopups(to: .settings)
+		case .adv2:
+			advIfNecessary2()
+		case .undo:
+			game.undoMove()
+			step = .swipe3
+			gameLayout.setPopups(to: .settings)
+		case .swipe3:
 			step = .show
-			gameLayout.setPopups(to: .settings)
+			gameLayout.setPopups(to: .analysis)
 		case .show:
-			step = .tap
-			gameLayout.setPopups(to: .settings)
+			if gameLayout.popup == .analysis {
+				gameLayout.hintSelection[0] = 1
+				gameLayout.hintSelection[1] = 1
+				refreshHintPickerContent()
+				step = .tap
+				Timer.after(0.8) {
+					gameLayout.setPopups(to: .settings)
+				}
+			} else {
+				gameLayout.setPopups(to: .analysis)
+				Timer.after(0.8) {
+					gameLayout.hintSelection[0] = 1
+					gameLayout.hintSelection[1] = 1
+					refreshHintPickerContent()
+					step = .tap
+					Timer.after(0.8) {
+						gameLayout.setPopups(to: .settings)
+					}
+				}
+			}
 		case .tap:
 			step = .great
 			gameLayout.setPopups(to: .settings)
@@ -71,7 +104,7 @@ struct PracticeGameView: View {
 			tutorialLayout.exitTutorial()
 		}
 		
-		func advIfNecessary() {
+		func advIfNecessary1() {
 			if game.movesBack != 0 {
 				if gameLayout.popup != .none {
 					gameLayout.setPopups(to: .none)
@@ -79,12 +112,25 @@ struct PracticeGameView: View {
 					game.nextMove()
 				}
 				Timer.after(0.4) {
-					advIfNecessary()
+					advIfNecessary1()
 				}
 			} else {
-				step = .swipe
+				step = .swipe1
 				Timer.after(0.4) {
 					gameLayout.setPopups(to: .settings)
+				}
+			}
+		}
+		
+		func advIfNecessary2() {
+			if game.movesBack == 0 {
+				game.undoMove()
+				step = .swipe3
+				gameLayout.setPopups(to: .settings)
+			} else {
+				game.nextMove()
+				Timer.after(0.4) {
+					advIfNecessary2()
 				}
 			}
 		}
@@ -94,16 +140,18 @@ struct PracticeGameView: View {
 		switch step {
 		case .left:
 			return "player one is on the left, so you moved first in this game"
-		case .adv:
+		case .adv1:
 			return "this game already has some moves down, so you can’t move until you’re caught up\nuse the → button to see what moves have been played"
-		case .swipe, .analysis:
+		case .swipe1, .analysis1:
 			return "this game is being played in sandbox mode, so you can analyze the board as you play!\nswipe down to see the current board’s analysis"
 		case .block:
 			return "oh no! your opponent has a win!\nmaybe you could have blocked it with your previous move\nuse the ← button to go back a move"
-		case .stop:
+		case .swipe2, .analysis2:
+			return "now check the analysis again to see if you could have stopped them!"
+		case .adv2, .undo:
 			return "looks like you could have stopped their win!\nyou need to go back to the current board to undo your move\npress → and then undo"
-		case .show:
-			return "show moves lets you see how you can block their win\nswitch it to “best” or “all” to see the options"
+		case .swipe3, .show:
+			return "show moves lets you see how you can block their win\nopen analysis and switch show moves to “best” or “all” to see your options"
 		case .tap:
 			return "the spinning moves are the ones that block their win\ntap one of them to stop them!"
 		case .great:
@@ -170,9 +218,11 @@ struct PracticeGameView: View {
 			let w = drag.translation.width
 			if abs(w/h) < 1 && BoardScene.main.mostRecentRotate == nil {
 				if h > 0 {
-					if gameLayout.popup == .settings && step == .swipe {
+					if (gameLayout.popup == .settings || gameLayout.popup == .none) && (step == .swipe1 || step == .swipe2 || step == .swipe3) {
+						if step == .swipe1 { step = .analysis1 }
+						else if step == .swipe2 { step = .analysis2 }
+						else { step = .show }
 						gameLayout.setPopups(to: .analysis)
-						step = .analysis
 					} else if gameLayout.popup == .options || gameLayout.popup == .gameEnd || gameLayout.popup == .settings {
 						gameLayout.hidePopups()
 					} else if gameLayout.popup == .none {
@@ -258,7 +308,13 @@ struct PracticeGameView: View {
 	private var undoButton: some View {
 		HStack(spacing: 0) {
 //            Spacer().frame(width: layout.leftArrows ? 20 : 10)
-			Button(action: game.undoMove) {
+			Button(action: {
+				if step == .undo {
+					game.undoMove()
+					step = .swipe3
+					gameLayout.setPopups(to: .settings)
+				}
+			}) {
 				VStack(spacing: 0) {
 					Fill(20).cornerRadius(10).opacity(0.00001)
 					Text("undo")
@@ -279,7 +335,12 @@ struct PracticeGameView: View {
 	private var arrowButtons: some View {
 		HStack(spacing: 0) {
 //            Spacer().frame(width: layout.leftArrows ? 30 : 0)
-			Button(action: game.prevMove) {
+			Button(action: {
+				game.prevMove()
+				if step == .block && game.movesBack == 1 {
+					nextAction()
+				}
+			}) {
 				VStack(spacing: 0) {
 					Blank(20)
 					Text("←")
@@ -293,12 +354,15 @@ struct PracticeGameView: View {
 			.opacity(gameLayout.prevOpacity.rawValue)
 			Spacer().frame(width: 15)
 			Button(action: {
-				if gameLayout.popup == .settings && step == .adv {
+				if gameLayout.popup == .settings && step == .adv1 {
 					gameLayout.setPopups(to: .none)
 				}
 				game.nextMove()
-				if step == .adv && game.movesBack == 0 {
+				if step == .adv1 && game.movesBack == 0 {
 					nextAction()
+				}
+				if step == .adv2 && game.movesBack == 0 {
+					step = .undo
 				}
 			}) {
 				VStack(spacing: 0) {
@@ -321,9 +385,22 @@ struct PracticeGameView: View {
 			Spacer()
 			VStack(spacing: 20) {
 //				Text("share board")
-				Button("tutorial") { gameLayout.setPopups(to: .settings) }
+				Button("tutorial") {
+					if step == .analysis1 { step = .block }
+					if step == .analysis2 { step = .adv2 }
+					gameLayout.setPopups(to: .settings)
+				}
 				if game.hints || game.solved {
-					Button("analysis") { gameLayout.setPopups(to: .analysis) }
+					Button("analysis") {
+						gameLayout.setPopups(to: .analysis)
+						if step == .swipe1 {
+							step = .analysis1
+						} else if step == .swipe2 {
+							step = .analysis2
+						} else if step == .swipe3 {
+							
+						}
+					}
 				}
 //				Text("game insights")
 				if game.reviewingGame {

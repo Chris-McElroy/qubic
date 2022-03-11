@@ -52,7 +52,7 @@ class GameLayout: ObservableObject {
 		hideAll = true
 		hideBoard = true
 		centerNames = true
-		hintSelection = [1,2]
+		hintSelection = [1,2] // TODO this doesn't update the name rotations for tutorial games
 		updateSettings()
 		
 //        BoardScene.main.rotate(right: true) // this created a race condition
@@ -76,7 +76,7 @@ class GameLayout: ObservableObject {
 		})
 		
 		game.timers.append(Timer.after(1.5) {
-			print("starting", self.game.gameState, self.game.movesBack, self.game.preset)
+			print("starting", self.hintSelection[0])
 			self.game.startGame()
 			print("started", self.game.gameState, self.game.movesBack, self.game.preset)
 		})
