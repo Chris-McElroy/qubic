@@ -23,29 +23,29 @@ enum GameMode: Int {
 }
 
 enum GameState: Int {
-    // each one is 1 more
-    case error = 0, new, active, myWin, opWin, myTimeout, opTimeout, myLeave, opLeave, draw
-    
-    func mirror() -> GameState {
-        switch self {
-        case .myWin: return .opWin
-        case .opWin: return .myWin
-        case .myTimeout: return .opTimeout
-        case .opTimeout: return .myTimeout
-        case .myLeave: return .opLeave
-        case .opLeave: return .myLeave
-        case .draw: return .draw
-        default: return .error
-        }
-    }
-    
-    var myWin: Bool {
-        self == .myWin || self == .opTimeout || self == .opLeave
-    }
-    
-    var opWin: Bool {
-        self == .opWin || self == .myTimeout || self == .myLeave
-    }
+	// each one is 1 more
+	case error = 0, new, active, myWin, opWin, myTimeout, opTimeout, myResign, opResign, draw, off
+	
+	func mirror() -> GameState {
+		switch self {
+		case .myWin: return .opWin
+		case .opWin: return .myWin
+		case .myTimeout: return .opTimeout
+		case .opTimeout: return .myTimeout
+		case .myResign: return .opResign
+		case .opResign: return .myResign
+		case .draw: return .draw
+		default: return .error
+		}
+	}
+	
+	var myWin: Bool {
+		self == .myWin || self == .opTimeout || self == .opResign
+	}
+	
+	var opWin: Bool {
+		self == .opWin || self == .myTimeout || self == .myResign
+	}
 }
 
 enum HintValue {
@@ -224,6 +224,10 @@ class Game: ObservableObject {
     private static func getDefaultColor(for n: Int) -> Int {
         return n == 4 ? 6 : 4
     }
+}
+
+class TutorialGame: Game {
+	static var tutorialMain = TutorialGame()
 }
 
 //class Game: ObservableObject {

@@ -85,14 +85,29 @@ struct PracticeGameView: View {
 					gameLayout.hintSelection[1] = 1
 					refreshHintPickerContent()
 					step = .tap
-					Timer.after(0.8) {
+					Timer.after(3.0) {
 						gameLayout.setPopups(to: .settings)
 					}
 				}
 			}
 		case .tap:
-			step = .great
-			gameLayout.setPopups(to: .settings)
+			if !game.processingMove && game.movesBack == 0 && game.moves.count == 6 {
+				guard let p = gameLayout.currentHintMoves?.randomElement() else { break }
+				game.checkAndProcessMove(p, for: game.myTurn, setup: game.moves.map({ $0.p }))
+				Timer.after(2.0) {
+					if game.gameState == .opResign {
+						step = .great
+						gameLayout.setPopups(to: .settings)
+					} else {
+						// just in case
+						game.endGame(with: .opResign)
+						Timer.after(1.0) {
+							step = .great
+							gameLayout.setPopups(to: .settings)
+						}
+					}
+				}
+			}
 		case .great:
 			step = .post
 			gameLayout.setPopups(to: .settings)
@@ -659,6 +674,12 @@ struct PracticeGameView: View {
 		withAnimation {
 			if component == 1 { // changing show options
 				if row < 2 {
+					if step == .show {
+						step = .tap
+						Timer.after(1.0) {
+							gameLayout.setPopups(to: .settings)
+						}
+					}
 //					print("old show wins:", game.showWinsFor, "new show wins:", currentPriority)
 					gameLayout.showWinsFor = gameLayout.hintSelection[0] == 1 ? currentPriority : gameLayout.hintSelection[0]/2
 					gameLayout.showAllHints = row == 0

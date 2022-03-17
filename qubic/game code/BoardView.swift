@@ -189,7 +189,11 @@ class BoardScene {
                     game.premoves.append(p)
                 }
                 spinMoves()
-            }
+			} else if let user = TutorialGame.tutorialMain.player[0] as? TutorialPlayer {
+				if TutorialGame.tutorialMain.gameState == .active && TutorialGame.tutorialMain.turn == 0 || TutorialGame.tutorialMain.gameState == .opResign {
+					user.move(at: p)
+				}
+			}
 		}
     }
     

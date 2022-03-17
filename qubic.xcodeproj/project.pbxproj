@@ -62,6 +62,7 @@
 		1E8C554725365E3400C9A556 /* Game.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E8C554625365E3400C9A556 /* Game.swift */; };
 		1E92D5F7261A608500D0D19C /* ActivityIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E92D5F6261A608500D0D19C /* ActivityIndicator.swift */; };
 		1E9A545A26112F90001FC204 /* FBHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E9A545926112F90001FC204 /* FBHelper.swift */; };
+		1E9B61C127E3D3E70034673C /* TutorialPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E516DFF27A50474004938ED /* TutorialPlayer.swift */; };
 		1E9E9FBE24CDEB4700002500 /* SceneHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E9E9FBD24CDEB4700002500 /* SceneHelper.swift */; };
 		1EA0CABA2580468D00C200E8 /* HPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EA0CAB92580468D00C200E8 /* HPicker.swift */; };
 		1EA8935C2724B6620015C900 /* TutorialView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EA8935B2724B6620015C900 /* TutorialView.swift */; };
@@ -1091,6 +1092,7 @@
 			files = (
 				1E74FA2425AA41FA0049BE6B /* Player.swift in Sources */,
 				1E3170F725AA0C7500FCCEA4 /* MessagesViewController.swift in Sources */,
+				1E9B61C127E3D3E70034673C /* TutorialPlayer.swift in Sources */,
 				1E74FA0525AA41070049BE6B /* BoardView.swift in Sources */,
 				1EFCD1E72693A25B006A5430 /* StorageHelper.swift in Sources */,
 				1E74FA1F25AA41A80049BE6B /* Board.swift in Sources */,
