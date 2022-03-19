@@ -41,13 +41,11 @@ class TutorialBoardScene: BoardScene {
 	}
 	
 	@objc override func handleTap(_ gestureRecognize: UIGestureRecognizer) {
-		print("tapped")
 		if TutorialLayout.main.readyToContinue {
 			TutorialLayout.main.next()
 			return
 		}
 		guard pannedOut else { return }
-		if GameLayout.main.hidePopups() { return } // TODO make this a tutorial game layout thing once I have one
 		let hit = gestureRecognize.location(in: view)
 		let hitResults = view.hitTest(hit, options: [:])
 		guard let result = hitResults.first?.node else {

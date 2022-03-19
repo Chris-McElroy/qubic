@@ -143,7 +143,6 @@ class BoardScene {
     }
     
     @objc func handleTap(_ gestureRecognize: UIGestureRecognizer) {
-		if GameLayout.main.hidePopups() { return }
         let hit = gestureRecognize.location(in: view)
         let hitResults = view.hitTest(hit, options: [:])
         guard let result = hitResults.first?.node else {

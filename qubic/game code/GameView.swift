@@ -35,6 +35,8 @@ struct GameView: View {
 					.opacity(gameLayout.hideBoard ? 0 : 1)
 				Fill(gameControlSpace)
             }
+			Fill().opacity(gameLayout.popup.up ? 0.015 : 0) // 0.015 seems to be about the minimum opacity to work
+				.onTapGesture { gameLayout.hidePopups() }
 			optionsPopup
 			gameEndPopup
 			analysisPopup
@@ -134,10 +136,10 @@ struct GameView: View {
 		let vShape: Bool = gameLayout.popup == .options || gameLayout.popup == .gameEnd || (gameLayout.popup == .gameEndPending && game.gameState == .myResign)
 		
 		return Button(action: {
-			if gameLayout.popup == .none || gameLayout.popup == .analysis {
-				gameLayout.setPopups(to: .options)
-			} else if gameLayout.popup.up {
+			if gameLayout.popup == .options {
 				gameLayout.hidePopups()
+			} else if gameLayout.popup != .gameEndPending {
+				gameLayout.setPopups(to: .options)
 			}
 		}, label: {
 			HStack (spacing: 7) {
@@ -461,9 +463,12 @@ struct GameView: View {
 			.frame(width: layout.width, height: 200)
 			.modifier(PopupModifier())
 			.offset(y: gameLayout.popup == .analysis ? 0 : -(200 + 30 + nameSpace))
+			
+			// unfucks the HPicker
 			Fill().opacity(gameLayout.popup == .analysis ? 0.015 : 0) // 0.015 seems to be about the minimum opacity to work
 				.onTapGesture { gameLayout.hidePopups() }
 				.zIndex(4)
+			
 			ZStack {
 				// HPickers
 				VStack(spacing: 0) {

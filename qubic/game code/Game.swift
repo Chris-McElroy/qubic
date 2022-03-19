@@ -843,9 +843,7 @@ class TutorialGame: Game {
 		let op = TutorialPlayer(b: board, n: 1, name: "opponent", color: 6)
 
 		player = [me, op]
-		print("loading moves", preset, movesBack)
 		for p in preset { loadFutureMove(p) }
-		print("loaded moves", preset, moves.count, movesBack)
 		newHints()
 	}
 	
@@ -890,7 +888,6 @@ class TutorialGame: Game {
 			
 			Timer.after(0.3) {
 				self.endGame(with: .opResign)
-				// TODO i can't figure out how i want to grab this end game, to advance the step for the practice game
 			}
 		}
 		

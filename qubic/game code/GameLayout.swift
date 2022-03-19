@@ -76,9 +76,7 @@ class GameLayout: ObservableObject {
 		})
 		
 		game.timers.append(Timer.after(1.5) {
-			print("starting", self.hintSelection[0])
 			self.game.startGame()
-			print("started", self.game.gameState, self.game.movesBack, self.game.preset)
 		})
 	}
 	
@@ -134,7 +132,6 @@ class GameLayout: ObservableObject {
 			undoOpacity = game.hints || game.mode.solve ? .half : .clear
 			prevOpacity = .half
 			nextOpacity = game.movesBack > 0 ? .full : .half // for tutorial
-			print("mb", game.movesBack)
 			optionsOpacity = .full
 		}
 	}
@@ -197,16 +194,15 @@ class GameLayout: ObservableObject {
 		}
 	}
 	
-	@discardableResult func hidePopups() -> Bool {
+	func hidePopups() {
 		if popup == .gameEnd {
 			game.reviewingGame = true
 			FB.main.cancelOnlineSearch?()
 		}
-		if popup == .none { return false }
+		if popup == .none { return }
 		withAnimation {
 			popup = .none
 		}
-		return true
 	}
 	
 	func setPopups(to newSetting: GamePopup) {

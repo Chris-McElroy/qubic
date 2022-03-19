@@ -99,6 +99,7 @@ struct TicTacToeView: View {
 				if [.line1, .line2, .line3, .line4].contains(step) {
 					Text("practice by filling in each one")
 						.padding(.horizontal, 50)
+						.multilineTextAlignment(.center)
 				}
 				Spacer()
 				HStack {

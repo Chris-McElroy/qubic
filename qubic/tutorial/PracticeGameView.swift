@@ -38,12 +38,13 @@ struct PracticeGameView: View {
 		tutorialLayout.readyToContinue = false
 		switch step {
 		case .left:
-			step = .adv1
+			withAnimation { step = .adv1 }
 			gameLayout.setPopups(to: .settings)
 		case .adv1:
 			advIfNecessary1()
 		case .swipe1:
 			step = .analysis1
+			tutorialLayout.readyToContinue = true
 			gameLayout.setPopups(to: .analysis)
 		case .analysis1:
 			step = .block
@@ -52,10 +53,11 @@ struct PracticeGameView: View {
 			if game.movesBack == 0 {
 				game.prevMove()
 			}
-			step = .swipe2
+			withAnimation { step = .swipe2 }
 			gameLayout.setPopups(to: .settings)
 		case .swipe2:
 			step = .analysis2
+			tutorialLayout.readyToContinue = true
 			gameLayout.setPopups(to: .analysis)
 		case .analysis2:
 			step = .adv2
@@ -64,7 +66,7 @@ struct PracticeGameView: View {
 			advIfNecessary2()
 		case .undo:
 			game.undoMove()
-			step = .swipe3
+			withAnimation { step = .swipe3 }
 			gameLayout.setPopups(to: .settings)
 		case .swipe3:
 			step = .show
@@ -91,29 +93,26 @@ struct PracticeGameView: View {
 				}
 			}
 		case .tap:
-			if !game.processingMove && game.movesBack == 0 && game.moves.count == 6 {
+			if game.processingMove { break }
+			else if gameLayout.popup == .gameEnd {
+				game.reviewingGame = true
+				step = .post
+				gameLayout.setPopups(to: .settings)
+			} else if game.movesBack == 0 && game.moves.count == 6 {
 				guard let p = gameLayout.currentHintMoves?.randomElement() else { break }
 				game.checkAndProcessMove(p, for: game.myTurn, setup: game.moves.map({ $0.p }))
-				Timer.after(2.0) {
-					if game.gameState == .opResign {
-						step = .great
-						gameLayout.setPopups(to: .settings)
-					} else {
-						// just in case
-						game.endGame(with: .opResign)
-						Timer.after(1.0) {
-							step = .great
-							gameLayout.setPopups(to: .settings)
-						}
-					}
-				}
+				step = .great
+			} else {
+				game.endGame(with: .opResign)
+				step = .great
 			}
 		case .great:
+			game.reviewingGame = true
 			step = .post
 			gameLayout.setPopups(to: .settings)
 		case .post:
+			game.reviewingGame = true // just in case
 			step = .options
-			tutorialLayout.readyToAdvance = true
 			gameLayout.setPopups(to: .settings)
 		case .options:
 			tutorialLayout.exitTutorial()
@@ -167,10 +166,8 @@ struct PracticeGameView: View {
 			return "looks like you could have stopped their win!\nyou need to go back to the current board to undo your move\npress → and then undo"
 		case .swipe3, .show:
 			return "show moves lets you see how you can block their win\nopen analysis and switch show moves to “best” or “all” to see your options"
-		case .tap:
+		case .tap, .great:
 			return "the spinning moves are the ones that block their win\ntap one of them to stop them!"
-		case .great:
-			return "great job! they resigned\nnow you can see what might have happened!\npress review game or tap the board to stay in this game"
 		case .post:
 			return "you can now place hypothetical moves and use the analysis even if it wasn’t available in game"
 		case .options:
@@ -188,6 +185,8 @@ struct PracticeGameView: View {
 					.opacity(gameLayout.hideBoard ? 0 : 1)
 				Fill(gameControlSpace)
 			}
+			Fill().opacity(gameLayout.popup.up ? 0.015 : 0) // 0.015 seems to be about the minimum opacity to work
+				.onTapGesture { gameLayout.hidePopups() }
 			optionsPopup
 			gameEndPopup
 			analysisPopup
@@ -215,7 +214,7 @@ struct PracticeGameView: View {
 		.alert(isPresented: $gameLayout.showCubistAlert, content: { cubistAlert })
 		.onAppear {
 			tutorialLayout.readyToAdvance = false
-			tutorialLayout.readyToContinue = false
+			tutorialLayout.readyToContinue = true
 			TutorialGame.tutorialMain.load()
 			game.newHints = refreshHintPickerContent
 			gameLayout.game = TutorialGame.tutorialMain
@@ -237,16 +236,23 @@ struct PracticeGameView: View {
 						if step == .swipe1 { step = .analysis1 }
 						else if step == .swipe2 { step = .analysis2 }
 						else { step = .show }
+						tutorialLayout.readyToContinue = true
 						gameLayout.setPopups(to: .analysis)
 					} else if gameLayout.popup == .options || gameLayout.popup == .gameEnd || gameLayout.popup == .settings {
-						gameLayout.hidePopups()
+						if gameLayout.popup == .gameEnd && step == .great {
+							game.reviewingGame = true
+							step = .post
+							gameLayout.setPopups(to: .settings)
+						} else {
+							gameLayout.hidePopups()
+						}
 					} else if gameLayout.popup == .none {
 						gameLayout.setPopups(to: .analysis)
 					}
 				} else {
 					if gameLayout.popup == .analysis {
 						gameLayout.hidePopups()
-					} else if gameLayout.popup == .none {
+					} else if gameLayout.popup == .none || gameLayout.popup == .settings && step == .options {
 						gameLayout.setPopups(to: .options)
 					}
 				}
@@ -305,10 +311,10 @@ struct PracticeGameView: View {
 		let vShape: Bool = gameLayout.popup == .options || gameLayout.popup == .gameEnd || (gameLayout.popup == .gameEndPending && game.gameState == .myResign)
 		
 		return Button(action: {
-			if gameLayout.popup == .none || gameLayout.popup == .analysis {
-				gameLayout.setPopups(to: .options)
-			} else if gameLayout.popup.up {
+			if gameLayout.popup == .options {
 				gameLayout.hidePopups()
+			} else if gameLayout.popup != .gameEndPending {
+				gameLayout.setPopups(to: .options)
 			}
 		}, label: {
 			HStack (spacing: 7) {
@@ -410,8 +416,10 @@ struct PracticeGameView: View {
 						gameLayout.setPopups(to: .analysis)
 						if step == .swipe1 {
 							step = .analysis1
+							tutorialLayout.readyToContinue = true
 						} else if step == .swipe2 {
 							step = .analysis2
+							tutorialLayout.readyToContinue = true
 						} else if step == .swipe3 {
 							
 						}
@@ -423,10 +431,8 @@ struct PracticeGameView: View {
 					rematchButton
 					Button("menu") { tutorialLayout.exitTutorial() }
 				} else {
-					if game.mode.solve {
-						Button("restart") { gameLayout.animateGameChange(rematch: true) }
-					}
-					Button("resign") { game.endGame(with: .myResign) }
+					Button("resign") {}
+						.opacity(Opacity.half.rawValue)
 				}
 			}
 			.modifier(Oligopoly(size: 18))
@@ -457,19 +463,31 @@ struct PracticeGameView: View {
 			.modifier(PopupModifier())
 			.offset(y: gameLayout.popup == .gameEnd ? 0 : -(130 + nameSpace))
 			
-			Spacer()
+			Fill().opacity(gameLayout.popup == .gameEnd ? 0.015 : 0)
+				.onTapGesture {
+					game.reviewingGame = true
+					step = .post
+					gameLayout.setPopups(to: .settings)
+				}
 			
 			VStack(spacing: 15) {
 //				Text("share board")
-				Button("review game") { gameLayout.hidePopups() }
+				Button("review game") {
+					game.reviewingGame = true
+					step = .post
+					gameLayout.setPopups(to: .settings)
+				}
+					.modifier(Oligopoly(size: 18))
+				Text("great job—they resigned!\nnow you can see what might have happened\npress review game or tap the board to stay in this game")
+					.multilineTextAlignment(.center)
+					.padding(.horizontal, 10)
 //				Text("game insights")
-				newGameButton
-				rematchButton
-				Button("menu") { layout.goBack() }
+//				newGameButton
+//				rematchButton
+//				Button("menu") { layout.goBack() }
 			}
 			.padding(.top, 15)
 			.padding(.bottom, gameControlSpace)
-			.modifier(Oligopoly(size: 18)) //.system(size: 18))
 			.buttonStyle(Solid())
 			.frame(width: layout.width)
 			.modifier(PopupModifier())
@@ -629,9 +647,12 @@ struct PracticeGameView: View {
 			.frame(width: layout.width, height: 200)
 			.modifier(PopupModifier())
 			.offset(y: gameLayout.popup == .analysis ? 0 : -(200 + 30 + nameSpace))
-			Fill().opacity(gameLayout.popup == .analysis ? 0.015 : 0) // 0.015 seems to be about the minimum opacity to work
+			
+			// unfucks the HPicker
+			Fill().opacity(gameLayout.popup == .analysis ? 0.015 : 0)
 				.onTapGesture { gameLayout.hidePopups() }
 				.zIndex(4)
+			
 			ZStack {
 				// HPickers
 				VStack(spacing: 0) {
@@ -699,11 +720,11 @@ struct PracticeGameView: View {
 		VStack(spacing: 0) {
 			Spacer()
 			VStack(spacing: 0) {
-				Spacer()
+				Blank(15)
 				Text(tutorialText)
 					.multilineTextAlignment(.center)
 					.padding(.horizontal, 10)
-				Spacer()
+//				Spacer()
 				Blank(10)
 				Button("exit tutorial") { tutorialLayout.exitTutorial() }
 				.buttonStyle(Solid())
@@ -712,10 +733,9 @@ struct PracticeGameView: View {
 				Blank(10)
 			}
 			.padding(.bottom, gameControlSpace - 20)
-			.frame(width: layout.width, height: 200)
+			.frame(width: layout.width)
 			.modifier(PopupModifier())
 			.offset(y: gameLayout.popup == .settings ? 0 : 400)
-			.onAppear { print("bottom", layout.hasBottomGap) }
 		}
 	}
 	
