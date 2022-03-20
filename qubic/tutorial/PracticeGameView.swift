@@ -35,10 +35,11 @@ struct PracticeGameView: View {
 	///  if step is .options it exits the tutorial
 	func nextAction() {
 		guard gameLayout.optionsOpacity == .full else { return }
-		tutorialLayout.readyToContinue = false
+		if step != .left { tutorialLayout.readyToContinue = false }
 		switch step {
 		case .left:
 			withAnimation { step = .adv1 }
+			tutorialLayout.readyToContinue = game.movesBack == 0
 			gameLayout.setPopups(to: .settings)
 		case .adv1:
 			advIfNecessary1()
@@ -137,14 +138,18 @@ struct PracticeGameView: View {
 		}
 		
 		func advIfNecessary2() {
-			if game.movesBack == 0 {
+			if game.movesBack == 0 && game.moves.last?.p == 25 {
 				game.undoMove()
 				step = .swipe3
 				gameLayout.setPopups(to: .settings)
 			} else {
 				game.nextMove()
-				Timer.after(0.4) {
-					advIfNecessary2()
+				if game.moves.count == 7 && game.movesBack == 0 && step == .adv2 {
+					Timer.after(0.4) {
+						advIfNecessary2()
+					}
+				} else {
+					step = .swipe3
 				}
 			}
 		}
@@ -281,9 +286,9 @@ struct PracticeGameView: View {
 	
 	var names: some View {
 		HStack {
-			PlayerName(turn: 0, text: $hintText, winsFor: $gameLayout.hintSelection[0])
+			PlayerName(turn: 0, text: $hintText)
 			Spacer().frame(minWidth: 15).frame(width: gameLayout.centerNames && layout.width > 320 ? 15 : nil)
-			PlayerName(turn: 1, text: $hintText, winsFor: $gameLayout.hintSelection[0])
+			PlayerName(turn: 1, text: $hintText)
 		}
 		.padding(.horizontal, 22)
 		.padding(.top, 10)
@@ -744,7 +749,6 @@ struct PracticeGameView: View {
 		@ObservedObject var game: Game = TutorialGame.tutorialMain
 		@ObservedObject var gameLayout: GameLayout = GameLayout.main
 		@Binding var text: [[String]?]
-		@Binding var winsFor: Int
 		@Environment(\.colorScheme) var colorScheme
 		var color: Color { .of(n: game.player[turn].color) }
 		var rounded: Bool { game.player[turn].rounded }
@@ -754,7 +758,7 @@ struct PracticeGameView: View {
 		var body: some View {
 			VStack(spacing: 3) {
 				ZStack {
-					Text(gameLayout.showWinsFor == turn ? text[winsFor]?[0] ?? "loading..." : "")
+					Text(gameLayout.showWinsFor == turn ? text[gameLayout.hintSelection[0]]?[0] ?? "loading..." : "")
 						.animation(.none)
 						.multilineTextAlignment(.center)
 						.frame(height: 45)

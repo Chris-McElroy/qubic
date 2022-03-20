@@ -106,9 +106,9 @@ struct GameView: View {
 	
 	var names: some View {
 		HStack {
-			PlayerName(turn: 0, text: $hintText, winsFor: $gameLayout.hintSelection[0])
+			PlayerName(turn: 0, text: $hintText)
 			Spacer().frame(minWidth: 15).frame(width: gameLayout.centerNames && layout.width > 320 ? 15 : nil)
-			PlayerName(turn: 1, text: $hintText, winsFor: $gameLayout.hintSelection[0])
+			PlayerName(turn: 1, text: $hintText)
 		}
 		.padding(.horizontal, 22)
 		.padding(.top, 10)
@@ -575,7 +575,6 @@ struct GameView: View {
 		@ObservedObject var game: Game = Game.main
 		@ObservedObject var gameLayout: GameLayout = GameLayout.main
         @Binding var text: [[String]?]
-		@Binding var winsFor: Int
 		@Environment(\.colorScheme) var colorScheme
         var color: Color { .of(n: game.player[turn].color) }
         var rounded: Bool { game.player[turn].rounded }
@@ -585,7 +584,7 @@ struct GameView: View {
         var body: some View {
             VStack(spacing: 3) {
                 ZStack {
-					Text(gameLayout.showWinsFor == turn ? text[winsFor]?[0] ?? "loading..." : "")
+					Text(gameLayout.showWinsFor == turn ? text[gameLayout.hintSelection[0]]?[0] ?? "loading..." : "")
                         .animation(.none)
                         .multilineTextAlignment(.center)
                         .frame(height: 45)

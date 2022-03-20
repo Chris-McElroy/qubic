@@ -202,7 +202,6 @@
 		1EFCD1E62693A25B006A5430 /* StorageHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EFCD1E52693A25B006A5430 /* StorageHelper.swift */; };
 		1EFCD1E72693A25B006A5430 /* StorageHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EFCD1E52693A25B006A5430 /* StorageHelper.swift */; };
 		AED83640B64C9C248C88B0B2 /* Pods_qubic.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 535B31542F05D481FEF1F34D /* Pods_qubic.framework */; };
-		BB6FF8713E0CED8099A31C90 /* Pods_qubicMessage.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6C1736A142026CE63D5C6A44 /* Pods_qubicMessage.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -431,7 +430,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				1E3170F425AA0C7500FCCEA4 /* Messages.framework in Frameworks */,
-				BB6FF8713E0CED8099A31C90 /* Pods_qubicMessage.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1213,7 +1211,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = A44UN86BN6;
 				INFOPLIST_FILE = qubicMessage/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.3;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -1240,7 +1238,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = A44UN86BN6;
 				INFOPLIST_FILE = qubicMessage/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.3;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

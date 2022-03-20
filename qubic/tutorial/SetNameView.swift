@@ -19,18 +19,18 @@ struct SetNameView: View {
 	var body: some View {
 		ZStack {
 			VStack(spacing: 0) {
-				Spacer()
-				Blank(240)
+				Blank(280)
 				HPicker(content: .constant(pickerContent), dim: (60,55), selected: $selected, action: onSelection)
 					.frame(height: 55)
 				Spacer()
 				Spacer()
 			}
 			VStack(spacing: 0) {
-				Blank(40) // TODO this layout doesn't work on smallest
+				Blank(40)
 				VStack(spacing: 5) {
 					Text("username").modifier(Oligopoly(size: 18))
 					Text("Choose your displayed name. It can include spaces, emojis, and other unicode characters, and it does not need to be unique.")
+						.padding(.horizontal, 10)
 					TextField("enter name", text: $username, onEditingChanged: { starting in
 						if !starting && username != Storage.string(.name) {
 							Storage.set(username, for: .name)
@@ -42,13 +42,16 @@ struct SetNameView: View {
 						.keyboardType(.alphabet) // stops predictive text/text suggestions
 						.accentColor(.primary())
 						.frame(width: 200, height: 20)
+					Spacer()
 				}
-				Blank(40)
+				.frame(height: 170)
 				VStack(spacing: 5) {
 					Text("color / app icon").modifier(Oligopoly(size: 18))
 					Text("Choose the color for your moves, name, app menus, and app icon.")
-					Blank(55)
+						.padding(.horizontal, 10)
+					Spacer()
 				}
+				.frame(height: 150)
 				Blank(30)
 				Button("continue") { if continueOpacity == .full { layout.exitTutorial() } }
 					.opacity(continueOpacity.rawValue)

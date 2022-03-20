@@ -52,7 +52,8 @@ class GameLayout: ObservableObject {
 		hideAll = true
 		hideBoard = true
 		centerNames = true
-		hintSelection = [1,2] // TODO this doesn't update the name rotations for tutorial games
+		showWinsFor = nil
+		hintSelection = [1,2]
 		updateSettings()
 		
 //        BoardScene.main.rotate(right: true) // this created a race condition
