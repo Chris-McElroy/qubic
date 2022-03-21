@@ -12,6 +12,7 @@ enum GameMode: Int {
     case novice, defender, warrior, tyrant, oracle, cubist
     case daily, simple, common, tricky
     case local, online, invite
+	case dictLesson
 //	case picture1, picture2, picture3, picture4
     
     var train: Bool { [.novice, .defender, .warrior, .tyrant, .oracle, .cubist].contains(self) }
@@ -186,6 +187,10 @@ class Game: ObservableObject {
 //			me.color = 0
 //		}
 		player = myTurn == 0 ? [me, op] : [op, me]
+		if mode == .dictLesson {
+			player = [User(b: board, n: 0, name: "player 1"), User(b: board, n: 1, name: "player 2")]
+			player[1].color = [4, 4, 4, 8, 6, 7, 4, 5, 3][player[0].color]
+		}
         for p in preset { loadMove(p) }
         newHints()
         

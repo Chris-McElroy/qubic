@@ -8,8 +8,8 @@
 
 import SwiftUI
 
-let buildNumber = 30201
-let versionType: VersionType = .testFlight
+let buildNumber = 30202
+let versionType: VersionType = .xCode
 let solveButtonsEnabled = false
 
 struct MainView: View {
@@ -142,10 +142,14 @@ struct MainView: View {
             AboutView()
                 .frame(alignment: .top)
                 .modifier(LayoutModifier(for: .about))
-                .zIndex(4)
+                .zIndex(5)
 			TutorialMenuView()
 				.frame(alignment: .top)
 				.modifier(LayoutModifier(for: .tutorialMenu))
+				.zIndex(4)
+			LessonsView()
+				.frame(alignment: .top)
+				.modifier(LayoutModifier(for: .lessons))
 				.zIndex(3)
             SettingsView()
                 .frame(alignment: .top)

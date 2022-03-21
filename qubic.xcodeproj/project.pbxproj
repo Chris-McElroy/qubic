@@ -58,6 +58,9 @@
 		1E7A91942584B0A800AE3BE7 /* Defender.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E7A91932584B0A800AE3BE7 /* Defender.swift */; };
 		1E7B117D2586B33400A0CD9F /* NotificationHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E7B117C2586B33400A0CD9F /* NotificationHelper.swift */; };
 		1E7B959224D34015004B3C80 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E7B959124D34015004B3C80 /* SettingsView.swift */; };
+		1E8169D827E8272C00C9E2D7 /* LessonsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E8169D727E8272C00C9E2D7 /* LessonsView.swift */; };
+		1E8169DB27E82EC600C9E2D7 /* DictLessonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E8169DA27E82EC600C9E2D7 /* DictLessonView.swift */; };
+		1E8169DD27E8340F00C9E2D7 /* WinningDict.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E8169DC27E8340F00C9E2D7 /* WinningDict.swift */; };
 		1E883EFB24EE3B14002686C8 /* Layout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E883EFA24EE3B14002686C8 /* Layout.swift */; };
 		1E8C554725365E3400C9A556 /* Game.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E8C554625365E3400C9A556 /* Game.swift */; };
 		1E92D5F7261A608500D0D19C /* ActivityIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E92D5F6261A608500D0D19C /* ActivityIndicator.swift */; };
@@ -276,6 +279,9 @@
 		1E7A91932584B0A800AE3BE7 /* Defender.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Defender.swift; sourceTree = "<group>"; };
 		1E7B117C2586B33400A0CD9F /* NotificationHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationHelper.swift; sourceTree = "<group>"; };
 		1E7B959124D34015004B3C80 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		1E8169D727E8272C00C9E2D7 /* LessonsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LessonsView.swift; sourceTree = "<group>"; };
+		1E8169DA27E82EC600C9E2D7 /* DictLessonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DictLessonView.swift; sourceTree = "<group>"; };
+		1E8169DC27E8340F00C9E2D7 /* WinningDict.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WinningDict.swift; sourceTree = "<group>"; };
 		1E883EFA24EE3B14002686C8 /* Layout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Layout.swift; sourceTree = "<group>"; };
 		1E8C554625365E3400C9A556 /* Game.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Game.swift; sourceTree = "<group>"; };
 		1E92D5F6261A608500D0D19C /* ActivityIndicator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityIndicator.swift; sourceTree = "<group>"; };
@@ -681,6 +687,7 @@
 				1E6D2E4A24CE9729001EFE85 /* CubeView.swift */,
 				1E02D59A24CE5696001BF62B /* AboutView.swift */,
 				1E776156271E372200D83000 /* TutorialMenuView.swift */,
+				1E8169D727E8272C00C9E2D7 /* LessonsView.swift */,
 				1E7B959124D34015004B3C80 /* SettingsView.swift */,
 				1EAE5F69263121D6000C8270 /* FeedbackView.swift */,
 				1EAEE3BA24D9DA1400490530 /* FriendsView.swift */,
@@ -736,6 +743,7 @@
 				1E3335D4253405E100966EA6 /* game code */,
 				1E3335DA25342BFF00966EA6 /* top ui */,
 				1E3335D825342BE600966EA6 /* helpers */,
+				1E8169D927E82E8000C9E2D7 /* lessons */,
 				1E776158271E373800D83000 /* tutorial */,
 				1E00AA962706715500666AF0 /* app icons */,
 				1E68179824CC973D001713E7 /* Assets.xcassets */,
@@ -769,6 +777,15 @@
 				1E516DFF27A50474004938ED /* TutorialPlayer.swift */,
 			);
 			path = tutorial;
+			sourceTree = "<group>";
+		};
+		1E8169D927E82E8000C9E2D7 /* lessons */ = {
+			isa = PBXGroup;
+			children = (
+				1E8169DA27E82EC600C9E2D7 /* DictLessonView.swift */,
+				1E8169DC27E8340F00C9E2D7 /* WinningDict.swift */,
+			);
+			path = lessons;
 			sourceTree = "<group>";
 		};
 		1EB5266627068D2D00B1344A /* purple */ = {
@@ -1116,6 +1133,7 @@
 				1E9A545A26112F90001FC204 /* FBHelper.swift in Sources */,
 				1E02D59B24CE5696001BF62B /* AboutView.swift in Sources */,
 				1EFAFB17271D170500F377E7 /* GameLayout.swift in Sources */,
+				1E8169D827E8272C00C9E2D7 /* LessonsView.swift in Sources */,
 				1E6C429024FCE1F20065BDF5 /* BoardHelper.swift in Sources */,
 				1E726EEF263359A400640651 /* OldTextEditor.swift in Sources */,
 				1EA8935C2724B6620015C900 /* TutorialView.swift in Sources */,
@@ -1141,6 +1159,7 @@
 				1EDAE0DF260814EC006173B4 /* MessageHelper.swift in Sources */,
 				1EB693982599A14D0025B080 /* Tyrant.swift in Sources */,
 				1E69288027B5E079000FF0D6 /* SetNameView.swift in Sources */,
+				1E8169DB27E82EC600C9E2D7 /* DictLessonView.swift in Sources */,
 				1EFCD1E62693A25B006A5430 /* StorageHelper.swift in Sources */,
 				1EAEE3BB24D9DA1400490530 /* FriendsView.swift in Sources */,
 				1EE2D5FF2738A40500DE309F /* TutorialBoardView.swift in Sources */,
@@ -1162,6 +1181,7 @@
 				1E636FC0258A882B005B8D4F /* Tricky.swift in Sources */,
 				1E31208C273D9C1E005BA437 /* TicTacToeView.swift in Sources */,
 				1E017B9E24CDB70D00CF979A /* SolveView.swift in Sources */,
+				1E8169DD27E8340F00C9E2D7 /* WinningDict.swift in Sources */,
 				1E31208A273D9BF6005BA437 /* WelcomeView.swift in Sources */,
 				1EFAFB1A271D215400F377E7 /* GeneralHelper.swift in Sources */,
 				1E2E74BE24E86B6500218E55 /* BoardView.swift in Sources */,
@@ -1208,7 +1228,7 @@
 				CODE_SIGN_ENTITLEMENTS = qubicMessage/qubicMessage.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = A44UN86BN6;
 				INFOPLIST_FILE = qubicMessage/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
@@ -1235,7 +1255,7 @@
 				CODE_SIGN_ENTITLEMENTS = qubicMessage/qubicMessage.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = A44UN86BN6;
 				INFOPLIST_FILE = qubicMessage/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
@@ -1384,7 +1404,7 @@
 				CODE_SIGN_ENTITLEMENTS = qubic/qubic.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_ASSET_PATHS = "\"qubic/Preview Content\"";
 				DEVELOPMENT_TEAM = A44UN86BN6;
 				ENABLE_PREVIEWS = YES;
@@ -1417,7 +1437,7 @@
 				CODE_SIGN_ENTITLEMENTS = qubic/qubic.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_ASSET_PATHS = "\"qubic/Preview Content\"";
 				DEVELOPMENT_TEAM = A44UN86BN6;
 				ENABLE_PREVIEWS = YES;

@@ -117,11 +117,11 @@ struct SettingsView: View {
             }
             // content
             VStack(spacing: 0) {
-                ZStack {
-                    Fill().frame(height: moreButtonHeight)
-                    Button(action:  {
+				ZStack {
+                    Fill()
+                    Button(action: {
 						layout.change(to: .settings)
-				 }) {
+					}) {
                         ZStack {
                             Text("settings")
                             Circle().frame(width: 12, height: 12).foregroundColor(.primary()).offset(x: 53, y: 2)
@@ -130,6 +130,7 @@ struct SettingsView: View {
                     }
                     .buttonStyle(MoreStyle())
                 }
+				.frame(height: moreButtonHeight)
                 .zIndex(4)
                 if layout.current == .settings {
                     VStack(spacing: 0) {

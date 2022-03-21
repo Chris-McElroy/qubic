@@ -16,17 +16,15 @@ struct FeedbackView: View {
     @State var sendLabel = "send"
     
     var body: some View {
-        VStack {
-            ZStack {
-                Fill().frame(height: moreButtonHeight)
-				VStack {
-					Button("feedback", action:  {
-						layout.change(to: .feedback)
-					})
-						.buttonStyle(MoreStyle())
-					Spacer()
+		VStack(spacing: 0) {
+			ZStack {
+				Fill().frame(height: moreButtonHeight)
+				Button("feedback") {
+					layout.change(to: .feedback)
 				}
-            }.zIndex(4)
+				.buttonStyle(MoreStyle())
+			}
+			.zIndex(4)
             if layout.current == .feedback {
                 if #available(iOS 14.0, *) {
                     Spacer()

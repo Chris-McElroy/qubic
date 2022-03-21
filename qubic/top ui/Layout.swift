@@ -19,11 +19,13 @@ enum ViewState: CaseIterable {
     case play
     case about
 	case tutorialMenu
+	case lessons
+	case dictLesson
     case settings
     case feedback
 	case tutorial
     
-    var gameView: Bool { self == .play || self == .solve || self == .train }
+	var gameView: Bool { self == .play || self == .solve || self == .train || self == .dictLesson }
     var menuView: Bool { self == .playMenu || self == .solveMenu || self == .trainMenu }
 	var trainGame: Bool { self == .train || self == .trainMenu }
 	var solveGame: Bool { self == .solve || self == .solveMenu }
@@ -37,6 +39,8 @@ enum ViewState: CaseIterable {
         case .play: return .playMenu
         case .about: return .more
 		case .tutorialMenu: return .more
+		case .lessons: return .more
+		case .dictLesson: return .lessons
         case .settings: return .more
         case .feedback: return .more
         default: return .main
@@ -63,9 +67,11 @@ enum ViewState: CaseIterable {
         .solve: (top: .solveView, focus: .solveView, bottom: .solveView),
         .playMenu: (top: .playView, focus: .playView, bottom: .playButton),
         .play: (top: .playView, focus: .playView, bottom: .playView),
-        .more: (top: .trainView, focus: .moreSpacer, bottom: .feedback),
+		.more: (top: .moreSpacer, focus: .moreSpacer, bottom: .feedback),
         .about: (top: .about, focus: .about, bottom: .about),
 		.tutorialMenu: (top: .tutorialMenu, focus: .tutorialMenu, bottom: .tutorialMenu),
+		.lessons: (top: .lessons, focus: .lessons, bottom: .lessons),
+		.dictLesson: (top: .lessons, focus: .lessons, bottom: .lessons),
         .settings: (top: .settings, focus: .settings, bottom: .settings),
         .feedback: (top: .feedback, focus: .feedback, bottom: .feedback),
 		.tutorial: (top: .tutorial, focus: .tutorial, bottom: .tutorial)
@@ -76,7 +82,7 @@ enum LayoutView: Int, Comparable {
     case topSpacer
     case title, cube, mainSpacer
     case trainView, trainButton, solveView, solveButton, playView, playButton
-    case moreSpacer, about, tutorialMenu, settings, feedback
+    case moreSpacer, about, tutorialMenu, lessons, settings, feedback
     case backButton
 	case tutorial
     
@@ -124,6 +130,7 @@ class Layout: ObservableObject {
         .moreSpacer: 0,
         .about: moreButtonHeight,
 		.tutorialMenu: moreButtonHeight,
+		.lessons: moreButtonHeight,
         .settings: moreButtonHeight,
         .feedback: moreButtonHeight,
         .backButton: backButtonFrame

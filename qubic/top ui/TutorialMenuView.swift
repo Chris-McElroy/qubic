@@ -15,13 +15,12 @@ struct TutorialMenuView: View {
 		VStack(spacing: 0) {
 			ZStack {
 				Fill().frame(height: moreButtonHeight)
-				Button(action: {
+				Button("tutorial") {
 					layout.change(to: .tutorialMenu)
-				}) {
-					Text("tutorial")
 				}
 				.buttonStyle(MoreStyle())
 			}
+			.zIndex(4)
 			if layout.current == .tutorialMenu {
 				Blank(20)
 				

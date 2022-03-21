@@ -16,16 +16,15 @@ struct AboutView: View {
     var width: CGFloat { min(500, layout.width) }
     
     var body: some View {
-        VStack {
+        VStack(spacing: 0) {
             ZStack {
                 Fill().frame(height: moreButtonHeight)
-				Button(action: {
+				Button("about") {
 					layout.change(to: .about)
-				}) {
-                    Text("about")
-                }
-                .buttonStyle(MoreStyle())
-            }.zIndex(4)
+				}
+				.buttonStyle(MoreStyle())
+            }
+			.zIndex(4)
             if layout.current == .about {
                 ZStack {
                     VStack(spacing: 0) {
