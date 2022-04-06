@@ -9,7 +9,20 @@
 import Foundation
 
 extension Board {
-    
+	func inDict() -> Bool {
+		if let ans = cachedInDict { return ans }
+		let autos = Board.getAllAutomorphisms(for: board)
+		for (i, a) in autos.enumerated() {
+			if let (numMoves, moveList) = Board.positionDict[a] {
+				cachedInDict = true
+				cachedDictMoves = (numMoves, Set(Board.getAutomorphism(for: moveList, a: Board.reverseAutomorphisms[i])))
+				return true
+			}
+		}
+		cachedInDict = false
+		return false
+	}
+	
     func hasW0(_ n: Int) -> Bool {
         // returns true if player n has won
         return !open[8*n].isEmpty

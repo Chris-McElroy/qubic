@@ -14,6 +14,8 @@ class Board {
     var open: [[Int: [Int]]]
     var status: [Int?]
 	
+	var cachedInDict: Bool? = nil
+	var cachedDictMoves: (Int, Set<Int>)? = nil
 	var cachedHasW2: [Int?] = [nil, nil]
 	var cachedGetW2: [[Int: Set<Int>]] = [[:], [:]]
 	var cachedGetW2Blocks: [[Int: Set<Int>]] = [[:], [:]]
@@ -45,6 +47,8 @@ class Board {
     }
     
     func addMove(_ p: Int, for n: Int) {
+		cachedInDict = nil
+		cachedDictMoves = nil
 		cachedHasW2 = [nil, nil]
 		cachedGetW2 = [[:], [:]]
 		cachedGetW2Blocks = [[:], [:]]
@@ -67,6 +71,8 @@ class Board {
     
 	func undoMove(for n: Int) {
         guard let p = move[n].popLast() else { return }
+		cachedInDict = nil
+		cachedDictMoves = nil
 		cachedHasW2 = [nil, nil]
 		cachedGetW2 = [[:], [:]]
 		cachedGetW2Blocks = [[:], [:]]

@@ -534,7 +534,7 @@ struct PracticeGameView: View {
 		let secondHint: HintValue?
 		let priorityHint: HintValue?
 		if game.currentMove == nil {
-			firstHint = .noW
+			firstHint = .dw
 			secondHint = .noW
 		} else {
 			firstHint = game.currentMove?.hints[0]
@@ -547,6 +547,8 @@ struct PracticeGameView: View {
 		let myText: [String]?
 		let priorityText: [String]?
 		switch (game.myTurn == 1 ? firstHint : secondHint) {
+		case .dw:	opText = ["forced win",			"Your opponent can reach a second order checkmate in \(game.currentMove?.winLen ?? 9) moves!"]
+		case .dl:	opText = ["strong defense",		"Your opponent can force you to take up to \(game.currentMove?.winLen ?? 9) moves to reach a second order checkmate!"]
 		case .w0:   opText = ["4 in a row", 		"Your opponent won the game, better luck next time!"]
 		case .w1:   opText = ["3 in a row",			"Your opponent has 3 in a row, so now they can fill in the last move in that line and win!"]
 		case .w2d1: opText = ["checkmate", 			"Your opponent can get two checks with their next move, and you can’t block both!"]
@@ -561,6 +563,8 @@ struct PracticeGameView: View {
 		}
 		
 		switch (game.myTurn == 0 ? firstHint : secondHint) {
+		case .dw:	myText = ["forced win",			"You can reach a second order checkmate in \(game.currentMove?.winLen ?? 9) moves!"]
+		case .dl:	myText = ["strong defense",		"You can force your oppoennt to take up to \(game.currentMove?.winLen ?? 9) moves to reach a second order checkmate!"]
 		case .w0:   myText = ["4 in a row", 		"You won the game, great job!"]
 		case .w1:   myText = ["3 in a row",			"You have 3 in a row, so now you can fill in the last move in that line and win!"]
 		case .w2d1: myText = ["checkmate", 			"You can get two checks with your next move, and your opponent can’t block both!"]

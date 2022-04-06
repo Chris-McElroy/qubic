@@ -13,7 +13,7 @@ struct LessonsView: View {
 	
 	var body: some View {
 		if layout.current == .dictLesson {
-			DictLessonView()
+			Spacer()
 		} else {
 			VStack(spacing: 0) {
 				ZStack {

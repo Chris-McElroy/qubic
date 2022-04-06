@@ -44,7 +44,11 @@ class GameLayout: ObservableObject {
 	
 	var currentHintMoves: Set<Int>? {
 		guard let winsFor = showWinsFor else { return nil }
-		return showAllHints ? game.currentMove?.allMoves[winsFor] : game.currentMove?.bestMoves[winsFor]
+		guard let currentMove = game.currentMove else {
+			if winsFor == 1 { return nil }
+			return Set(Board.positionDict[[0,0]]?.1 ?? [])
+		}
+		return showAllHints ? currentMove.allMoves[winsFor] : currentMove.bestMoves[winsFor]
 	}
 	
 	func animateIntro(for game: Game) {
