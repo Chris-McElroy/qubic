@@ -8,16 +8,9 @@
 
 import Foundation
 
-// TODO make this harder
-class Tricky: Player {
+class Tricky: Cubist {
     init(b: Board, n: Int, num: Int) {
-		super.init(b: b, n: n, name: num == solveBoards[.tricky]?.count ?? 0 ? "tricky ?" : "tricky \(num+1)", color: 1,
-                   lineP: [3: 1.0, -3: 1.0, 2: 1.0],
-                   dirStats: Array(repeating: 1.0, count: 76),
-                   depth: 15,
-                   w2BlockP: 1.0,
-                   lineScore: [0,2,2,2,1,2,2,2,0], // my points on the left
-				   bucketP: 1.0)
+		super.init(b: b, n: n, name: num == solveBoards[.tricky]?.count ?? 0 ? "tricky ?" : "tricky \(num+1)", color: 1)
     }
     
     override func getPause() -> Double {

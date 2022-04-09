@@ -64,8 +64,9 @@ struct PlayView: View {
 							Blank(37)
 						}
 					}.onAppear {
-		//                FB.main.finishedOnlineGame(with: .error) // not sure which case this covered
+					//                FB.main.finishedOnlineGame(with: .error) // not sure which case this covered
 						tip = PlayView.tips.filter({ $0 != tip }).randomElement() ?? ""
+						TipStatus.main.updateTip(for: .playMenu)
 					}
 				}
 			}

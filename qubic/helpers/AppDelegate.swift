@@ -37,7 +37,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 			Key.moveChecker.rawValue: 2,
 			Key.confirmMoves.rawValue: 1,
             Key.uuid.rawValue: "00000000000000000000000000000000",
-			Key.playedTutorial.rawValue: 0
+			Key.playedTutorial.rawValue: 0,
+			Key.tipsShown.rawValue: [0, 0, 0, 0, 0, 0],
+			Key.tipsOn.rawValue: 1
         ])
         
         FirebaseApp.configure()

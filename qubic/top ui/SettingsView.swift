@@ -93,6 +93,7 @@ struct SettingsView: View {
                         .onAppear {
 							updateSelections()
                         }
+						.onAppear { TipStatus.main.updateTip(for: .settings) }
                     Fill(15)
                     HPicker(content: .constant(picker2Content), dim: (60,55), selected: $selected2, action: onSelection2)
                         .frame(height: 165)

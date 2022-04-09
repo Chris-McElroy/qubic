@@ -54,5 +54,7 @@ enum Key: String {
     case opGameID = "opGameID"
 	
 	case playedTutorial = "playedTutorial"
+	case tipsShown = "tipsShown"
+	case tipsOn = "tipsOn"
 }
 

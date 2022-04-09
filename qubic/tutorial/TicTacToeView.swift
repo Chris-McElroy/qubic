@@ -114,11 +114,25 @@ struct TicTacToeView: View {
 				 .modifier(Oligopoly(size: 16))
 			}
 		}
+		.gesture(swipe)
 		.onAppear {
 			layout.readyToAdvance = false
 			layout.readyToContinue = false
 			layout.next = nextAction
 			tttWins()
+		}
+	}
+	
+	var swipe: some Gesture { DragGesture(minimumDistance: 30)
+		.onEnded { _ in
+			TutorialBoardScene.tutorialMain.endRotate()
+		}
+		.onChanged { drag in
+			let h = drag.translation.height
+			let w = drag.translation.width
+			if abs(w/h) > 1 && step != .threes {
+				TutorialBoardScene.tutorialMain.rotate(angle: w, start: drag.startLocation)
+			}
 		}
 	}
 	

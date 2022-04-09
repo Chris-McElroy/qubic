@@ -26,17 +26,21 @@ struct MainView: View {
 				.onAppear { layout.load(for: screen) }
 				.onReceive(screen.objectWillChange) { layout.load(for: screen) }
 		} else {
-			VStack(alignment: .center, spacing: 0) {
-				Spacer().modifier(LayoutModifier(for: .topSpacer))
-				top.zIndex(9)
-				mainStack.zIndex(1)
-				moreStack.zIndex(0)
-				Spacer()
-				backButton.modifier(LayoutModifier(for: .backButton))
-					.offset(y: layout.backButtonOffset)
-					.zIndex(10)
+			ZStack {
+				VStack(alignment: .center, spacing: 0) {
+					Spacer().modifier(LayoutModifier(for: .topSpacer))
+					top.zIndex(9)
+					mainStack.zIndex(1)
+					moreStack.zIndex(0)
+					Spacer()
+					backButton.modifier(LayoutModifier(for: .backButton))
+						.offset(y: layout.backButtonOffset)
+						.zIndex(10)
+				}
+				TipView()
 			}
 			.onAppear { layout.load(for: screen) }
+			.onAppear { TipStatus.main.updateTip(for: .main) }
 			.onReceive(screen.objectWillChange) { layout.load(for: screen) }
 			.frame(height: layout.total)
 			.background(Fill())
@@ -147,10 +151,10 @@ struct MainView: View {
 				.frame(alignment: .top)
 				.modifier(LayoutModifier(for: .tutorialMenu))
 				.zIndex(4)
-			LessonsView()
-				.frame(alignment: .top)
-				.modifier(LayoutModifier(for: .lessons))
-				.zIndex(3)
+//			LessonsView()
+//				.frame(alignment: .top)
+//				.modifier(LayoutModifier(for: .lessons))
+//				.zIndex(3)
             SettingsView()
                 .frame(alignment: .top)
                 .modifier(LayoutModifier(for: .settings))

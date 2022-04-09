@@ -23,6 +23,7 @@ struct TrainView: View {
                     .frame(height: 180)
                     .opacity(layout.current == .trainMenu ? 1 : 0)
             }
+			.onAppear { TipStatus.main.updateTip(for: .trainMenu) }
         }
     }
     

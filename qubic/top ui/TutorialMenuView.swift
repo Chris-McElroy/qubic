@@ -10,6 +10,7 @@ import SwiftUI
 
 struct TutorialMenuView: View {
 	@ObservedObject var layout = Layout.main
+	@ObservedObject var tipStatus = TipStatus.main
 	
 	var body: some View {
 		VStack(spacing: 0) {
@@ -34,17 +35,17 @@ struct TutorialMenuView: View {
 				Blank(20)
 				
 				Button(action: {
-					print("ending tips")
-					// end tips
+					Storage.set(TipStatus.main.tipsOn ? 0 : 1, for: .tipsOn)
+					TipStatus.main.tipsOn.toggle()
 				}) {
-					Text("turn off tips")
+					Text("turn \(tipStatus.tipsOn ? "off" : "on") tips")
 				}
 				
 				Blank(20)
 				
 				Button(action: {
-					print("resetting tips!")
-					// reset tips
+					Storage.set([0,0,0,0, 0,0], for: .tipsShown)
+					TipStatus.main.updateRemainingTips()
 				}) {
 					Text("reset tips")
 				}

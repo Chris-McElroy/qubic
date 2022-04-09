@@ -19,13 +19,13 @@ enum ViewState: CaseIterable {
     case play
     case about
 	case tutorialMenu
-	case lessons
-	case dictLesson
+//	case lessons
+//	case dictLesson
     case settings
     case feedback
 	case tutorial
     
-	var gameView: Bool { self == .play || self == .solve || self == .train || self == .dictLesson }
+	var gameView: Bool { self == .play || self == .solve || self == .train }
     var menuView: Bool { self == .playMenu || self == .solveMenu || self == .trainMenu }
 	var trainGame: Bool { self == .train || self == .trainMenu }
 	var solveGame: Bool { self == .solve || self == .solveMenu }
@@ -39,8 +39,8 @@ enum ViewState: CaseIterable {
         case .play: return .playMenu
         case .about: return .more
 		case .tutorialMenu: return .more
-		case .lessons: return .more
-		case .dictLesson: return .lessons
+//		case .lessons: return .more
+//		case .dictLesson: return .lessons
         case .settings: return .more
         case .feedback: return .more
         default: return .main
@@ -70,8 +70,8 @@ enum ViewState: CaseIterable {
 		.more: (top: .moreSpacer, focus: .moreSpacer, bottom: .feedback),
         .about: (top: .about, focus: .about, bottom: .about),
 		.tutorialMenu: (top: .tutorialMenu, focus: .tutorialMenu, bottom: .tutorialMenu),
-		.lessons: (top: .lessons, focus: .lessons, bottom: .lessons),
-		.dictLesson: (top: .lessons, focus: .lessons, bottom: .lessons),
+//		.lessons: (top: .lessons, focus: .lessons, bottom: .lessons),
+//		.dictLesson: (top: .lessons, focus: .lessons, bottom: .lessons),
         .settings: (top: .settings, focus: .settings, bottom: .settings),
         .feedback: (top: .feedback, focus: .feedback, bottom: .feedback),
 		.tutorial: (top: .tutorial, focus: .tutorial, bottom: .tutorial)
@@ -82,7 +82,7 @@ enum LayoutView: Int, Comparable {
     case topSpacer
     case title, cube, mainSpacer
     case trainView, trainButton, solveView, solveButton, playView, playButton
-    case moreSpacer, about, tutorialMenu, lessons, settings, feedback
+    case moreSpacer, about, tutorialMenu, settings, feedback // lessons
     case backButton
 	case tutorial
     
@@ -130,7 +130,7 @@ class Layout: ObservableObject {
         .moreSpacer: 0,
         .about: moreButtonHeight,
 		.tutorialMenu: moreButtonHeight,
-		.lessons: moreButtonHeight,
+//		.lessons: moreButtonHeight,
         .settings: moreButtonHeight,
         .feedback: moreButtonHeight,
         .backButton: backButtonFrame
@@ -202,6 +202,8 @@ class Layout: ObservableObject {
     }
 	
 	func goBack() {
+		withAnimation { TipStatus.main.displayed = false }
+		TipStatus.main.updateTip(for: current.back)
 		Game.main.turnOff()
 		FB.main.cancelOnlineSearch?()
 		withAnimation(.easeInOut(duration: 0.4)) { //0.4
@@ -317,6 +319,7 @@ class Layout: ObservableObject {
 	}
 	
 	func change(to newLayout: ViewState, or otherLayout: ViewState? = nil) {
+		withAnimation { TipStatus.main.displayed = false }
 		if let nextView = (current != newLayout) ? newLayout : otherLayout {
 			withAnimation(.easeInOut(duration: 0.4)) { //0.4
 				current = nextView

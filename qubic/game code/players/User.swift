@@ -41,7 +41,10 @@ class User: Player {
 					BoardScene.main.spinMoves()
 					Game.main.checkAndProcessMove(nextP, for: n, setup: b.getSetup())
 				} else if (b.hasW1(n) != b.getW1(for: n).contains(p)) || b.pointFull(p) {
+					Game.main.notificationGenerator.notificationOccurred(.error)
                     Game.main.premoves = []
+					Game.main.processingMove = true
+					Game.main.timers.append(Timer.after(1) { Game.main.processingMove = false })
 					BoardScene.main.spinMoves()
                 } else {
 					BoardScene.main.spinMoves()

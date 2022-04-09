@@ -40,10 +40,11 @@ struct SolveView: View {
 					.frame(height: 80)
                     .opacity(layout.current == .solveMenu ? 1 : 0)
                     .onAppear { refreshMenu() }
+					.onAppear { TipStatus.main.updateTip(for: .solveMenu) }
                 Blank(3)
             }
         }
-        .onAppear { refreshMenu() }
+		.onAppear { refreshMenu() }
     }
     
     func refreshMenu() {

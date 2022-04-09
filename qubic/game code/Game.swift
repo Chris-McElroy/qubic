@@ -49,7 +49,7 @@ enum GameState: Int {
 }
 
 enum HintValue: Comparable {
-	case noW, c2, cm2, c2d1, w2, w2d1, c1, cm1, dw, dl, w1, w0
+	case noW, c2, dw, dl, cm2, c2d1, w2, w2d1, c1, cm1, w1, w0
 }
 
 enum SolveType {
@@ -487,7 +487,9 @@ class Game: ObservableObject {
 				BoardScene.main.spinMoves()
 				self.player[0].cancelMove()
 				self.player[1].cancelMove()
-				self.processingMove = false
+				self.timers.append(Timer.after(1) {
+					self.processingMove = false
+				})
 			})
 		}
 		

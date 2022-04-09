@@ -100,6 +100,7 @@ class Game: ObservableObject {
     var premoves: [Int] = []
     var movesBack: Int = 0
     var currentHintMoves: Set<Int>? = []
+	var processingMove: Bool = false
 	let notificationGenerator = UINotificationFeedbackGenerator()
 	let moveImpactGenerator = UIImpactFeedbackGenerator(style: .medium)
     

@@ -13,6 +13,7 @@
 		1E017BA024CDB71A00CF979A /* PlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E017B9F24CDB71A00CF979A /* PlayView.swift */; };
 		1E02D59B24CE5696001BF62B /* AboutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E02D59A24CE5696001BF62B /* AboutView.swift */; };
 		1E22E0F2260C21EB007F627A /* Online.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E22E0F1260C21EB007F627A /* Online.swift */; };
+		1E272E742800C37C0080216D /* TipView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E272E732800C37C0080216D /* TipView.swift */; };
 		1E2E74BC24E86AA600218E55 /* GameView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E2E74BB24E86AA600218E55 /* GameView.swift */; };
 		1E2E74BE24E86B6500218E55 /* BoardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E2E74BD24E86B6500218E55 /* BoardView.swift */; };
 		1E31208A273D9BF6005BA437 /* WelcomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E312089273D9BF6005BA437 /* WelcomeView.swift */; };
@@ -237,6 +238,7 @@
 		1E017B9F24CDB71A00CF979A /* PlayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayView.swift; sourceTree = "<group>"; };
 		1E02D59A24CE5696001BF62B /* AboutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutView.swift; sourceTree = "<group>"; };
 		1E22E0F1260C21EB007F627A /* Online.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Online.swift; sourceTree = "<group>"; };
+		1E272E732800C37C0080216D /* TipView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TipView.swift; sourceTree = "<group>"; };
 		1E2E74BB24E86AA600218E55 /* GameView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameView.swift; sourceTree = "<group>"; };
 		1E2E74BD24E86B6500218E55 /* BoardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardView.swift; sourceTree = "<group>"; };
 		1E312089273D9BF6005BA437 /* WelcomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeView.swift; sourceTree = "<group>"; };
@@ -690,6 +692,7 @@
 				1EAE5F69263121D6000C8270 /* FeedbackView.swift */,
 				1EAEE3BA24D9DA1400490530 /* FriendsView.swift */,
 				1EAEE3BC24D9DCBA00490530 /* ReplaysView.swift */,
+				1E272E732800C37C0080216D /* TipView.swift */,
 				1E883EFA24EE3B14002686C8 /* Layout.swift */,
 			);
 			path = "top ui";
@@ -1160,6 +1163,7 @@
 				1E516E0027A50474004938ED /* TutorialPlayer.swift in Sources */,
 				1EBD920125897ED90082B65E /* User.swift in Sources */,
 				1EE2D5FB2738A3F500DE309F /* PracticeGameView.swift in Sources */,
+				1E272E742800C37C0080216D /* TipView.swift in Sources */,
 				1E5A5AAE24CD077900F31124 /* TrainView.swift in Sources */,
 				1E776157271E372200D83000 /* TutorialMenuView.swift in Sources */,
 				1EB693952599A1470025B080 /* Warrior.swift in Sources */,

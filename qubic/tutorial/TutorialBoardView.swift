@@ -29,6 +29,7 @@ class TutorialBoardScene: BoardScene {
 	func reset() {
 		super.reset(for: Game.main)
 		
+		camera.removeAllActions()
 		camera.position = SCNVector3(-1, 10, -1)
 		camera.rotation = SCNVector4(1, 0, 0, -Float.pi/2)
 		camera.camera?.orthographicScale = 6.7
@@ -41,7 +42,7 @@ class TutorialBoardScene: BoardScene {
 	}
 	
 	@objc override func handleTap(_ gestureRecognize: UIGestureRecognizer) {
-		if TutorialLayout.main.readyToContinue {
+		if TutorialLayout.main.readyToContinue || TutorialLayout.main.readyToAdvance {
 			TutorialLayout.main.next()
 			return
 		}

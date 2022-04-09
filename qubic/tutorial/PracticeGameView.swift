@@ -97,6 +97,7 @@ struct PracticeGameView: View {
 			if game.processingMove { break }
 			else if gameLayout.popup == .gameEnd {
 				game.reviewingGame = true
+				tutorialLayout.readyToContinue = true
 				step = .post
 				gameLayout.setPopups(to: .settings)
 			} else if game.movesBack == 0 && game.moves.count == 6 {
@@ -109,6 +110,7 @@ struct PracticeGameView: View {
 			}
 		case .great:
 			game.reviewingGame = true
+			tutorialLayout.readyToContinue = true
 			step = .post
 			gameLayout.setPopups(to: .settings)
 		case .post:
@@ -246,6 +248,7 @@ struct PracticeGameView: View {
 					} else if gameLayout.popup == .options || gameLayout.popup == .gameEnd || gameLayout.popup == .settings {
 						if gameLayout.popup == .gameEnd && step == .great {
 							game.reviewingGame = true
+							tutorialLayout.readyToContinue = true
 							step = .post
 							gameLayout.setPopups(to: .settings)
 						} else {
@@ -471,6 +474,7 @@ struct PracticeGameView: View {
 			Fill().opacity(gameLayout.popup == .gameEnd ? 0.015 : 0)
 				.onTapGesture {
 					game.reviewingGame = true
+					tutorialLayout.readyToContinue = true
 					step = .post
 					gameLayout.setPopups(to: .settings)
 				}
@@ -479,6 +483,7 @@ struct PracticeGameView: View {
 //				Text("share board")
 				Button("review game") {
 					game.reviewingGame = true
+					tutorialLayout.readyToContinue = true
 					step = .post
 					gameLayout.setPopups(to: .settings)
 				}
