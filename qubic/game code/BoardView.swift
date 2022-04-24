@@ -172,7 +172,8 @@ class BoardScene {
 				if TutorialGame.tutorialMain.gameState == .active && TutorialGame.tutorialMain.turn == 0 || TutorialGame.tutorialMain.gameState == .opResign {
 					user.move(at: p)
 				}
-			} else if let user = game.player[turn] as? User, game.premoves.isEmpty {
+			}
+			if let user = game.player[turn] as? User, game.premoves.isEmpty {
 				if Storage.int(.confirmMoves) == 0 {
 					if p == potentialMove {
 						potentialMove = nil

@@ -16,7 +16,7 @@ struct TipView: View {
 		VStack(spacing: 0) {
 			VStack(spacing: 0) {
 				Text(tipStatus.text).padding(20)
-				Button("dismiss") { withAnimation { tipStatus.displayed = false } }
+				Button("dismiss") { withAnimation(.easeIn(duration: 2.5)) { tipStatus.displayed = false } }
 				Blank(20)
 			}
 			.buttonStyle(Solid())
@@ -26,7 +26,7 @@ struct TipView: View {
 			.cornerRadius(20)
 			.shadow(radius: 15)
 			.offset(y: tipStatus.displayed ? 0 : -500)
-			Spacer().frame(height: tipStatus.displayed ? nil : layout.fullHeight + 50)
+			Spacer()
 		}.frame(height: layout.safeHeight)
 	}
 }
@@ -115,7 +115,7 @@ class TipStatus: ObservableObject {
 		if tip != .none {
 			text = TipStatus.tipOptions[tip] ?? ""
 			Timer.after(0.3) {
-				withAnimation {
+				withAnimation(.easeOut(duration: 0.5)) {
 					self.displayed = true
 				}
 			}

@@ -57,6 +57,7 @@ struct GameView: View {
 		.alert(isPresented: $gameLayout.showDCAlert, content: { enableBadgesAlert })
 		.alert(isPresented: $gameLayout.showCubistAlert, content: { cubistAlert })
         .onAppear {
+			TutorialGame.tutorialMain.gameState = .off
             game.newHints = refreshHintPickerContent
 			gameLayout.animateIntro(for: game)
         }

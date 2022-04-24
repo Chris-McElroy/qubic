@@ -40,6 +40,7 @@ class TutorialLayout: ObservableObject {
 //	}
 	
 	func exitTutorial() {
+		TutorialGame.tutorialMain.gameState = .off
 		if Storage.string(.name) == "new player" && current != .setName {
 			advance(to: .setName, while: current)
 			return
@@ -66,6 +67,7 @@ class TutorialLayout: ObservableObject {
 	}
 	
 	func reset() {
+		TutorialGame.tutorialMain.gameState = .off
 		TutorialBoardScene.tutorialMain.reset()
 		resetTTTLinesTimers()
 	}

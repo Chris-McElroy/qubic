@@ -202,7 +202,7 @@ class Layout: ObservableObject {
     }
 	
 	func goBack() {
-		withAnimation { TipStatus.main.displayed = false }
+		withAnimation(.easeIn(duration: 0.5)) { TipStatus.main.displayed = false }
 		TipStatus.main.updateTip(for: current.back)
 		Game.main.turnOff()
 		FB.main.cancelOnlineSearch?()
@@ -319,7 +319,7 @@ class Layout: ObservableObject {
 	}
 	
 	func change(to newLayout: ViewState, or otherLayout: ViewState? = nil) {
-		withAnimation { TipStatus.main.displayed = false }
+		withAnimation(.easeIn(duration: 0.5)) { TipStatus.main.displayed = false }
 		if let nextView = (current != newLayout) ? newLayout : otherLayout {
 			withAnimation(.easeInOut(duration: 0.4)) { //0.4
 				current = nextView
