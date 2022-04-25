@@ -36,6 +36,11 @@ extension Sequence where Element: AdditiveArithmetic {
 	func sum() -> Element { reduce(.zero, +) }
 }
 
+
+func bound<N: Numeric>(_ l: N, _ m: N, _ u: N) -> N where N: Comparable {
+	min(u, max(l, m))
+}
+
 extension Date {
 	func isYesterday() -> Bool {
 		Calendar.current.isDateInYesterday(self)
