@@ -35,24 +35,33 @@ struct NewHPicker: View {
 	static let ticker: UIImpactFeedbackGenerator = UIImpactFeedbackGenerator(style: .light)
 	
 	var body: some View {
-		HStack(spacing: 0) {
-			Spacer()
-				.frame(width: max(0, (CGFloat(content.count) - focus)) * width)
-			ForEach(0..<Int(content.count), id: \.self) { i in
-				Text(content[i])
-					.frame(width: width, height: height)
-					.background(Fill())
-					.opacity(fade(for: i))
-					.onTapGesture {
-						selected = i
-						withAnimation(.easeInOut(duration: 0.19 + Double(abs(focus - CGFloat(i)))*0.06)) {
-							focus = CGFloat(i)
+		ZStack {
+			HStack(spacing: 0) {
+				Spacer()
+					.frame(width: max(0, (CGFloat(content.count) - focus)) * width)
+				ForEach(0..<Int(content.count), id: \.self) { i in
+					Text(content[i])
+						.frame(width: width, height: height)
+						.background(Fill())
+	//					.opacity(fade(for: i))
+						.onTapGesture {
+							selected = i
+							withAnimation(.easeInOut(duration: 0.19 + Double(abs(focus - CGFloat(i)))*0.06)) {
+								focus = CGFloat(i)
+							}
+							onSelection(i)
 						}
-						onSelection(i)
-					}
+				}
+				Spacer()
+					.frame(width: max(0,focus + 1) * width)
 			}
-			Spacer()
-				.frame(width: max(0,focus + 1) * width)
+			HStack(spacing: 0) {
+				LinearGradient(colors: [.systemBackground.opacity(0.7), .clear], startPoint: .leading, endPoint: .trailing)
+				Spacer().frame(width: width)
+				LinearGradient(colors: [.clear, .systemBackground.opacity(0.7)], startPoint: .leading, endPoint: .trailing)
+			}
+			.frame(width: Layout.main.width)
+			.allowsHitTesting(false)
 		}
 		.buttonStyle(Solid())
 		.onAppear {

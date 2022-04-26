@@ -27,6 +27,7 @@ struct MainView: View {
 				.onReceive(screen.objectWillChange) { layout.load(for: screen) }
 		} else {
 			TestPicker()
+				.onAppear { layout.load(for: screen) }
 //			ZStack {
 //				VStack(alignment: .center, spacing: 0) {
 //					Spacer().modifier(LayoutModifier(for: .topSpacer))
