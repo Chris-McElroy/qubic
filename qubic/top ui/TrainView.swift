@@ -66,22 +66,6 @@ struct TrainView: View {
     var hints: Bool {
 		layout.trainSelection[2] == 0
     }
-    
-//    var difficultyPicker: some View {
-//        HStack {
-//            Image("pinkCube")
-//                .resizable()
-//                .frame(width: 40, height: 40)
-//        }
-//    }
-//
-//    var boardPicker: some View {
-//        Text("Beginner")
-//            .foregroundColor(.white)
-//            .frame(width: 160, height: 40)
-//            .background(Rectangle().foregroundColor(.red))
-//            .cornerRadius(100)
-//    }
 }
 
 struct TrainView_Previews: PreviewProvider {
