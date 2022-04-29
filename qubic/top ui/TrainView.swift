@@ -19,15 +19,21 @@ struct TrainView: View {
         } else if layout.current == .trainMenu {
             VStack(spacing: 0) {
                 Spacer()
-				HPicker(content: .constant(menuText), dim: (90, 55), selected: $layout.trainSelection, action: onSelection)
-                    .frame(height: 180)
-                    .opacity(layout.current == .trainMenu ? 1 : 0)
+				NewHPicker(width: 90, height: 55, selection: $layout.trainSelection[0],
+						   labels: .constant(["sandbox", "challenge"]), onSelection: onSelection)
+				NewHPicker(width: 90, height: 55, selection: $layout.trainSelection[1],
+						   labels: .constant(["first", "random", "second"]), onSelection: onSelection)
+				NewHPicker(width: 90, height: 55, selection: $layout.trainSelection[2],
+						   labels: .constant(["novice", "defender", "warrior", "tyrant", "oracle", "cubist"]),
+						   underlines: .constant(beaten), onSelection: onSelection)
+				Blank(5)
             }
 			.onAppear { TipStatus.main.updateTip(for: .trainMenu) }
         }
     }
     
-    func onSelection(row: Int, component: Int) {
+	func onSelection(_: Int) {
+		print("selecting in TrainView")
 		var newTrainMenu = layout.trainSelection
         newTrainMenu[1] = 1
         Storage.set(newTrainMenu, for: .lastTrainMenu)

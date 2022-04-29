@@ -16,8 +16,8 @@ struct TestPicker: View {
 	
 	var body: some View {
 		VStack(spacing: 0) {
-			NewHPicker(width: 100, height: 50, scaling: 0.7, selected: $sel[0], labels: $list, underlines: $und, onSelection: onSelection)
-			NewHPicker(width: 100, height: 50, selected: $sel[1], labels: .constant(["hi", "more", "buttons"])) { print("gottem", $0) }
+			NewHPicker(width: 100, height: 50, scaling: 0.7, selection: $sel[0], labels: $list, underlines: $und, onSelection: onSelection)
+			NewHPicker(width: 100, height: 50, selection: $sel[1], labels: .constant(["hi", "more", "buttons"])) { print("gottem", $0) }
 		}
 	}
 	
@@ -28,7 +28,7 @@ struct TestPicker: View {
 }
 
 struct NewHPicker: View {
-	@Binding var selected: Int
+	@Binding var selection: Int
 	@Binding var labels: [Any]
 	@Binding var underlines: [Bool]
 	let width: CGFloat
@@ -36,17 +36,18 @@ struct NewHPicker: View {
 	let scaling: CGFloat
 	let onSelection: (Int) -> Void
 	
-	@State var focus: CGFloat = 0
+	@State var focus: CGFloat = -1
 	@State var startFocus: CGFloat? = nil
-	@State var lastFocus: CGFloat = 0
+	@State var lastFocus: CGFloat = -1
+	@State var lastSelection: Int = -1
 	
-	init(width: CGFloat, height: CGFloat, scaling: CGFloat = 1.0, selected: Binding<Int>, labels: Binding<[Any]>, underlines: Binding<[Bool]>? = nil, onSelection: @escaping (Int) -> Void) {
+	init(width: CGFloat, height: CGFloat, scaling: CGFloat = 1.0, selection: Binding<Int>, labels: Binding<[Any]>, underlines: Binding<[Bool]>? = nil, onSelection: @escaping (Int) -> Void) {
 		self.width = width
 		self.height = height
 		self.scaling = scaling
 		self.onSelection = onSelection
 		
-		self._selected = selected
+		self._selection = selection
 		self._labels = labels
 		self._underlines = underlines ?? .constant(Array(repeating: false, count: labels.count))
 	}
@@ -63,7 +64,7 @@ struct NewHPicker: View {
 						.frame(width: width, height: height)
 						.background(Fill())
 						.onTapGesture {
-							selected = i
+							selection = i
 							withAnimation(.easeInOut(duration: 0.19 + Double(abs(focus - CGFloat(i)))*0.06)) {
 								focus = CGFloat(i)
 							}
@@ -82,11 +83,9 @@ struct NewHPicker: View {
 			.allowsHitTesting(false)
 		}
 		.buttonStyle(Solid())
-		.onAppear {
-			focus = CGFloat(selected)
-		}
-		.onReceive(Just(focus), perform: tickIfNew) // TODO change to onChange when on iOS 14+
-		.onReceive(Just(selected), perform: changeSelection) // TODO change to onChange when on iOS 14+
+		.onReceive(Just(focus), perform: tickIfNew) // TODO change to onChange when on iOS 14+ (and consider losing lastFocus)
+		.onReceive(Just(selection), perform: changeSelection) // TODO change to onChange when on iOS 14+ (and consider losing lastSelection)
+		.onAppear { focus = CGFloat(selection) }
 		.gesture(swipe)
 	}
 	
@@ -134,7 +133,7 @@ struct NewHPicker: View {
 					withAnimation(.easeInOut(duration: 0.2)) {
 						focus = focus.rounded(.toNearestOrAwayFromZero)
 					}
-					selected = Int(focus)
+					selection = Int(focus)
 					startFocus = nil
 					return
 				}
@@ -143,22 +142,31 @@ struct NewHPicker: View {
 				if closest < 0 { closest = 0 }
 				let time = bound(0.1, Double(abs(closest - (start - drag.translation.width/width))/7), 0.4)
 				print(time, abs(closest - (start - drag.translation.width/width))/7)
-				selected = Int(closest)
+				selection = Int(closest)
 				withAnimation(.easeIn(duration: time)) { focus = closest }
 				startFocus = nil
 			}
 	}
 	
 	func tickIfNew(newFocus: CGFloat) {
+		if lastFocus == -1 {
+			lastFocus = newFocus
+		}
 		if newFocus.rounded(.down) != lastFocus.rounded(.down) {
 			NewHPicker.ticker.impactOccurred()
+			lastFocus = newFocus
 		}
-		lastFocus = newFocus
 	}
 	
 	func changeSelection(i: Int) {
-		withAnimation(.easeInOut(duration: 0.19 + Double(abs(focus - CGFloat(i)))*0.06)) {
-			focus = CGFloat(i)
+		if lastSelection == -1 {
+			lastSelection = i
+		}
+		if i != lastSelection {
+			withAnimation(.easeInOut(duration: 0.19 + Double(abs(focus - CGFloat(i)))*0.06)) {
+				focus = CGFloat(i)
+			}
+			lastSelection = i
 		}
 	}
 	

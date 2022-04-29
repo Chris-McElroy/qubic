@@ -26,27 +26,25 @@ struct MainView: View {
 				.onAppear { layout.load(for: screen) }
 				.onReceive(screen.objectWillChange) { layout.load(for: screen) }
 		} else {
-			TestPicker()
-				.onAppear { layout.load(for: screen) }
-//			ZStack {
-//				VStack(alignment: .center, spacing: 0) {
-//					Spacer().modifier(LayoutModifier(for: .topSpacer))
-//					top.zIndex(9)
-//					mainStack.zIndex(1)
-//					moreStack.zIndex(0)
-//					Spacer()
-//					backButton.modifier(LayoutModifier(for: .backButton))
-//						.offset(y: layout.backButtonOffset)
-//						.zIndex(10)
-//				}
-//				TipView()
-//			}
-//			.onAppear { layout.load(for: screen) }
-//			.onAppear { TipStatus.main.updateTip(for: .main) }
-//			.onReceive(screen.objectWillChange) { layout.load(for: screen) }
-//			.frame(height: layout.total)
-//			.background(Fill())
-//			.gesture(scrollGestures)
+			ZStack {
+				VStack(alignment: .center, spacing: 0) {
+					Spacer().modifier(LayoutModifier(for: .topSpacer))
+					top.zIndex(9)
+					mainStack.zIndex(1)
+					moreStack.zIndex(0)
+					Spacer()
+					backButton.modifier(LayoutModifier(for: .backButton))
+						.offset(y: layout.backButtonOffset)
+						.zIndex(10)
+				}
+				TipView()
+			}
+			.onAppear { layout.load(for: screen) }
+			.onAppear { TipStatus.main.updateTip(for: .main) }
+			.onReceive(screen.objectWillChange) { layout.load(for: screen) }
+			.frame(height: layout.total)
+			.background(Fill())
+			.gesture(scrollGestures)
 		}
     }
     
