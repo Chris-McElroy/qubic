@@ -10,7 +10,7 @@ import SwiftUI
 import UIKit
 import CoreGraphics
 
-struct HPicker : UIViewRepresentable {
+struct OldHPicker : UIViewRepresentable {
     @Binding var content: [[Any]]
     @State var dim: (CGFloat,CGFloat)
     @Binding var selected: [Int]
@@ -42,9 +42,9 @@ struct HPicker : UIViewRepresentable {
     }
     
     class Coordinator: NSObject, UIPickerViewDelegate, UIPickerViewDataSource {
-        var parent: HPicker
+        var parent: OldHPicker
         
-        init(parent1: HPicker) {
+        init(parent1: OldHPicker) {
             parent = parent1
         }
         

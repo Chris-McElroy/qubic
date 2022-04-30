@@ -11,7 +11,7 @@ import Messages
 
 class MessagesViewController: MSMessagesAppViewController {
     var selected: MSMessage?
-    let picker = HPicker(content: [["first", "random", "second"]], dim: (100,100), selected: [1], action: {_,_ in })
+    let picker = OldHPicker(content: [["first", "random", "second"]], dim: (100,100), selected: [1], action: {_,_ in })
     let loadButton = UIButton()
     var gameView = UIView()
     let sentLabel = UILabel()

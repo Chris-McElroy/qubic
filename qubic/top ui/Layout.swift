@@ -153,7 +153,7 @@ class Layout: ObservableObject {
     var fullHeight: CGFloat = 800
     var safeHeight: CGFloat = 800
     var menuHeight: CGFloat = 800
-    var width: CGFloat = 0
+	var width: CGFloat = 0
     private var topGap: CGFloat = 80
 	private var bottomGap: CGFloat = 80
     var backButtonOffset: CGFloat {

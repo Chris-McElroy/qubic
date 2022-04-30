@@ -19,11 +19,11 @@ struct TrainView: View {
         } else if layout.current == .trainMenu {
             VStack(spacing: 0) {
                 Spacer()
-				NewHPicker(width: 90, height: 55, selection: $layout.trainSelection[0],
+				HPicker(width: 90, height: 55, selection: $layout.trainSelection[2],
 						   labels: .constant(["sandbox", "challenge"]), onSelection: onSelection)
-				NewHPicker(width: 90, height: 55, selection: $layout.trainSelection[1],
+				HPicker(width: 90, height: 55, selection: $layout.trainSelection[1],
 						   labels: .constant(["first", "random", "second"]), onSelection: onSelection)
-				NewHPicker(width: 90, height: 55, selection: $layout.trainSelection[2],
+				HPicker(width: 90, height: 55, selection: $layout.trainSelection[0],
 						   labels: .constant(["novice", "defender", "warrior", "tyrant", "oracle", "cubist"]),
 						   underlines: .constant(beaten), onSelection: onSelection)
 				Blank(5)
@@ -33,21 +33,9 @@ struct TrainView: View {
     }
     
 	func onSelection(_: Int) {
-		print("selecting in TrainView")
 		var newTrainMenu = layout.trainSelection
         newTrainMenu[1] = 1
         Storage.set(newTrainMenu, for: .lastTrainMenu)
-    }
-
-    var menuText: [[Any]] {
-        [[("novice",    beaten[0]),
-          ("defender",  beaten[1]),
-          ("warrior",   beaten[2]),
-          ("tyrant",    beaten[3]),
-          ("oracle",    beaten[4]),
-          ("cubist",    beaten[5])],
-         ["first", "random", "second"],
-         ["sandbox", "challenge"]]
     }
     
     var mode: GameMode {

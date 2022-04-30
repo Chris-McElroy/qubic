@@ -11,15 +11,9 @@ import MessageUI
 
 struct PlayView: View {
     @ObservedObject var layout = Layout.main
-    static let onlineMenuText = [["local", "online", "invite"],
-                                 ["bots", "auto", "humans"],
-                                 ["untimed", "1 min", "5 min", "10 min"],
-                                 ["sandbox", "challenge"]]
-    static let altMenuText = [["local", "online", "invite"],
-                              ["first", "random", "second"],
-                              ["untimed", "1 min", "5 min", "10 min"],
-                              ["sandbox", "challenge"]]
-    @State var menuText: [[Any]] = PlayView.onlineMenuText
+    static let onlineTurnText = ["bots", "auto", "humans"]
+    static let normalTurnText = ["first", "random", "second"]
+    @State var turnText: [Any] = PlayView.onlineTurnText
     @State var tip = tips.randomElement() ?? ""
     
     var body: some View {
@@ -30,41 +24,29 @@ struct PlayView: View {
 			VStack {
 				Spacer()
 				if layout.current == .playMenu {
-					ZStack {
-						VStack(spacing: 0) {
-							Spacer()
-							HPicker(content: $menuText, dim: (90, 37), selected: $layout.playSelection, action: onSelection)
-								.frame(height: 165)
-						}
-						VStack(spacing: 0) {
-							Spacer()
-							Spacer()
-							Button(action: { tip = PlayView.tips.filter({ $0 != tip }).randomElement() ?? "" }) {
-								VStack(spacing: 0) {
-									Text("tip")
-										.bold()
-										.modifier(Oligopoly(size: 16))
-										.padding(.top, 20)
-									Fill(3)
-									Text(tip)
-										.padding(.horizontal, 20)
-										.lineLimit(10)
-										.multilineTextAlignment(.center)
-										.frame(height: 120, alignment: .top)
-								}.background(Fill())
-							}
-							.buttonStyle(Solid())
-							Spacer()
-							Fill(100)
-								.opacity(mode == .local ? 0.0 : 0.8)
-								.animation(.linear(duration: 0.15))
-							Fill(74)
-								.opacity(mode != .invite ? 0.0 : 0.8)
-								.animation(.linear(duration: 0.15))
-							Blank(37)
-						}
+					VStack(spacing: 0) {
+						Spacer()
+						Spacer()
+						tipArea
+						Spacer()
+						
+						HPicker(width: 90, height: 42, selection: $layout.playSelection[3], labels: .constant(["sandbox", "challenge"]), onSelection: updateLastPlayMenu)
+							.modifier(EnableHPicker(on: mode == .local))
+						HPicker(width: 90, height: 42, selection: $layout.playSelection[2], labels: .constant(["untimed", "1 min", "5 min", "10 min"]), onSelection: {
+							FB.main.cancelOnlineSearch?()
+							updateLastPlayMenu($0)
+						})
+						.modifier(EnableHPicker(on: mode != .invite))
+						HPicker(width: 90, height: 42, selection: $layout.playSelection[1], labels: $turnText, onSelection: { _ in
+							FB.main.cancelOnlineSearch?()
+						})
+						.modifier(EnableHPicker(on: mode != .invite))
+						HPicker(width: 90, height: 42, selection: $layout.playSelection[0], labels: .constant(["local", "online", "invite"]), onSelection: { _ in
+							FB.main.cancelOnlineSearch?()
+							turnText = mode == .online ? PlayView.onlineTurnText : PlayView.normalTurnText
+						})
 					}.onAppear {
-					//                FB.main.finishedOnlineGame(with: .error) // not sure which case this covered
+//                		FB.main.finishedOnlineGame(with: .error) // not sure which case this covered
 						tip = PlayView.tips.filter({ $0 != tip }).randomElement() ?? ""
 						TipStatus.main.updateTip(for: .playMenu)
 					}
@@ -72,6 +54,24 @@ struct PlayView: View {
 			}
         }
     }
+	
+	var tipArea: some View {
+		Button(action: { tip = PlayView.tips.filter({ $0 != tip }).randomElement() ?? "" }) {
+			VStack(spacing: 0) {
+				Text("tip")
+					.bold()
+					.modifier(Oligopoly(size: 16))
+					.padding(.top, 20)
+				Fill(3)
+				Text(tip)
+					.padding(.horizontal, 20)
+					.lineLimit(10)
+					.multilineTextAlignment(.center)
+					.frame(height: 120, alignment: .top)
+			}.background(Fill())
+		}
+		.buttonStyle(Solid())
+	}
     
     var mode: GameMode {
         switch layout.playSelection[0] {
@@ -104,16 +104,25 @@ struct PlayView: View {
 		layout.playSelection[3] == 0 && mode != .online
     }
     
-    func onSelection(row: Int, component: Int) {
-        FB.main.cancelOnlineSearch?()
-        if component == 0 {
-            menuText = mode == .online ? PlayView.onlineMenuText : PlayView.altMenuText
-        }
+	func updateLastPlayMenu(_: Int) {
         var newPlayMenu = layout.playSelection
         newPlayMenu[0] = 1
         newPlayMenu[1] = 1
         Storage.set(newPlayMenu, for: .lastPlayMenu)
     }
+	
+	struct EnableHPicker: ViewModifier {
+		let on: Bool
+		
+		func body(content: Content) -> some View {
+			ZStack {
+				content
+				Fill(42)
+					.opacity(on ? 0.0 : 0.6)
+					.animation(.linear(duration: 0.15))
+			}
+		}
+	}
     
     static let tips: [String] = [
 		"swipe down in game for analysis!",

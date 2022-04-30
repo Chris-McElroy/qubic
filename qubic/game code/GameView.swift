@@ -478,7 +478,7 @@ struct GameView: View {
 				// HPickers
 				VStack(spacing: 0) {
 					Spacer()
-					HPicker(content: $hintPickerContent, dim: (70, 50), selected: $gameLayout.hintSelection, action: onAnalysisSelection)
+					OldHPicker(content: $hintPickerContent, dim: (70, 50), selected: $gameLayout.hintSelection, action: onAnalysisSelection)
 					 .frame(height: 100)
 				}
 				// Mask
@@ -540,11 +540,11 @@ struct GameView: View {
 			ZStack {
 				VStack(spacing: 0) {
 					Fill(32)
-					HPicker(content: .constant(picker1Content), dim: (60,55), selected: $gameLayout.settingsSelection1, action: gameLayout.onSettingsSelection1)
+					OldHPicker(content: .constant(picker1Content), dim: (60,55), selected: $gameLayout.settingsSelection1, action: gameLayout.onSettingsSelection1)
 						.frame(height: 165)
 						.zIndex(1)
 					Fill(9)
-					HPicker(content: .constant(picker2Content), dim: (60,55), selected: $gameLayout.settingsSelection2, action: gameLayout.onSettingsSelection2)
+					OldHPicker(content: .constant(picker2Content), dim: (60,55), selected: $gameLayout.settingsSelection2, action: gameLayout.onSettingsSelection2)
 						.frame(height: 55)
 						.zIndex(0)
 				}

@@ -20,7 +20,7 @@ struct SetNameView: View {
 		ZStack {
 			VStack(spacing: 0) {
 				Blank(280)
-				HPicker(content: .constant(pickerContent), dim: (60,55), selected: $selected, action: onSelection)
+				OldHPicker(content: .constant(pickerContent), dim: (60,55), selected: $selected, action: onSelection)
 					.frame(height: 55)
 				Spacer()
 				Spacer()

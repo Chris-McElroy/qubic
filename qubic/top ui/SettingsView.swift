@@ -88,14 +88,14 @@ struct SettingsView: View {
                 // HPickers
                 VStack(spacing: 0) {
                     Fill(73)
-                    HPicker(content: .constant(picker1Content), dim: (60,55), selected: $selected1, action: onSelection1)
+					OldHPicker(content: .constant(picker1Content), dim: (60,55), selected: $selected1, action: onSelection1)
                         .frame(height: 165)
                         .onAppear {
 							updateSelections()
                         }
 						.onAppear { TipStatus.main.updateTip(for: .settings) }
                     Fill(15)
-                    HPicker(content: .constant(picker2Content), dim: (60,55), selected: $selected2, action: onSelection2)
+					OldHPicker(content: .constant(picker2Content), dim: (60,55), selected: $selected2, action: onSelection2)
                         .frame(height: 165)
 						.zIndex(-1)
 //                    Fill(102)

@@ -11,7 +11,7 @@ import SwiftUI
 struct AboutView: View {
     @ObservedObject var layout = Layout.main
     let pickerContent: [[Any]] = [["how to play", "using the app", "developer bio", "helpful links"]]
-    @State var selected: [Int] = [0]
+    @State var selected: Int = 0
     @State var page: Int = 0
     var width: CGFloat { min(500, layout.width) }
     
@@ -29,8 +29,7 @@ struct AboutView: View {
                 ZStack {
                     VStack(spacing: 0) {
                         Spacer()
-                        HPicker(content: .constant(pickerContent), dim: (130,40), selected: $selected, action: onSelection)
-                            .frame(height: 50)
+						HPicker(width: 130, height: 50, selection: $selected, labels: .constant(pickerContent), onSelection: onSelection)
                     }
                     VStack(spacing: 0) {
                         ZStack {
@@ -65,20 +64,20 @@ struct AboutView: View {
                 let w = drag.translation.width
                 if abs(h)/abs(w) < 1 {
                     if w > 0 {
-                        if selected[0] > 0 { selected[0] -= 1 }
+                        if selected > 0 { selected -= 1 }
                     } else {
-                        if selected[0] < 3 { selected[0] += 1 }
+                        if selected < 3 { selected += 1 }
                     }
                     withAnimation {
-                        page = selected[0]
+                        page = selected
                     }
                 }
             }
     }
     
-    func onSelection(row: Int, component: Int) {
+    func onSelection(i: Int) {
         withAnimation {
-            page = row
+            page = i
         }
     }
     

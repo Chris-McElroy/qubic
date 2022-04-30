@@ -671,7 +671,7 @@ struct PracticeGameView: View {
 				// HPickers
 				VStack(spacing: 0) {
 					Spacer()
-					HPicker(content: $hintPickerContent, dim: (70, 50), selected: $gameLayout.hintSelection, action: onAnalysisSelection)
+					OldHPicker(content: $hintPickerContent, dim: (70, 50), selected: $gameLayout.hintSelection, action: onAnalysisSelection)
 					 .frame(height: 100)
 				}
 				// Mask

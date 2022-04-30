@@ -10,25 +10,10 @@ import SwiftUI
 
 struct SolveView: View {
     @ObservedObject var layout = Layout.main
-    @State var menuText: [[Any]] = getMenuText()
+    @State var typeLabels: [Any] = getTypeLabels()
+	@State var boardLabels: [Any] = getBoardLabels()
+	@State var solvedBoards: [Bool] = getSolves()
     @State var menuUpdateTimer: Timer?
-    
-    var mode: GameMode {
-        switch layout.solveSelection[1] {
-        case 0: return .daily
-        case 1: return .simple
-        case 2: return .common
-        default: return .tricky
-        }
-    }
-    var boardNum: Int {
-        switch layout.solveSelection[1] {
-        case 0: return layout.solveSelection[0] - 0
-		case 1: return layout.solveSelection[0] - solveBoardCount(.daily)
-        case 2: return layout.solveSelection[0] - (solveBoardCount(.daily) + (solveBoardCount(.simple) + 1))
-		default: return layout.solveSelection[0] - (solveBoardCount(.daily) + (solveBoardCount(.simple) + 1) + (solveBoardCount(.common) + 1))
-        }
-    }
     
     var body: some View {
         VStack(spacing: 0) {
@@ -36,43 +21,61 @@ struct SolveView: View {
                 GameView()
                     .onAppear { Game.main.load(mode: mode, boardNum: boardNum) }
             } else if layout.current == .solveMenu {
-                HPicker(content: $menuText, dim: (100, 40), selected: $layout.solveSelection, action: onSelection)
-					.frame(height: 80)
-                    .opacity(layout.current == .solveMenu ? 1 : 0)
-                    .onAppear { refreshMenu() }
+				HPicker(width: 100, height: 40, selection: $layout.solveSelection[1], labels: $typeLabels, onSelection: onTypeSelection)
+				HPicker(width: 100, height: 40, selection: $layout.solveSelection[0], labels: $boardLabels, underlines: $solvedBoards, onSelection: onBoardSelection)
+					.onAppear { refreshMenu() }
 					.onAppear { TipStatus.main.updateTip(for: .solveMenu) }
-                Blank(3)
             }
         }
 		.onAppear { refreshMenu() }
     }
     
     func refreshMenu() {
-        menuText = SolveView.getMenuText()
+        typeLabels = SolveView.getTypeLabels()
+		boardLabels = SolveView.getBoardLabels()
         updateDailyData()
         let delay = Calendar.current.startOfDay(for: Date().addingTimeInterval(86400)).timeIntervalSinceNow
         menuUpdateTimer?.invalidate()
         menuUpdateTimer = Timer.after(delay, run: {
-            menuText = SolveView.getMenuText()
+			typeLabels = SolveView.getTypeLabels()
+			boardLabels = SolveView.getBoardLabels()
 			updateDailyData()
         })
     }
-    
-    func onSelection(row: Int, component: Int) {
-        if component == 1 {
-            switch row {
-            case 0: layout.solveSelection[0] = firstBoard(of: .daily)
-            case 1: layout.solveSelection[0] = solveBoardCount(.daily) + firstBoard(of: .simple)
-            case 2: layout.solveSelection[0] = solveBoardCount(.daily) + (solveBoardCount(.simple) + 1) + firstBoard(of: .common)
-            case 3: layout.solveSelection[0] = solveBoardCount(.daily) + (solveBoardCount(.simple) + 1) + (solveBoardCount(.common) + 1) + firstBoard(of: .tricky)
-			default: break
-            }
-        } else {
-            if row < solveBoardCount(.daily) { layout.solveSelection[1] = 0 }
-            else if row < solveBoardCount(.daily) + (solveBoardCount(.simple) + 1) { layout.solveSelection[1] = 1 }
-            else if row < solveBoardCount(.daily) + (solveBoardCount(.simple) + 1) + (solveBoardCount(.common) + 1) { layout.solveSelection[1] = 2 }
-            else { layout.solveSelection[1] = 3 }
-        }
+	
+	var mode: GameMode {
+		switch layout.solveSelection[1] {
+		case 0: return .daily
+		case 1: return .simple
+		case 2: return .common
+		default: return .tricky
+		}
+	}
+	
+	var boardNum: Int {
+		switch layout.solveSelection[1] {
+		case 0: return layout.solveSelection[0] - 0
+		case 1: return layout.solveSelection[0] - solveBoardCount(.daily)
+		case 2: return layout.solveSelection[0] - (solveBoardCount(.daily) + (solveBoardCount(.simple) + 1))
+		default: return layout.solveSelection[0] - (solveBoardCount(.daily) + (solveBoardCount(.simple) + 1) + (solveBoardCount(.common) + 1))
+		}
+	}
+	
+	func onTypeSelection(type: Int) {
+		switch type {
+		case 0: layout.solveSelection[0] = firstBoard(of: .daily)
+		case 1: layout.solveSelection[0] = solveBoardCount(.daily) + firstBoard(of: .simple)
+		case 2: layout.solveSelection[0] = solveBoardCount(.daily) + (solveBoardCount(.simple) + 1) + firstBoard(of: .common)
+		case 3: layout.solveSelection[0] = solveBoardCount(.daily) + (solveBoardCount(.simple) + 1) + (solveBoardCount(.common) + 1) + firstBoard(of: .tricky)
+		default: break
+		}
+	}
+	
+    func onBoardSelection(board: Int) {
+		if board < solveBoardCount(.daily) { layout.solveSelection[1] = 0 }
+		else if board < solveBoardCount(.daily) + (solveBoardCount(.simple) + 1) { layout.solveSelection[1] = 1 }
+		else if board < solveBoardCount(.daily) + (solveBoardCount(.simple) + 1) + (solveBoardCount(.common) + 1) { layout.solveSelection[1] = 2 }
+		else { layout.solveSelection[1] = 3 }
     }
     
     func firstBoard(of type: Key) -> Int {
@@ -80,55 +83,44 @@ struct SolveView: View {
 		return list.enumerated().first(where: { !$0.element })?.offset ?? (type == .daily ? 0 : list.count)
     }
     
-    static func getMenuText() -> [[Any]] {
-        func getLabel(text: String, type: Key) -> [() -> UIView] {
-            func getLabel(for string: String) -> UILabel {
-                let label = UILabel()
-                let loc = NSString(string: string).range(of: "\n").location
-                let text = NSMutableAttributedString.init(string: string)
-                text.setAttributes([NSAttributedString.Key.font: UIFont.systemFont(ofSize: 15),
-                                    NSAttributedString.Key.foregroundColor: UIColor.gray],
-                                   range: NSRange(location: loc, length: string.count-loc))
-                label.attributedText = text
-                label.lineBreakMode = .byWordWrapping
-                label.numberOfLines = 0
-                label.textAlignment = .center
-                label.transform = CGAffineTransform(rotationAngle: .pi/2)
-                return label
-            }
-            
-            let sum: Int
-            if type == .daily { sum = Storage.int(.streak) }
-            else { sum = (Storage.array(type) as? [Int])?.reduce(0, { $0 + ($1 == 0 ? 0 : 1) }) ?? 0 }
-            return [{ getLabel(for: "\(text)\n\(sum)") }]
-        }
+    static func getTypeLabels() -> [Any] {
+		[
+			("daily", Storage.int(.streak)),
+			("simple", (Storage.array(.simple) as? [Int])?.reduce(0, { $0 + ($1 == 0 ? 0 : 1) }) ?? 0),
+			("common", (Storage.array(.common) as? [Int])?.reduce(0, { $0 + ($1 == 0 ? 0 : 1) }) ?? 0),
+			("tricky", (Storage.array(.tricky) as? [Int])?.reduce(0, { $0 + ($1 == 0 ? 0 : 1) }) ?? 0)
+		]
+	}
         
-        func getNames(text: String, type: Key) -> [(String, Bool)] {
-			guard let solves = Storage.array(type) as? [Bool] else {
-                return []
-            }
-            var boardArray: [(String, Bool)] = []
-			for (i, solved) in solves.enumerated() { // where i < solveBoardDates[type]?.count ?? 4 { consider adding this back in if i need it
-				boardArray.append(("\(text) \(i+1)", solved)) // type == .daily ? solves.contains(board) : Int(board) == Date.int
-            }
-            if type != .daily {
-                boardArray.append(("\(text) ?", false))
-            }
-            return boardArray
-        }
-        
-        var labels = getLabel(text: "daily",  type: .daily)
-        labels +=    getLabel(text: "simple", type: .simple)
-		labels +=    getLabel(text: "common", type: .common)
-		labels +=    getLabel(text: "tricky", type: .tricky)
+	static func getBoardLabels() -> [Any] {
+		var labels: [String] = []
 		
-		var boards = getNames(text: "daily",  type: .daily)
-        boards +=    getNames(text: "simple", type: .simple)
-        boards +=    getNames(text: "common", type: .common)
-        boards +=    getNames(text: "tricky", type: .tricky)
+		for type in [Key.daily, Key.simple, Key.common, Key.tricky] {
+			for i in 1...solveBoardCount(type) {
+				labels.append("\(type.rawValue) \(i)")
+			}
+			if type != .daily {
+				labels.append("\(type.rawValue) ?")
+			}
+		}
 		
-        return [boards, labels]
-    }
+		return labels
+	}
+	
+	static func getSolves() -> [Bool] {
+		var solves: [Bool] = []
+		
+		for type in [Key.daily, Key.simple, Key.common, Key.tricky] {
+			for solved in Storage.array(type) as? [Bool] ?? [] {
+				solves.append(solved)
+			}
+			if type != .daily {
+				solves.append(false)
+			}
+		}
+		
+		return solves
+	}
 }
 
 struct SolveView_Previews: PreviewProvider {

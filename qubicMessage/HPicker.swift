@@ -9,7 +9,7 @@
 import UIKit
 import CoreGraphics
 
-class HPicker: NSObject, UIPickerViewDelegate, UIPickerViewDataSource {
+class OldHPicker: NSObject, UIPickerViewDelegate, UIPickerViewDataSource {
     var content: [[Any]]
     var dim: (CGFloat,CGFloat)
     var selected: [Int]

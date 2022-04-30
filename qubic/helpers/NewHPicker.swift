@@ -16,8 +16,8 @@ struct TestPicker: View {
 	
 	var body: some View {
 		VStack(spacing: 0) {
-			NewHPicker(width: 100, height: 50, scaling: 0.7, selection: $sel[0], labels: $list, underlines: $und, onSelection: onSelection)
-			NewHPicker(width: 100, height: 50, selection: $sel[1], labels: .constant(["hi", "more", "buttons"])) { print("gottem", $0) }
+			HPicker(width: 100, height: 50, scaling: 0.7, selection: $sel[0], labels: $list, underlines: $und, onSelection: onSelection)
+			HPicker(width: 100, height: 50, selection: $sel[1], labels: .constant(["hi", "more", "buttons"])) { print("gottem", $0) }
 		}
 	}
 	
@@ -27,7 +27,7 @@ struct TestPicker: View {
 	}
 }
 
-struct NewHPicker: View {
+struct HPicker: View {
 	@Binding var selection: Int
 	@Binding var labels: [Any]
 	@Binding var underlines: [Bool]
@@ -75,13 +75,13 @@ struct NewHPicker: View {
 					.frame(width: max(0,focus + 1) * width)
 			}
 			HStack(spacing: 0) {
-				LinearGradient(colors: [.systemBackground.opacity(0.7), .systemBackground.opacity(0.0)], startPoint: .leading, endPoint: .trailing)
+				Fill().opacity(0.6)
 				Spacer().frame(width: width)
-				LinearGradient(colors: [.systemBackground.opacity(0.0), .systemBackground.opacity(0.7)], startPoint: .leading, endPoint: .trailing)
+				Fill().opacity(0.6)
 			}
-			.frame(width: Layout.main.width, height: height)
 			.allowsHitTesting(false)
 		}
+		.frame(width: Layout.main.width, height: height)
 		.buttonStyle(Solid())
 		.onReceive(Just(focus), perform: tickIfNew) // TODO change to onChange when on iOS 14+ (and consider losing lastFocus)
 		.onReceive(Just(selection), perform: changeSelection) // TODO change to onChange when on iOS 14+ (and consider losing lastSelection)
@@ -124,7 +124,7 @@ struct NewHPicker: View {
 				} else {
 					startFocus = focus
 					
-					NewHPicker.ticker.prepare()
+					HPicker.ticker.prepare()
 				}
 			}
 			.onEnded { drag in
@@ -144,6 +144,7 @@ struct NewHPicker: View {
 				print(time, abs(closest - (start - drag.translation.width/width))/7)
 				selection = Int(closest)
 				withAnimation(.easeIn(duration: time)) { focus = closest }
+				onSelection(selection)
 				startFocus = nil
 			}
 	}
@@ -153,7 +154,7 @@ struct NewHPicker: View {
 			lastFocus = newFocus
 		}
 		if newFocus.rounded(.down) != lastFocus.rounded(.down) {
-			NewHPicker.ticker.impactOccurred()
+			HPicker.ticker.impactOccurred()
 			lastFocus = newFocus
 		}
 	}
@@ -163,7 +164,7 @@ struct NewHPicker: View {
 			lastSelection = i
 		}
 		if i != lastSelection {
-			withAnimation(.easeInOut(duration: 0.19 + Double(abs(focus - CGFloat(i)))*0.06)) {
+			withAnimation(.easeInOut(duration: min(0.6, 0.19 + Double(abs(focus - CGFloat(i)))*0.06))) {
 				focus = CGFloat(i)
 			}
 			lastSelection = i
