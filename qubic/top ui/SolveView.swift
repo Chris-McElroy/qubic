@@ -11,7 +11,6 @@ import SwiftUI
 struct SolveView: View {
     @ObservedObject var layout = Layout.main
     @State var typeLabels: [Any] = getTypeLabels()
-	@State var boardLabels: [Any] = getBoardLabels()
 	@State var solvedBoards: [Bool] = getSolves()
     @State var menuUpdateTimer: Timer?
     
@@ -22,7 +21,7 @@ struct SolveView: View {
                     .onAppear { Game.main.load(mode: mode, boardNum: boardNum) }
             } else if layout.current == .solveMenu {
 				HPicker(width: 100, height: 40, selection: $layout.solveSelection[1], labels: $typeLabels, onSelection: onTypeSelection)
-				HPicker(width: 100, height: 40, selection: $layout.solveSelection[0], labels: $boardLabels, underlines: $solvedBoards, onSelection: onBoardSelection)
+				HPicker(width: 100, height: 40, selection: $layout.solveSelection[0], labels: .constant(SolveView.getBoardLabels()), underlines: $solvedBoards, onSelection: onBoardSelection)
 					.onAppear { refreshMenu() }
 					.onAppear { TipStatus.main.updateTip(for: .solveMenu) }
             }
@@ -32,14 +31,12 @@ struct SolveView: View {
     
     func refreshMenu() {
         typeLabels = SolveView.getTypeLabels()
-		boardLabels = SolveView.getBoardLabels()
+		solvedBoards = SolveView.getSolves()
         updateDailyData()
         let delay = Calendar.current.startOfDay(for: Date().addingTimeInterval(86400)).timeIntervalSinceNow
         menuUpdateTimer?.invalidate()
         menuUpdateTimer = Timer.after(delay, run: {
-			typeLabels = SolveView.getTypeLabels()
-			boardLabels = SolveView.getBoardLabels()
-			updateDailyData()
+			refreshMenu()
         })
     }
 	

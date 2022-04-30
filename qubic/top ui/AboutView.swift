@@ -10,7 +10,7 @@ import SwiftUI
 
 struct AboutView: View {
     @ObservedObject var layout = Layout.main
-    let pickerContent: [[Any]] = [["how to play", "using the app", "developer bio", "helpful links"]]
+    let labels: [Any] = ["how to play", "using the app", "developer bio", "helpful links"]
     @State var selected: Int = 0
     @State var page: Int = 0
     var width: CGFloat { min(500, layout.width) }
@@ -29,7 +29,7 @@ struct AboutView: View {
                 ZStack {
                     VStack(spacing: 0) {
                         Spacer()
-						HPicker(width: 130, height: 50, selection: $selected, labels: .constant(pickerContent), onSelection: onSelection)
+						HPicker(width: 130, height: 50, selection: $selected, labels: labels, onSelection: onSelection)
                     }
                     VStack(spacing: 0) {
                         ZStack {

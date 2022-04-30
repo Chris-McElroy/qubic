@@ -20,11 +20,11 @@ struct TrainView: View {
             VStack(spacing: 0) {
                 Spacer()
 				HPicker(width: 90, height: 55, selection: $layout.trainSelection[2],
-						   labels: .constant(["sandbox", "challenge"]), onSelection: onSelection)
+						   labels: ["sandbox", "challenge"], onSelection: onSelection)
 				HPicker(width: 90, height: 55, selection: $layout.trainSelection[1],
-						   labels: .constant(["first", "random", "second"]), onSelection: onSelection)
+						   labels: ["first", "random", "second"], onSelection: onSelection)
 				HPicker(width: 90, height: 55, selection: $layout.trainSelection[0],
-						   labels: .constant(["novice", "defender", "warrior", "tyrant", "oracle", "cubist"]),
+						   labels: ["novice", "defender", "warrior", "tyrant", "oracle", "cubist"],
 						   underlines: .constant(beaten), onSelection: onSelection)
 				Blank(5)
             }

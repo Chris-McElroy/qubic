@@ -10,17 +10,18 @@ import SwiftUI
 
 struct SettingsView: View {
     @ObservedObject var layout = Layout.main
-	@State var selected1 = [Storage.int(.moveChecker), Storage.int(.premoves), Storage.int(.confirmMoves)]
-	@State var selected2 = [Storage.int(.color), Storage.int(.notification), Storage.int(.arrowSide)]
+	@State var confirmMoves = Storage.int(.confirmMoves)
+	@State var premoves = Storage.int(.premoves)
+	@State var moveChecker = Storage.int(.moveChecker)
+	@State var color = Storage.int(.color)
+	@State var notification = Storage.int(.notification)
+	@State var arrowSide = Storage.int(.arrowSide)
     @State var username = Storage.string(.name) ?? "me"
     @State var showNotificationAlert = false
 	@State var beatCubist = false
 	@State var showInfo: Bool = false
 	@State var infoFor: Int = 0
 //    @State var lineSize = lineWidth
-    
-    let picker1Content: [[Any]] = [["all", "checks", "off"], ["on", "off"], ["on", "off"]]
-    let picker2Content: [[Any]] = [cubeImages(), ["on", "off"], ["left", "right"]]
 	
 	let info: [[String]] = [
 		["confirm moves", "Tap once to select a move and a second time to confirm it. Tap any other move to cancel. Incompatible with premoves."],
@@ -32,54 +33,57 @@ struct SettingsView: View {
 		["username", "Sets your displayed name. It can include spaces, emojis, and other unicode characters, and it does not need to be unique."]
 	]
 	
-	var confirmMovesSetting: Int { selected1[2] }
 	func setConfirmMoves(to v: Int) {
-		selected1[2] = v
+		confirmMoves = v
 		Storage.set(v, for: .confirmMoves)
+		if v == 0 {
+			setPremoves(to: 1)
+		}
 	}
 	
-	var premovesSetting: Int { selected1[1] }
 	func setPremoves(to v: Int) {
-		selected1[1] = v
+		premoves = v
 		Storage.set(v, for: .premoves)
+		if v == 0 {
+			setConfirmMoves(to: 1)
+		}
 	}
 	
-	var moveCheckerSetting: Int { selected1[0] }
 	func setMoveChecker(to v: Int) {
-		selected1[0] = v
-		Storage.set(v, for: .moveChecker)
+		if beatCubist {
+			moveChecker = v
+			Storage.set(v, for: .moveChecker)
+		}
 	}
 	
-	var arrowSideSetting: Int { selected2[2] }
 	func setArrowSide(to v: Int) {
-		selected2[2] = v
+		layout.leftArrows = v == 0
+		arrowSide = v
 		Storage.set(v, for: .arrowSide)
 	}
 	
-	var notificationsSetting: Int { selected2[1] }
 	func setNotifications(to v: Int) {
-		selected2[1] = v
+		if v == 0 {
+			Notifications.turnOn(callBack: notificationsAllowed)
+		} else {
+			Notifications.turnOff()
+		}
+		notification = v
 		Storage.set(v, for: .notification)
 	}
 	
-	var colorSetting: Int { selected2[0] }
 	func setColor(to v: Int) {
-		selected2[0] = v
+		let newIcon = ["orange", "red", "pink", "purple", nil, "cyan", "lime", "green", "gold"][v]
+		if UIApplication.shared.alternateIconName != newIcon {
+			UIApplication.shared.setAlternateIconName(newIcon)
+		}
+		color = v
 		Storage.set(v, for: .color)
+		FB.main.updateMyData()
 	}
     
-    static func cubeImages() -> [() -> UIView] {
-        ["orangeCube", "redCube", "pinkCube", "purpleCube", "blueCube", "cyanCube", "limeCube", "greenCube", "goldCube"].map { name in
-            {
-                let image = UIImage(named: name)
-                let view = UIImageView(image: image)
-                view.frame.size.height = 27
-                view.frame.size.width = 27
-                view.transform = CGAffineTransform(rotationAngle: .pi/2)
-                
-                return view
-            }
-        }
+    static func cubeImages() -> [Any] {
+        ["orangeCube", "redCube", "pinkCube", "purpleCube", "blueCube", "cyanCube", "limeCube", "greenCube", "goldCube"].map { name in Image(name) }
     }
     
     var body: some View {
@@ -88,33 +92,61 @@ struct SettingsView: View {
                 // HPickers
                 VStack(spacing: 0) {
                     Fill(73)
-					OldHPicker(content: .constant(picker1Content), dim: (60,55), selected: $selected1, action: onSelection1)
-                        .frame(height: 165)
-                        .onAppear {
+						.onAppear {
 							updateSelections()
-                        }
-						.onAppear { TipStatus.main.updateTip(for: .settings) }
-                    Fill(15)
-					OldHPicker(content: .constant(picker2Content), dim: (60,55), selected: $selected2, action: onSelection2)
-                        .frame(height: 165)
-						.zIndex(-1)
-//                    Fill(102)
-//                    HPicker(content: .constant(SettingsView.boardStyleContent),
-//                            dim: (80,30), selected: $style, action: setDots)
-//                        .frame(height: 40)
+							TipStatus.main.updateTip(for: .settings)
+						}
+					VStack(spacing: 0) {
+						getSettingTitle(name: "confirm moves", number: 0)
+						HPicker(width: 60, height: 40, selection: $confirmMoves, labels: ["on", "off"], onSelection: setConfirmMoves)
+						getSettingTitle(name: "premoves", number: 1)
+						HPicker(width: 60, height: 40, selection: $premoves, labels: ["on", "off"], onSelection: setPremoves)
+						getSettingTitle(name: "move checker", number: 2)
+						if beatCubist {
+							HPicker(width: 60, height: 40, selection: $moveChecker, labels: ["all", "checks", "off"], onSelection: setMoveChecker)
+						} else {
+							Text("beat cubist in challenge mode to unlock!")
+								.foregroundColor(.secondary)
+								.frame(width: layout.width, height: 40)
+								.background(Fill())
+								.environment(\.sizeCategory, .large)
+						}
+					}
+					VStack(spacing: 0) {
+						getSettingTitle(name: "arrow side", number: 3)
+						HPicker(width: 60, height: 40, selection: $arrowSide, labels: ["left", "right"], onSelection: setArrowSide)
+						getSettingTitle(name: "notifications", number: 4)
+						HPicker(width: 60, height: 40, selection: $notification, labels: ["on", "off"], onSelection: setNotifications)
+						getSettingTitle(name: "color / app icon", number: 5)
+						HPicker(width: 60, height: 40, scaling: 0.675, selection: $color, labels: SettingsView.cubeImages(), onSelection: setColor)
+						getSettingTitle(name: "username", number: 6)
+						Fill(7)
+						TextField("enter name", text: $username, onEditingChanged: { starting in
+							if !starting && username != Storage.string(.name) {
+								Storage.set(username, for: .name)
+								FB.main.updateMyData()
+							}
+						})
+							.multilineTextAlignment(.center)
+							.disableAutocorrection(true)
+							.accentColor(.primary())
+							.frame(width: 200, height: 20)
+						if Layout.main.updateAvailable {
+							Blank(5)
+							Button("update available!") {
+								let urlString = "itms-\(versionType == .appStore ? "apps" : "beta")://itunes.apple.com/app/1480301899"
+								guard let url = URL(string: urlString) else { return }
+								UIApplication.shared.open(url, options: [:], completionHandler: nil)
+							}
+							.buttonStyle(DefaultButtonStyle())
+							.frame(height: 20)
+						}
+					}
                     Spacer()
     //                Text("\(lineSize)")
     //                Slider(value: $lineSize, in: 0.005...0.020, onEditingChanged: { _ in lineWidth = lineSize })
                 }
-                // mask
-//                VStack(spacing: 0) {
-//                    Fill(77)
-//                    Blank(400)
-//                    Fill(30)
-//                    Blank(40)
-//                    Fill(100)
-//                    Spacer()
-//                }
+				.modifier(BoundSize(min: .medium, max: .extraLarge))
             }
             // content
             VStack(spacing: 0) {
@@ -133,59 +165,6 @@ struct SettingsView: View {
                 }
 				.frame(height: moreButtonHeight)
                 .zIndex(4)
-                if layout.current == .settings {
-                    VStack(spacing: 0) {
-                        Fill(5)
-                        VStack(spacing: 0) {
-							getSettingTitle(name: "confirm moves", number: 0)
-							Blank(40)
-							getSettingTitle(name: "premoves", number: 1)
-							Blank(40)
-							getSettingTitle(name: "move checker", number: 2)
-							if beatCubist {
-								Blank(40)
-							} else {
-								Text("beat cubist in challenge mode to unlock!")
-									.foregroundColor(.secondary)
-									.frame(width: layout.width, height: 40)
-									.background(Fill())
-									.environment(\.sizeCategory, .large)
-							}
-						}
-						VStack(spacing: 0) {
-							getSettingTitle(name: "arrow side", number: 3)
-							Blank(40)
-							getSettingTitle(name: "notifications", number: 4)
-							Blank(40)
-							getSettingTitle(name: "color / app icon", number: 5)
-							Blank(40)
-						}
-						getSettingTitle(name: "username", number: 6)
-                        Fill(7)
-                        TextField("enter name", text: $username, onEditingChanged: { starting in
-                            if !starting && username != Storage.string(.name) {
-                                Storage.set(username, for: .name)
-                                FB.main.updateMyData()
-                            }
-                        })
-                            .multilineTextAlignment(.center)
-                            .disableAutocorrection(true)
-                            .accentColor(.primary())
-                            .frame(width: 200, height: 20)
-                        if Layout.main.updateAvailable {
-							Blank(5)
-                            Button("update available!") {
-								let urlString = "itms-\(versionType == .appStore ? "apps" : "beta")://itunes.apple.com/app/1480301899"
-								guard let url = URL(string: urlString) else { return }
-                                UIApplication.shared.open(url, options: [:], completionHandler: nil)
-                            }
-							.buttonStyle(DefaultButtonStyle())
-							.frame(height: 20)
-                        }
-                    }
-					.zIndex(3)
-					.modifier(BoundSize(min: .medium, max: .extraLarge))
-                }
                 Spacer()
             }
             .alert(isPresented: $showNotificationAlert, content: { Notifications.notificationAlert })
@@ -237,50 +216,15 @@ struct SettingsView: View {
 		})
 	}
 	
-    func onSelection1(row: Int, component: Int) {
-		if component == 2 {
-			Storage.set(row, for: .confirmMoves)
-			if row == 0 {
-				setPremoves(to: 1)
-			}
-		} else if component == 1 {
-			Storage.set(row, for: .premoves)
-			if row == 0 {
-				setConfirmMoves(to: 1)
-			}
-		} else if component == 0 {
-			if beatCubist {
-				Storage.set(row, for: .moveChecker)
-			}
-        }
-    }
-    
-    func onSelection2(row: Int, component: Int) {
-		if component == 2 {
-			Storage.set(row, for: .arrowSide)
-			layout.leftArrows = row == 0
-		} else if component == 1 {
-			if row == 0 {
-				Notifications.turnOn(callBack: notificationsAllowed)
-			} else {
-				Notifications.turnOff()
-			}
-		} else if component == 0 {
-            Storage.set(row, for: .color)
-            FB.main.updateMyData()
-			let newIcon = ["orange", "red", "pink", "purple", nil, "cyan", "lime", "green", "gold"][row]
-			if UIApplication.shared.alternateIconName != newIcon {
-				UIApplication.shared.setAlternateIconName(newIcon)
-			}
-        }
-    }
-	
 	func updateSelections() {
-		selected1 = [Storage.int(.moveChecker), Storage.int(.premoves), Storage.int(.confirmMoves)]
-		selected2 = [Storage.int(.color), Storage.int(.notification), Storage.int(.arrowSide)]
+		confirmMoves = Storage.int(.confirmMoves)
+		premoves = Storage.int(.premoves)
+		moveChecker = Storage.int(.moveChecker)
+		color = Storage.int(.color)
+		notification = Storage.int(.notification)
+		arrowSide = Storage.int(.arrowSide)
 		if let trainArray = Storage.array(.train) as? [Int] {
 			beatCubist = trainArray[5] == 1
-			selected1[0] = Storage.int(.moveChecker) // handles if they fucked it up
 		}
 		Notifications.ifDenied {
 			setNotifications(to: 1)

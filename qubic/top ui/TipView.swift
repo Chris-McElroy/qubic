@@ -16,7 +16,7 @@ struct TipView: View {
 		VStack(spacing: 0) {
 			VStack(spacing: 0) {
 				Text(tipStatus.text).padding(20)
-				Button("dismiss") { withAnimation(.easeIn(duration: 2.5)) { tipStatus.displayed = false } }
+				Button("dismiss") { withAnimation(.easeIn(duration: 0.5)) { tipStatus.displayed = false } }
 				Blank(20)
 			}
 			.buttonStyle(Solid())

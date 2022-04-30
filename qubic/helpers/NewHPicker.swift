@@ -52,6 +52,10 @@ struct HPicker: View {
 		self._underlines = underlines ?? .constant(Array(repeating: false, count: labels.count))
 	}
 	
+	init(width: CGFloat, height: CGFloat, scaling: CGFloat = 1.0, selection: Binding<Int>, labels: [Any], underlines: Binding<[Bool]>? = nil, onSelection: @escaping (Int) -> Void) {
+		self.init(width: width, height: height, scaling: scaling, selection: selection, labels: .constant(labels), underlines: underlines, onSelection: onSelection)
+	}
+	
 	static let ticker: UIImpactFeedbackGenerator = UIImpactFeedbackGenerator(style: .light)
 	
 	var body: some View {
