@@ -11,6 +11,7 @@ import Messages
 
 class MessagesViewController: MSMessagesAppViewController {
     var selected: MSMessage?
+	// using OldHPicker bc it works with UIKit
     let picker = OldHPicker(content: [["first", "random", "second"]], dim: (100,100), selected: [1], action: {_,_ in })
     let loadButton = UIButton()
     var gameView = UIView()

@@ -17,14 +17,9 @@ struct FeedbackView: View {
     
     var body: some View {
 		VStack(spacing: 0) {
-			ZStack {
-				Fill().frame(height: moreButtonHeight)
-				Button("feedback") {
-					layout.change(to: .feedback)
-				}
+			Button("feedback") { layout.change(to: .feedback) }
 				.buttonStyle(MoreStyle())
-			}
-			.zIndex(4)
+				.zIndex(10)
             if layout.current == .feedback {
                 if #available(iOS 14.0, *) {
                     Spacer()
@@ -69,6 +64,7 @@ struct FeedbackView: View {
                     email = ""
                     feedback = ""
                 }
+				.buttonStyle(Standard())
                 Blank(15)
                 LinkView(site: "mailto:chris@xno.store", text: "send as email\n(for attachments)")
                     .multilineTextAlignment(.center)
@@ -77,8 +73,11 @@ struct FeedbackView: View {
                 } else {
                     Spacer()
                 }
-            }
-        }.background(Fill().onTapGesture {
+			} else {
+				Spacer()
+			}
+        }
+		.background(Fill().onTapGesture {
             hideKeyboard()
         })
     }

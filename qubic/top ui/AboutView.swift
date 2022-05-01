@@ -17,14 +17,9 @@ struct AboutView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            ZStack {
-                Fill().frame(height: moreButtonHeight)
-				Button("about") {
-					layout.change(to: .about)
-				}
+			Button("about") { layout.change(to: .about) }
 				.buttonStyle(MoreStyle())
-            }
-			.zIndex(4)
+				.zIndex(10)
             if layout.current == .about {
                 ZStack {
                     VStack(spacing: 0) {

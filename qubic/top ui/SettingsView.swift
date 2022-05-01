@@ -13,9 +13,9 @@ struct SettingsView: View {
 	@State var confirmMoves = Storage.int(.confirmMoves)
 	@State var premoves = Storage.int(.premoves)
 	@State var moveChecker = Storage.int(.moveChecker)
-	@State var color = Storage.int(.color)
-	@State var notification = Storage.int(.notification)
 	@State var arrowSide = Storage.int(.arrowSide)
+	@State var notification = Storage.int(.notification)
+	@State var color = Storage.int(.color)
     @State var username = Storage.string(.name) ?? "me"
     @State var showNotificationAlert = false
 	@State var beatCubist = false
@@ -89,9 +89,8 @@ struct SettingsView: View {
     var body: some View {
         ZStack {
             if layout.current == .settings {
-                // HPickers
                 VStack(spacing: 0) {
-                    Fill(73)
+					Fill(73)
 						.onAppear {
 							updateSelections()
 							TipStatus.main.updateTip(for: .settings)
@@ -111,14 +110,15 @@ struct SettingsView: View {
 								.background(Fill())
 								.environment(\.sizeCategory, .large)
 						}
-					}
-					VStack(spacing: 0) {
 						getSettingTitle(name: "arrow side", number: 3)
 						HPicker(width: 60, height: 40, selection: $arrowSide, labels: ["left", "right"], onSelection: setArrowSide)
+					}
+					VStack(spacing: 0) {
 						getSettingTitle(name: "notifications", number: 4)
 						HPicker(width: 60, height: 40, selection: $notification, labels: ["on", "off"], onSelection: setNotifications)
 						getSettingTitle(name: "color / app icon", number: 5)
 						HPicker(width: 60, height: 40, scaling: 0.675, selection: $color, labels: SettingsView.cubeImages(), onSelection: setColor)
+//							.frame(width: 200)
 						getSettingTitle(name: "username", number: 6)
 						Fill(7)
 						TextField("enter name", text: $username, onEditingChanged: { starting in
@@ -147,28 +147,6 @@ struct SettingsView: View {
     //                Slider(value: $lineSize, in: 0.005...0.020, onEditingChanged: { _ in lineWidth = lineSize })
                 }
 				.modifier(BoundSize(min: .medium, max: .extraLarge))
-            }
-            // content
-            VStack(spacing: 0) {
-				ZStack {
-                    Fill()
-                    Button(action: {
-						layout.change(to: .settings)
-					}) {
-                        ZStack {
-                            Text("settings")
-                            Circle().frame(width: 12, height: 12).foregroundColor(.primary()).offset(x: 53, y: 2)
-                                .opacity(Layout.main.updateAvailable ? 1 : 0)
-                        }
-                    }
-                    .buttonStyle(MoreStyle())
-                }
-				.frame(height: moreButtonHeight)
-                .zIndex(4)
-                Spacer()
-            }
-            .alert(isPresented: $showNotificationAlert, content: { Notifications.notificationAlert })
-			if layout.current == .settings {
 				VStack(spacing: 0) {
 					Fill().opacity(showInfo ? 0.015 : 0).onTapGesture { withAnimation { showInfo = false } }
 					VStack(spacing: 0) {
@@ -191,9 +169,24 @@ struct SettingsView: View {
 					}
 				}
 			}
+			VStack(spacing: 0) {
+				Button(action: {
+					layout.change(to: .settings)
+				}) {
+					ZStack {
+						Text("settings")
+						Circle().frame(width: 12, height: 12).foregroundColor(.primary()).offset(x: 53, y: 2)
+							.opacity(Layout.main.updateAvailable ? 1 : 0)
+					}
+				}
+				.buttonStyle(MoreStyle())
+				.zIndex(10)
+				Spacer()
+			}
         }
 		.buttonStyle(Solid())
-        .background(Fill().onTapGesture { hideKeyboard() })
+		.background(Fill().onTapGesture { hideKeyboard() })
+		.alert(isPresented: $showNotificationAlert, content: { Notifications.notificationAlert })
     }
     
 //    func setDots(row: Int, component: Int) -> Void {
@@ -220,9 +213,9 @@ struct SettingsView: View {
 		confirmMoves = Storage.int(.confirmMoves)
 		premoves = Storage.int(.premoves)
 		moveChecker = Storage.int(.moveChecker)
-		color = Storage.int(.color)
-		notification = Storage.int(.notification)
 		arrowSide = Storage.int(.arrowSide)
+		notification = Storage.int(.notification)
+		color = Storage.int(.color)
 		if let trainArray = Storage.array(.train) as? [Int] {
 			beatCubist = trainArray[5] == 1
 		}

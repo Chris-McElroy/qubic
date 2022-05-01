@@ -66,12 +66,12 @@
 		1E9A545A26112F90001FC204 /* FBHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E9A545926112F90001FC204 /* FBHelper.swift */; };
 		1E9B61C127E3D3E70034673C /* TutorialPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E516DFF27A50474004938ED /* TutorialPlayer.swift */; };
 		1E9E9FBE24CDEB4700002500 /* SceneHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E9E9FBD24CDEB4700002500 /* SceneHelper.swift */; };
-		1EA0CABA2580468D00C200E8 /* HPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EA0CAB92580468D00C200E8 /* HPicker.swift */; };
+		1EA0CABA2580468D00C200E8 /* OldHPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EA0CAB92580468D00C200E8 /* OldHPicker.swift */; };
 		1EA618CA27FCD4F7000034EA /* TutorialGame.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EA618C927FCD4F7000034EA /* TutorialGame.swift */; };
 		1EA8935C2724B6620015C900 /* TutorialView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EA8935B2724B6620015C900 /* TutorialView.swift */; };
 		1EAE5F6A263121D6000C8270 /* FeedbackView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EAE5F69263121D6000C8270 /* FeedbackView.swift */; };
 		1EAEE3BB24D9DA1400490530 /* FriendsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EAEE3BA24D9DA1400490530 /* FriendsView.swift */; };
-		1EAEE3BD24D9DCBA00490530 /* ReplaysView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EAEE3BC24D9DCBA00490530 /* ReplaysView.swift */; };
+		1EAEE3BD24D9DCBA00490530 /* PastGamesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EAEE3BC24D9DCBA00490530 /* PastGamesView.swift */; };
 		1EB1CB51260ECC6300A2DCDC /* BotList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EB1CB50260ECC6300A2DCDC /* BotList.swift */; };
 		1EB5267527068D9000B1344A /* 40purple@1x.png in Resources */ = {isa = PBXBuildFile; fileRef = 1EB5266727068D8D00B1344A /* 40purple@1x.png */; };
 		1EB5267627068D9000B1344A /* 20purple@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 1EB5266827068D8D00B1344A /* 20purple@3x.png */; };
@@ -189,7 +189,7 @@
 		1EBD920125897ED90082B65E /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EBD920025897ED90082B65E /* User.swift */; };
 		1EC2788D2585ACC600F6A5EB /* Player.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EC2788C2585ACC600F6A5EB /* Player.swift */; };
 		1EC2B8852536A86C001B0A1F /* Checks.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EC2B8842536A86C001B0A1F /* Checks.swift */; };
-		1EC86B1325AABDE000DA434A /* HPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EC86B1225AABDE000DA434A /* HPicker.swift */; };
+		1EC86B1325AABDE000DA434A /* MessageOldHPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EC86B1225AABDE000DA434A /* MessageOldHPicker.swift */; };
 		1EDAE0DF260814EC006173B4 /* MessageHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EDAE0DE260814EC006173B4 /* MessageHelper.swift */; };
 		1EDDE19024FAC70800B7742C /* Board.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EDDE18F24FAC70800B7742C /* Board.swift */; };
 		1EE2D5F9273897BB00DE309F /* TutorialLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EE2D5F8273897BA00DE309F /* TutorialLayout.swift */; };
@@ -201,7 +201,7 @@
 		1EFAFB1A271D215400F377E7 /* GeneralHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EFAFB19271D215400F377E7 /* GeneralHelper.swift */; };
 		1EFAFB1B271D216100F377E7 /* GeneralHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EFAFB19271D215400F377E7 /* GeneralHelper.swift */; };
 		1EFB12C526ED5052001A7B48 /* SolveHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EFB12C426ED5052001A7B48 /* SolveHelper.swift */; };
-		1EFB9680270F88CF007152FC /* NewHPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EFB967F270F88CF007152FC /* NewHPicker.swift */; };
+		1EFB9680270F88CF007152FC /* HPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EFB967F270F88CF007152FC /* HPicker.swift */; };
 		1EFCD1E62693A25B006A5430 /* StorageHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EFCD1E52693A25B006A5430 /* StorageHelper.swift */; };
 		1EFCD1E72693A25B006A5430 /* StorageHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EFCD1E52693A25B006A5430 /* StorageHelper.swift */; };
 		AED83640B64C9C248C88B0B2 /* Pods_qubic.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 535B31542F05D481FEF1F34D /* Pods_qubic.framework */; };
@@ -286,12 +286,12 @@
 		1E92D5F6261A608500D0D19C /* ActivityIndicator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityIndicator.swift; sourceTree = "<group>"; };
 		1E9A545926112F90001FC204 /* FBHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FBHelper.swift; sourceTree = "<group>"; };
 		1E9E9FBD24CDEB4700002500 /* SceneHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneHelper.swift; sourceTree = "<group>"; };
-		1EA0CAB92580468D00C200E8 /* HPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HPicker.swift; sourceTree = "<group>"; };
+		1EA0CAB92580468D00C200E8 /* OldHPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OldHPicker.swift; sourceTree = "<group>"; };
 		1EA618C927FCD4F7000034EA /* TutorialGame.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TutorialGame.swift; sourceTree = "<group>"; };
 		1EA8935B2724B6620015C900 /* TutorialView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TutorialView.swift; sourceTree = "<group>"; };
 		1EAE5F69263121D6000C8270 /* FeedbackView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedbackView.swift; sourceTree = "<group>"; };
 		1EAEE3BA24D9DA1400490530 /* FriendsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendsView.swift; sourceTree = "<group>"; };
-		1EAEE3BC24D9DCBA00490530 /* ReplaysView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReplaysView.swift; sourceTree = "<group>"; };
+		1EAEE3BC24D9DCBA00490530 /* PastGamesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PastGamesView.swift; sourceTree = "<group>"; };
 		1EB1CB50260ECC6300A2DCDC /* BotList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BotList.swift; sourceTree = "<group>"; };
 		1EB5266727068D8D00B1344A /* 40purple@1x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "40purple@1x.png"; sourceTree = "<group>"; };
 		1EB5266827068D8D00B1344A /* 20purple@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "20purple@3x.png"; sourceTree = "<group>"; };
@@ -409,7 +409,7 @@
 		1EBD920025897ED90082B65E /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
 		1EC2788C2585ACC600F6A5EB /* Player.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Player.swift; sourceTree = "<group>"; };
 		1EC2B8842536A86C001B0A1F /* Checks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Checks.swift; sourceTree = "<group>"; };
-		1EC86B1225AABDE000DA434A /* HPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HPicker.swift; sourceTree = "<group>"; };
+		1EC86B1225AABDE000DA434A /* MessageOldHPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageOldHPicker.swift; sourceTree = "<group>"; };
 		1EDAE0DE260814EC006173B4 /* MessageHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageHelper.swift; sourceTree = "<group>"; };
 		1EDDE18F24FAC70800B7742C /* Board.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Board.swift; sourceTree = "<group>"; };
 		1EE2D5F8273897BA00DE309F /* TutorialLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TutorialLayout.swift; sourceTree = "<group>"; };
@@ -420,7 +420,7 @@
 		1EFAFB16271D170500F377E7 /* GameLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameLayout.swift; sourceTree = "<group>"; };
 		1EFAFB19271D215400F377E7 /* GeneralHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeneralHelper.swift; sourceTree = "<group>"; };
 		1EFB12C426ED5052001A7B48 /* SolveHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SolveHelper.swift; sourceTree = "<group>"; };
-		1EFB967F270F88CF007152FC /* NewHPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewHPicker.swift; sourceTree = "<group>"; };
+		1EFB967F270F88CF007152FC /* HPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HPicker.swift; sourceTree = "<group>"; };
 		1EFCD1E52693A25B006A5430 /* StorageHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageHelper.swift; sourceTree = "<group>"; };
 		459B7FD80A3A13653BECEE17 /* Pods-qubicMessage.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-qubicMessage.debug.xcconfig"; path = "Target Support Files/Pods-qubicMessage/Pods-qubicMessage.debug.xcconfig"; sourceTree = "<group>"; };
 		535B31542F05D481FEF1F34D /* Pods_qubic.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_qubic.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -629,7 +629,7 @@
 				1E3170F625AA0C7500FCCEA4 /* MessagesViewController.swift */,
 				1E74FA2C25AA438B0049BE6B /* MessageGame.swift */,
 				1E5920BC265600D6008AF18C /* ColorHelperOld.swift */,
-				1EC86B1225AABDE000DA434A /* HPicker.swift */,
+				1EC86B1225AABDE000DA434A /* MessageOldHPicker.swift */,
 				1E3170F825AA0C7500FCCEA4 /* MainInterface.storyboard */,
 				1E3170FB25AA0C7800FCCEA4 /* Assets.xcassets */,
 				1E3170FD25AA0C7800FCCEA4 /* Info.plist */,
@@ -659,7 +659,7 @@
 				1E68179424CC973B001713E7 /* SceneDelegate.swift */,
 				1EFAFB19271D215400F377E7 /* GeneralHelper.swift */,
 				1EE4C75B24EB7ADC0038C1E2 /* UIHelper.swift */,
-				1EA0CAB92580468D00C200E8 /* HPicker.swift */,
+				1EFB967F270F88CF007152FC /* HPicker.swift */,
 				1EFB12C426ED5052001A7B48 /* SolveHelper.swift */,
 				1E6C428F24FCE1F20065BDF5 /* BoardHelper.swift */,
 				1E9A545926112F90001FC204 /* FBHelper.swift */,
@@ -671,7 +671,7 @@
 				1E92D5F6261A608500D0D19C /* ActivityIndicator.swift */,
 				1EDAE0DE260814EC006173B4 /* MessageHelper.swift */,
 				1E726EEE263359A400640651 /* OldTextEditor.swift */,
-				1EFB967F270F88CF007152FC /* NewHPicker.swift */,
+				1EA0CAB92580468D00C200E8 /* OldHPicker.swift */,
 				1E68179D24CC973D001713E7 /* LaunchScreen.storyboard */,
 			);
 			path = helpers;
@@ -686,12 +686,12 @@
 				1E017B9F24CDB71A00CF979A /* PlayView.swift */,
 				1E6D2E4A24CE9729001EFE85 /* CubeView.swift */,
 				1E02D59A24CE5696001BF62B /* AboutView.swift */,
+				1EAE5F69263121D6000C8270 /* FeedbackView.swift */,
 				1E776156271E372200D83000 /* TutorialMenuView.swift */,
 				1E8169D727E8272C00C9E2D7 /* LessonsView.swift */,
 				1E7B959124D34015004B3C80 /* SettingsView.swift */,
-				1EAE5F69263121D6000C8270 /* FeedbackView.swift */,
 				1EAEE3BA24D9DA1400490530 /* FriendsView.swift */,
-				1EAEE3BC24D9DCBA00490530 /* ReplaysView.swift */,
+				1EAEE3BC24D9DCBA00490530 /* PastGamesView.swift */,
 				1E272E732800C37C0080216D /* TipView.swift */,
 				1E883EFA24EE3B14002686C8 /* Layout.swift */,
 			);
@@ -1107,7 +1107,7 @@
 				1E74FA1325AA417C0049BE6B /* BoardHelper.swift in Sources */,
 				1E5920BE265600EB008AF18C /* ColorHelperOld.swift in Sources */,
 				1EFAFB1B271D216100F377E7 /* GeneralHelper.swift in Sources */,
-				1EC86B1325AABDE000DA434A /* HPicker.swift in Sources */,
+				1EC86B1325AABDE000DA434A /* MessageOldHPicker.swift in Sources */,
 				1E74FA1C25AA41930049BE6B /* Checks.swift in Sources */,
 				1E74FA2D25AA438B0049BE6B /* MessageGame.swift in Sources */,
 				1E74FA2725AA41FC0049BE6B /* User.swift in Sources */,
@@ -1121,7 +1121,7 @@
 			files = (
 				1E22E0F2260C21EB007F627A /* Online.swift in Sources */,
 				1E636FC3258A8995005B8D4F /* Simple.swift in Sources */,
-				1EAEE3BD24D9DCBA00490530 /* ReplaysView.swift in Sources */,
+				1EAEE3BD24D9DCBA00490530 /* PastGamesView.swift in Sources */,
 				1E9A545A26112F90001FC204 /* FBHelper.swift in Sources */,
 				1E02D59B24CE5696001BF62B /* AboutView.swift in Sources */,
 				1EFAFB17271D170500F377E7 /* GameLayout.swift in Sources */,
@@ -1134,7 +1134,7 @@
 				1EEB0D4E24CF3780008F5B4B /* ColorHelper.swift in Sources */,
 				1E017BA024CDB71A00CF979A /* PlayView.swift in Sources */,
 				1E8C554725365E3400C9A556 /* Game.swift in Sources */,
-				1EA0CABA2580468D00C200E8 /* HPicker.swift in Sources */,
+				1EA0CABA2580468D00C200E8 /* OldHPicker.swift in Sources */,
 				1E4645F52616970500862260 /* KeyHelper.swift in Sources */,
 				1EFB12C526ED5052001A7B48 /* SolveHelper.swift in Sources */,
 				1EC2B8852536A86C001B0A1F /* Checks.swift in Sources */,
@@ -1158,7 +1158,7 @@
 				1EC2788D2585ACC600F6A5EB /* Player.swift in Sources */,
 				1E68179524CC973B001713E7 /* SceneDelegate.swift in Sources */,
 				1EB6939B2599A1530025B080 /* Oracle.swift in Sources */,
-				1EFB9680270F88CF007152FC /* NewHPicker.swift in Sources */,
+				1EFB9680270F88CF007152FC /* HPicker.swift in Sources */,
 				1EE2D5F9273897BB00DE309F /* TutorialLayout.swift in Sources */,
 				1E516E0027A50474004938ED /* TutorialPlayer.swift in Sources */,
 				1EBD920125897ED90082B65E /* User.swift in Sources */,
@@ -1220,7 +1220,7 @@
 				CODE_SIGN_ENTITLEMENTS = qubicMessage/qubicMessage.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = A44UN86BN6;
 				INFOPLIST_FILE = qubicMessage/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
@@ -1229,7 +1229,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 3.2;
+				MARKETING_VERSION = 3.3;
 				PRODUCT_BUNDLE_IDENTIFIER = store.xno.4Play.qubicMessage;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -1247,7 +1247,7 @@
 				CODE_SIGN_ENTITLEMENTS = qubicMessage/qubicMessage.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = A44UN86BN6;
 				INFOPLIST_FILE = qubicMessage/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
@@ -1256,7 +1256,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 3.2;
+				MARKETING_VERSION = 3.3;
 				PRODUCT_BUNDLE_IDENTIFIER = store.xno.4Play.qubicMessage;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -1396,7 +1396,7 @@
 				CODE_SIGN_ENTITLEMENTS = qubic/qubic.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_ASSET_PATHS = "\"qubic/Preview Content\"";
 				DEVELOPMENT_TEAM = A44UN86BN6;
 				ENABLE_PREVIEWS = YES;
@@ -1407,7 +1407,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 3.2;
+				MARKETING_VERSION = 3.3;
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = store.xno.4Play;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1429,7 +1429,7 @@
 				CODE_SIGN_ENTITLEMENTS = qubic/qubic.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_ASSET_PATHS = "\"qubic/Preview Content\"";
 				DEVELOPMENT_TEAM = A44UN86BN6;
 				ENABLE_PREVIEWS = YES;
@@ -1440,7 +1440,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 3.2;
+				MARKETING_VERSION = 3.3;
 				ONLY_ACTIVE_ARCH = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = store.xno.4Play;
 				PRODUCT_NAME = "$(TARGET_NAME)";

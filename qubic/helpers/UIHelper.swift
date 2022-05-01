@@ -63,14 +63,15 @@ struct MainStyle: ButtonStyle {
 }
 
 struct MoreStyle: ButtonStyle {
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-			.modifier(Oligopoly(size: 20))
-            .foregroundColor(.primary)
-            .padding(8)
-            .frame(height: moreButtonHeight)
-            .background(Fill())
-            .opacity(configuration.isPressed ? 0.25 : 1.0)
+	func makeBody(configuration: Self.Configuration) -> some View {
+		ZStack {
+			Fill(moreButtonHeight)
+			configuration.label
+				.modifier(Oligopoly(size: 20))
+				.foregroundColor(Color.primary)
+				.padding(8)
+				.opacity(configuration.isPressed ? 0.25 : 1.0)
+		}
     }
 }
 
@@ -81,27 +82,46 @@ struct Solid: ButtonStyle {
     }
 }
 
-struct NameStyle: ButtonStyle {
-    let color: Color
-    
-    func makeBody(configuration: Self.Configuration) -> some View {
-        configuration.label
-            .opacity(1.0)
-            .foregroundColor(.white)
-            .frame(width: nameButtonWidth, height: 40)
-            .background(Rectangle().foregroundColor(color))
-            .cornerRadius(100)
-    }
-	// TODO what is this?
+struct Standard: ButtonStyle {
+	func makeBody(configuration: Self.Configuration) -> some View {
+		configuration.label
+			.modifier(Oligopoly(size: 16))
+			.opacity(1.0)
+	}
 }
 
 struct Name: View {
-    let text: String
+    let name: String
     let color: Color
+	let rounded: Bool
+	let opaque: Bool
     let action: () -> Void
+	
+	init(for player: Player, opaque: Bool = true, action: @escaping () -> Void = {}) {
+		name = player.name
+		color = .of(n: player.color)
+		rounded = player.rounded
+		self.opaque = opaque
+		self.action = action
+	}
+	
+	init(name: String, color: Color, rounded: Bool, opaque: Bool = true, action: @escaping () -> Void = {}) {
+		self.name = name
+		self.color = color
+		self.rounded = rounded
+		self.opaque = opaque
+		self.action = action
+	}
     
     var body: some View {
-        Button(text, action: action).buttonStyle(NameStyle(color: color))
+        Button(name, action: action)
+			.lineLimit(1)
+			.padding(.horizontal, 5)
+			.foregroundColor(.white)
+			.frame(minWidth: 140, maxWidth: 160, minHeight: 40)
+			.background(Fill(color: color).opacity(opaque ? 1 : 0.55))
+			.cornerRadius(rounded ? 100 : 4)
+			.buttonStyle(Solid())
     }
 }
 

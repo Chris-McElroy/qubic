@@ -9,14 +9,13 @@
 import SwiftUI
 
 struct FriendsView: View {
-    var mainButtonAction: () -> Void
+	@ObservedObject var layout = Layout.main
     
     var body: some View {
         VStack {
-            Button(action: mainButtonAction) {
-                Text("friends")
-            }
-            .buttonStyle(MoreStyle())
+			Button("friends") { layout.change(to: .about) }
+				.buttonStyle(MoreStyle())
+				.zIndex(10)
             Spacer()
             Fill().frame(height: 10)
             List {
@@ -36,6 +35,6 @@ struct FriendsView: View {
 
 struct FriendsView_Previews: PreviewProvider {
     static var previews: some View {
-        FriendsView() {}
+        FriendsView()
     }
 }

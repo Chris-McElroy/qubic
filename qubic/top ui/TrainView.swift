@@ -10,27 +10,34 @@ import SwiftUI
 
 struct TrainView: View {
     @ObservedObject var layout = Layout.main
-    let beaten = Storage.array(.train) as? [Bool] ?? [false, false, false, false, false, false]
+    @State var beaten = getBeaten()
     
     var body: some View {
-        if layout.current == .train {
-            GameView()
+		if layout.current == .train {
+			GameView()
 				.onAppear { Game.main.load(mode: mode, turn: turn, hints: hints) }
-        } else if layout.current == .trainMenu {
-            VStack(spacing: 0) {
-                Spacer()
+		} else if layout.current == .trainMenu {
+			VStack(spacing: 0) {
+				Spacer()
 				HPicker(width: 90, height: 55, selection: $layout.trainSelection[2],
 						   labels: ["sandbox", "challenge"], onSelection: onSelection)
 				HPicker(width: 90, height: 55, selection: $layout.trainSelection[1],
 						   labels: ["first", "random", "second"], onSelection: onSelection)
 				HPicker(width: 90, height: 55, selection: $layout.trainSelection[0],
 						   labels: ["novice", "defender", "warrior", "tyrant", "oracle", "cubist"],
-						   underlines: .constant(beaten), onSelection: onSelection)
+						   underlines: $beaten, onSelection: onSelection)
 				Blank(5)
-            }
-			.onAppear { TipStatus.main.updateTip(for: .trainMenu) }
-        }
+			}
+			.onAppear {
+				beaten = TrainView.getBeaten() // this isn't seemingly necessary but it makes me feel better
+				TipStatus.main.updateTip(for: .trainMenu)
+			}
+		}
     }
+	
+	static func getBeaten() -> [Bool] {
+		Storage.array(.train) as? [Bool] ?? [false, false, false, false, false, false]
+	}
     
 	func onSelection(_: Int) {
 		var newTrainMenu = layout.trainSelection

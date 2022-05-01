@@ -19,7 +19,7 @@ struct TipView: View {
 				Button("dismiss") { withAnimation(.easeIn(duration: 0.5)) { tipStatus.displayed = false } }
 				Blank(20)
 			}
-			.buttonStyle(Solid())
+			.buttonStyle(Standard())
 			.multilineTextAlignment(.center)
 			.frame(width: max(layout.width - 20, 100))
 			.background(Fill())

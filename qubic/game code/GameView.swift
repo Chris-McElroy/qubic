@@ -13,13 +13,8 @@ struct GameView: View {
     @ObservedObject var game: Game = Game.main
 	@ObservedObject var gameLayout: GameLayout = GameLayout.main
 	@ObservedObject var layout: Layout = Layout.main
-    @State var hintPickerContent: [[Any]] = [
-        ["first", "priority", "second"],
-		["all", "best", "off"]
-    ]
-    @State var hintText: [[String]?] = [nil, nil, nil]
-    @State var currentSolveType: SolveType? = nil
-	@State var currentPriority: Int = 0
+    @State var analysisText: [[String]?] = [nil, nil, nil]
+	@State var winAvailable: [Bool] = [false, false, false]
 	
 //	var animation = Animation.linear.delay(0)
 	let nameSpace: CGFloat = 65
@@ -107,9 +102,9 @@ struct GameView: View {
 	
 	var names: some View {
 		HStack {
-			PlayerName(turn: 0, text: $hintText)
+			PlayerName(turn: 0, text: $analysisText)
 			Spacer().frame(minWidth: 15).frame(width: gameLayout.centerNames && layout.width > 320 ? 15 : nil)
-			PlayerName(turn: 1, text: $hintText)
+			PlayerName(turn: 1, text: $analysisText)
 		}
 		.padding(.horizontal, 22)
 		.padding(.top, 10)
@@ -324,20 +319,20 @@ struct GameView: View {
     
     var solveButtons: some View {
         HStack(spacing: 30) {
-            Button("d1") { if currentSolveType == .d1 { Game.main.uploadSolveBoard("d1") } }
-                .opacity(currentSolveType == .d1 ? 1.0 : 0.3)
-            Button("d2") { if currentSolveType == .d2 { Game.main.uploadSolveBoard("d2") } }
-                .opacity(currentSolveType == .d2 ? 1.0 : 0.3)
-            Button("d3") { if currentSolveType == .d3 { Game.main.uploadSolveBoard("d3") } }
-                .opacity(currentSolveType == .d3 ? 1.0 : 0.3)
-            Button("d4") { if currentSolveType == .d4 { Game.main.uploadSolveBoard("d4") } }
-                .opacity(currentSolveType == .d4 ? 1.0 : 0.3)
-            Button("si") { if [.d1, .d2, .d3, .d4, .si, .tr].contains(currentSolveType) { Game.main.uploadSolveBoard("si") } }
-                .opacity([.d1, .d2, .d3, .d4, .si, .tr].contains(currentSolveType) ? 1.0 : 0.3)
-            Button("co") { if [.d4, .si, .tr].contains(currentSolveType) { Game.main.uploadSolveBoard("co") } }
-                .opacity([.d4, .si, .tr].contains(currentSolveType) ? 1.0 : 0.3)
-            Button("tr") { if currentSolveType == .tr { Game.main.uploadSolveBoard("tr") } }
-                .opacity(currentSolveType == .tr ? 1.0 : 0.3)
+			Button("d1") { if gameLayout.currentSolveType == .d1 { Game.main.uploadSolveBoard("d1") } }
+				.opacity(gameLayout.currentSolveType == .d1 ? 1.0 : 0.3)
+			Button("d2") { if gameLayout.currentSolveType == .d2 { Game.main.uploadSolveBoard("d2") } }
+				.opacity(gameLayout.currentSolveType == .d2 ? 1.0 : 0.3)
+			Button("d3") { if gameLayout.currentSolveType == .d3 { Game.main.uploadSolveBoard("d3") } }
+				.opacity(gameLayout.currentSolveType == .d3 ? 1.0 : 0.3)
+			Button("d4") { if gameLayout.currentSolveType == .d4 { Game.main.uploadSolveBoard("d4") } }
+				.opacity(gameLayout.currentSolveType == .d4 ? 1.0 : 0.3)
+			Button("si") { if [.d1, .d2, .d3, .d4, .si, .tr].contains(gameLayout.currentSolveType) { Game.main.uploadSolveBoard("si") } }
+				.opacity([.d1, .d2, .d3, .d4, .si, .tr].contains(gameLayout.currentSolveType) ? 1.0 : 0.3)
+			Button("co") { if [.d4, .si, .tr].contains(gameLayout.currentSolveType) { Game.main.uploadSolveBoard("co") } }
+				.opacity([.d4, .si, .tr].contains(gameLayout.currentSolveType) ? 1.0 : 0.3)
+			Button("tr") { if gameLayout.currentSolveType == .tr { Game.main.uploadSolveBoard("tr") } }
+				.opacity(gameLayout.currentSolveType == .tr ? 1.0 : 0.3)
         }
     }
     
@@ -353,7 +348,7 @@ struct GameView: View {
 			secondHint = game.currentMove?.hints[1]
 		}
 		
-        currentSolveType = game.currentMove?.solveType
+		gameLayout.currentSolveType = game.currentMove?.solveType
 		
 		let opText: [String]?
 		let myText: [String]?
@@ -393,37 +388,31 @@ struct GameView: View {
 		if firstHint == nil || secondHint == nil {
 			priorityHint = nil
 			priorityText = nil
-			currentPriority = gameLayout.showWinsFor ?? game.myTurn
+			gameLayout.currentPriority = gameLayout.showWinsFor ?? game.myTurn
 		} else if firstHint == .noW && secondHint == .noW {
 			priorityHint = .noW
 			priorityText = myText
-			currentPriority = game.myTurn
+			gameLayout.currentPriority = game.myTurn
 		} else if firstHint ?? .noW > secondHint ?? .noW {
 			priorityHint = firstHint
 			priorityText = game.myTurn == 0 ? myText : opText
-			currentPriority = 0
+			gameLayout.currentPriority = 0
 		} else {
 			priorityHint = secondHint
 			priorityText = game.myTurn == 1 ? myText : opText
-			currentPriority = 1
+			gameLayout.currentPriority = 1
 		}
 		
-		hintPickerContent = [
-			[("first", firstHint ?? .noW != .noW),
-			 ("priority", priorityHint ?? .noW != .noW),
-			 ("second", secondHint ?? .noW != .noW)],
-			["all", "best", "off"]
-		]
+		winAvailable = [firstHint ?? .noW != .noW, priorityHint ?? .noW != .noW, secondHint ?? .noW != .noW]
         
 		Timer.after(0.05) {
-			hintText = game.myTurn == 0 ? [myText, priorityText,  opText] : [opText, priorityText, myText]
+			analysisText = game.myTurn == 0 ? [myText, priorityText,  opText] : [opText, priorityText, myText]
 		}
 		
-		if gameLayout.hintSelection[1] != 2 && gameLayout.hintSelection[0] == 1 {
+		if gameLayout.analysisMode != 2 && gameLayout.analysisTurn == 1 {
 			Timer.after(0.06) {
 				withAnimation {
-	//				print("old show wins:", game.showWinsFor, "new show wins:", currentPriority)
-					self.gameLayout.showWinsFor = self.currentPriority
+					self.gameLayout.showWinsFor = self.gameLayout.currentPriority
 				}
 				BoardScene.main.spinMoves()
 			}
@@ -435,7 +424,7 @@ struct GameView: View {
 			VStack(spacing: 0) {
 				if game.hints {
 					Spacer()
-					if let text = hintText[gameLayout.hintSelection[0]] {
+					if let text = analysisText[gameLayout.analysisTurn] {
 						Text(text[0]).bold()
 						Blank(4)
 						Text(text[1])
@@ -453,7 +442,7 @@ struct GameView: View {
 									gameLayout.prevOpacity = .full
 								}
 							} }
-								.buttonStyle(Solid())
+								.buttonStyle(Standard())
 						}
 					} else {
 						Text("you can't analyze solve boards until they are solved!")
@@ -469,41 +458,17 @@ struct GameView: View {
 			.modifier(PopupModifier())
 			.offset(y: gameLayout.popup == .analysis ? 0 : -(200 + 30 + nameSpace))
 			
-			// unfucks the HPicker
-			Fill().opacity(gameLayout.popup == .analysis ? 0.015 : 0) // 0.015 seems to be about the minimum opacity to work
-				.onTapGesture { gameLayout.hidePopups() }
-				.zIndex(4)
+			Spacer()
 			
-			ZStack {
-				// HPickers
-				VStack(spacing: 0) {
-					Spacer()
-					OldHPicker(content: $hintPickerContent, dim: (70, 50), selected: $gameLayout.hintSelection, action: onAnalysisSelection)
-					 .frame(height: 100)
-				}
-				// Mask
-				VStack(spacing: 0) {
-					Fill()
-					Blank(30)
-					Fill(20)
-					Blank(30)
-					Fill(10)
-				}
-				// Content
-				VStack(spacing: 0) {
-					Spacer()
-					Text("show moves").bold()
-					Blank(34)
-					Text("wins for").bold()
-					Blank(36)
-				}.padding(.horizontal, 40)
-				if solveButtonsEnabled {
-					VStack {
-						solveButtons
-						Spacer()
-					}
-				}
+			VStack(spacing: 0) {
+				Spacer()
+				if solveButtonsEnabled { solveButtons }
+				Text("show moves").bold()
+				HPicker(width: 70, height: 35, selection: $gameLayout.analysisMode, labels: ["all", "best", "off"], onSelection: gameLayout.onAnalysisModeSelection)
+				Text("wins for").bold()
+				HPicker(width: 70, height: 35, selection: $gameLayout.analysisTurn, labels: ["first", "priority", "second"], underlines: $winAvailable, onSelection: gameLayout.onAnalysisTurnSelection)
 			}
+			.padding(.horizontal, 40)
 			.padding(.bottom, gameControlSpace)
 			.frame(width: layout.width, height: 170)
 			.modifier(PopupModifier())
@@ -511,64 +476,30 @@ struct GameView: View {
 		}
 		.modifier(BoundSize(min: .large, max: .extraLarge))
     }
-    
-    func onAnalysisSelection(row: Int, component: Int) {
-        withAnimation {
-            if component == 1 { // changing show options
-                if row < 2 {
-//					print("old show wins:", game.showWinsFor, "new show wins:", currentPriority)
-					gameLayout.showWinsFor = gameLayout.hintSelection[0] == 1 ? currentPriority : gameLayout.hintSelection[0]/2
-					gameLayout.showAllHints = row == 0
-					gameLayout.hidePopups()
-                } else {
-					gameLayout.showWinsFor = nil
-                }
-            } else {            // changing first/priority/second
-				gameLayout.hintSelection[1] = 2
-				gameLayout.showWinsFor = nil
-            }
-        }
-        BoardScene.main.spinMoves()
-    }
 	
 	var settingsPopup: some View {
-		let picker1Content: [[Any]] = [["all", "checks", "off"], ["on", "off"], ["on", "off"]]
-		let picker2Content: [[Any]] = [["left", "right"]]
-		
 		return VStack(spacing: 0) {
 			Spacer()
-			ZStack {
-				VStack(spacing: 0) {
-					Fill(32)
-					OldHPicker(content: .constant(picker1Content), dim: (60,55), selected: $gameLayout.settingsSelection1, action: gameLayout.onSettingsSelection1)
-						.frame(height: 165)
-						.zIndex(1)
-					Fill(9)
-					OldHPicker(content: .constant(picker2Content), dim: (60,55), selected: $gameLayout.settingsSelection2, action: gameLayout.onSettingsSelection2)
-						.frame(height: 55)
-						.zIndex(0)
+			VStack(spacing: 0) {
+				Text("confirm moves").bold().frame(height: 20)
+				HPicker(width: 60, height: 40, selection: $gameLayout.confirmMoves, labels: ["on", "off"], onSelection: gameLayout.setConfirmMoves)
+				Text("premoves").bold().frame(height: 20)
+				HPicker(width: 60, height: 40, selection: $gameLayout.premoves, labels: ["on", "off"], onSelection: gameLayout.setPremoves)
+				Text("move checker").bold().frame(height: 20)
+				if gameLayout.beatCubist {
+					HPicker(width: 60, height: 40, selection: $gameLayout.moveChecker, labels: ["all", "checks", "off"], onSelection: gameLayout.setMoveChecker)
+				} else {
+					Text("beat cubist in challenge mode to unlock!")
+						.foregroundColor(.secondary)
+						.frame(width: layout.width, height: 40)
+						.background(Fill())
+						.environment(\.sizeCategory, .large)
 				}
-				VStack(spacing: 0) {
-					Fill(5)
-					Text("confirm moves").bold().frame(height: 20)
-					Blank(40)
-					Text("premoves").bold().frame(height: 20)
-					Blank(40)
-					Text("move checker").bold().frame(height: 20)
-					if gameLayout.beatCubist {
-						Blank(40)
-					} else {
-						Text("beat cubist in challenge mode to unlock!")
-							.foregroundColor(.secondary)
-							.frame(width: layout.width, height: 40)
-							.background(Fill())
-							.environment(\.sizeCategory, .large)
-					}
-					Text("arrow side").bold().frame(height: 20)
-					Blank(40)
-				}
+				Text("arrow side").bold().frame(height: 20)
+				HPicker(width: 60, height: 40, selection: $gameLayout.arrowSide, labels: ["left", "right"], onSelection: gameLayout.setArrowSide)
 			}
-			.padding(.bottom, gameControlSpace - 20)
+			.padding(.bottom, gameControlSpace - 15)
+			.padding(.top, 15)
 			.frame(width: layout.width)
 			.modifier(PopupModifier())
 			.offset(y: gameLayout.popup == .settings ? 0 : 400)
@@ -589,21 +520,11 @@ struct GameView: View {
         var body: some View {
             VStack(spacing: 3) {
                 ZStack {
-					Text(gameLayout.showWinsFor == turn ? text[gameLayout.hintSelection[0]]?[0] ?? "loading..." : "")
+					Text(gameLayout.showWinsFor == turn ? text[gameLayout.analysisTurn]?[0] ?? "loading..." : "")
                         .animation(.none)
                         .multilineTextAlignment(.center)
                         .frame(height: 45)
-                    Text(game.player[turn].name)
-                        .lineLimit(1)
-                        .padding(.horizontal, 5)
-                        .foregroundColor(.white)
-                        .frame(minWidth: 140, maxWidth: 160, minHeight: 40)
-						.background(Rectangle()
-										.foregroundColor(color)
-										.opacity(game.realTurn == turn || game.gameState == .new ? 1 : 0.55)
-						)
-						.background(Rectangle().foregroundColor(.systemBackground))
-                        .cornerRadius(rounded ? 100 : 4)
+					Name(for: game.player[turn], opaque: game.realTurn == turn || game.gameState == .new)
 						.shadow(color: glow, radius: colorScheme == .dark ? 15 : 8, y: 0)
                         .animation(.easeIn(duration: 0.3))
 						.rotation3DEffect(gameLayout.showWinsFor == turn ? .radians(.pi/2) : .zero, axis: (x: 1, y: 0, z: 0), anchor: .top)

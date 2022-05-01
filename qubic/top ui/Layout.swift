@@ -18,11 +18,10 @@ enum ViewState: CaseIterable {
     case playMenu
     case play
     case about
+	case feedback
 	case tutorialMenu
-//	case lessons
-//	case dictLesson
     case settings
-    case feedback
+	case pastGames
 	case tutorial
     
 	var gameView: Bool { self == .play || self == .solve || self == .train }
@@ -38,11 +37,10 @@ enum ViewState: CaseIterable {
         case .solve: return .solveMenu
         case .play: return .playMenu
         case .about: return .more
+		case .feedback: return .more
 		case .tutorialMenu: return .more
-//		case .lessons: return .more
-//		case .dictLesson: return .lessons
         case .settings: return .more
-        case .feedback: return .more
+		case .pastGames: return .more
         default: return .main
         }
     }
@@ -67,13 +65,14 @@ enum ViewState: CaseIterable {
         .solve: (top: .solveView, focus: .solveView, bottom: .solveView),
         .playMenu: (top: .playView, focus: .playView, bottom: .playButton),
         .play: (top: .playView, focus: .playView, bottom: .playView),
-		.more: (top: .moreSpacer, focus: .moreSpacer, bottom: .feedback),
+		.more: (top: .moreSpacer, focus: .moreSpacer, bottom: .pastGames),
         .about: (top: .about, focus: .about, bottom: .about),
+		.feedback: (top: .feedback, focus: .feedback, bottom: .feedback),
 		.tutorialMenu: (top: .tutorialMenu, focus: .tutorialMenu, bottom: .tutorialMenu),
 //		.lessons: (top: .lessons, focus: .lessons, bottom: .lessons),
 //		.dictLesson: (top: .lessons, focus: .lessons, bottom: .lessons),
         .settings: (top: .settings, focus: .settings, bottom: .settings),
-        .feedback: (top: .feedback, focus: .feedback, bottom: .feedback),
+		.pastGames: (top: .pastGames, focus: .pastGames, bottom: .pastGames),
 		.tutorial: (top: .tutorial, focus: .tutorial, bottom: .tutorial)
     ]
 }
@@ -82,7 +81,7 @@ enum LayoutView: Int, Comparable {
     case topSpacer
     case title, cube, mainSpacer
     case trainView, trainButton, solveView, solveButton, playView, playButton
-    case moreSpacer, about, tutorialMenu, settings, feedback // lessons
+    case moreSpacer, about, feedback, tutorialMenu, settings, pastGames // lessons
     case backButton
 	case tutorial
     
@@ -101,14 +100,14 @@ struct LayoutModifier: ViewModifier {
         main = Layout.main.heightOf(view)
         bottom = Layout.main.bottomOf(view)
         
-        if main < 0 { print(view, main) }
+        if main < 0 { print("negative layout height", view, main) }
     }
     
     func body(content: Content) -> some View {
         VStack(spacing: 0) {
-            Spacer().frame(height: top)
+			Fill(top).zIndex(10)
             content.frame(height: main)
-            Spacer().frame(height: bottom)
+			Fill(bottom).zIndex(10)
         }
     }
 }
@@ -129,10 +128,11 @@ class Layout: ObservableObject {
         .playButton: mainButtonHeight,
         .moreSpacer: 0,
         .about: moreButtonHeight,
+		.feedback: moreButtonHeight,
 		.tutorialMenu: moreButtonHeight,
 //		.lessons: moreButtonHeight,
         .settings: moreButtonHeight,
-        .feedback: moreButtonHeight,
+		.pastGames: moreButtonHeight,
         .backButton: backButtonFrame
     ]
     
@@ -157,7 +157,7 @@ class Layout: ObservableObject {
     private var topGap: CGFloat = 80
 	private var bottomGap: CGFloat = 80
     var backButtonOffset: CGFloat {
-		let baseOffset = -2*safeHeight + (backButtonFrame - backButtonSpace)
+		let baseOffset = -3*safeHeight + (backButtonFrame - backButtonSpace)
 		// add the amount the start button travels if it's moving with the start button
 		return baseOffset + (current.gameView ? mainButtonHeight + backButtonSpace + bottomGap : 0)
 	}
@@ -193,7 +193,7 @@ class Layout: ObservableObject {
 		backButtonSpace = backButtonHeight - bottomGap/3
         safeHeight = fullHeight - topGap - bottomGap
         menuHeight = min(800, safeHeight)
-        total = 5*safeHeight
+        total = 7*safeHeight
         setLineWidth()
         setCube()
         setFeedbackText()
@@ -244,7 +244,7 @@ class Layout: ObservableObject {
     
     private func setTopSpacerHeights() {
         for state in ViewState.allCases {
-            var space = 2*safeHeight - topGap
+            var space = 3*safeHeight - topGap
             for v in 0..<state.top.rawValue {
                 guard let view = LayoutView.init(rawValue: v) else { break }
                 space -= defaultHeight[view] ?? 0

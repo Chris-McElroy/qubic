@@ -8,8 +8,8 @@
 
 import SwiftUI
 
-let buildNumber = 30203
-let versionType: VersionType = .appStore
+let buildNumber = 30302
+let versionType: VersionType = .xCode
 let solveButtonsEnabled = false
 
 struct MainView: View {
@@ -143,29 +143,27 @@ struct MainView: View {
     private var moreStack: some View {
         VStack(spacing: 0) {
             Fill().modifier(LayoutModifier(for: .moreSpacer))
+				.zIndex(10)
             AboutView()
                 .frame(alignment: .top)
                 .modifier(LayoutModifier(for: .about))
                 .zIndex(5)
+			FeedbackView()
+				.frame(alignment: .top)
+				.modifier(LayoutModifier(for: .feedback))
+				.zIndex(4)
 			TutorialMenuView()
 				.frame(alignment: .top)
 				.modifier(LayoutModifier(for: .tutorialMenu))
-				.zIndex(4)
-//			LessonsView()
-//				.frame(alignment: .top)
-//				.modifier(LayoutModifier(for: .lessons))
-//				.zIndex(3)
+				.zIndex(3)
             SettingsView()
                 .frame(alignment: .top)
                 .modifier(LayoutModifier(for: .settings))
                 .zIndex(2)
-            FeedbackView()
-                .frame(alignment: .top)
-                .modifier(LayoutModifier(for: .feedback))
-                .zIndex(1)
-            
-//            ReplaysView() { self.switchView(to: .replays) }
-//                .frame(height: heights.get(heights.replays), alignment: .top)
+			PastGamesView()
+				.frame(alignment: .top)
+				.modifier(LayoutModifier(for: .pastGames))
+				.zIndex(1)
 //            FriendsView() { self.switchView(to: .friends) }
 //                .frame(height: heights.get(heights.friends), alignment: .top)
         }

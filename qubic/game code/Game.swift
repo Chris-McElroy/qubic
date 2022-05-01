@@ -149,7 +149,8 @@ class Game: ObservableObject {
         ghostMoveCount = 0
         premoves = []
 		GameLayout.main.showWinsFor = nil
-		GameLayout.main.hintSelection = [1,2] // otherwise newHints keeps the old one
+		GameLayout.main.analysisMode = 2 // otherwise newHints keeps the old one
+		GameLayout.main.analysisTurn = 1
 		GameLayout.main.showAllHints = true
 		GameLayout.main.popup = .none
 //        newStreak = nil

@@ -110,8 +110,7 @@ struct TicTacToeView: View {
 						.opacity(nextOpacity.rawValue)
 				 }
 				 .padding(20)
-				 .buttonStyle(Solid())
-				 .modifier(Oligopoly(size: 16))
+				 .buttonStyle(Standard())
 			}
 		}
 		.gesture(swipe)

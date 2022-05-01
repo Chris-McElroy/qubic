@@ -14,14 +14,9 @@ struct TutorialMenuView: View {
 	
 	var body: some View {
 		VStack(spacing: 0) {
-			ZStack {
-				Fill().frame(height: moreButtonHeight)
-				Button("tutorial") {
-					layout.change(to: .tutorialMenu)
-				}
+			Button("tutorial") { layout.change(to: .tutorialMenu) }
 				.buttonStyle(MoreStyle())
-			}
-			.zIndex(4)
+				.zIndex(10)
 			if layout.current == .tutorialMenu {
 				Blank(20)
 				
@@ -50,8 +45,10 @@ struct TutorialMenuView: View {
 					Text("reset tips")
 				}
 			}
-			Spacer()
+			Spacer() // making this a fill ruins the spacing??
 		}
+		.buttonStyle(Standard())
+		.background(Fill()) // somehow this is needed to cover up settings in the transition
 	}
 }
 

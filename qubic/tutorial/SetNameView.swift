@@ -12,75 +12,50 @@ struct SetNameView: View {
 	@ObservedObject var layout = TutorialLayout.main
 	@State var continueOpacity: Opacity = .half
 	@State var username: String = ""
-	@State var selected = [Storage.int(.color)]
-	
-	let pickerContent: [[Any]] = [cubeImages()]
+	@State var color = Storage.int(.color)
 	
 	var body: some View {
-		ZStack {
-			VStack(spacing: 0) {
-				Blank(280)
-				OldHPicker(content: .constant(pickerContent), dim: (60,55), selected: $selected, action: onSelection)
-					.frame(height: 55)
-				Spacer()
-				Spacer()
-			}
-			VStack(spacing: 0) {
-				Blank(40)
-				VStack(spacing: 5) {
-					Text("username").modifier(Oligopoly(size: 18))
-					Text("Choose your displayed name. It can include spaces, emojis, and other unicode characters, and it does not need to be unique.")
-						.padding(.horizontal, 10)
-					TextField("enter name", text: $username, onEditingChanged: { starting in
-						if !starting && username != Storage.string(.name) {
-							Storage.set(username, for: .name)
-							FB.main.updateMyData()
-							continueOpacity = .full
-						}
-					})
-						.disableAutocorrection(true)
-						.keyboardType(.alphabet) // stops predictive text/text suggestions
-						.accentColor(.primary())
-						.frame(width: 200, height: 20)
-					Spacer()
-				}
-				.frame(height: 170)
-				VStack(spacing: 5) {
-					Text("color / app icon").modifier(Oligopoly(size: 18))
-					Text("Choose the color for your moves, name, app menus, and app icon.")
-						.padding(.horizontal, 10)
-					Spacer()
-				}
-				.frame(height: 150)
-				Blank(30)
-				Button("continue") { if continueOpacity == .full { layout.exitTutorial() } }
-					.opacity(continueOpacity.rawValue)
-					.buttonStyle(Solid())
-					.modifier(Oligopoly(size: 16))
+		VStack(spacing: 0) {
+			Blank(40)
+			VStack(spacing: 5) {
+				Text("username").modifier(Oligopoly(size: 18))
+				Text("Choose your displayed name. It can include spaces, emojis, and other unicode characters, and it does not need to be unique.")
+					.padding(.horizontal, 10)
+				TextField("enter name", text: $username, onEditingChanged: { starting in
+					if !starting && username != Storage.string(.name) {
+						Storage.set(username, for: .name)
+						FB.main.updateMyData()
+						continueOpacity = .full
+					}
+				})
+					.disableAutocorrection(true)
+					.keyboardType(.alphabet) // stops predictive text/text suggestions
+					.accentColor(.primary())
+					.frame(width: 200, height: 20)
 				Spacer()
 			}
+			.frame(height: 170)
+			VStack(spacing: 5) {
+				Text("color / app icon").modifier(Oligopoly(size: 18))
+				Text("Choose the color for your moves, name, app menus, and app icon.")
+					.padding(.horizontal, 10)
+				HPicker(width: 60, height: 40, scaling: 0.675, selection: $color, labels: SettingsView.cubeImages(), onSelection: setColor)
+				Spacer()
+			}
+			.frame(height: 150)
+			Blank(30)
+			Button("continue") { if continueOpacity == .full { layout.exitTutorial() } }
+				.opacity(continueOpacity.rawValue)
+				.buttonStyle(Standard())
+			Spacer()
 		}
 		.multilineTextAlignment(.center)
 	}
 	
-	static func cubeImages() -> [() -> UIView] {
-		["orangeCube", "redCube", "pinkCube", "purpleCube", "blueCube", "cyanCube", "limeCube", "greenCube", "goldCube"].map { name in
-			{
-				let image = UIImage(named: name)
-				let view = UIImageView(image: image)
-				view.frame.size.height = 27
-				view.frame.size.width = 27
-				view.transform = CGAffineTransform(rotationAngle: .pi/2)
-				
-				return view
-			}
-		}
-	}
-	
-	func onSelection(row: Int, component: Int) {
-		Storage.set(row, for: .color)
+	func setColor(to v: Int) {
+		Storage.set(v, for: .color)
 		FB.main.updateMyData()
-		let newIcon = ["orange", "red", "pink", "purple", nil, "cyan", "lime", "green", "gold"][row]
+		let newIcon = ["orange", "red", "pink", "purple", nil, "cyan", "lime", "green", "gold"][v]
 		if UIApplication.shared.alternateIconName != newIcon {
 			UIApplication.shared.setAlternateIconName(newIcon)
 		}

@@ -22,8 +22,10 @@ struct SolveView: View {
             } else if layout.current == .solveMenu {
 				HPicker(width: 100, height: 40, selection: $layout.solveSelection[1], labels: $typeLabels, onSelection: onTypeSelection)
 				HPicker(width: 100, height: 40, selection: $layout.solveSelection[0], labels: .constant(SolveView.getBoardLabels()), underlines: $solvedBoards, onSelection: onBoardSelection)
-					.onAppear { refreshMenu() }
-					.onAppear { TipStatus.main.updateTip(for: .solveMenu) }
+					.onAppear {
+						refreshMenu()
+						TipStatus.main.updateTip(for: .solveMenu)
+					}
             }
         }
 		.onAppear { refreshMenu() }
