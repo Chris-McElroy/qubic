@@ -80,6 +80,8 @@ class GameLayout {
 	func flashNextArrow() {}
 }
 
+var game: Game { Game.main }
+
 class Game: ObservableObject {
     static let main = Game()
     var sendMessage: (Character) -> Void = { _ in }
@@ -109,12 +111,12 @@ class Game: ObservableObject {
     func turnOff() {
         guard mode != .off else { return }
         board = Board()
-		BoardScene.main.reset(for: self)
+		BoardScene.main.reset()
         self.mode = .off
     }
     
     func load(mode: GameMode, boardNum: Int = 0, turn: Int, hints: Bool = false) {
-		BoardScene.main.reset(for: self)
+		BoardScene.main.reset()
         board = Board()
         gameState = .active
         moves = []

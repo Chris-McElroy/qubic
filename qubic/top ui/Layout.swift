@@ -321,6 +321,7 @@ class Layout: ObservableObject {
 	func change(to newLayout: ViewState, or otherLayout: ViewState? = nil) {
 		withAnimation(.easeIn(duration: 0.5)) { TipStatus.main.displayed = false }
 		if let nextView = (current != newLayout) ? newLayout : otherLayout {
+			if nextView.gameView { Game.main = Game() } // resets from tutorial
 			withAnimation(.easeInOut(duration: 0.4)) { //0.4
 				current = nextView
 			}

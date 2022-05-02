@@ -14,7 +14,6 @@ let solveButtonsEnabled = false
 
 struct MainView: View {
     @ObservedObject var screen: ScreenObserver
-    @ObservedObject var game: Game = Game.main
     @ObservedObject var layout = Layout.main
     
     // The delegate required by `MFMessageComposeViewController`

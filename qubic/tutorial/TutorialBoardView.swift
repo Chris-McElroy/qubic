@@ -26,8 +26,8 @@ class TutorialBoardScene: BoardScene {
 		reset()
 	}
 	
-	func reset() {
-		super.reset(for: Game.main)
+	override func reset() {
+		super.reset()
 		
 		camera.removeAllActions()
 		camera.position = SCNVector3(-1, 10, -1)
@@ -84,37 +84,6 @@ class TutorialBoardScene: BoardScene {
 				}
 				return
 			}
-			let turn = TutorialGame.tutorialMain.gameState == .active ? TutorialGame.tutorialMain.turn : TutorialGame.tutorialMain.myTurn
-			if TutorialGame.tutorialMain.gameState == .active && GameLayout.main.nextOpacity == .full {
-				TutorialGame.tutorialMain.notificationGenerator.notificationOccurred(.error)
-				GameLayout.main.flashNextArrow()
-				return
-			}
-			if let user = TutorialGame.tutorialMain.player[turn] as? User, TutorialGame.tutorialMain.premoves.isEmpty {
-				if Storage.int(.confirmMoves) == 0 {
-					if p == potentialMove {
-						potentialMove = nil
-						spinMoves()
-						user.move(at: p)
-					} else {
-						potentialMove = potentialMove == nil ? p : nil
-						spinMoves()
-					}
-				} else {
-					user.move(at: p)
-				}
-			} // not tryna do premoves here bc spin moves doesn't even work and i want to hide settings anyway
-//			} else if TutorialGame.tutorialMain.gameState == .active && Storage.int(.premoves) == 0 {
-//				print("b")
-//				if TutorialGame.tutorialMain.premoves.contains(p) {
-//					TutorialGame.tutorialMain.premoves = []
-//				} else {
-//					TutorialGame.tutorialMain.premoves.append(p)
-//				}
-//				spinMoves()
-//			} else {
-//				print("C")
-//			}
 		}
 	}
 	

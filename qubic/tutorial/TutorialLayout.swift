@@ -40,7 +40,7 @@ class TutorialLayout: ObservableObject {
 //	}
 	
 	func exitTutorial() {
-		TutorialGame.tutorialMain.gameState = .off
+		Game.main.gameState = .off
 		if Storage.string(.name) == "new player" && current != .setName {
 			advance(to: .setName, while: current)
 			return
@@ -67,7 +67,9 @@ class TutorialLayout: ObservableObject {
 	}
 	
 	func reset() {
-		TutorialGame.tutorialMain.gameState = .off
+		Game.main = TutorialGame()
+		GameLayout.main.showWinsFor = nil
+		PracticeGameController.main.step = .left
 		TutorialBoardScene.tutorialMain.reset()
 		resetTTTLinesTimers()
 	}

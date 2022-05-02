@@ -19,7 +19,6 @@ struct BoardView: UIViewRepresentable {
 
 class BoardScene {
     static let main = BoardScene()
-	var game = Game.main
     
     let view =  SCNView()
     let scene = SCNScene()
@@ -77,8 +76,7 @@ class BoardScene {
 //        }
 //    }
     
-	func reset(for game: Game) {
-		self.game = game
+	func reset() {
 		base.removeAllActions()
 		Timer.after(0.1, run: {
 			self.base.rotation = SCNVector4(x: 0, y: 0, z: 0, w: 0)
@@ -168,8 +166,8 @@ class BoardScene {
 				GameLayout.main.flashNextArrow()
 				return
             }
-			if let user = TutorialGame.tutorialMain.player[0] as? TutorialPlayer {
-				if TutorialGame.tutorialMain.gameState == .active && TutorialGame.tutorialMain.turn == 0 || TutorialGame.tutorialMain.gameState == .opResign {
+			if let user = game.player[0] as? TutorialPlayer {
+				if game.gameState == .active && game.turn == 0 || game.gameState == .opResign {
 					user.move(at: p)
 				}
 			}

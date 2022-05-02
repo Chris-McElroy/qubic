@@ -73,8 +73,10 @@ class Move: Equatable {
     }
 }
 
+var game: Game { Game.main }
+
 class Game: ObservableObject {
-    static let main = Game()
+    static var main = Game()
     
     @Published var moves: [Move] = []
 	@Published var currentMove: Move? = nil
@@ -104,7 +106,6 @@ class Game: ObservableObject {
     var movesBack: Int = 0
     var ghostMoveStart: Int = 0
     var ghostMoveCount: Int = 0
-    var newHints: () -> Void = {}
     var timers: [Timer] = []
     var premoves: [Int] = []
 	var rematchRequested: Bool = false
@@ -117,14 +118,14 @@ class Game: ObservableObject {
     init() {
         hintQueue.qualityOfService = .userInitiated
     }
-    
-    func load(mode: GameMode, boardNum: Int = 0, turn: Int? = nil, hints: Bool = false, time: Double? = nil) {
-		GameLayout.main.game = self
+	
+	func load(mode: GameMode, boardNum: Int = 0, turn: Int? = nil, hints: Bool = false, time: Double? = nil) {
+		Game.main = self
 		gameState = .new
 		self.mode = mode
 		mostRecentGame = (mode, boardNum, turn, hints, time)
         board = Board()
-		BoardScene.main.reset(for: self)
+		BoardScene.main.reset()
 		gameNum += 1
 		GameLayout.main.loadGameOpacities()
 		reviewingGame = false
@@ -193,7 +194,7 @@ class Game: ObservableObject {
 			player[1].color = [4, 4, 4, 8, 6, 7, 4, 5, 3][player[0].color]
 		}
         for p in preset { loadMove(p) }
-        newHints()
+		GameLayout.main.refreshHints()
         
         func setPreset(for mode: GameMode) {
 //			if mode == .picture1 {
@@ -361,7 +362,7 @@ class Game: ObservableObject {
 		guard movesBack == 0 else { processingMove = false; return }
         board.addMove(p)
         currentMove = move
-        newHints()
+		GameLayout.main.refreshHints()
         BoardScene.main.showMove(p, wins: board.getWinLines(for: p))
 		GameLayout.main.newMoveOpacities()
 		processingMove = false
@@ -384,7 +385,7 @@ class Game: ObservableObject {
         }
         moves.insert(move, at: ghostMoveStart+ghostMoveCount)
         currentMove = move
-        newHints()
+		GameLayout.main.refreshHints()
         ghostMoveCount += 1
         getHints(for: moves.dropLast(movesBack))
         BoardScene.main.showMove(move.p, wins: board.getWinLines(for: move.p), ghost: true)
@@ -472,7 +473,7 @@ class Game: ObservableObject {
 			}
 			getHints(for: moves, time: time)
 			currentMove = move
-			newHints()
+			GameLayout.main.refreshHints()
 			processingMove = false
 			GameLayout.main.newMoveOpacities()
 			if !hints && (mode == .online || mode.train) { findMisses() }
@@ -574,7 +575,7 @@ class Game: ObservableObject {
                 }
             }
 			guard num == self.gameNum else { return }
-            DispatchQueue.main.async { self.newHints() }
+            DispatchQueue.main.async { GameLayout.main.refreshHints() }
 
             var oHint: HintValue = .noW
 			if b.inDict() && turn == 1 { oHint = .dw; moves.last?.winLen = b.cachedDictMoves?.0 ?? 0 }
@@ -589,7 +590,7 @@ class Game: ObservableObject {
 			
 			guard num == self.gameNum else { return }
 			moves.last?.hints[turn^1] = oHint
-            DispatchQueue.main.async { self.newHints() }
+            DispatchQueue.main.async { GameLayout.main.refreshHints() }
 
             var nAllMoves: Set<Int> = []
 			var nBestMoves: Set<Int> = []
@@ -660,7 +661,7 @@ class Game: ObservableObject {
 		premoves = []
         currentMove = moves.last
 		lastCheck = 0
-        newHints()
+		GameLayout.main.refreshHints()
         if totalTime != nil {
             times[turn].removeLast()
             currentTimes[turn] = max(0, Int((times[turn].last ?? 0).rounded()))
@@ -687,7 +688,7 @@ class Game: ObservableObject {
             }
         }
         BoardScene.main.undoMove(moves[i].p)
-        newHints()
+		GameLayout.main.refreshHints()
         if i-1 < ghostMoveStart {
             moves.removeSubrange(ghostMoveStart..<(ghostMoveStart+ghostMoveCount))
             movesBack -= ghostMoveCount
@@ -718,7 +719,7 @@ class Game: ObservableObject {
         if gameState != .active && totalTime != nil && ghostMoveCount == 0 {
             currentTimes[turn^1] = max(0, Int((times[turn^1][board.move[turn^1].count]).rounded()))
         }
-        newHints()
+		GameLayout.main.refreshHints()
         BoardScene.main.showMove(moves[i].p, wins: board.getWinLines(for: moves[i].p), ghost: ghostMoveCount != 0)
 		GameLayout.main.nextMoveOpacities()
         if gameState == .active && movesBack == 0 {

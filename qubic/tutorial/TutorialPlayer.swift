@@ -16,10 +16,10 @@ class TutorialPlayer: Player {
 	override func move() {}
 	
 	func move(at p: Int) {
-		if TutorialGame.tutorialMain.reviewingGame {
-			TutorialGame.tutorialMain.processGhostMove(p)
-		} else if TutorialGame.tutorialMain.gameState == .active {
-			TutorialGame.tutorialMain.checkAndProcessMove(p, for: n, setup: b.getSetup())
+		if Game.main.reviewingGame {
+			Game.main.processGhostMove(p)
+		} else if Game.main.gameState == .active {
+			Game.main.checkAndProcessMove(p, for: n, setup: b.getSetup())
 		}
 	}
 }

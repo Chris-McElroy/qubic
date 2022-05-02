@@ -8,15 +8,12 @@
 
 import Foundation
 
-class TutorialGame: Game {
-	static var tutorialMain = TutorialGame()
-	
+class TutorialGame: Game {	
 	func load() {
-		GameLayout.main.game = self
 		gameState = .new
 		self.mode = mode
 		board = Board()
-		BoardScene.main.reset(for: self)
+		BoardScene.main.reset()
 		gameNum += 1
 		GameLayout.main.loadGameOpacities()
 		reviewingGame = false
@@ -47,7 +44,7 @@ class TutorialGame: Game {
 
 		player = [me, op]
 		for p in preset { loadFutureMove(p) }
-		newHints()
+		GameLayout.main.refreshHints()
 	}
 	
 	func loadFutureMove(_ p: Int) {
@@ -85,7 +82,7 @@ class TutorialGame: Game {
 			moves.append(move)
 			getHints(for: moves, time: time)
 			currentMove = move
-			newHints()
+			GameLayout.main.refreshHints()
 			processingMove = false
 			GameLayout.main.newMoveOpacities()
 			
@@ -106,6 +103,34 @@ class TutorialGame: Game {
 				self.player[1].cancelMove()
 				self.processingMove = false
 			})
+		}
+	}
+	
+	override func undoMove() {
+		if PracticeGameController.main.step == .undo {
+			super.undoMove()
+			PracticeGameController.main.step = .swipe3
+			GameLayout.main.setPopups(to: .settings)
+		}
+	}
+	
+	override func prevMove() {
+		super.prevMove()
+		if PracticeGameController.main.step == .block && movesBack == 1 {
+			PracticeGameController.main.nextAction()
+		}
+	}
+	
+	override func nextMove() {
+		if GameLayout.main.popup == .settings && PracticeGameController.main.step == .adv1 {
+			GameLayout.main.setPopups(to: .none)
+		}
+		super.nextMove()
+		if PracticeGameController.main.step == .adv1 && movesBack == 0 {
+			PracticeGameController.main.nextAction()
+		}
+		if PracticeGameController.main.step == .adv2 && movesBack == 0 {
+			PracticeGameController.main.step = .undo
 		}
 	}
 }

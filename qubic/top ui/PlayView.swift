@@ -19,7 +19,7 @@ struct PlayView: View {
     var body: some View {
         if layout.current == .play {
             GameView()
-                .onAppear { Game.main.load(mode: mode, turn: turn, hints: hints, time: time) }
+				.onAppear { Game.main.load(mode: mode, turn: turn, hints: hints, time: time) }
 		} else {
 			VStack {
 				Spacer()

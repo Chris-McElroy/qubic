@@ -195,6 +195,8 @@
 		1EE2D5F9273897BB00DE309F /* TutorialLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EE2D5F8273897BA00DE309F /* TutorialLayout.swift */; };
 		1EE2D5FB2738A3F500DE309F /* PracticeGameView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EE2D5FA2738A3F500DE309F /* PracticeGameView.swift */; };
 		1EE2D5FF2738A40500DE309F /* TutorialBoardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EE2D5FE2738A40500DE309F /* TutorialBoardView.swift */; };
+		1EE4AADC2820373C005C8C20 /* PracticeGameController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EE4AADB2820373C005C8C20 /* PracticeGameController.swift */; };
+		1EE4AADE28204065005C8C20 /* GameViewComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EE4AADD28204065005C8C20 /* GameViewComponents.swift */; };
 		1EE4C75C24EB7ADC0038C1E2 /* UIHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EE4C75B24EB7ADC0038C1E2 /* UIHelper.swift */; };
 		1EEB0D4E24CF3780008F5B4B /* ColorHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EEB0D4D24CF3780008F5B4B /* ColorHelper.swift */; };
 		1EFAFB17271D170500F377E7 /* GameLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EFAFB16271D170500F377E7 /* GameLayout.swift */; };
@@ -415,6 +417,8 @@
 		1EE2D5F8273897BA00DE309F /* TutorialLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TutorialLayout.swift; sourceTree = "<group>"; };
 		1EE2D5FA2738A3F500DE309F /* PracticeGameView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeGameView.swift; sourceTree = "<group>"; };
 		1EE2D5FE2738A40500DE309F /* TutorialBoardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TutorialBoardView.swift; sourceTree = "<group>"; };
+		1EE4AADB2820373C005C8C20 /* PracticeGameController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeGameController.swift; sourceTree = "<group>"; };
+		1EE4AADD28204065005C8C20 /* GameViewComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameViewComponents.swift; sourceTree = "<group>"; };
 		1EE4C75B24EB7ADC0038C1E2 /* UIHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIHelper.swift; sourceTree = "<group>"; };
 		1EEB0D4D24CF3780008F5B4B /* ColorHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorHelper.swift; sourceTree = "<group>"; };
 		1EFAFB16271D170500F377E7 /* GameLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameLayout.swift; sourceTree = "<group>"; };
@@ -643,6 +647,7 @@
 				1E2E74BB24E86AA600218E55 /* GameView.swift */,
 				1E2E74BD24E86B6500218E55 /* BoardView.swift */,
 				1EFAFB16271D170500F377E7 /* GameLayout.swift */,
+				1EE4AADD28204065005C8C20 /* GameViewComponents.swift */,
 				1E8C554625365E3400C9A556 /* Game.swift */,
 				1EDDE18F24FAC70800B7742C /* Board.swift */,
 				1EC2B8842536A86C001B0A1F /* Checks.swift */,
@@ -773,6 +778,7 @@
 				1E312089273D9BF6005BA437 /* WelcomeView.swift */,
 				1E31208B273D9C1E005BA437 /* TicTacToeView.swift */,
 				1EE2D5FA2738A3F500DE309F /* PracticeGameView.swift */,
+				1EE4AADB2820373C005C8C20 /* PracticeGameController.swift */,
 				1E69287F27B5E079000FF0D6 /* SetNameView.swift */,
 				1EE2D5FE2738A40500DE309F /* TutorialBoardView.swift */,
 				1E516DFF27A50474004938ED /* TutorialPlayer.swift */,
@@ -1119,6 +1125,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1EE4AADE28204065005C8C20 /* GameViewComponents.swift in Sources */,
 				1E22E0F2260C21EB007F627A /* Online.swift in Sources */,
 				1E636FC3258A8995005B8D4F /* Simple.swift in Sources */,
 				1EAEE3BD24D9DCBA00490530 /* PastGamesView.swift in Sources */,
@@ -1164,6 +1171,7 @@
 				1EBD920125897ED90082B65E /* User.swift in Sources */,
 				1EE2D5FB2738A3F500DE309F /* PracticeGameView.swift in Sources */,
 				1E272E742800C37C0080216D /* TipView.swift in Sources */,
+				1EE4AADC2820373C005C8C20 /* PracticeGameController.swift in Sources */,
 				1E5A5AAE24CD077900F31124 /* TrainView.swift in Sources */,
 				1E776157271E372200D83000 /* TutorialMenuView.swift in Sources */,
 				1EB693952599A1470025B080 /* Warrior.swift in Sources */,
