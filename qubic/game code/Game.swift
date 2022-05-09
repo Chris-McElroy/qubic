@@ -24,7 +24,7 @@ enum GameMode: Int {
 
 enum GameState: Int {
     // each one is 1 more
-	case error = 0, new, active, myWin, opWin, myTimeout, opTimeout, myResign, opResign, draw, off
+	case error = 0, new, active, myWin, opWin, myTimeout, opTimeout, myResign, opResign, draw, ended, off
     
     func mirror() -> GameState {
         switch self {
@@ -35,6 +35,7 @@ enum GameState: Int {
         case .myResign: return .opResign
         case .opResign: return .myResign
         case .draw: return .draw
+		case .ended: return .ended
         default: return .error
         }
     }
@@ -124,6 +125,9 @@ class Game: ObservableObject {
 		gameState = .new
 		self.mode = mode
 		mostRecentGame = (mode, boardNum, turn, hints, time)
+		
+		UserDefaults.standard.set(10, forKey: "wfeoijf")
+		
         board = Board()
 		BoardScene.main.reset()
 		gameNum += 1
@@ -780,7 +784,7 @@ class Game: ObservableObject {
         
         if end == .myTimeout || end == .opTimeout { BoardScene.main.spinBoard() }
         
-		timers.append(Timer.after(end == .myResign ? 0 : 1) {
+		timers.append(Timer.after(end == .myResign || end == .ended ? 0 : 1) {
 			withAnimation { GameLayout.main.popup = .gameEnd }
 			self.notificationGenerator.notificationOccurred(end.myWin ? .error : .warning)
 		})

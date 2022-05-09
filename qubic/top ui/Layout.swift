@@ -329,8 +329,6 @@ class Layout: ObservableObject {
 	}
 }
 
-
-
 //    var top       = SubView(id: 0,  df: 0)
 //    let trainView = SubView(id: 1,  df: 0)
 //    let train     = SubView(id: 2,  df: mainButtonHeight)

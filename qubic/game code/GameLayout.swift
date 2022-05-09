@@ -222,6 +222,10 @@ class GameLayout: ObservableObject {
 	}
 	
 	func setPopups(to newSetting: GamePopup) {
+		if popup == .gameEnd {
+			game.reviewingGame = true
+			FB.main.cancelOnlineSearch?()
+		}
 		withAnimation {
 			popup = newSetting
 			delayPopups = true
@@ -386,6 +390,92 @@ class GameLayout: ObservableObject {
 				}
 				BoardScene.main.spinMoves()
 			}
+		}
+	}
+	
+	func getGameEndText() -> String {
+		switch game.gameState {
+		case .myWin:
+			if game.mode.solve {
+				var checksOnly = true
+				var i = game.preset.count
+				while i < game.moves.count - 1 {
+					if game.moves[i].hints[game.myTurn] != .c1 && game.moves[i].hints[game.myTurn] != .cm1 { checksOnly = false }
+					i += 2
+				}
+				if checksOnly {
+					if game.moves[game.preset.count - 1].hints[game.myTurn] == .w1 && game.moves.count == game.preset.count + 1 {
+						return "you found the fastest win!"
+					} else if game.moves[game.preset.count - 1].hints[game.myTurn] == .cm1 && game.moves.count == game.preset.count + 3 {
+						return "you found the fastest win!"
+					} else if game.moves.count == game.preset.count + 2*game.moves[game.preset.count - 1].winLen - 1 {
+						return "you found the fastest second order win!"
+					} else {
+						return "though there is a faster win!"
+					}
+				} else {
+					if game.moves.count < game.preset.count + 2*game.moves[game.preset.count - 1].winLen - 1 {
+						return "faster than the fastest second order win!"
+					} else {
+						return "nice creative solution!"
+					}
+				}
+			} else {
+				// TODO fill out normal wins
+				return "hi"
+			}
+		case .opTimeout:
+			return ["nice time managment!", "they ran out of time!", "you must have stumped them!"].randomElement() ?? ""
+		case .opResign:
+			return "your opponent resigned!" // got to keep this clear so they know
+			
+		case .opWin:
+			if game.mode.solve {
+				var checksOnly = true
+				var i = game.preset.count
+				while i < game.moves.count - 1 {
+					if game.moves[i].hints[game.myTurn] != .c1 && game.moves[i].hints[game.myTurn] != .cm1 {
+						checksOnly = false
+					}
+					if (game.moves[i].hints[game.myTurn^1] == .c1 || game.moves[i].hints[game.myTurn^1] == .cm1) &&
+						(game.moves[i-1].bestMoves[game.myTurn^1]?.contains(game.moves[i].p) ?? false)  {
+						return "watch out for that one!" // TODO figure out when this should appear
+					}
+					i += 2
+				}
+				if checksOnly {
+					if game.moves[game.preset.count - 1].hints[game.myTurn] == .w1 && game.moves.count == game.preset.count + 1 {
+						return "you found the fastest win!"
+					} else if game.moves[game.preset.count - 1].hints[game.myTurn] == .cm1 && game.moves.count == game.preset.count + 3 {
+						return "you found the fastest win!"
+					} else if game.moves.count == game.preset.count + 2*game.moves[game.preset.count - 1].winLen - 1 {
+						return "you found the fastest second order win!"
+					} else {
+						return "though there is a faster win!"
+					}
+				} else {
+					return "you can win with only checks!"
+				}
+			} else {
+				// TODO fill out normal losses
+				return "hi"
+			}
+		case .myTimeout:
+			return ["don't let the clock run out!", "keep your eye on the clock!", "make sure to watch your time!"].randomElement() ?? ""
+		case .myResign:
+			return "better luck next time!" // TODO check for wins/losses
+			
+		case .draw:
+			// TODO add "your first draw!" when i have stats
+			return "that's hard to do!"
+		case .ended:
+			switch game.moves.count {
+			case 0...12: return "a short one!"
+			case 24...64: return "a long one!"
+			default: return "come back soon!"
+			}
+			
+		default: return ""
 		}
 	}
 }

@@ -59,7 +59,7 @@ class GameViewComponents {
 	}
 	
 	static var optionsButton: some View {
-		let vShape: Bool = gameLayout.popup == .options || gameLayout.popup == .gameEnd || (gameLayout.popup == .gameEndPending && game.gameState == .myResign)
+		let vShape: Bool = gameLayout.popup == .options || gameLayout.popup == .gameEnd || (gameLayout.popup == .gameEndPending && (game.gameState == .myResign || game.gameState == .ended))
 		
 		return Button(action: {
 			if gameLayout.popup == .options {
@@ -154,10 +154,12 @@ class GameViewComponents {
 					}
 					Button("menu") { layout.goBack() }
 				} else {
-					if game.mode.solve {
+					if game.mode.solve || game.mode == .local || game.mode.train {
 						Button("restart") { gameLayout.animateGameChange(rematch: true) }
+						Button("end game") { game.endGame(with: .ended) }
+					} else {
+						Button("resign") { game.endGame(with: .myResign) }
 					}
-					Button("resign") { print("resigning", game === Game.main); game.endGame(with: .myResign) }
 				}
 			}
 			.modifier(Oligopoly(size: 18))
@@ -172,15 +174,17 @@ class GameViewComponents {
 	
 	static var gameEndPopup: some View {
 		var titleText = game.gameState.myWin ? "you won!" : "you lost!"
+		if game.mode.solve { titleText = game.gameState.myWin ? "solved!" : "failed!" }
 		if game.gameState == .draw { titleText = "draw" }
-		if game.gameState == .error { titleText = "game over" }
+		if game.gameState == .ended || game.gameState == .error { titleText = "game over" }
 		if game.mode == .daily && Storage.int(.lastDC) > game.lastDC { titleText = "\(Storage.int(.streak)) day streak!" }
 //		if game.mode == .picture4 { titleText = "8 day streak!" }
 		
 		return VStack(spacing: 0) {
 			VStack(spacing: 15) {
 				Text(titleText).modifier(Oligopoly(size: 24)) // .system(.largeTitle))
-//				Text("a little something about the game")
+				Text(gameLayout.getGameEndText())
+					.multilineTextAlignment(.center)
 			}
 			.padding(.vertical, 15)
 			.padding(.top, gameLayout.nameSpace)

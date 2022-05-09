@@ -38,7 +38,7 @@ struct MainView: View {
 				}
 				TipView()
 			}
-			.onAppear { layout.load(for: screen) }
+			.onAppear { layout.load(for: screen); screen.window?.backgroundColor = .clear }
 			.onAppear { TipStatus.main.updateTip(for: .main) }
 			.onReceive(screen.objectWillChange) { layout.load(for: screen) }
 			.frame(height: layout.total)

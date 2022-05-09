@@ -24,7 +24,7 @@ enum GameMode: Int {
 
 enum GameState: Int {
 	// each one is 1 more
-	case error = 0, new, active, myWin, opWin, myTimeout, opTimeout, myResign, opResign, draw, off
+	case error = 0, new, active, myWin, opWin, myTimeout, opTimeout, myResign, opResign, draw, ended, off
 	
 	func mirror() -> GameState {
 		switch self {
@@ -35,6 +35,7 @@ enum GameState: Int {
 		case .myResign: return .opResign
 		case .opResign: return .myResign
 		case .draw: return .draw
+		case .ended: return .ended
 		default: return .error
 		}
 	}
