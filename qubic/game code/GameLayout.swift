@@ -394,19 +394,25 @@ class GameLayout: ObservableObject {
 	}
 	
 	func getGameEndText() -> String {
+		let myTurn = game.myTurn
+		let opTurn = game.myTurn^1
 		switch game.gameState {
 		case .myWin:
 			if game.mode.solve {
+				if game.mode == .daily && Storage.int(.lastDC) > game.lastDC {
+					return "\(Storage.int(.streak)) day streak!"
+				}
+				
 				var checksOnly = true
 				var i = game.preset.count
 				while i < game.moves.count - 1 {
-					if game.moves[i].hints[game.myTurn] != .c1 && game.moves[i].hints[game.myTurn] != .cm1 { checksOnly = false }
+					if game.moves[i].hints[myTurn] != .c1 && game.moves[i].hints[myTurn] != .cm1 { checksOnly = false }
 					i += 2
 				}
 				if checksOnly {
-					if game.moves[game.preset.count - 1].hints[game.myTurn] == .w1 && game.moves.count == game.preset.count + 1 {
+					if game.moves[game.preset.count - 1].hints[myTurn] == .w1 && game.moves.count == game.preset.count + 1 {
 						return "you found the fastest win!"
-					} else if game.moves[game.preset.count - 1].hints[game.myTurn] == .cm1 && game.moves.count == game.preset.count + 3 {
+					} else if game.moves[game.preset.count - 1].hints[myTurn] == .cm1 && game.moves.count == game.preset.count + 3 {
 						return "you found the fastest win!"
 					} else if game.moves.count == game.preset.count + 2*game.moves[game.preset.count - 1].winLen - 1 {
 						return "you found the fastest second order win!"
@@ -421,32 +427,122 @@ class GameLayout: ObservableObject {
 					}
 				}
 			} else {
-				// TODO fill out normal wins
-				return "hi"
+				guard game.moves.count >= 7 else {
+					print("error")
+					return "great job pulling that off!"
+				}
+				if game.moves[game.moves.count - 3].hints[myTurn] == .c1 {
+					return "they didn't see that coming!"
+				}
+				
+				var hadW2 = false
+				var fastestW2 = 0
+				var W2len = 0
+				var checkedFromFirstChance = false
+				var opOpening: [Int] = []
+				var winFromMistake = false
+				var unbeatable = true
+				var successfulW3D1 = false
+				for (i, move) in game.moves.enumerated() {
+					if i % 2 == opTurn {
+						if move.hints[myTurn] == .w2 || move.hints[myTurn] == .w2d1 {
+							if !hadW2 {
+								checkedFromFirstChance = true
+							}
+							if W2len == 0 {
+								fastestW2 = move.winLen
+							}
+							hadW2 = true
+						}
+						if opOpening.contains(i - 1) && move.hints[opTurn] != .c1 && move.hints[opTurn] != .w0 {
+							if move.hints[myTurn] == .w2 || move.hints[myTurn] == .w2d1 || move.hints[myTurn] == .w1 {
+								winFromMistake = true
+							}
+						}
+					} else {
+						if move.hints[myTurn] == .c1 || move.hints[myTurn] == .cm1 || move.hints[myTurn] == .w0 {
+							W2len += 1
+						} else {
+							if move.hints[myTurn] != .dw {
+								unbeatable = false
+							}
+							checkedFromFirstChance = false
+							winFromMistake = false
+							W2len = 0
+							fastestW2 = 0
+							if move.hints[opTurn] == .w2 || move.hints[opTurn] == .w2d1 || move.hints[opTurn] == .w1 || move.hints[opTurn] == .dw {
+								opOpening.append(i)
+							}
+						}
+						if move.hints[myTurn] == .cm2 {
+							successfulW3D1 = true
+						} else if move.hints[myTurn] != .cm1 && move.hints[myTurn] != .c1 && move.hints[myTurn] != .w0 {
+							successfulW3D1 = false
+						}
+					}
+				}
+				
+				if unbeatable {
+					return "your moves were unbeatable!"
+				}
+				var comments: [String] = []
+				if checkedFromFirstChance {
+					comments.append("you started forcing at the first opportunity!")
+				}
+				if W2len > 2 {
+					comments.append("you found a \(W2len) move win!")
+				}
+				if successfulW3D1 {
+					comments.append("nice second order checkmate!")
+				}
+				if W2len == fastestW2 {
+					comments.append("you found the fastest second order win!")
+				}
+				if opOpening.isEmpty {
+					comments.append("they never had an opening!")
+				}
+				if winFromMistake {
+					comments.append("you capitalized on their mistake!")
+				}
+				
+				if let comment = comments.randomElement() {
+					print(comments)
+					return comment
+				}
+				
+				if W2len == 2 {
+					return "nice checkmate!"
+				}
+				
+				return "great job!"
+				// TODO test this shit especially all the comments, i just added them and haven't tested any of them
+				
+				// TODO once I have stats, add "your first win!" and "4 wins in a row—meta!"
+				// TODO once I can see 3rd order wins, add those in as well
 			}
 		case .opTimeout:
 			return ["nice time managment!", "they ran out of time!", "you must have stumped them!"].randomElement() ?? ""
 		case .opResign:
-			return "your opponent resigned!" // got to keep this clear so they know
+			return "your opponent resigned!" // got to keep this clear so they know what happened
 			
 		case .opWin:
+			if game.moves.count > 4 && game.moves.last?.hints[opTurn] == .w0 && game.moves[game.moves.count - 3].hints[opTurn] == .c1 && game.moves[game.moves.count - 4].hints[myTurn] == .c1 {
+				return "their block gave them check!"
+			}
 			if game.mode.solve {
 				var checksOnly = true
 				var i = game.preset.count
 				while i < game.moves.count - 1 {
-					if game.moves[i].hints[game.myTurn] != .c1 && game.moves[i].hints[game.myTurn] != .cm1 {
+					if game.moves[i].hints[myTurn] != .c1 && game.moves[i].hints[myTurn] != .cm1 {
 						checksOnly = false
-					}
-					if (game.moves[i].hints[game.myTurn^1] == .c1 || game.moves[i].hints[game.myTurn^1] == .cm1) &&
-						(game.moves[i-1].bestMoves[game.myTurn^1]?.contains(game.moves[i].p) ?? false)  {
-						return "watch out for that one!" // TODO figure out when this should appear
 					}
 					i += 2
 				}
+				// TODO wtf i just copy pasted this from .myWin????
 				if checksOnly {
-					if game.moves[game.preset.count - 1].hints[game.myTurn] == .w1 && game.moves.count == game.preset.count + 1 {
+					if game.moves[game.preset.count - 1].hints[myTurn] == .w1 && game.moves.count == game.preset.count + 1 {
 						return "you found the fastest win!"
-					} else if game.moves[game.preset.count - 1].hints[game.myTurn] == .cm1 && game.moves.count == game.preset.count + 3 {
+					} else if game.moves[game.preset.count - 1].hints[myTurn] == .cm1 && game.moves.count == game.preset.count + 3 {
 						return "you found the fastest win!"
 					} else if game.moves.count == game.preset.count + 2*game.moves[game.preset.count - 1].winLen - 1 {
 						return "you found the fastest second order win!"

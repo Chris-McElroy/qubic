@@ -173,11 +173,10 @@ class GameViewComponents {
 	}
 	
 	static var gameEndPopup: some View {
-		var titleText = game.gameState.myWin ? "you won!" : "you lost!"
-		if game.mode.solve { titleText = game.gameState.myWin ? "solved!" : "failed!" }
-		if game.gameState == .draw { titleText = "draw" }
+		var titleText = game.gameState.myWin ? "you won" : "you lost"
 		if game.gameState == .ended || game.gameState == .error { titleText = "game over" }
-		if game.mode == .daily && Storage.int(.lastDC) > game.lastDC { titleText = "\(Storage.int(.streak)) day streak!" }
+		if game.mode.solve { titleText = game.gameState.myWin ? "solved" : "failed" }
+		if game.gameState == .draw { titleText = "draw" }
 //		if game.mode == .picture4 { titleText = "8 day streak!" }
 		
 		return VStack(spacing: 0) {

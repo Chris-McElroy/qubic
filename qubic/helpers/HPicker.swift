@@ -49,7 +49,8 @@ struct HPicker: View {
 		
 		self._selection = selection
 		self._labels = labels
-		self._underlines = underlines ?? .constant(Array(repeating: false, count: labels.count))
+		self._underlines = underlines ?? .constant(Array(repeating: false, count: labels.wrappedValue.count))
+		// using wrapped value to avoid a crash pre iOS 15
 	}
 	
 	init(width: CGFloat, height: CGFloat, scaling: CGFloat = 1.0, selection: Binding<Int>, labels: [Any], underlines: Binding<[Bool]>? = nil, onSelection: @escaping (Int) -> Void) {

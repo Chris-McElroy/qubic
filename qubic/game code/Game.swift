@@ -554,7 +554,7 @@ class Game: ObservableObject {
 			if b.inDict() { nHint = (turn == 0 ? .dw : .dl); moves.last?.winLen = b.cachedDictMoves?.0 ?? 0 }
 			else if b.hasW0(turn) { nHint = .w0 }
             else if b.hasW1(turn) { nHint = .w1 }
-            else if b.hasW2(turn, depth: 1, valid: { num == self.gameNum }) == true { nHint = .w2d1 }
+			else if b.hasW2(turn, depth: 1, valid: { num == self.gameNum }) == true { nHint = .w2d1; moves.last?.winLen = 2 }
 			else if b.hasW2(turn, valid: { num == self.gameNum }) == true { nHint = .w2; moves.last?.winLen = (b.cachedHasW2[turn] ?? 0) + 1 }
 			guard num == self.gameNum else { return }
             moves.last?.hints[turn] = nHint
