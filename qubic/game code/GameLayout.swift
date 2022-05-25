@@ -439,13 +439,13 @@ class GameLayout: ObservableObject {
 				var fastestW2 = 0
 				var W2len = 0
 				var checkedFromFirstChance = false
-				var opOpening: [Int] = []
+				var opOpening = false
 				var winFromMistake = false
 				var unbeatable = true
 				var successfulW3D1 = false
 				for (i, move) in game.moves.enumerated() {
 					if i % 2 == opTurn {
-						if move.hints[myTurn] == .w2 || move.hints[myTurn] == .w2d1 {
+						if move.hints[myTurn] == .w2 {
 							if !hadW2 {
 								checkedFromFirstChance = true
 							}
@@ -454,11 +454,11 @@ class GameLayout: ObservableObject {
 							}
 							hadW2 = true
 						}
-						if opOpening.contains(i - 1) && move.hints[opTurn] != .c1 && move.hints[opTurn] != .w0 {
-							if move.hints[myTurn] == .w2 || move.hints[myTurn] == .w2d1 || move.hints[myTurn] == .w1 {
-								winFromMistake = true
-							}
-						}
+//						if opOpening.contains(i - 1) && move.hints[opTurn] != .c1 && move.hints[opTurn] != .w0 {
+//							if move.hints[myTurn] == .w2 || move.hints[myTurn] == .w2d1 || move.hints[myTurn] == .w1 {
+//								winFromMistake = true
+//							}
+//						}
 					} else {
 						if move.hints[myTurn] == .c1 || move.hints[myTurn] == .cm1 || move.hints[myTurn] == .w0 {
 							W2len += 1
@@ -467,11 +467,16 @@ class GameLayout: ObservableObject {
 								unbeatable = false
 							}
 							checkedFromFirstChance = false
-							winFromMistake = false
+//							winFromMistake = false
 							W2len = 0
 							fastestW2 = 0
-							if move.hints[opTurn] == .w2 || move.hints[opTurn] == .w2d1 || move.hints[opTurn] == .w1 || move.hints[opTurn] == .dw {
-								opOpening.append(i)
+							switch move.hints[opTurn] {
+							case .w2, .w2d1, .w1:
+								opOpening = true
+								winFromMistake = true
+							case .dw:
+								opOpening = true
+							default: break
 							}
 						}
 						if move.hints[myTurn] == .cm2 {
@@ -485,38 +490,36 @@ class GameLayout: ObservableObject {
 				if unbeatable {
 					return "your moves were unbeatable!"
 				}
+				
 				var comments: [String] = []
 				if checkedFromFirstChance {
 					comments.append("you started forcing at the first opportunity!")
 				}
 				if W2len > 2 {
 					comments.append("you found a \(W2len) move win!")
+					if W2len == fastestW2 {
+						comments.append("you found the fastest second order win!")
+					}
 				}
 				if successfulW3D1 {
 					comments.append("nice second order checkmate!")
 				}
-				if W2len == fastestW2 {
-					comments.append("you found the fastest second order win!")
-				}
-				if opOpening.isEmpty {
+				if opOpening {
+					if winFromMistake {
+						comments.append("you capitalized on their mistake!")
+					}
+				} else {
 					comments.append("they never had an opening!")
 				}
-				if winFromMistake {
-					comments.append("you capitalized on their mistake!")
+				if W2len == 2 {
+					comments.append("nice checkmate!")
 				}
 				
 				if let comment = comments.randomElement() {
-					print(comments)
 					return comment
 				}
 				
-				if W2len == 2 {
-					return "nice checkmate!"
-				}
-				
 				return "great job!"
-				// TODO test this shit especially all the comments, i just added them and haven't tested any of them
-				
 				// TODO once I have stats, add "your first win!" and "4 wins in a row—meta!"
 				// TODO once I can see 3rd order wins, add those in as well
 			}
@@ -526,8 +529,9 @@ class GameLayout: ObservableObject {
 			return "your opponent resigned!" // got to keep this clear so they know what happened
 			
 		case .opWin:
-			if game.moves.count > 4 && game.moves.last?.hints[opTurn] == .w0 && game.moves[game.moves.count - 3].hints[opTurn] == .c1 && game.moves[game.moves.count - 4].hints[myTurn] == .c1 {
-				return "their block gave them check!"
+			if game.moves.count > 4 && game.moves[game.moves.count - 3].hints[opTurn] == .c1 && game.moves[game.moves.count - 3].hints[myTurn] != .w1 && game.moves[game.moves.count - 4].hints[myTurn] == .c1 {
+				if game.mode.solve { return ["their block created a check!", "watch out for that one!"].randomElement() ?? "" }
+				return "their block created a check!"
 			}
 			if game.mode.solve {
 				var checksOnly = true
@@ -538,19 +542,10 @@ class GameLayout: ObservableObject {
 					}
 					i += 2
 				}
-				// TODO wtf i just copy pasted this from .myWin????
 				if checksOnly {
-					if game.moves[game.preset.count - 1].hints[myTurn] == .w1 && game.moves.count == game.preset.count + 1 {
-						return "you found the fastest win!"
-					} else if game.moves[game.preset.count - 1].hints[myTurn] == .cm1 && game.moves.count == game.preset.count + 3 {
-						return "you found the fastest win!"
-					} else if game.moves.count == game.preset.count + 2*game.moves[game.preset.count - 1].winLen - 1 {
-						return "you found the fastest second order win!"
-					} else {
-						return "though there is a faster win!"
-					}
+					return "watch out for that one!"
 				} else {
-					return "you can win with only checks!"
+					return ["you can win with only checks!", "you'll get it soon!", "you're nearly there!"].randomElement() ?? ""
 				}
 			} else {
 				// TODO fill out normal losses
