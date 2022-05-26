@@ -47,6 +47,10 @@ enum GameState: Int {
     var opWin: Bool {
         self == .opWin || self == .myTimeout || self == .myResign
     }
+	
+	var ended: Bool {
+		self != .new && self != .active && self != .off && self != .error
+	}
 }
 
 enum HintValue: Comparable {

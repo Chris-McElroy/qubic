@@ -69,6 +69,9 @@
 		1EA0CABA2580468D00C200E8 /* OldHPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EA0CAB92580468D00C200E8 /* OldHPicker.swift */; };
 		1EA618CA27FCD4F7000034EA /* TutorialGame.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EA618C927FCD4F7000034EA /* TutorialGame.swift */; };
 		1EA8935C2724B6620015C900 /* TutorialView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EA8935B2724B6620015C900 /* TutorialView.swift */; };
+		1EAACA60283FFD24009F78FE /* Collections in Frameworks */ = {isa = PBXBuildFile; productRef = 1EAACA5F283FFD24009F78FE /* Collections */; };
+		1EAACA62283FFD24009F78FE /* DequeModule in Frameworks */ = {isa = PBXBuildFile; productRef = 1EAACA61283FFD24009F78FE /* DequeModule */; };
+		1EAACA64283FFD24009F78FE /* OrderedCollections in Frameworks */ = {isa = PBXBuildFile; productRef = 1EAACA63283FFD24009F78FE /* OrderedCollections */; };
 		1EAE5F6A263121D6000C8270 /* FeedbackView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EAE5F69263121D6000C8270 /* FeedbackView.swift */; };
 		1EAEE3BB24D9DA1400490530 /* FriendsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EAEE3BA24D9DA1400490530 /* FriendsView.swift */; };
 		1EAEE3BD24D9DCBA00490530 /* PastGamesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EAEE3BC24D9DCBA00490530 /* PastGamesView.swift */; };
@@ -447,7 +450,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1EAACA60283FFD24009F78FE /* Collections in Frameworks */,
 				AED83640B64C9C248C88B0B2 /* Pods_qubic.framework in Frameworks */,
+				1EAACA64283FFD24009F78FE /* OrderedCollections in Frameworks */,
+				1EAACA62283FFD24009F78FE /* DequeModule in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -856,6 +862,11 @@
 				1E3170FF25AA0C7800FCCEA4 /* PBXTargetDependency */,
 			);
 			name = qubic;
+			packageProductDependencies = (
+				1EAACA5F283FFD24009F78FE /* Collections */,
+				1EAACA61283FFD24009F78FE /* DequeModule */,
+				1EAACA63283FFD24009F78FE /* OrderedCollections */,
+			);
 			productName = qubic;
 			productReference = 1E68178F24CC973B001713E7 /* qubic.app */;
 			productType = "com.apple.product-type.application";
@@ -887,6 +898,9 @@
 				Base,
 			);
 			mainGroup = 1E68178624CC973B001713E7;
+			packageReferences = (
+				1EAACA5E283FFD24009F78FE /* XCRemoteSwiftPackageReference "swift-collections" */,
+			);
 			productRefGroup = 1E68179024CC973B001713E7 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -1493,6 +1507,35 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		1EAACA5E283FFD24009F78FE /* XCRemoteSwiftPackageReference "swift-collections" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/apple/swift-collections.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		1EAACA5F283FFD24009F78FE /* Collections */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1EAACA5E283FFD24009F78FE /* XCRemoteSwiftPackageReference "swift-collections" */;
+			productName = Collections;
+		};
+		1EAACA61283FFD24009F78FE /* DequeModule */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1EAACA5E283FFD24009F78FE /* XCRemoteSwiftPackageReference "swift-collections" */;
+			productName = DequeModule;
+		};
+		1EAACA63283FFD24009F78FE /* OrderedCollections */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1EAACA5E283FFD24009F78FE /* XCRemoteSwiftPackageReference "swift-collections" */;
+			productName = OrderedCollections;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 1E68178724CC973B001713E7 /* Project object */;
 }

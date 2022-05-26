@@ -9,12 +9,14 @@
 import SwiftUI
 import FirebaseDatabase
 import FirebaseAuth
+import OrderedCollections
 
 class FB {
     static let main = FB()
     
     var ref = Database.database().reference()
     var playerDict: [String: PlayerData] = [:]
+	var pastGamesDict: OrderedDictionary<Int, GameData> = [:]
     var myGameData: GameData? = nil
     var opGameData: GameData? = nil
     var op: PlayerData? = nil
@@ -28,9 +30,10 @@ class FB {
                 Storage.set(user.uid, for: .uuid)
 				myID = user.uid
                 self.checkVersion()
-                self.observePlayers()
                 self.updateMyData()
 				self.updateMyStats()
+				self.observePlayers()
+				self.observePastGames()
 				self.startActiveTimer()
 				// removed finished online game
             } else {
@@ -72,6 +75,21 @@ class FB {
         })
     }
     
+	func observePastGames() {
+		let gameRef = ref.child("games/\(myID)")
+		gameRef.removeAllObservers()
+		gameRef.observe(DataEventType.value, with: { snapshot in
+			if let dict = snapshot.value as? [String: [String: Any]] {
+				for entry in dict.sorted(by: { $0.key < $1.key }) {
+					let data = GameData(from: entry.value, gameID: Int(entry.key) ?? 0)
+					guard data.state.ended else { continue }
+					// order is preserved even when entries are updated
+					self.pastGamesDict[data.gameID] = data
+				}
+			}
+		})
+	}
+	
     func updateMyData() {
         let myPlayerRef = ref.child("players/\(myID)")
         let name = Storage.string(.name) ?? ""
@@ -383,6 +401,11 @@ class FB {
     struct PlayerData {
         let name: String
         let color: Int
+		
+		init(name: String, color: Int) {
+			self.name = name
+			self.color = color
+		}
         
         init(from dict: [String: Any]) {
             name = dict[Key.name.rawValue] as? String ?? "no name"

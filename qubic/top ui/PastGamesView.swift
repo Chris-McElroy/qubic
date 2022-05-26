@@ -22,19 +22,21 @@ struct PastGamesView: View {
 				.zIndex(10)
 			if layout.current == .pastGames {
 				Fill(5)
-					.onAppear { expanded = nil }
+					.onAppear {
+						expanded = nil
+					}
 				if #available(iOS 14.0, *) {
 					ScrollViewReader { proxy in
 						ScrollView {
 							LazyVStack(spacing: 10) {
-								ForEach(1...100, id: \.self) { i in
+								ForEach(0..<(FB.main.pastGamesDict.count), id: \.self) { i in
 									gameEntry(i) { expand(to: i, with: proxy) }
 								}
 							}
 						}
 						.frame(maxWidth: 500)
 						.onAppear {
-							proxy.scrollTo(99)
+							proxy.scrollTo(FB.main.pastGamesDict.count - 1)
 						}
 					}
 				} else {
@@ -67,20 +69,51 @@ struct PastGamesView: View {
 	}
 
 	func gameEntry(_ i: Int, action: @escaping () -> Void) -> some View {
-		VStack(spacing: 10) {
-			if i % ([3, 4, 5, 6][Online.bots[i].color % 4]) == 0 {
-				Text("April 14, 2022")
+		let game = FB.main.pastGamesDict.values[i]
+		let op = FB.main.playerDict[game.opID] ?? FB.PlayerData(name: "n/a", color: 4)
+		let time = Date(timeIntervalSinceReferenceDate: Double(game.gameID)/1000)
+		let newDay: Bool
+		if #available(iOS 14, *) {
+			if i > 0 {
+				let lastGame = FB.main.pastGamesDict.values[i - 1]
+				let lastTime = Date(timeIntervalSinceReferenceDate: Double(lastGame.gameID)/1000)
+				let lastDay = Calendar.current.startOfDay(for: lastTime)
+				newDay = lastDay != Calendar.current.startOfDay(for: time)
+			} else {
+				newDay = true
+			}
+		} else {
+			if i < FB.main.pastGamesDict.count - 1 {
+				let lastGame = FB.main.pastGamesDict.values[i + 1]
+				let lastTime = Date(timeIntervalSinceReferenceDate: Double(lastGame.gameID)/1000)
+				let lastDay = Calendar.current.startOfDay(for: lastTime)
+				newDay = lastDay != Calendar.current.startOfDay(for: time)
+			} else {
+				newDay = true
+			}
+		}
+		let format = DateFormatter()
+		format.dateStyle = .long
+		format.timeStyle = .short
+		
+		return VStack(spacing: 10) {
+			if newDay {
+				if #available(iOS 15, *) {
+					Text(time.formatted(date: .abbreviated, time: .omitted))
+				} else {
+					Text(format.string(from: time))
+				}
 			}
 			VStack(spacing: 0) {
 				HStack(spacing: 0) {
-					Name(name: Online.bots[i].name, color: .of(n: Online.bots[i].color), rounded: true)
+					Name(name: op.name, color: .of(n: op.color), rounded: true)
 						.allowsHitTesting(false)
 						.frame(height: 40)
 					Spacer()
-					Text(["untimed", "1 min", "5 min", "10 min"][Online.bots[i].color % 4])
+					Text([60: "1 min", 300: "5 min", 600: "10 min"][game.myTimes[0]] ?? "untimed")
 						.frame(width: 65)
 					Spacer()
-					Text(["win", "loss", "draw"][Online.bots[i].color % 3])
+					Text(game.state.myWin ? "win" : (game.state.opWin ? "loss" : "draw"))
 						.frame(width: 40)
 				}
 				if expanded == i {
@@ -94,12 +127,25 @@ struct PastGamesView: View {
 	}
 	
 	func expandedGameView(_ i: Int) -> some View {
-		HStack(spacing: 0) {
+		let game = FB.main.pastGamesDict.elements[i].value
+		let op = FB.main.playerDict[game.opID] ?? FB.PlayerData(name: "n/a", color: 4)
+		let time = Date(timeIntervalSinceReferenceDate: Double(game.gameID)/1000)
+		let format = DateFormatter()
+		format.dateStyle = .none
+		format.timeStyle = .short
+		
+		return HStack(spacing: 0) {
 			VStack(spacing: 20) {
 				Spacer()
-				Text("4 days\n7 hours\n 3 minutes\n12 seconds")
-				Text("12 moves")
-				Text("first")
+				if #available(iOS 15, *) {
+					Text(time.formatted(date: .omitted, time: .shortened))
+				} else {
+					Text(format.string(from: time))
+				}
+				// TODO start tracking how long games last and when they actually start
+//				Text("4 days\n7 hours\n 3 minutes\n12 seconds")
+				Text("\(game.myMoves.count + game.opMoves.count) moves")
+				Text(game.myTurn == 0 ? "first" : "second")
 				Spacer()
 				Button("share") {}
 				Button("review") {}
