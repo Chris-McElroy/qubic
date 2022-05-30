@@ -34,7 +34,7 @@ struct TipView: View {
 class TipStatus: ObservableObject {
 	static var main = TipStatus()
 	
-	@Published var text = "wofjie"
+	@Published var text = ""
 	@Published var displayed: Bool = false
 	@Published var tipsOn: Bool = Storage.int(.tipsOn) == 1
 	
@@ -119,6 +119,13 @@ class TipStatus: ObservableObject {
 					self.displayed = true
 				}
 			}
+		}
+	}
+	
+	func showTip(_ text: String) {
+		self.text = text
+		withAnimation(.easeOut(duration: 0.5)) {
+			self.displayed = true
 		}
 	}
 }

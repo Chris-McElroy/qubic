@@ -64,6 +64,40 @@ extension Date {
 	}
 }
 
+extension Equatable {
+	func oneOf(_ o1: Self, _ o2: Self) -> Bool {
+		self == o1 || self == o2
+	}
+	
+	func oneOf(_ o1: Self, _ o2: Self, _ o3: Self) -> Bool {
+		self == o1 || self == o2 || self == o3
+	}
+	
+	func oneOf(_ o1: Self, _ o2: Self, _ o3: Self, _ o4: Self) -> Bool {
+		self == o1 || self == o2 || self == o3 || self == o4
+	}
+	
+	func oneOf(_ o1: Self, _ o2: Self, _ o3: Self, _ o4: Self, _ o5: Self) -> Bool {
+		self == o1 || self == o2 || self == o3 || self == o4 || self == o5
+	}
+	
+	func noneOf(_ o1: Self, _ o2: Self) -> Bool {
+		self != o1 && self != o2
+	}
+	
+	func noneOf(_ o1: Self, _ o2: Self, _ o3: Self) -> Bool {
+		self != o1 && self != o2 && self != o3
+	}
+	
+	func noneOf(_ o1: Self, _ o2: Self, _ o3: Self, _ o4: Self) -> Bool {
+		self != o1 && self != o2 && self != o3 && self != o4
+	}
+	
+	func noneOf(_ o1: Self, _ o2: Self, _ o3: Self, _ o4: Self, _ o5: Self) -> Bool {
+		self != o1 && self != o2 && self != o3 && self != o4 && self != o5
+	}
+}
+
 extension Timer {
 	@discardableResult static func after(_ delay: TimeInterval, run: @escaping () -> Void) -> Timer {
 		scheduledTimer(withTimeInterval: delay, repeats: false, block: { _ in run() })

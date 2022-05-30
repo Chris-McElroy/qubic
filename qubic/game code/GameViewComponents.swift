@@ -178,12 +178,18 @@ class GameViewComponents {
 		if game.mode.solve { titleText = game.gameState.myWin ? "solved" : "failed" }
 		if game.gameState == .draw { titleText = "draw" }
 //		if game.mode == .picture4 { titleText = "8 day streak!" }
+		let gameEndText = gameLayout.getGameEndText()
 		
 		return VStack(spacing: 0) {
 			VStack(spacing: 15) {
 				Text(titleText).modifier(Oligopoly(size: 24)) // .system(.largeTitle))
-				Text(gameLayout.getGameEndText())
+				Text(gameEndText[0])
 					.multilineTextAlignment(.center)
+			}
+			.onTapGesture {
+				if gameEndText.count == 2 {
+					TipStatus.main.showTip(gameEndText[1])
+				}
 			}
 			.padding(.vertical, 15)
 			.padding(.top, gameLayout.nameSpace)
