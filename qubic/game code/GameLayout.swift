@@ -454,11 +454,6 @@ class GameLayout: ObservableObject {
 							}
 							hadW2 = true
 						}
-//						if opOpening.contains(i - 1) && move.hints[opTurn] != .c1 && move.hints[opTurn] != .w0 {
-//							if move.hints[myTurn] == .w2 || move.hints[myTurn] == .w2d1 || move.hints[myTurn] == .w1 {
-//								winFromMistake = true
-//							}
-//						}
 					} else {
 						if move.hints[myTurn] == .c1 || move.hints[myTurn] == .cm1 || move.hints[myTurn] == .w0 {
 							W2len += 1
@@ -519,8 +514,8 @@ class GameLayout: ObservableObject {
 					return comment
 				}
 				
-				return "great job!"
-				// TODO once I have stats, add "your first win!" and "4 wins in a row—meta!"
+				return ["great job!", "keep it up!", "they didn't see that coming!"].randomElement() ?? ""
+				// TODO once I have stats, add "your first win!", "your longest second order win!", and "4 wins in a row—meta!"
 				// TODO once I can see 3rd order wins, add those in as well
 			}
 		case .opTimeout:
@@ -548,14 +543,117 @@ class GameLayout: ObservableObject {
 					return ["you can win with only checks!", "you'll get it soon!", "you're nearly there!"].randomElement() ?? ""
 				}
 			} else {
-				// TODO fill out normal losses
-				return "hi"
+				var W2len = 0
+				var blockableW2 = false
+				var myOpening = false
+				var myMistake = false
+				var unbeatable = true
+				var successfulW3D1 = false
+				var earlyForce = false
+				
+				for (i, move) in game.moves.enumerated() {
+					if i % 2 == myTurn {
+						if move.hints[myTurn] == .c1 {
+							if i > 0 && (game.moves[i-1].hints[opTurn] == .noW || game.moves[i-1].hints[opTurn] == .dl) && (game.moves[i - 1].hints[myTurn] != .c2 && game.moves[i - 1].hints[myTurn] != .c2d1 && game.moves[i - 1].hints[myTurn] != .w1) {
+								earlyForce = true
+							}
+						}
+					} else {
+						if move.hints[opTurn] == .c1 || move.hints[opTurn] == .cm1 || move.hints[opTurn] == .w0 {
+							W2len += 1
+						} else {
+							if move.hints[opTurn] != .dw {
+								unbeatable = false
+							}
+							blockableW2 = move.hints[opTurn] == .c2
+							W2len = 0
+							switch move.hints[myTurn] {
+							case .w2, .w2d1, .w1:
+								myOpening = true
+								myMistake = true
+							case .dw:
+								myOpening = true
+							default: break
+							}
+						}
+						if move.hints[opTurn] == .cm2 {
+							successfulW3D1 = true
+						} else if move.hints[opTurn] != .cm1 && move.hints[opTurn] != .c1 && move.hints[opTurn] != .w0 {
+							successfulW3D1 = false
+						}
+					}
+				}
+				
+				if unbeatable {
+					return "their moves were unbeatable!"
+				}
+				
+				var comments: [String] = []
+				
+				if game.moves.count > 2 && game.moves[game.moves.count - 3].hints[opTurn] == .c1 {
+					comments.append("watch out for that one!")
+				}
+				
+				if W2len > 2 {
+					comments.append("they found a \(W2len) move win!")
+					if blockableW2 {
+						comments.append("you could have blocked that win!")
+					}
+				}
+				if successfulW3D1 {
+					comments.append("they found a second order checkmate!")
+				}
+				if myOpening {
+					if myMistake {
+						comments.append("you let a win slip through your fingers!")
+					}
+				} else {
+					comments.append("you never had an opening!")
+				}
+				if earlyForce {
+					comments.append("you started forcing too early!")
+				}
+				
+				print("comments:", comments)
+				if let comment = comments.randomElement() {
+					return comment
+				}
+				
+				return ["watch out for that one!", "they won this round!", "better luck next time!"].randomElement() ?? ""
+				// TODO once I have stats, add "your first loss!"
+				// TODO once I can see 3rd order wins, add those in as well
 			}
 		case .myTimeout:
 			return ["don't let the clock run out!", "keep your eye on the clock!", "make sure to watch your time!"].randomElement() ?? ""
 		case .myResign:
-			return "better luck next time!" // TODO check for wins/losses
-			
+			if let last = game.moves.last {
+				if last.hints[opTurn] == .w1 {
+					return "you couldn't let them win?"
+				}
+				if last.hints[myTurn] == .w2 || last.hints[myTurn] == .w1 || last.hints[myTurn] == .w2d1 || last.hints[myTurn] == .cm1 {
+					return "but you had a win!"
+				}
+				if last.hints[myTurn] == .c1 {
+					if game.moves.count > 2 {
+						let prevHint = game.moves[game.moves.count - 2].hints[myTurn]
+						if prevHint == .w2 || prevHint == .w2d1 || prevHint == .w1 {
+							return "but you had a win!"
+						}
+					}
+				}
+				if last.hints[opTurn] == .w2 || last.hints[opTurn] == .w2d1 || last.hints[opTurn] == .cm1 {
+					return "they did have a win!"
+				}
+				if last.hints[opTurn] == .c1 {
+					if game.moves.count > 2 {
+						let prevHint = game.moves[game.moves.count - 2].hints[opTurn]
+						if prevHint == .w2 || prevHint == .w2d1 || prevHint == .w1 {
+							return "they did have a win!"
+						}
+					}
+				}
+			}
+			return "better luck next time!"
 		case .draw:
 			// TODO add "your first draw!" when i have stats
 			return "that's hard to do!"
