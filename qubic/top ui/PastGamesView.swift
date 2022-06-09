@@ -11,9 +11,13 @@ import SwiftUI
 struct PastGamesView: View {
 	@ObservedObject var layout = Layout.main
 	@State var result = 1
-	@State var turn = 0
+	@State var time = 0
 	@State var mode = 2
 	@State var expanded: Int? = nil
+	@State var gameList: [FB.GameData] = []
+	@State var allGames: [[FB.GameData]] = getAllGames()
+	@available(iOS 14.0, *)
+	@State var currentProxy: ScrollViewProxy? = nil
     
     var body: some View {
 		VStack(spacing: 0) {
@@ -23,20 +27,23 @@ struct PastGamesView: View {
 			if layout.current == .pastGames {
 				Fill(5)
 					.onAppear {
+						allGames = PastGamesView.getAllGames()
+						getCurrentGames()
 						expanded = nil
 					}
 				if #available(iOS 14.0, *) {
 					ScrollViewReader { proxy in
 						ScrollView {
 							LazyVStack(spacing: 10) {
-								ForEach(0..<(FB.main.pastGamesDict.count), id: \.self) { i in
+								ForEach(0..<(gameList.count), id: \.self) { i in
 									gameEntry(i) { expand(to: i, with: proxy) }
 								}
 							}
 						}
 						.frame(maxWidth: 500)
 						.onAppear {
-							proxy.scrollTo(FB.main.pastGamesDict.count - 1)
+							currentProxy = proxy
+							proxy.scrollTo(gameList.count - 1)
 						}
 					}
 				} else {
@@ -46,9 +53,9 @@ struct PastGamesView: View {
 					   }
 				}
 				Blank(10)
-				HPicker(width: 84, height: 40, selection: $result, labels: ["wins", "all", "losses"], onSelection: {_ in })
-				HPicker(width: 84, height: 40, selection: $turn, labels: ["all", "untimed", "1 min", "5 min", "10 min"], onSelection: {_ in })
-				HPicker(width: 84, height: 40, selection: $mode, labels: ["local", "bots", "online", "train", "solve"], onSelection: {_ in })
+				HPicker(width: 84, height: 40, selection: $result, labels: ["wins", "all", "losses"], onSelection: {_ in getCurrentGames() })
+				HPicker(width: 84, height: 40, selection: $time, labels: ["all", "untimed", "1 min", "5 min", "10 min"], onSelection: {_ in getCurrentGames() })
+				HPicker(width: 84, height: 40, selection: $mode, labels: ["local", "bots", "online", "train", "solve"], onSelection: {_ in getCurrentGames() })
 			} else {
 				Spacer()
 			}
@@ -69,13 +76,13 @@ struct PastGamesView: View {
 	}
 
 	func gameEntry(_ i: Int, action: @escaping () -> Void) -> some View {
-		let game = FB.main.pastGamesDict.values[i]
+		let game = gameList[i]
 		let op = FB.main.playerDict[game.opID] ?? FB.PlayerData(name: "n/a", color: 4)
 		let time = Date(timeIntervalSinceReferenceDate: Double(game.gameID)/1000)
 		let newDay: Bool
 		if #available(iOS 14, *) {
 			if i > 0 {
-				let lastGame = FB.main.pastGamesDict.values[i - 1]
+				let lastGame = gameList[i - 1]
 				let lastTime = Date(timeIntervalSinceReferenceDate: Double(lastGame.gameID)/1000)
 				let lastDay = Calendar.current.startOfDay(for: lastTime)
 				newDay = lastDay != Calendar.current.startOfDay(for: time)
@@ -83,8 +90,8 @@ struct PastGamesView: View {
 				newDay = true
 			}
 		} else {
-			if i < FB.main.pastGamesDict.count - 1 {
-				let lastGame = FB.main.pastGamesDict.values[i + 1]
+			if i < gameList.count - 1 {
+				let lastGame = gameList[i + 1]
 				let lastTime = Date(timeIntervalSinceReferenceDate: Double(lastGame.gameID)/1000)
 				let lastDay = Calendar.current.startOfDay(for: lastTime)
 				newDay = lastDay != Calendar.current.startOfDay(for: time)
@@ -127,7 +134,7 @@ struct PastGamesView: View {
 	}
 	
 	func expandedGameView(_ i: Int) -> some View {
-		let game = FB.main.pastGamesDict.elements[i].value
+		let game = gameList[i]
 		let op = FB.main.playerDict[game.opID] ?? FB.PlayerData(name: "n/a", color: 4)
 		let time = Date(timeIntervalSinceReferenceDate: Double(game.gameID)/1000)
 		let format = DateFormatter()
@@ -165,6 +172,34 @@ struct PastGamesView: View {
 			Spacer()
 		}
 		.multilineTextAlignment(.center)
+	}
+	
+	func getCurrentGames() {
+		let requiredTime: Double? = [1: -1, 2: 60, 3: 300, 4: 600][time]
+		
+		gameList = allGames[mode]
+			.filter { result == 1 ? true : (result == 0 ? $0.state.myWin : $0.state.opWin) }
+			.filter { time == 0 ? true : (requiredTime == $0.myTimes.first ?? -1)  }
+		
+		if #available(iOS 14.0, *) {
+			Timer.after(0.03) {
+				withAnimation(.easeOut(duration: 0.08)) {
+					currentProxy?.scrollTo(gameList.count - 1)
+				}
+			}
+		} else {
+			// Fallback on earlier versions
+		}
+	}
+	
+	static func getAllGames() -> [[FB.GameData]] {
+		[
+			[], // local
+			[], // bots
+			Array(FB.main.pastGamesDict.values), // online
+			[], // train
+			[], // solve
+		]
 	}
 }
 
