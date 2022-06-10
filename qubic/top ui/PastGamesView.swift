@@ -16,8 +16,7 @@ struct PastGamesView: View {
 	@State var expanded: Int? = nil
 	@State var gameList: [FB.GameData] = []
 	@State var allGames: [[FB.GameData]] = getAllGames()
-	@available(iOS 14.0, *)
-	@State var currentProxy: ScrollViewProxy? = nil
+	@State var currentProxy: Any? = nil
     
     var body: some View {
 		VStack(spacing: 0) {
@@ -184,7 +183,7 @@ struct PastGamesView: View {
 		if #available(iOS 14.0, *) {
 			Timer.after(0.03) {
 				withAnimation(.easeOut(duration: 0.08)) {
-					currentProxy?.scrollTo(gameList.count - 1)
+					(currentProxy as? ScrollViewProxy)?.scrollTo(gameList.count - 1)
 				}
 			}
 		} else {

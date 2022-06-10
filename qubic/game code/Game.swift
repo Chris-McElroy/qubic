@@ -363,9 +363,7 @@ class Game: ObservableObject {
         moves.append(move)
         if movesBack != 0 { movesBack += 1 }
         moveImpactGenerator.impactOccurred()
-		if !player[turn^1].local {
-			FB.main.sendOnlineMove(p: p, time: times[turn].last ?? -1)
-		}
+		FB.main.sendMove(p: p, time: times[turn].last ?? -1)
         getHints(for: moves, time: time)
 		guard movesBack == 0 else { processingMove = false; return }
         board.addMove(p)
@@ -476,9 +474,7 @@ class Game: ObservableObject {
 		
 		func confirmMove() {
 			moves.append(move)
-			if !player[turn^1].local {
-				FB.main.sendOnlineMove(p: move.p, time: times[turn].last ?? -1)
-			}
+			FB.main.sendMove(p: move.p, time: times[turn].last ?? -1)
 			getHints(for: moves, time: time)
 			currentMove = move
 			GameLayout.main.refreshHints()

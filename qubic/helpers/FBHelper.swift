@@ -310,11 +310,12 @@ class FB {
         }
     }
     
-    func sendOnlineMove(p: Int, time: Double) {
+    func sendMove(p: Int, time: Double) {
         guard var myData = myGameData else { return }
         let myGameRef = ref.child("games/\(myID)/\(myData.gameID)")
         myData.myMoves.append(p)
         myData.myTimes.append(time)
+		myData.myMoveTimes.append(Date.ms)
         self.myGameData = myData
         myGameRef.setValue(myData.toDict())
     }
@@ -338,10 +339,12 @@ class FB {
         let opGameID: Int       // op gameID
         let hints: Bool         // true for sandbox mode
         var state: GameState    // current state of the game
+		var myMoves: [Int]      // my moves
+		var opMoves: [Int]      // op moves
         var myTimes: [Double]       // times remaining on my clock after each of my moves
         var opTimes: [Double]       // times remaining on op clock after each of their moves
-        var myMoves: [Int]      // my moves
-        var opMoves: [Int]      // op moves
+		var myMoveTimes: [Int]		// time each move is made
+		var opMoveTimes: [Int]		// time each move is made
         let valid: Bool         // whether the given dict was valid
         
         init(from dict: [String: Any], gameID: Int) {
@@ -367,6 +370,8 @@ class FB {
             opTimes = dict[Key.opTimes.rawValue] as? [Double] ?? []
             myMoves = dict[Key.myMoves.rawValue] as? [Int] ?? []
             opMoves = dict[Key.opMoves.rawValue] as? [Int] ?? []
+			myMoveTimes = dict[Key.myMoveTimes.rawValue] as? [Int] ?? []
+			opMoveTimes = dict[Key.opMoveTimes.rawValue] as? [Int] ?? []
         }
         
         init(myInvite: OnlineInviteData, opInvite: OnlineInviteData) {
@@ -380,6 +385,8 @@ class FB {
             opTimes = [myInvite.timeLimit]
             myMoves = [-1]
             opMoves = [-1]
+			myMoveTimes = [Date.ms]
+			opMoveTimes = [Date.ms]
             valid = true
         }
         
