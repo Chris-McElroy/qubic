@@ -10,12 +10,12 @@ import SwiftUI
 
 struct PastGamesView: View {
 	@ObservedObject var layout = Layout.main
+	@ObservedObject var fb = FB.main
 	@State var result = 1
 	@State var time = 0
 	@State var mode = 2
 	@State var expanded: Int? = nil
 	@State var gameList: [FB.GameData] = []
-	@State var allGames: [[FB.GameData]] = getAllGames()
 	@State var currentProxy: Any? = nil
     
     var body: some View {
@@ -26,9 +26,9 @@ struct PastGamesView: View {
 			if layout.current == .pastGames {
 				Fill(5)
 					.onAppear {
-						allGames = PastGamesView.getAllGames()
 						getCurrentGames()
 						expanded = nil
+						print(fb.pastGamesDict)
 					}
 				if #available(iOS 14.0, *) {
 					ScrollViewReader { proxy in
@@ -176,7 +176,7 @@ struct PastGamesView: View {
 	func getCurrentGames() {
 		let requiredTime: Double? = [1: -1, 2: 60, 3: 300, 4: 600][time]
 		
-		gameList = allGames[mode]
+		gameList = fb.pastGamesDict[mode].values
 			.filter { result == 1 ? true : (result == 0 ? $0.state.myWin : $0.state.opWin) }
 			.filter { time == 0 ? true : (requiredTime == $0.myTimes.first ?? -1)  }
 		
@@ -189,16 +189,6 @@ struct PastGamesView: View {
 		} else {
 			// Fallback on earlier versions
 		}
-	}
-	
-	static func getAllGames() -> [[FB.GameData]] {
-		[
-			[], // local
-			[], // bots
-			Array(FB.main.pastGamesDict.values), // online
-			[], // train
-			[], // solve
-		]
 	}
 }
 

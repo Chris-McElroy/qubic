@@ -12,12 +12,12 @@ import UIKit
 enum GameMode: Int {
     case novice, defender, warrior, tyrant, oracle, cubist
     case daily, simple, common, tricky
-    case local, online, invite
+    case local, bot, online, invite
     case off
     
     var train: Bool { [.novice, .defender, .warrior, .tyrant, .oracle, .cubist].contains(self) }
     var solve: Bool { [.daily, .simple, .common, .tricky].contains(self) }
-    var play: Bool { [.local, .online, .invite].contains(self) }
+	var play: Bool { [.local, .bot, .online, .invite].contains(self) }
     
     var trainValue: Int { self.rawValue - GameMode.novice.rawValue }
 }

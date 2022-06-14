@@ -19,7 +19,7 @@ struct PlayView: View {
     var body: some View {
         if layout.current == .play {
             GameView()
-				.onAppear { Game.main.load(mode: mode, turn: turn, hints: hints, time: time) }
+				.onAppear { game.load(mode: mode, turn: turn, hints: hints, time: time) }
 		} else {
 			VStack {
 				Spacer()
@@ -43,7 +43,7 @@ struct PlayView: View {
 						.modifier(EnableHPicker(on: mode != .invite))
 						HPicker(width: 90, height: 42, selection: $layout.playSelection[0], labels: .constant(["local", "online", "invite"]), onSelection: { _ in
 							FB.main.cancelOnlineSearch?()
-							turnText = mode == .online ? PlayView.onlineTurnText : PlayView.normalTurnText
+							turnText = (mode == .online || mode == .bot) ? PlayView.onlineTurnText : PlayView.normalTurnText
 						})
 					}.onAppear {
 //                		FB.main.finishedOnlineGame(with: .error) // not sure which case this covered
@@ -75,8 +75,8 @@ struct PlayView: View {
     
     var mode: GameMode {
         switch layout.playSelection[0] {
-        case 0: return .local
-        case 1: return .online
+		case 0: return .local
+		case 1: return FB.main.op == nil ? .bot : .online
         default: return .invite
         }
     }
@@ -101,7 +101,7 @@ struct PlayView: View {
     }
     
     var hints: Bool {
-		layout.playSelection[3] == 0 && mode != .online
+		layout.playSelection[3] == 0 && mode != .online && mode != .bot
     }
     
 	func updateLastPlayMenu(_: Int) {

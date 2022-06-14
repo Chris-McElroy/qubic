@@ -46,6 +46,7 @@ enum Key: String {
     case hints = "hints"
     case timeLimit = "timeLimit"
     case state = "state"
+	case mode = "mode"
     case myTimes  = "myTimes"
     case opTimes = "opTimes"
     case myMoves = "myMoves"

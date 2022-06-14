@@ -150,6 +150,7 @@ class GameViewComponents {
 						newGameButton
 					}
 					if game.mode != .online {
+						// TODO support online rematch requests
 						rematchButton
 					}
 					Button("menu") { layout.goBack() }

@@ -11,13 +11,13 @@ import SwiftUI
 enum GameMode: Int {
     case novice, defender, warrior, tyrant, oracle, cubist
     case daily, simple, common, tricky
-    case local, online, invite
+    case local, bot, online, invite
 	case dictLesson
 //	case picture1, picture2, picture3, picture4
     
     var train: Bool { [.novice, .defender, .warrior, .tyrant, .oracle, .cubist].contains(self) }
     var solve: Bool { [.daily, .simple, .common, .tricky].contains(self) }
-    var play: Bool { [.local, .online, .invite].contains(self) }
+	var play: Bool { [.local, .bot, .online, .invite].contains(self) }
     
     var trainValue: Int { self.rawValue - GameMode.novice.rawValue }
 }
@@ -130,8 +130,6 @@ class Game: ObservableObject {
 		self.mode = mode
 		mostRecentGame = (mode, boardNum, turn, hints, time)
 		
-		UserDefaults.standard.set(10, forKey: "wfeoijf")
-		
         board = Board()
 		BoardScene.main.reset()
 		gameNum += 1
@@ -201,6 +199,11 @@ class Game: ObservableObject {
 			player = [User(b: board, n: 0, name: "player 1"), User(b: board, n: 1, name: "player 2")]
 			player[1].color = [4, 4, 4, 8, 6, 7, 4, 5, 3][player[0].color]
 		}
+		
+		if mode != .online {
+			FB.main.uploadGame(self)
+		}
+		
         for p in preset { loadMove(p) }
 		GameLayout.main.refreshHints()
         
@@ -265,7 +268,8 @@ class Game: ObservableObject {
             case .common:   op = Common(b: board, n: myTurn^1, num: boardNum)
             case .tricky:   op = Tricky(b: board, n: myTurn^1, num: boardNum)
             case .local:    op = User(b: board, n: myTurn^1, name: "friend")
-            case .online:   op = Online(b: board, n: myTurn^1)
+			case .bot:		op = Bot(b: board, n: myTurn^1)
+			case .online:   op = Online(b: board, n: myTurn^1)
 //			case .picture1: op = Online(b: board, n: myTurn^1)
 //			case .picture2: op = Tricky(b: board, n: myTurn^1, num: 22)
 //			case .picture3: op = Cubist(b: board, n: myTurn^1)
@@ -308,6 +312,7 @@ class Game: ObservableObject {
 			}
 		}
 		
+		// TODO why is online different here? this anti makes sense; it should be random if it's online??
 		let newTurn = newMode == .online ? FB.main.myGameData?.myTurn : mostRecentGame.2
 		
 		load(mode: newMode, boardNum: newBoardNum, turn: newTurn, hints: mostRecentGame.3, time: mostRecentGame.4)
@@ -363,7 +368,13 @@ class Game: ObservableObject {
         moves.append(move)
         if movesBack != 0 { movesBack += 1 }
         moveImpactGenerator.impactOccurred()
-		FB.main.sendMove(p: p, time: times[turn].last ?? -1)
+		if turn == myTurn {
+			// TODO double check
+			print("you NEVER get here???")
+			FB.main.sendMyMove(p: p, time: times[turn].last ?? -1)
+		} else if mode != .online {
+			FB.main.sendOpMove(p: p, time: times[turn].last ?? -1)
+		}
         getHints(for: moves, time: time)
 		guard movesBack == 0 else { processingMove = false; return }
         board.addMove(p)
@@ -474,13 +485,13 @@ class Game: ObservableObject {
 		
 		func confirmMove() {
 			moves.append(move)
-			FB.main.sendMove(p: move.p, time: times[turn].last ?? -1)
+			FB.main.sendMyMove(p: move.p, time: times[turn].last ?? -1)
 			getHints(for: moves, time: time)
 			currentMove = move
 			GameLayout.main.refreshHints()
 			processingMove = false
 			GameLayout.main.newMoveOpacities()
-			if !hints && (mode == .online || mode.train) { findMisses() }
+			if !hints && (mode == .online || mode == .bot || mode.train) { findMisses() }
 		}
 		
 		func cancelMove() {
@@ -777,10 +788,8 @@ class Game: ObservableObject {
 		
         if !mode.solve || end.myWin { hints = true }
 		withAnimation { GameLayout.main.undoOpacity = .clear }
-    
-        if !player[myTurn^1].local {
-            FB.main.finishedOnlineGame(with: gameState)
-        }
+		
+		FB.main.finishedGame(with: gameState)
         
         if end == .myTimeout || end == .opTimeout { BoardScene.main.spinBoard() }
         

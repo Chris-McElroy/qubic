@@ -16,6 +16,7 @@ class Player {
     var color: Int
     let rounded: Bool
     let local: Bool
+//	let ID: String // TODO handle this
     
     let lineP: [Int: Double]
     let dirStats: [Double]

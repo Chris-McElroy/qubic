@@ -22,12 +22,13 @@
 		1E3170F725AA0C7500FCCEA4 /* MessagesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E3170F625AA0C7500FCCEA4 /* MessagesViewController.swift */; };
 		1E3170FA25AA0C7500FCCEA4 /* MainInterface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1E3170F825AA0C7500FCCEA4 /* MainInterface.storyboard */; };
 		1E3170FC25AA0C7800FCCEA4 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1E3170FB25AA0C7800FCCEA4 /* Assets.xcassets */; };
-		1E31710025AA0C7800FCCEA4 /* qubicMessage.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 1E3170F125AA0C7500FCCEA4 /* qubicMessage.appex */; platformFilter = ios; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		1E31710025AA0C7800FCCEA4 /* qubicMessage.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 1E3170F125AA0C7500FCCEA4 /* qubicMessage.appex */; platformFilter = ios; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		1E3335D2253400FD00966EA6 /* Cubist.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E3335D1253400FD00966EA6 /* Cubist.swift */; };
 		1E3A697F24CE1F02000930A4 /* Oligopoly Regular.otf in Resources */ = {isa = PBXBuildFile; fileRef = 1E3A697E24CE1F02000930A4 /* Oligopoly Regular.otf */; };
 		1E4645F52616970500862260 /* KeyHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E4645F42616970500862260 /* KeyHelper.swift */; };
 		1E4645FA261697FD00862260 /* KeyHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E4645F42616970500862260 /* KeyHelper.swift */; };
 		1E516E0027A50474004938ED /* TutorialPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E516DFF27A50474004938ED /* TutorialPlayer.swift */; };
+		1E57AAA728591A1A00B941B4 /* Bot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E57AAA628591A1A00B941B4 /* Bot.swift */; };
 		1E5920BE265600EB008AF18C /* ColorHelperOld.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E5920BC265600D6008AF18C /* ColorHelperOld.swift */; };
 		1E5A5AAE24CD077900F31124 /* TrainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E5A5AAD24CD077900F31124 /* TrainView.swift */; };
 		1E5D60D526116B80006BEF58 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 1E5D60D426116B80006BEF58 /* GoogleService-Info.plist */; };
@@ -223,15 +224,15 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		1E31710125AA0C7800FCCEA4 /* Embed App Extensions */ = {
+		1E31710125AA0C7800FCCEA4 /* Embed Foundation Extensions */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
-				1E31710025AA0C7800FCCEA4 /* qubicMessage.appex in Embed App Extensions */,
+				1E31710025AA0C7800FCCEA4 /* qubicMessage.appex in Embed Foundation Extensions */,
 			);
-			name = "Embed App Extensions";
+			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
@@ -258,6 +259,7 @@
 		1E3A697E24CE1F02000930A4 /* Oligopoly Regular.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Oligopoly Regular.otf"; sourceTree = "<group>"; };
 		1E4645F42616970500862260 /* KeyHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyHelper.swift; sourceTree = "<group>"; };
 		1E516DFF27A50474004938ED /* TutorialPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TutorialPlayer.swift; sourceTree = "<group>"; };
+		1E57AAA628591A1A00B941B4 /* Bot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Bot.swift; sourceTree = "<group>"; };
 		1E5920BC265600D6008AF18C /* ColorHelperOld.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorHelperOld.swift; sourceTree = "<group>"; };
 		1E5A5AAD24CD077900F31124 /* TrainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrainView.swift; sourceTree = "<group>"; };
 		1E5D60D426116B80006BEF58 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
@@ -715,6 +717,7 @@
 				1EC2788C2585ACC600F6A5EB /* Player.swift */,
 				1EBD920025897ED90082B65E /* User.swift */,
 				1E22E0F1260C21EB007F627A /* Online.swift */,
+				1E57AAA628591A1A00B941B4 /* Bot.swift */,
 				1E71336F258184B600059BC3 /* Novice.swift */,
 				1E7A91932584B0A800AE3BE7 /* Defender.swift */,
 				1EB693942599A1470025B080 /* Warrior.swift */,
@@ -853,7 +856,7 @@
 				1E68178B24CC973B001713E7 /* Sources */,
 				1E68178C24CC973B001713E7 /* Frameworks */,
 				1E68178D24CC973B001713E7 /* Resources */,
-				1E31710125AA0C7800FCCEA4 /* Embed App Extensions */,
+				1E31710125AA0C7800FCCEA4 /* Embed Foundation Extensions */,
 				5E6AF0F38C65419D7A905D5E /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
@@ -878,7 +881,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 1230;
-				LastUpgradeCheck = 1160;
+				LastUpgradeCheck = 1400;
 				ORGANIZATIONNAME = "XNO LLC";
 				TargetAttributes = {
 					1E3170F025AA0C7500FCCEA4 = {
@@ -1148,6 +1151,7 @@
 				1EFAFB17271D170500F377E7 /* GameLayout.swift in Sources */,
 				1E8169D827E8272C00C9E2D7 /* LessonsView.swift in Sources */,
 				1E6C429024FCE1F20065BDF5 /* BoardHelper.swift in Sources */,
+				1E57AAA728591A1A00B941B4 /* Bot.swift in Sources */,
 				1E726EEF263359A400640651 /* OldTextEditor.swift in Sources */,
 				1EA8935C2724B6620015C900 /* TutorialView.swift in Sources */,
 				1EA618CA27FCD4F7000034EA /* TutorialGame.swift in Sources */,

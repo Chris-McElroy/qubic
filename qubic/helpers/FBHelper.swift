@@ -11,12 +11,12 @@ import FirebaseDatabase
 import FirebaseAuth
 import OrderedCollections
 
-class FB {
+class FB: ObservableObject {
     static let main = FB()
     
     var ref = Database.database().reference()
     var playerDict: [String: PlayerData] = [:]
-	var pastGamesDict: OrderedDictionary<Int, GameData> = [:]
+	@Published var pastGamesDict: [OrderedDictionary<Int, GameData>] = Array(repeating: [:], count: 5)
     var myGameData: GameData? = nil
     var opGameData: GameData? = nil
     var op: PlayerData? = nil
@@ -82,9 +82,17 @@ class FB {
 			if let dict = snapshot.value as? [String: [String: Any]] {
 				for entry in dict.sorted(by: { $0.key < $1.key }) {
 					let data = GameData(from: entry.value, gameID: Int(entry.key) ?? 0)
+					if entry.value[Key.mode.rawValue] as? Int ?? 0 == 6 { print("got solve", data) }
 					guard data.state.ended else { continue }
 					// order is preserved even when entries are updated
-					self.pastGamesDict[data.gameID] = data
+					let i: Int
+					if data.mode == .local { i = 0 }
+					else if data.mode == .bot { i = 1 }
+					else if data.mode == .online { i = 2 }
+					else if data.mode.train { i = 3 }
+					else if data.mode.solve { i = 4 }
+					else { print("error", data.mode); i = 2 }
+					self.pastGamesDict[i][data.gameID] = data
 				}
 			}
 		})
@@ -139,6 +147,14 @@ class FB {
 	func uploadMisses(_ string: String, key: String) {
 		ref.child("misses/\(myID)/\(key)/\(Date.ms)").setValue(string)
 	}
+	
+	func uploadGame(_ game: Game) {
+		print("uploading game")
+		let startTime = Date.ms
+		let gameData = GameData(from: game, gameID: startTime)
+		ref.child("games/\(myID)/\(startTime)").setValue(gameData.toDict())
+		myGameData = gameData
+	}
     
 	func getOnlineMatch(onMatch: @escaping () -> Void) {
 		Layout.main.searchingOnline = true
@@ -160,9 +176,10 @@ class FB {
         // set end time
         var botTimer: Timer? = nil
         if !humansOnly {
+			// TODO fold this into a timer list
             botTimer = Timer.scheduledTimer(withTimeInterval: 4, repeats: false, block: { _ in
                 if self.onlineInviteState == .invited || self.onlineInviteState == .offered {
-                    self.finishedOnlineGame(with: .error)
+                    self.finishedGame(with: .error)
                     self.onlineInviteState = .stopped
                     onlineRef.child(myID).removeValue()
                     onlineRef.removeAllObservers()
@@ -310,7 +327,7 @@ class FB {
         }
     }
     
-    func sendMove(p: Int, time: Double) {
+	func sendMyMove(p: Int, time: Double) {
         guard var myData = myGameData else { return }
         let myGameRef = ref.child("games/\(myID)/\(myData.gameID)")
         myData.myMoves.append(p)
@@ -319,8 +336,18 @@ class FB {
         self.myGameData = myData
         myGameRef.setValue(myData.toDict())
     }
+	
+	func sendOpMove(p: Int, time: Double) {
+		guard var myData = myGameData else { return }
+		let myGameRef = ref.child("games/\(myID)/\(myData.gameID)")
+		myData.opMoves.append(p)
+		myData.opTimes.append(time)
+		myData.opMoveTimes.append(Date.ms)
+		self.myGameData = myData
+		myGameRef.setValue(myData.toDict())
+	}
     
-    func finishedOnlineGame(with state: GameState) {
+    func finishedGame(with state: GameState) {
         guard var myData = myGameData else { return }
         let myGameRef = ref.child("games/\(myID)/\(myData.gameID)")
         let opGameRef = ref.child("games/\(myData.opID)/\(myData.opGameID)")
@@ -334,6 +361,7 @@ class FB {
 
     struct GameData {
         let gameID: Int         // my gameID
+		let mode: GameMode		// the game mode
         let myTurn: Int         // 0 for moves first
         let opID: String        // op id
         let opGameID: Int       // op gameID
@@ -341,26 +369,31 @@ class FB {
         var state: GameState    // current state of the game
 		var myMoves: [Int]      // my moves
 		var opMoves: [Int]      // op moves
-        var myTimes: [Double]       // times remaining on my clock after each of my moves
-        var opTimes: [Double]       // times remaining on op clock after each of their moves
-		var myMoveTimes: [Int]		// time each move is made
-		var opMoveTimes: [Int]		// time each move is made
+        var myTimes: [Double] 	// times remaining on my clock after each of my moves
+        var opTimes: [Double]  	// times remaining on op clock after each of their moves
+		var myMoveTimes: [Int]	// time each move is made
+		var opMoveTimes: [Int]	// time each move is made
         let valid: Bool         // whether the given dict was valid
         
-        init(from dict: [String: Any], gameID: Int) {
+		init(from dict: [String: Any], gameID: Int) {
+			// TODO handle better if their dict is invalid (esp if they have an old version)
             valid = (
-                dict[Key.myTurn.rawValue] as? Int != nil &&
-                    dict[Key.opID.rawValue] as? String != nil &&
-                    dict[Key.opGameID.rawValue] as? Int != nil &&
-                    dict[Key.hints.rawValue] as? Int != nil &&
-                    dict[Key.state.rawValue] as? Int != nil &&
-                    dict[Key.myTimes.rawValue] as? [Double] != nil &&
-                    dict[Key.opTimes.rawValue] as? [Double] != nil &&
-                    dict[Key.myMoves.rawValue] as? [Int] != nil &&
-                    dict[Key.opMoves.rawValue] as? [Int] != nil
+//				dict[Key.mode.rawValue] as? Int != nil &&
+				dict[Key.myTurn.rawValue] as? Int != nil &&
+				dict[Key.opID.rawValue] as? String != nil &&
+				dict[Key.opGameID.rawValue] as? Int != nil &&
+				dict[Key.hints.rawValue] as? Int != nil &&
+				dict[Key.state.rawValue] as? Int != nil &&
+				dict[Key.myTimes.rawValue] as? [Double] != nil &&
+				dict[Key.opTimes.rawValue] as? [Double] != nil &&
+				dict[Key.myMoves.rawValue] as? [Int] != nil &&
+				dict[Key.opMoves.rawValue] as? [Int] != nil
+//				dict[Key.myMoveTimes.rawValue] as? [Int] != nil &&
+//				dict[Key.opMoveTimes.rawValue] as? [Int] != nil
             )
             
             self.gameID = gameID
+			mode = GameMode(rawValue: dict[Key.mode.rawValue] as? Int ?? 12) ?? .online
             myTurn = dict[Key.myTurn.rawValue] as? Int ?? 0
             opID = dict[Key.opID.rawValue] as? String ?? ""
             opGameID = dict[Key.opGameID.rawValue] as? Int ?? 0
@@ -376,6 +409,7 @@ class FB {
         
         init(myInvite: OnlineInviteData, opInvite: OnlineInviteData) {
             gameID = myInvite.gameID
+			mode = .online
             myTurn = myInvite > opInvite ? myInvite.gameID % 2 : (opInvite.gameID % 2)^1
             opID = myInvite.opID
             opGameID = opInvite.gameID
@@ -385,13 +419,31 @@ class FB {
             opTimes = [myInvite.timeLimit]
             myMoves = [-1]
             opMoves = [-1]
-			myMoveTimes = [Date.ms]
-			opMoveTimes = [Date.ms]
+			myMoveTimes = [gameID]
+			opMoveTimes = [gameID]
             valid = true
         }
+		
+		init(from game: Game, gameID: Int) {
+			valid = true
+			self.gameID = gameID
+			mode = game.mode
+			myTurn = game.myTurn
+			opID = game.player[game.myTurn^1].name // TODO deal with this, change to an ID system and upload the bots
+			opGameID = 0
+			hints = game.hints
+			state = game.gameState
+			myTimes = [game.totalTime ?? -1]
+			opTimes = [game.totalTime ?? -1]
+			myMoves = [-1]
+			opMoves = [-1]
+			myMoveTimes = [gameID]
+			opMoveTimes = [gameID]
+		}
         
         func toDict() -> [String: Any] {
             [
+				Key.mode.rawValue: mode.rawValue,
                 Key.myTurn.rawValue: myTurn,
                 Key.opID.rawValue: opID,
                 Key.opGameID.rawValue: opGameID,
@@ -400,7 +452,9 @@ class FB {
                 Key.myTimes.rawValue: myTimes,
                 Key.opTimes.rawValue: opTimes,
                 Key.myMoves.rawValue: myMoves,
-                Key.opMoves.rawValue: opMoves
+				Key.opMoves.rawValue: opMoves,
+				Key.myMoveTimes.rawValue: myMoveTimes,
+				Key.opMoveTimes.rawValue: opMoveTimes
             ]
         }
     }
