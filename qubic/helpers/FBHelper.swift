@@ -149,7 +149,6 @@ class FB: ObservableObject {
 	}
 	
 	func uploadGame(_ game: Game) {
-		print("uploading game")
 		let startTime = Date.ms
 		let gameData = GameData(from: game, gameID: startTime)
 		ref.child("games/\(myID)/\(startTime)").setValue(gameData.toDict())
@@ -358,6 +357,12 @@ class FB: ObservableObject {
         opGameRef.removeAllObservers()
         myGameRef.setValue(myData.toDict())
     }
+	
+	func uploadBots() {
+		for (i, bot) in Bot.bots.enumerated() {
+			ref.child("bots/\(i)").setValue(bot.toDict())
+		}
+	}
 
     struct GameData {
         let gameID: Int         // my gameID
@@ -429,7 +434,12 @@ class FB: ObservableObject {
 			self.gameID = gameID
 			mode = game.mode
 			myTurn = game.myTurn
-			opID = game.player[game.myTurn^1].name // TODO deal with this, change to an ID system and upload the bots
+			let op = game.player[game.myTurn^1]
+			if let bot = op as? Bot {
+				opID = String(bot.id)
+			} else {
+				opID = op.name
+			}
 			opGameID = 0
 			hints = game.hints
 			state = game.gameState
@@ -461,7 +471,7 @@ class FB: ObservableObject {
     
     struct PlayerData {
         let name: String
-        let color: Int
+        var color: Int
 		
 		init(name: String, color: Int) {
 			self.name = name

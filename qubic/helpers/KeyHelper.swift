@@ -39,6 +39,11 @@ enum Key: String {
     case feedback = "feedback"
 	case moveChecker = "moveChecker"
 	case confirmMoves = "confirmMoves"
+	case speed = "speed"
+	case offAtt = "offAtt"
+	case defAtt = "defAtt"
+	case depth = "depth"
+	case randomness = "randomness"
     
     case myTurn = "myTurn"
     case myID = "myID"

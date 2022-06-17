@@ -110,19 +110,6 @@ struct PlayView: View {
         newPlayMenu[1] = 1
         Storage.set(newPlayMenu, for: .lastPlayMenu)
     }
-	
-	struct EnableHPicker: ViewModifier {
-		let on: Bool
-		
-		func body(content: Content) -> some View {
-			ZStack {
-				content
-				Fill(42)
-					.opacity(on ? 0.0 : 0.6)
-					.animation(.linear(duration: 0.15))
-			}
-		}
-	}
     
     static let tips: [String] = [
 		"swipe down in game for analysis!",

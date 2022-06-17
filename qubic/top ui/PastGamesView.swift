@@ -54,6 +54,7 @@ struct PastGamesView: View {
 				Blank(10)
 				HPicker(width: 84, height: 40, selection: $result, labels: ["wins", "all", "losses"], onSelection: {_ in getCurrentGames() })
 				HPicker(width: 84, height: 40, selection: $time, labels: ["all", "untimed", "1 min", "5 min", "10 min"], onSelection: {_ in getCurrentGames() })
+					.modifier(EnableHPicker(on: mode.noneOf(3, 4)))
 				HPicker(width: 84, height: 40, selection: $mode, labels: ["local", "bots", "online", "train", "solve"], onSelection: {_ in getCurrentGames() })
 			} else {
 				Spacer()
@@ -76,7 +77,24 @@ struct PastGamesView: View {
 
 	func gameEntry(_ i: Int, action: @escaping () -> Void) -> some View {
 		let game = gameList[i]
-		let op = FB.main.playerDict[game.opID] ?? FB.PlayerData(name: "n/a", color: 4)
+		var op: FB.PlayerData
+		if game.mode == .online {
+			op = FB.main.playerDict[game.opID] ?? FB.PlayerData(name: "n/a", color: 4)
+		} else if game.mode == .bot {
+			let bot = Bot.bots[Int(game.opID) ?? 0]
+			op = FB.PlayerData(name: bot.name, color: bot.color)
+		} else if game.mode.solve {
+			let color = [.simple: 7, .common: 8, .tricky: 1][game.mode] ?? 4
+			op = FB.PlayerData(name: game.opID, color: color)
+		} else if game.mode.train {
+			let color = [.novice: 6, .defender: 5, .warrior: 0, .tyrant: 3, .oracle: 2][game.mode] ?? 8
+			op = FB.PlayerData(name: game.opID, color: color)
+		} else {
+			op = FB.PlayerData(name: "friend", color: Storage.int(.color))
+		}
+		if op.color == Storage.int(.color) {
+			op.color = [4, 4, 4, 8, 6, 7, 4, 5, 3][Storage.int(.color)]
+		}
 		let time = Date(timeIntervalSinceReferenceDate: Double(game.gameID)/1000)
 		let newDay: Bool
 		if #available(iOS 14, *) {
@@ -178,7 +196,7 @@ struct PastGamesView: View {
 		
 		gameList = fb.pastGamesDict[mode].values
 			.filter { result == 1 ? true : (result == 0 ? $0.state.myWin : $0.state.opWin) }
-			.filter { time == 0 ? true : (requiredTime == $0.myTimes.first ?? -1)  }
+			.filter { time == 0 || mode.oneOf(3, 4) ? true : (requiredTime == $0.myTimes.first ?? -1)  }
 		
 		if #available(iOS 14.0, *) {
 			Timer.after(0.03) {

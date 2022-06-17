@@ -36,6 +36,21 @@ struct Blank: View {
     }
 }
 
+// TODO integrate with hpicker itself
+struct EnableHPicker: ViewModifier {
+	let on: Bool
+	let height: CGFloat = 42
+	
+	func body(content: Content) -> some View {
+		ZStack {
+			content
+			Fill(height)
+				.opacity(on ? 0.0 : 0.6)
+				.animation(.linear(duration: 0.15))
+		}
+	}
+}
+
 let mainButtonHeight: CGFloat = 92
 let moreButtonHeight: CGFloat = 50
 let nameButtonWidth: CGFloat = 180
