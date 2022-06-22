@@ -485,7 +485,11 @@ class Game: ObservableObject {
 		
 		func confirmMove() {
 			moves.append(move)
-			FB.main.sendMyMove(p: move.p, time: times[turn].last ?? -1)
+			if turn == myTurn {
+				FB.main.sendMyMove(p: move.p, time: times[turn].last ?? -1)
+			} else {
+				FB.main.sendOpMove(p: move.p, time: times[turn].last ?? -1)
+			}
 			getHints(for: moves, time: time)
 			currentMove = move
 			GameLayout.main.refreshHints()

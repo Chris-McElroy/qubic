@@ -76,10 +76,10 @@ class BoardScene {
 //        }
 //    }
     
-	func reset() {
+	func reset(baseRotation: SCNVector4 = SCNVector4(x: 0, y: 0, z: 0, w: 0)) {
 		base.removeAllActions()
 		Timer.after(0.1, run: {
-			self.base.rotation = SCNVector4(x: 0, y: 0, z: 0, w: 0)
+			self.base.rotation = baseRotation
 		})
         
         for move in moves {

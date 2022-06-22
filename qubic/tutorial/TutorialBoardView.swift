@@ -26,8 +26,8 @@ class TutorialBoardScene: BoardScene {
 		reset()
 	}
 	
-	override func reset() {
-		super.reset()
+	override func reset(baseRotation: SCNVector4 = SCNVector4(x: 0, y: 0, z: 0, w: 0)) {
+		super.reset(baseRotation: baseRotation)
 		
 		camera.removeAllActions()
 		camera.position = SCNVector3(-1, 10, -1)

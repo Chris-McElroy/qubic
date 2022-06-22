@@ -449,6 +449,17 @@ class FB: ObservableObject {
 			opMoves = [-1]
 			myMoveTimes = [gameID]
 			opMoveTimes = [gameID]
+			for (i, p) in game.preset.enumerated() {
+				if i % 2 == game.myTurn {
+					myTimes.append(game.totalTime ?? -1)
+					myMoves.append(p)
+					myMoveTimes.append(gameID)
+				} else {
+					opTimes.append(game.totalTime ?? -1)
+					opMoves.append(p)
+					opMoveTimes.append(gameID)
+				}
+			}
 		}
         
         func toDict() -> [String: Any] {

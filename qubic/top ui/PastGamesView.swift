@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import SceneKit
 
 struct PastGamesView: View {
 	@ObservedObject var layout = Layout.main
@@ -77,24 +78,7 @@ struct PastGamesView: View {
 
 	func gameEntry(_ i: Int, action: @escaping () -> Void) -> some View {
 		let game = gameList[i]
-		var op: FB.PlayerData
-		if game.mode == .online {
-			op = FB.main.playerDict[game.opID] ?? FB.PlayerData(name: "n/a", color: 4)
-		} else if game.mode == .bot {
-			let bot = Bot.bots[Int(game.opID) ?? 0]
-			op = FB.PlayerData(name: bot.name, color: bot.color)
-		} else if game.mode.solve {
-			let color = [.simple: 7, .common: 8, .tricky: 1][game.mode] ?? 4
-			op = FB.PlayerData(name: game.opID, color: color)
-		} else if game.mode.train {
-			let color = [.novice: 6, .defender: 5, .warrior: 0, .tyrant: 3, .oracle: 2][game.mode] ?? 8
-			op = FB.PlayerData(name: game.opID, color: color)
-		} else {
-			op = FB.PlayerData(name: "friend", color: Storage.int(.color))
-		}
-		if op.color == Storage.int(.color) {
-			op.color = [4, 4, 4, 8, 6, 7, 4, 5, 3][Storage.int(.color)]
-		}
+		let op = getOp(for: game)
 		let time = Date(timeIntervalSinceReferenceDate: Double(game.gameID)/1000)
 		let newDay: Bool
 		if #available(iOS 14, *) {
@@ -152,8 +136,9 @@ struct PastGamesView: View {
 	
 	func expandedGameView(_ i: Int) -> some View {
 		let game = gameList[i]
-		let op = FB.main.playerDict[game.opID] ?? FB.PlayerData(name: "n/a", color: 4)
+		let op = getOp(for: game)
 		let time = Date(timeIntervalSinceReferenceDate: Double(game.gameID)/1000)
+		let length = max(game.myMoveTimes.last ?? 0, game.opMoveTimes.last ?? 0) - game.gameID
 		let format = DateFormatter()
 		format.dateStyle = .none
 		format.timeStyle = .short
@@ -166,9 +151,10 @@ struct PastGamesView: View {
 				} else {
 					Text(format.string(from: time))
 				}
-				// TODO start tracking how long games last and when they actually start
-//				Text("4 days\n7 hours\n 3 minutes\n12 seconds")
-				Text("\(game.myMoves.count + game.opMoves.count) moves")
+				if length > 0 {
+					Text(getLenString(from: length))
+				}
+				Text("\(game.myMoves.count + game.opMoves.count - 2) moves")
 				Text(game.myTurn == 0 ? "first" : "second")
 				Spacer()
 				Button("share") {}
@@ -179,16 +165,39 @@ struct PastGamesView: View {
 			.frame(minWidth: 140, maxWidth: 160)
 			BoardView()
 				.onAppear {
-					for p in [0, 23, 12, 20, 60, 40, 33] {
-						BoardScene.main.placeCube(move: p, color: .of(n: 4))
+					BoardScene.main.reset(baseRotation: SCNVector4(x: 0, y: -1, z: 0, w: .pi/2))
+					for p in game.myMoves.dropFirst() {
+						BoardScene.main.placeCube(move: p, color: .primary())
 					}
-					for p in [1, 3, 61, 45, 23, 38, 28] {
-						BoardScene.main.placeCube(move: p, color: .of(n: 1))
+					for p in game.opMoves.dropFirst() {
+						BoardScene.main.placeCube(move: p, color: .of(n: op.color))
 					}
 				}
 			Spacer()
 		}
 		.multilineTextAlignment(.center)
+	}
+	
+	func getOp(for game: FB.GameData) -> FB.PlayerData {
+		var op: FB.PlayerData
+		if game.mode == .online {
+			op = FB.main.playerDict[game.opID] ?? FB.PlayerData(name: "n/a", color: 4)
+		} else if game.mode == .bot {
+			let bot = Bot.bots[Int(game.opID) ?? 0]
+			op = FB.PlayerData(name: bot.name, color: bot.color)
+		} else if game.mode.solve {
+			let color = [.simple: 7, .common: 8, .tricky: 1][game.mode] ?? 4
+			op = FB.PlayerData(name: game.opID, color: color)
+		} else if game.mode.train {
+			let color = [.novice: 6, .defender: 5, .warrior: 0, .tyrant: 3, .oracle: 2][game.mode] ?? 8
+			op = FB.PlayerData(name: game.opID, color: color)
+		} else {
+			op = FB.PlayerData(name: "friend", color: Storage.int(.color))
+		}
+		if op.color == Storage.int(.color) {
+			op.color = [4, 4, 4, 8, 6, 7, 4, 5, 3][Storage.int(.color)]
+		}
+		return op
 	}
 	
 	func getCurrentGames() {
@@ -207,6 +216,37 @@ struct PastGamesView: View {
 		} else {
 			// Fallback on earlier versions
 		}
+	}
+	
+	func getLenString(from length: Int) -> String {
+		let days = length / 86_400_000
+		let hours = (length / 3_600_000) % 24
+		let minutes = (length / 60000) % 60
+		let seconds = (length / 1000) % 60
+		let dayString = "\(days) day\(days != 1 ? "s" : "")"
+		let hourString = "\(hours) hour\(hours != 1 ? "s" : "")"
+		let minuteString = "\(minutes) minute\(minutes != 1 ? "s" : "")"
+		let secondString = "\(seconds) second\(seconds != 1 ? "s" : "")"
+		var lenString = ""
+		if days > 0 {
+			lenString += dayString
+			if hours > 0 {
+				lenString += "\n" + hourString
+			}
+		} else if hours > 0 {
+			lenString += hourString
+			if minutes > 0 {
+				lenString += "\n" + minuteString
+			}
+		} else if minutes > 0 {
+			lenString += minuteString
+			if seconds > 0 {
+				lenString += "\n" + secondString
+			}
+		} else if seconds >= 0 {
+			lenString += secondString
+		}
+		return lenString
 	}
 }
 
