@@ -37,6 +37,12 @@ struct MainView: View {
 						.zIndex(10)
 				}
 				TipView()
+				// TODO this is where the review game should appear
+//				if layout.current == .review {
+//					ReviewView()
+//				} // else if layout.current == .active {
+//					ActiveView()
+//				}
 			}
 			.onAppear { layout.load(for: screen); screen.window?.backgroundColor = .clear }
 			.onAppear { TipStatus.main.updateTip(for: .main) }

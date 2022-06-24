@@ -58,6 +58,7 @@ enum Key: String {
     case opMoves = "opMoves"
 	case myMoveTimes = "myMoveTimes"
 	case opMoveTimes = "opMoveTimes"
+	case endTime = "endTime"
     case gameID = "gameID"
     case opGameID = "opGameID"
 	

@@ -78,11 +78,10 @@ class FB: ObservableObject {
 	func observePastGames() {
 		let gameRef = ref.child("games/\(myID)")
 		gameRef.removeAllObservers()
-		gameRef.observe(DataEventType.value, with: { snapshot in
+		gameRef.observeSingleEvent(of: DataEventType.value, with: { snapshot in
 			if let dict = snapshot.value as? [String: [String: Any]] {
 				for entry in dict.sorted(by: { $0.key < $1.key }) {
 					let data = GameData(from: entry.value, gameID: Int(entry.key) ?? 0)
-					if entry.value[Key.mode.rawValue] as? Int ?? 0 == 6 { print("got solve", data) }
 					guard data.state.ended else { continue }
 					// order is preserved even when entries are updated
 					let i: Int
@@ -345,17 +344,47 @@ class FB: ObservableObject {
 		self.myGameData = myData
 		myGameRef.setValue(myData.toDict())
 	}
+	
+	func undoMyMove(p: Int) {
+		guard var myData = myGameData else { return }
+		let myGameRef = ref.child("games/\(myID)/\(myData.gameID)")
+		guard myData.myMoves.last == p else {
+			print("FB undo move error", p, myData.myMoves.last ?? -2, myData.myMoves, myData)
+			return
+		}
+		myData.myMoves = myData.myMoves.dropLast()
+		myData.myTimes = myData.myTimes.dropLast()
+		myData.myMoveTimes = myData.myMoveTimes.dropLast()
+		self.myGameData = myData
+		myGameRef.setValue(myData.toDict())
+	}
+	
+	func undoOpMove(p: Int) {
+		guard var myData = myGameData else { return }
+		let myGameRef = ref.child("games/\(myID)/\(myData.gameID)")
+		guard myData.opMoves.last == p else {
+			print("FB undo move error", p, myData.opMoves.last ?? -2, myData.opMoves, myData)
+			return
+		}
+		myData.opMoves = myData.opMoves.dropLast()
+		myData.opTimes = myData.opTimes.dropLast()
+		myData.opMoveTimes = myData.opMoveTimes.dropLast()
+		self.myGameData = myData
+		myGameRef.setValue(myData.toDict())
+	}
     
     func finishedGame(with state: GameState) {
         guard var myData = myGameData else { return }
         let myGameRef = ref.child("games/\(myID)/\(myData.gameID)")
         let opGameRef = ref.child("games/\(myData.opID)/\(myData.opGameID)")
         myData.state = state
+		myData.endTime = Date.ms
         op = nil
         myGameData = nil
         opGameData = nil
         opGameRef.removeAllObservers()
         myGameRef.setValue(myData.toDict())
+		observePastGames()
     }
 	
 	func uploadBots() {
@@ -378,6 +407,7 @@ class FB: ObservableObject {
         var opTimes: [Double]  	// times remaining on op clock after each of their moves
 		var myMoveTimes: [Int]	// time each move is made
 		var opMoveTimes: [Int]	// time each move is made
+		var endTime: Int	// time the game ended
         let valid: Bool         // whether the given dict was valid
         
 		init(from dict: [String: Any], gameID: Int) {
@@ -394,7 +424,8 @@ class FB: ObservableObject {
 				dict[Key.myMoves.rawValue] as? [Int] != nil &&
 				dict[Key.opMoves.rawValue] as? [Int] != nil
 //				dict[Key.myMoveTimes.rawValue] as? [Int] != nil &&
-//				dict[Key.opMoveTimes.rawValue] as? [Int] != nil
+//				dict[Key.opMoveTimes.rawValue] as? [Int] != nil &&
+//				dict[Key.endTime.rawValue] as? Int != nil
             )
             
             self.gameID = gameID
@@ -410,6 +441,7 @@ class FB: ObservableObject {
             opMoves = dict[Key.opMoves.rawValue] as? [Int] ?? []
 			myMoveTimes = dict[Key.myMoveTimes.rawValue] as? [Int] ?? []
 			opMoveTimes = dict[Key.opMoveTimes.rawValue] as? [Int] ?? []
+			endTime = dict[Key.endTime.rawValue] as? Int ?? -1
         }
         
         init(myInvite: OnlineInviteData, opInvite: OnlineInviteData) {
@@ -426,6 +458,7 @@ class FB: ObservableObject {
             opMoves = [-1]
 			myMoveTimes = [gameID]
 			opMoveTimes = [gameID]
+			endTime = -1
             valid = true
         }
 		
@@ -460,6 +493,7 @@ class FB: ObservableObject {
 					opMoveTimes.append(gameID)
 				}
 			}
+			endTime = -1
 		}
         
         func toDict() -> [String: Any] {
@@ -475,7 +509,8 @@ class FB: ObservableObject {
                 Key.myMoves.rawValue: myMoves,
 				Key.opMoves.rawValue: opMoves,
 				Key.myMoveTimes.rawValue: myMoveTimes,
-				Key.opMoveTimes.rawValue: opMoveTimes
+				Key.opMoveTimes.rawValue: opMoveTimes,
+				Key.endTime.rawValue: endTime
             ]
         }
     }

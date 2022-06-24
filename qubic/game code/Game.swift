@@ -689,6 +689,11 @@ class Game: ObservableObject {
         }
         BoardScene.main.undoMove(move.p)
 		GameLayout.main.undoMoveOpacities()
+		if turn == myTurn {
+			FB.main.undoMyMove(p: move.p)
+		} else {
+			FB.main.undoOpMove(p: move.p)
+		}
         timers.append(Timer.after(0.5, run: player[turn].move))
     }
     

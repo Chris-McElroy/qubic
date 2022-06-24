@@ -29,7 +29,6 @@ struct PastGamesView: View {
 					.onAppear {
 						getCurrentGames()
 						expanded = nil
-						print(fb.pastGamesDict)
 					}
 				if #available(iOS 14.0, *) {
 					ScrollViewReader { proxy in
@@ -138,7 +137,7 @@ struct PastGamesView: View {
 		let game = gameList[i]
 		let op = getOp(for: game)
 		let time = Date(timeIntervalSinceReferenceDate: Double(game.gameID)/1000)
-		let length = max(game.myMoveTimes.last ?? 0, game.opMoveTimes.last ?? 0) - game.gameID
+		let length = game.endTime - game.gameID
 		let format = DateFormatter()
 		format.dateStyle = .none
 		format.timeStyle = .short
