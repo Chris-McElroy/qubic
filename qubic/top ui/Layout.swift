@@ -23,8 +23,9 @@ enum ViewState: CaseIterable {
     case settings
 	case pastGames
 	case tutorial
+	case review
     
-	var gameView: Bool { self == .play || self == .solve || self == .train }
+	var gameView: Bool { self == .play || self == .solve || self == .train } // TODO consider if review should be here
     var menuView: Bool { self == .playMenu || self == .solveMenu || self == .trainMenu }
 	var trainGame: Bool { self == .train || self == .trainMenu }
 	var solveGame: Bool { self == .solve || self == .solveMenu }
@@ -41,6 +42,7 @@ enum ViewState: CaseIterable {
 		case .tutorialMenu: return .more
         case .settings: return .more
 		case .pastGames: return .more
+		case .review: return .pastGames
         default: return .main
         }
     }
@@ -73,6 +75,7 @@ enum ViewState: CaseIterable {
 //		.dictLesson: (top: .lessons, focus: .lessons, bottom: .lessons),
         .settings: (top: .settings, focus: .settings, bottom: .settings),
 		.pastGames: (top: .pastGames, focus: .pastGames, bottom: .pastGames),
+		.review: (top: .pastGames, focus: .pastGames, bottom: .pastGames),
 		.tutorial: (top: .tutorial, focus: .tutorial, bottom: .tutorial)
     ]
 }

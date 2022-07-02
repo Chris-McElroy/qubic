@@ -24,7 +24,7 @@ struct PastGamesView: View {
 			Button("past games") { layout.change(to: .pastGames) }
 				.buttonStyle(MoreStyle())
 				.zIndex(10)
-			if layout.current == .pastGames {
+			if layout.current == .pastGames || layout.current == .review {
 				Fill(5)
 					.onAppear {
 						getCurrentGames()
@@ -157,7 +157,10 @@ struct PastGamesView: View {
 				Text(game.myTurn == 0 ? "first" : "second")
 				Spacer()
 				Button("share") {}
-				Button("review") {}
+				Button("review") {
+					ReviewGame().load(from: game, opData: getOp(for: game))
+					layout.change(to: .review)
+				}
 				Spacer()
 			}
 			.buttonStyle(Standard())
@@ -165,11 +168,13 @@ struct PastGamesView: View {
 			BoardView()
 				.onAppear {
 					BoardScene.main.reset(baseRotation: SCNVector4(x: 0, y: -1, z: 0, w: .pi/2))
-					for p in game.myMoves.dropFirst() {
-						BoardScene.main.placeCube(move: p, color: .primary())
-					}
-					for p in game.opMoves.dropFirst() {
-						BoardScene.main.placeCube(move: p, color: .of(n: op.color))
+					let moves = game.orderedMoves()
+					for (i, p) in moves.enumerated() {
+						if i % 2 == game.myTurn {
+							BoardScene.main.placeCube(move: p, color: .primary())
+						} else {
+							BoardScene.main.placeCube(move: p, color: .of(n: op.color))
+						}
 					}
 				}
 			Spacer()

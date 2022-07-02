@@ -194,6 +194,8 @@
 		1EC2788D2585ACC600F6A5EB /* Player.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EC2788C2585ACC600F6A5EB /* Player.swift */; };
 		1EC2B8852536A86C001B0A1F /* Checks.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EC2B8842536A86C001B0A1F /* Checks.swift */; };
 		1EC86B1325AABDE000DA434A /* MessageOldHPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EC86B1225AABDE000DA434A /* MessageOldHPicker.swift */; };
+		1ED21697286E7AD800C9F4E7 /* ReviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1ED21696286E7AD800C9F4E7 /* ReviewView.swift */; };
+		1ED2169A286E805000C9F4E7 /* ReviewGame.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1ED21699286E805000C9F4E7 /* ReviewGame.swift */; };
 		1EDAE0DF260814EC006173B4 /* MessageHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EDAE0DE260814EC006173B4 /* MessageHelper.swift */; };
 		1EDDE19024FAC70800B7742C /* Board.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EDDE18F24FAC70800B7742C /* Board.swift */; };
 		1EE2D5F9273897BB00DE309F /* TutorialLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EE2D5F8273897BA00DE309F /* TutorialLayout.swift */; };
@@ -417,6 +419,8 @@
 		1EC2788C2585ACC600F6A5EB /* Player.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Player.swift; sourceTree = "<group>"; };
 		1EC2B8842536A86C001B0A1F /* Checks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Checks.swift; sourceTree = "<group>"; };
 		1EC86B1225AABDE000DA434A /* MessageOldHPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageOldHPicker.swift; sourceTree = "<group>"; };
+		1ED21696286E7AD800C9F4E7 /* ReviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewView.swift; sourceTree = "<group>"; };
+		1ED21699286E805000C9F4E7 /* ReviewGame.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewGame.swift; sourceTree = "<group>"; };
 		1EDAE0DE260814EC006173B4 /* MessageHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageHelper.swift; sourceTree = "<group>"; };
 		1EDDE18F24FAC70800B7742C /* Board.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Board.swift; sourceTree = "<group>"; };
 		1EE2D5F8273897BA00DE309F /* TutorialLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TutorialLayout.swift; sourceTree = "<group>"; };
@@ -758,6 +762,7 @@
 				1E3335D4253405E100966EA6 /* game code */,
 				1E3335DA25342BFF00966EA6 /* top ui */,
 				1E3335D825342BE600966EA6 /* helpers */,
+				1ED21698286E7AE000C9F4E7 /* review */,
 				1E776158271E373800D83000 /* tutorial */,
 				1E00AA962706715500666AF0 /* app icons */,
 				1E68179824CC973D001713E7 /* Assets.xcassets */,
@@ -814,6 +819,15 @@
 				1EB5266B27068D8E00B1344A /* 83purple@2x.png */,
 			);
 			path = purple;
+			sourceTree = "<group>";
+		};
+		1ED21698286E7AE000C9F4E7 /* review */ = {
+			isa = PBXGroup;
+			children = (
+				1ED21696286E7AD800C9F4E7 /* ReviewView.swift */,
+				1ED21699286E805000C9F4E7 /* ReviewGame.swift */,
+			);
+			path = review;
 			sourceTree = "<group>";
 		};
 		912820B05808BCCA15D5C4B0 /* Pods */ = {
@@ -1172,6 +1186,7 @@
 				1E2E74BC24E86AA600218E55 /* GameView.swift in Sources */,
 				1EDDE19024FAC70800B7742C /* Board.swift in Sources */,
 				1E636FC6258A8A06005B8D4F /* Common.swift in Sources */,
+				1ED2169A286E805000C9F4E7 /* ReviewGame.swift in Sources */,
 				1EE4C75C24EB7ADC0038C1E2 /* UIHelper.swift in Sources */,
 				1E9E9FBE24CDEB4700002500 /* SceneHelper.swift in Sources */,
 				1EDAE0DF260814EC006173B4 /* MessageHelper.swift in Sources */,
@@ -1198,6 +1213,7 @@
 				1EAE5F6A263121D6000C8270 /* FeedbackView.swift in Sources */,
 				1E636FBB258A8687005B8D4F /* Daily.swift in Sources */,
 				1E636FC0258A882B005B8D4F /* Tricky.swift in Sources */,
+				1ED21697286E7AD800C9F4E7 /* ReviewView.swift in Sources */,
 				1E31208C273D9C1E005BA437 /* TicTacToeView.swift in Sources */,
 				1E017B9E24CDB70D00CF979A /* SolveView.swift in Sources */,
 				1E31208A273D9BF6005BA437 /* WelcomeView.swift in Sources */,

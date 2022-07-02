@@ -37,10 +37,12 @@ struct MainView: View {
 						.zIndex(10)
 				}
 				TipView()
-				// TODO this is where the review game should appear
-//				if layout.current == .review {
-//					ReviewView()
-//				} // else if layout.current == .active {
+				if layout.current == .review {
+					ReviewView()
+						.frame(height: layout.safeHeight)
+						.background(Fill()) // TODO is the color off?
+						.frame(height: layout.fullHeight)
+				} // else if layout.current == .active {
 //					ActiveView()
 //				}
 			}

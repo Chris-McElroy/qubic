@@ -409,6 +409,10 @@ class FB: ObservableObject {
 		var opMoveTimes: [Int]	// time each move is made
 		var endTime: Int	// time the game ended
         let valid: Bool         // whether the given dict was valid
+		
+		var totalTime: Double? {
+			myTimes.first == -1 ? nil : myTimes.first
+		}
         
 		init(from dict: [String: Any], gameID: Int) {
 			// TODO handle better if their dict is invalid (esp if they have an old version)
@@ -513,6 +517,25 @@ class FB: ObservableObject {
 				Key.endTime.rawValue: endTime
             ]
         }
+		
+		func orderedMoves() -> [Int] {
+			if myMoves.isEmpty || opMoves.isEmpty { return [] }
+			
+			var firstMoves = myTurn == 0 ? myMoves.dropFirst() : opMoves.dropFirst()
+			var secondMoves = myTurn == 1 ? myMoves.dropFirst() : opMoves.dropFirst()
+			let diff = firstMoves.count - secondMoves.count
+			
+			guard diff == 0 || diff == 1 else { return [] }
+			
+			var list: [Int] = []
+			while !firstMoves.isEmpty {
+				list.append(firstMoves.removeFirst())
+				if !secondMoves.isEmpty {
+					list.append(secondMoves.removeFirst())
+				}
+			}
+			return list
+		}
     }
     
     struct PlayerData {

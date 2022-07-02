@@ -368,11 +368,7 @@ class Game: ObservableObject {
         moves.append(move)
         if movesBack != 0 { movesBack += 1 }
         moveImpactGenerator.impactOccurred()
-		if turn == myTurn {
-			// TODO double check
-			print("you NEVER get here???")
-			FB.main.sendMyMove(p: p, time: times[turn].last ?? -1)
-		} else if mode != .online {
+		if turn == myTurn && mode != .online {
 			FB.main.sendOpMove(p: p, time: times[turn].last ?? -1)
 		}
         getHints(for: moves, time: time)
@@ -753,6 +749,8 @@ class Game: ObservableObject {
     
     func endGame(with end: GameState) {
         guard gameState == .active else { turnOff(); return }
+		
+		print("ending game", end)
 		
 		gameState = end
 		premoves = []
