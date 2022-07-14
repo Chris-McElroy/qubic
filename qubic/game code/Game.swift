@@ -382,6 +382,7 @@ class Game: ObservableObject {
     }
 	
     func processGhostMove(_ p: Int) {
+		print("processing ghost move", gameState)
         let move = Move(p)
 		if processingMove { return }
         guard board.pointEmpty(move.p) && (0..<64).contains(move.p) else { return }

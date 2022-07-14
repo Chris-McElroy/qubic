@@ -145,9 +145,15 @@ class GameLayout: ObservableObject {
 	
 	func startGameOpacities() {
 		withAnimation {
-			undoOpacity = game.hints || game.mode.solve ? .half : .clear
-			prevOpacity = .half
-			nextOpacity = game.movesBack > 0 ? .full : .half // for tutorial
+			if game.reviewingGame {
+				undoOpacity = .clear
+				prevOpacity = game.moves.count > 0 ? .full : .half
+				nextOpacity = .half
+			} else {
+				undoOpacity = game.hints || game.mode.solve ? .half : .clear
+				prevOpacity = .half
+				nextOpacity = game.movesBack > 0 ? .full : .half // for tutorial
+			}
 			optionsOpacity = .full
 		}
 	}

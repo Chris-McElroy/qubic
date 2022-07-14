@@ -13,6 +13,7 @@ class ReviewGame: Game {
 		Game.main = self
 		gameState = game.state
 		mode = game.mode
+		myTurn = game.myTurn
 		board = Board()
 		BoardScene.main.reset()
 		gameNum += 1
@@ -37,12 +38,10 @@ class ReviewGame: Game {
 		solveBoard = 0
 		preset = game.orderedMoves()
 		solved = false
-		myTurn = 0
-		hints = true
+		hints = game.hints // TODO does this handle solve boards?? when is game.hints updated?
 		let me = User(b: board, n: myTurn)
 		let op = User(b: board, n: myTurn^1, name: opData.name)
 		op.color = opData.color
-
 		player = myTurn == 0 ? [me, op] : [op, me]
 		for p in preset { loadMove(p) }
 		GameLayout.main.refreshHints()
@@ -54,4 +53,18 @@ class ReviewGame: Game {
 			BoardScene.main.showWins(wins, color: .of(n: player[turn^1].color), spin: false)
 		}
 	}
+	
+	override func startGame() {
+		moveImpactGenerator.prepare()
+		GameLayout.main.startGameOpacities()
+	}
 }
+
+// TODO how are the preview moves being loaded?
+// TODO change which person is highlighted
+// TODO the arrows don't work?
+// TODO the menu should not include settings when reviewing the game
+// TODO why doesn't analyis appear
+// TODO get rid of new online game and rematch game
+// TODO do i want to add friending and rematch to the expand thing?
+// TODO the preview board just doesn't show up when i exit?

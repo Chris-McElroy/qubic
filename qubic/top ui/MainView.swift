@@ -134,14 +134,27 @@ struct MainView: View {
     
     private struct mainButton: View {
         let views: [ViewState]
-        let text: String
+        @State var text: String
         let color: Color
         let action: (ViewState, ViewState) -> Void
         
         var body: some View {
             ZStack {
                 Fill().frame(height: mainButtonHeight)
-                Button(action: { action(views[0], views[1]) }, label: { Text(text) })
+                Button(action: { action(views[0], views[1]) }, label: {
+					if #available(iOS 14, *) {
+						Text(text)
+							.onChange(of: Layout.main.current, perform: { new in
+								if new == views[0] {
+									text = "start"
+								} else {
+									text = [.train: "train", .solve: "solve"][views[1]] ?? "play"
+								}
+							})
+					} else {
+						Text(Layout.main.current != views[0] ? text : "  start  ")
+					}
+				})
                     .buttonStyle(MainStyle(color: views.contains(Layout.main.current) ? .primary() : color))
             }
         }
