@@ -139,6 +139,7 @@ struct PastGamesView: View {
 		let time = Date(timeIntervalSinceReferenceDate: Double(game.gameID)/1000)
 		let length = game.endTime - game.gameID
 		let format = DateFormatter()
+		let boardScene = BoardScene()
 		format.dateStyle = .none
 		format.timeStyle = .short
 		
@@ -165,16 +166,22 @@ struct PastGamesView: View {
 			}
 			.buttonStyle(Standard())
 			.frame(minWidth: 140, maxWidth: 160)
-			BoardView()
+			BoardView(boardScene.view)
 				.onAppear {
-					BoardScene.main.reset(baseRotation: SCNVector4(x: 0, y: -1, z: 0, w: .pi/2))
+					boardScene.reset(baseRotation: SCNVector4(x: 0, y: -1, z: 0, w: .pi/2))
 					let moves = game.orderedMoves()
+					print(game.opMoves, game.myMoves, game.orderedMoves())
+					let board = Board()
 					for (i, p) in moves.enumerated() {
+						board.addMove(p)
 						if i % 2 == game.myTurn {
-							BoardScene.main.placeCube(move: p, color: .primary())
+							boardScene.addCube(move: p, color: .primary())
 						} else {
-							BoardScene.main.placeCube(move: p, color: .of(n: op.color))
+							boardScene.addCube(move: p, color: .of(n: op.color))
 						}
+					}
+					if let wins = board.getWinLines(for: moves.last ?? 0) {
+						boardScene.showWins(wins, color: (moves.count % 2)^1 == game.myTurn ? .primary() : .of(n: op.color), spin: false)
 					}
 				}
 			Spacer()

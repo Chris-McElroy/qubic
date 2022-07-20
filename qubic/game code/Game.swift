@@ -268,7 +268,7 @@ class Game: ObservableObject {
             case .common:   op = Common(b: board, n: myTurn^1, num: boardNum)
             case .tricky:   op = Tricky(b: board, n: myTurn^1, num: boardNum)
             case .local:    op = User(b: board, n: myTurn^1, name: "friend")
-			case .bot:		op = Bot(b: board, n: myTurn^1)
+			case .bot:		op = Bot(b: board, n: myTurn^1, id: boardNum)
 			case .online:   op = Online(b: board, n: myTurn^1)
 //			case .picture1: op = Online(b: board, n: myTurn^1)
 //			case .picture2: op = Tricky(b: board, n: myTurn^1, num: 22)
@@ -310,9 +310,11 @@ class Game: ObservableObject {
 				newBoardNum += 1
 				Layout.main.solveSelection[0] += 1
 			}
+		} else if newMode == .bot {
+			newBoardNum = .random(in: 0..<Bot.bots.count)
 		}
 		
-		// TODO why is online different here? this anti makes sense; it should be random if it's online??
+		// online is based on the turn that was selected during the online matchmaking process
 		let newTurn = newMode == .online ? FB.main.myGameData?.myTurn : mostRecentGame.2
 		
 		load(mode: newMode, boardNum: newBoardNum, turn: newTurn, hints: mostRecentGame.3, time: mostRecentGame.4)
@@ -368,7 +370,7 @@ class Game: ObservableObject {
         moves.append(move)
         if movesBack != 0 { movesBack += 1 }
         moveImpactGenerator.impactOccurred()
-		if turn == myTurn && mode != .online {
+		if turn != myTurn && mode != .online {
 			FB.main.sendOpMove(p: p, time: times[turn].last ?? -1)
 		}
         getHints(for: moves, time: time)

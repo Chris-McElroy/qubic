@@ -35,10 +35,11 @@ class ReviewGame: Game {
 		GameLayout.main.popup = .none
 		dayInt = Date.int
 		lastDC = Storage.int(.lastDC)
-		solveBoard = 0
+		solveBoard = game.mode.solve ? (Int(opData.name.components(separatedBy: " ").last ?? "1") ?? 1) - 1 : 0
 		preset = game.orderedMoves()
-		solved = false
-		hints = game.hints // TODO does this handle solve boards?? when is game.hints updated?
+		solved = game.mode.solve ? game.state.myWin : false
+		hints = game.mode.solve ? solved : true
+		
 		let me = User(b: board, n: myTurn)
 		let op = User(b: board, n: myTurn^1, name: opData.name)
 		op.color = opData.color
@@ -60,11 +61,7 @@ class ReviewGame: Game {
 	}
 }
 
-// TODO how are the preview moves being loaded?
-// TODO change which person is highlighted
-// TODO the arrows don't work?
-// TODO the menu should not include settings when reviewing the game
-// TODO why doesn't analyis appear
-// TODO get rid of new online game and rematch game
-// TODO do i want to add friending and rematch to the expand thing?
-// TODO the preview board just doesn't show up when i exit?
+// TODO the arrows don't work? - done?
+// TODO why doesn't analyis appear - done?
+// TODO games with invalid game.orderedMoves crash when review is clicked
+// TODO change solve game text for review games—"you can’t analyze solve boards until they are solved" stuff

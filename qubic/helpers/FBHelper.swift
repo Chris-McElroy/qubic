@@ -525,6 +525,8 @@ class FB: ObservableObject {
 			var secondMoves = myTurn == 1 ? myMoves.dropFirst() : opMoves.dropFirst()
 			let diff = firstMoves.count - secondMoves.count
 			
+			print(firstMoves, secondMoves, diff)
+			
 			guard diff == 0 || diff == 1 else { return [] }
 			
 			var list: [Int] = []

@@ -10,7 +10,17 @@ import SwiftUI
 import SceneKit
 
 struct BoardView: UIViewRepresentable {
-    func makeUIView(context: Context) -> SCNView { return BoardScene.main.view }
+	let view: SCNView
+	
+	init() {
+		view = BoardScene.main.view
+	}
+	
+	init(_ view: SCNView) {
+		self.view = view
+	}
+	
+    func makeUIView(context: Context) -> SCNView { return view }
     func updateUIView(_ scnView: SCNView, context: Context) {
 		// see below comment for explanation
 //        BoardScene.main.updateColors(for: context.environment.colorScheme)

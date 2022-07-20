@@ -12,8 +12,8 @@ class Bot: Player {
 	let bot: BotData
 	let id: Int
 	
-	override init(b: Board, n: Int) {
-		id = .random(in: 0..<Bot.bots.count)
+	init(b: Board, n: Int, id: Int) {
+		self.id = id
 		bot = Bot.bots[id]
 		
 //   	let skill = bot.skill ?? 0
