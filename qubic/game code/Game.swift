@@ -100,7 +100,7 @@ class Game: ObservableObject {
     var mode: GameMode = .local
     var dayInt: Int = Date.int
 	var lastDC: Int = 0
-    var solveBoard: Int = 0
+    var setupNum: Int = 0
     var gameState: GameState = .new
 	var processingMove: Bool = false
 	var lastCheck: Int = 0
@@ -124,11 +124,11 @@ class Game: ObservableObject {
         hintQueue.qualityOfService = .userInitiated
     }
 	
-	func load(mode: GameMode, boardNum: Int = 0, turn: Int? = nil, hints: Bool = false, time: Double? = nil) {
+	func load(mode: GameMode, setupNum: Int = 0, turn: Int? = nil, hints: Bool = false, time: Double? = nil) {
 		Game.main = self
 		gameState = .new
 		self.mode = mode
-		mostRecentGame = (mode, boardNum, turn, hints, time)
+		mostRecentGame = (mode, setupNum, turn, hints, time)
 		
         board = Board()
 		BoardScene.main.reset()
@@ -163,7 +163,7 @@ class Game: ObservableObject {
 //        newStreak = nil
 		dayInt = Date.int
 		lastDC = Storage.int(.lastDC)
-		solveBoard = boardNum
+		self.setupNum = setupNum
         setPreset(for: mode)
 		if !preset.isEmpty { myTurn = preset.count % 2 }
 		else if let givenTurn = turn { myTurn = givenTurn }
@@ -177,7 +177,7 @@ class Game: ObservableObject {
 //		}
         self.hints = hints
         let me = User(b: board, n: myTurn)
-        let op = getOp(boardNum: boardNum, myColor: me.color)
+        let op = getOp(myColor: me.color)
 //		if mode == .picture1 {
 //			me = User(b: board, n: myTurn, name: "𝓽𝓪𝓷𝓰𝓸")
 //			me.color = 1
@@ -244,9 +244,9 @@ class Game: ObservableObject {
             
             func getInfo(key: Key) {
 				let boards = solveBoards[key] ?? [""]
-                if solveBoard < boards.count {
-                    preset = expandMoves(boards[solveBoard])
-					solved = (Storage.array(key) as? [Bool])?[solveBoard] ?? true
+                if setupNum < boards.count {
+                    preset = expandMoves(boards[setupNum])
+					solved = (Storage.array(key) as? [Bool])?[setupNum] ?? true
                 } else {
                     preset = Board.getAutomorphism(for: expandMoves(boards.randomElement() ?? ""))
                     solved = false
@@ -254,7 +254,7 @@ class Game: ObservableObject {
             }
         }
         
-        func getOp(boardNum: Int, myColor: Int) -> Player {
+        func getOp(myColor: Int) -> Player {
             let op: Player
             switch mode {
             case .novice:   op = Novice(b: board, n: myTurn^1)
@@ -263,12 +263,12 @@ class Game: ObservableObject {
             case .tyrant:   op = Tyrant(b: board, n: myTurn^1)
             case .oracle:   op = Oracle(b: board, n: myTurn^1)
             case .cubist:   op = Cubist(b: board, n: myTurn^1)
-            case .daily:    op = Daily(b: board, n: myTurn^1, num: boardNum)
-            case .simple:   op = Simple(b: board, n: myTurn^1, num: boardNum)
-            case .common:   op = Common(b: board, n: myTurn^1, num: boardNum)
-            case .tricky:   op = Tricky(b: board, n: myTurn^1, num: boardNum)
+            case .daily:    op = Daily(b: board, n: myTurn^1, num: setupNum)
+            case .simple:   op = Simple(b: board, n: myTurn^1, num: setupNum)
+            case .common:   op = Common(b: board, n: myTurn^1, num: setupNum)
+            case .tricky:   op = Tricky(b: board, n: myTurn^1, num: setupNum)
             case .local:    op = User(b: board, n: myTurn^1, name: "friend")
-			case .bot:		op = Bot(b: board, n: myTurn^1, id: boardNum)
+			case .bot:		op = Bot(b: board, n: myTurn^1, id: setupNum)
 			case .online:   op = Online(b: board, n: myTurn^1)
 //			case .picture1: op = Online(b: board, n: myTurn^1)
 //			case .picture2: op = Tricky(b: board, n: myTurn^1, num: 22)
@@ -283,7 +283,7 @@ class Game: ObservableObject {
 	
 	func loadRematch() {
 		rematchRequested = true
-		load(mode: mostRecentGame.0, boardNum: mostRecentGame.1, turn: mostRecentGame.2, hints: mostRecentGame.3, time: mostRecentGame.4)
+		load(mode: mostRecentGame.0, setupNum: mostRecentGame.1, turn: mostRecentGame.2, hints: mostRecentGame.3, time: mostRecentGame.4)
 	}
 	
 	func loadNextGame() {
@@ -303,21 +303,21 @@ class Game: ObservableObject {
 			Layout.main.trainSelection[0] += 1
 		}
 		
-		var newBoardNum: Int = mostRecentGame.1
+		var newSetupNum: Int = mostRecentGame.1
 		if newMode.solve {
 			let key: Key = [.simple: .simple, .common: .common, .tricky: .tricky][newMode, default: .daily]
-			if newBoardNum < solveBoardCount(key) {
-				newBoardNum += 1
+			if newSetupNum < solveBoardCount(key) {
+				newSetupNum += 1
 				Layout.main.solveSelection[0] += 1
 			}
 		} else if newMode == .bot {
-			newBoardNum = .random(in: 0..<Bot.bots.count)
+			newSetupNum = .random(in: 0..<Bot.bots.count)
 		}
 		
 		// online is based on the turn that was selected during the online matchmaking process
 		let newTurn = newMode == .online ? FB.main.myGameData?.myTurn : mostRecentGame.2
 		
-		load(mode: newMode, boardNum: newBoardNum, turn: newTurn, hints: mostRecentGame.3, time: mostRecentGame.4)
+		load(mode: newMode, setupNum: newSetupNum, turn: newTurn, hints: mostRecentGame.3, time: mostRecentGame.4)
 	}
     
     func startGame() {
@@ -352,7 +352,7 @@ class Game: ObservableObject {
         moves.append(move)
         currentMove = move
         getHints(for: moves, loading: true)
-        BoardScene.main.addCube(move: move.p, color: .of(n: player[turn^1].color))
+		BoardScene.main.addCube(move: move.p, color: .of(n: player[turn^1].color), opacity: moves.count > preset.count ? .full : .preset)
     }
     
     func processMove(_ p: Int, for turn: Int, setup: [Int], time: Double? = nil) {
@@ -404,7 +404,7 @@ class Game: ObservableObject {
 		GameLayout.main.refreshHints()
         ghostMoveCount += 1
         getHints(for: moves.dropLast(movesBack))
-        BoardScene.main.showMove(move.p, wins: board.getWinLines(for: move.p), ghost: true)
+		BoardScene.main.showMove(move.p, wins: board.getWinLines(for: move.p), opacity: .ghost)
 		GameLayout.main.newGhostMoveOpacities()
 		processingMove = false
     }
@@ -700,7 +700,7 @@ class Game: ObservableObject {
 		guard GameLayout.main.prevOpacity == .full else { return }
 		if processingMove { return }
         let i = moves.count - movesBack - 1
-        guard i >= ((!hints && mode.solve) ? preset.count : 0) else { return }
+		guard i >= 0 else { return } // old: ((!hints && mode.solve) ? preset.count : 0)
         arrowImpactGenerator.impactOccurred()
         movesBack += 1
         board.undoMove(for: turn^1)
@@ -743,7 +743,7 @@ class Game: ObservableObject {
             currentTimes[turn^1] = max(0, Int((times[turn^1][board.move[turn^1].count]).rounded()))
         }
 		GameLayout.main.refreshHints()
-        BoardScene.main.showMove(moves[i].p, wins: board.getWinLines(for: moves[i].p), ghost: ghostMoveCount != 0)
+		BoardScene.main.showMove(moves[i].p, wins: board.getWinLines(for: moves[i].p), opacity: ghostMoveCount != 0 ? .ghost : (moves.count - movesBack <= preset.count ? .preset : .full))
 		GameLayout.main.nextMoveOpacities()
         if gameState == .active && movesBack == 0 {
             player[turn].move()
@@ -765,7 +765,7 @@ class Game: ObservableObject {
 			if mode == .daily {
 				// keeping this custom so that it uses dayInt instead of Date.int
 				var dailyHistory = Storage.dictionary(.dailyHistory) as? [String: [Bool]] ?? [:]
-				dailyHistory[String(dayInt), default: [false, false, false, false]][solveBoard] = true
+				dailyHistory[String(dayInt), default: [false, false, false, false]][setupNum] = true
 				Storage.set(dailyHistory, for: .dailyHistory)
 				
 				if dailyHistory[String(dayInt)] == [true, true, true, true] && dayInt > Storage.int(.lastDC) {
@@ -783,9 +783,9 @@ class Game: ObservableObject {
 				
 				FB.main.updateMyStats()
 			}
-			else if mode == .simple { recordSolve(type: .simple, index: solveBoard) }
-			else if mode == .common { recordSolve(type: .common, index: solveBoard) }
-			else if mode == .tricky { recordSolve(type: .tricky, index: solveBoard) }
+			else if mode == .simple { recordSolve(type: .simple, index: setupNum) }
+			else if mode == .common { recordSolve(type: .common, index: setupNum) }
+			else if mode == .tricky { recordSolve(type: .tricky, index: setupNum) }
 			else if let index = [.novice, .defender, .warrior, .tyrant, .oracle, .cubist].firstIndex(of: mode), !hints {
 				if mode == .cubist {
 					if let trainArray = Storage.array(.train) as? [Int], trainArray[5] == 0 {

@@ -33,7 +33,7 @@ class TutorialGame: Game {
 		GameLayout.main.popup = .none
 		dayInt = Date.int
 		lastDC = Storage.int(.lastDC)
-		solveBoard = 0
+		setupNum = 0
 		preset = [42, 63, 51, 12, 22, 62, 25]
 		solved = false
 		myTurn = 0

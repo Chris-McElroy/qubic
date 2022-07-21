@@ -151,7 +151,7 @@ class GameLayout: ObservableObject {
 				nextOpacity = .half
 			} else {
 				undoOpacity = game.hints || game.mode.solve ? .half : .clear
-				prevOpacity = .half
+				prevOpacity = game.moves.count - game.movesBack > 0 ? .full : .half
 				nextOpacity = game.movesBack > 0 ? .full : .half // for tutorial
 			}
 			optionsOpacity = .full
@@ -184,11 +184,11 @@ class GameLayout: ObservableObject {
 		withAnimation {
 			nextOpacity = game.movesBack > 0 ? .full : .half
 			if undoOpacity == .full { undoOpacity = .half }
-			var minMoves = 0
-			if game.mode.solve && (game.gameState == .active || !game.hints) {
-				minMoves = game.preset.count
-			}
-			if game.moves.count - game.movesBack == minMoves { prevOpacity = .half }
+//			var minMoves = 0
+//			if game.mode.solve && (game.gameState == .active || !game.hints) {
+//				minMoves = game.preset.count
+//			}
+			if game.moves.count == game.movesBack { prevOpacity = .half }
 		}
 	}
 	

@@ -29,6 +29,8 @@ enum VersionType: String {
 enum Opacity: Double {
 	case clear = 0
 	case half = 0.3
+	case ghost = 0.7
+	case preset = 0.94
 	case full = 1
 }
 
@@ -36,6 +38,15 @@ extension Sequence where Element: AdditiveArithmetic {
 	func sum() -> Element { reduce(.zero, +) }
 }
 
+public extension Collection {
+	func first(_ k: Int) -> SubSequence {
+		return self.dropLast(count-k)
+	}
+	
+	func last(_ k: Int) -> SubSequence {
+		return self.dropFirst(count-k)
+	}
+}
 
 func bound<N: Numeric>(_ l: N, _ m: N, _ u: N) -> N where N: Comparable {
 	min(u, max(l, m))

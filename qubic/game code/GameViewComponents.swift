@@ -146,7 +146,7 @@ class GameViewComponents {
 				}
 //				Text("game insights")
 				if game.reviewingGame {
-					if !(game.mode == .local || (game.mode == .daily && game.solveBoard == 3) || game.mode == .cubist) {
+					if !(game.mode == .local || (game.mode == .daily && game.setupNum == 3) || game.mode == .cubist) {
 						newGameButton
 					}
 					if game.mode != .online {
@@ -204,7 +204,7 @@ class GameViewComponents {
 //				Text("share board")
 				Button("review game") { gameLayout.hidePopups() }
 //				Text("game insights")
-				if !(game.mode == .local || (game.mode == .daily && game.solveBoard == 3) || game.mode == .cubist) { // || game.mode == .picture4) {
+				if !(game.mode == .local || (game.mode == .daily && game.setupNum == 3) || game.mode == .cubist) { // || game.mode == .picture4) {
 					newGameButton
 				}
 				if game.mode != .online {
@@ -237,12 +237,12 @@ class GameViewComponents {
 		case .daily, .simple, .common, .tricky:
 			let key: Key = [.simple: .simple, .common: .common, .tricky: .tricky][game.mode, default: .daily]
 			let type: String = [.simple: "simple", .common: "common", .tricky: "tricky"][game.mode, default: "daily"]
-			if game.solveBoard == solveBoardCount(key) {
+			if game.setupNum == solveBoardCount(key) {
 				newGameText = "new \(type) ?"
-			} else if game.solveBoard == solveBoardCount(key) - 1 {
+			} else if game.setupNum == solveBoardCount(key) - 1 {
 				newGameText = "try \(type) ?"
 			} else {
-				newGameText = "try \(type) \(game.solveBoard + 2)"
+				newGameText = "try \(type) \(game.setupNum + 2)"
 			}
 		default: newGameText = "new online game"
 		}

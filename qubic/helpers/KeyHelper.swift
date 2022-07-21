@@ -61,6 +61,8 @@ enum Key: String {
 	case endTime = "endTime"
     case gameID = "gameID"
     case opGameID = "opGameID"
+	case setupNum = "setupNum"
+	case presetCount = "presetCount"
 	
 	case playedTutorial = "playedTutorial"
 	case tipsShown = "tipsShown"

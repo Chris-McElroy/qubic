@@ -18,7 +18,7 @@ struct SolveView: View {
         VStack(spacing: 0) {
             if layout.current == .solve {
                 GameView()
-					.onAppear { game.load(mode: mode, boardNum: boardNum) }
+					.onAppear { game.load(mode: mode, setupNum: setupNum) }
             } else if layout.current == .solveMenu {
 				HPicker(width: 100, height: 40, selection: $layout.solveSelection[1], labels: $typeLabels, onSelection: onTypeSelection)
 				HPicker(width: 100, height: 40, selection: $layout.solveSelection[0], labels: .constant(SolveView.getBoardLabels()), underlines: $solvedBoards, onSelection: onBoardSelection)
@@ -51,7 +51,7 @@ struct SolveView: View {
 		}
 	}
 	
-	var boardNum: Int {
+	var setupNum: Int {
 		switch layout.solveSelection[1] {
 		case 0: return layout.solveSelection[0] - 0
 		case 1: return layout.solveSelection[0] - solveBoardCount(.daily)

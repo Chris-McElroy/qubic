@@ -401,6 +401,8 @@ class FB: ObservableObject {
         let opGameID: Int       // op gameID
         let hints: Bool         // true for sandbox mode
         var state: GameState    // current state of the game
+		var setupNum: Int    	// the setup number for the game
+		var presetCount: Int  	// the number of preset moves in the game
 		var myMoves: [Int]      // my moves
 		var opMoves: [Int]      // op moves
         var myTimes: [Double] 	// times remaining on my clock after each of my moves
@@ -426,10 +428,12 @@ class FB: ObservableObject {
 				dict[Key.myTimes.rawValue] as? [Double] != nil &&
 				dict[Key.opTimes.rawValue] as? [Double] != nil &&
 				dict[Key.myMoves.rawValue] as? [Int] != nil &&
-				dict[Key.opMoves.rawValue] as? [Int] != nil
+				dict[Key.opMoves.rawValue] as? [Int] != nil // &&
 //				dict[Key.myMoveTimes.rawValue] as? [Int] != nil &&
 //				dict[Key.opMoveTimes.rawValue] as? [Int] != nil &&
-//				dict[Key.endTime.rawValue] as? Int != nil
+//				dict[Key.endTime.rawValue] as? Int != nil &&
+//				dict[Key.presetCount.rawValue] as? Int != nil &&
+//				dict[Key.setupNum.rawValue] as? Int != nil
             )
             
             self.gameID = gameID
@@ -439,6 +443,8 @@ class FB: ObservableObject {
             opGameID = dict[Key.opGameID.rawValue] as? Int ?? 0
             hints = 1 == dict[Key.hints.rawValue] as? Int ?? 0
             state = GameState(rawValue: dict[Key.state.rawValue] as? Int ?? 0) ?? .error
+			presetCount = dict[Key.presetCount.rawValue] as? Int ?? 0
+			setupNum = dict[Key.setupNum.rawValue] as? Int ?? 0
             myTimes = dict[Key.myTimes.rawValue] as? [Double] ?? []
             opTimes = dict[Key.opTimes.rawValue] as? [Double] ?? []
             myMoves = dict[Key.myMoves.rawValue] as? [Int] ?? []
@@ -456,6 +462,8 @@ class FB: ObservableObject {
             opGameID = opInvite.gameID
             hints = false
             state = .new
+			presetCount = 0
+			setupNum = 0
             myTimes = [myInvite.timeLimit]
             opTimes = [myInvite.timeLimit]
             myMoves = [-1]
@@ -480,6 +488,8 @@ class FB: ObservableObject {
 			opGameID = 0
 			hints = game.hints
 			state = game.gameState
+			presetCount = game.preset.count
+			setupNum = game.setupNum
 			myTimes = [game.totalTime ?? -1]
 			opTimes = [game.totalTime ?? -1]
 			myMoves = [-1]
@@ -508,6 +518,8 @@ class FB: ObservableObject {
                 Key.opGameID.rawValue: opGameID,
                 Key.hints.rawValue: hints ? 1 : 0,
                 Key.state.rawValue: state.rawValue,
+				Key.presetCount.rawValue: presetCount,
+				Key.setupNum.rawValue: setupNum,
                 Key.myTimes.rawValue: myTimes,
                 Key.opTimes.rawValue: opTimes,
                 Key.myMoves.rawValue: myMoves,

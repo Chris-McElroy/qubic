@@ -116,7 +116,7 @@ class Game: ObservableObject {
         self.mode = .off
     }
     
-    func load(mode: GameMode, boardNum: Int = 0, turn: Int, hints: Bool = false) {
+    func load(mode: GameMode, setupNum: Int = 0, turn: Int, hints: Bool = false) {
 		BoardScene.main.reset()
         board = Board()
         gameState = .active

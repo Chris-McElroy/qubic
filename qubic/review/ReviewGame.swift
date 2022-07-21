@@ -35,8 +35,8 @@ class ReviewGame: Game {
 		GameLayout.main.popup = .none
 		dayInt = Date.int
 		lastDC = Storage.int(.lastDC)
-		solveBoard = game.mode.solve ? (Int(opData.name.components(separatedBy: " ").last ?? "1") ?? 1) - 1 : 0
-		preset = game.orderedMoves()
+		setupNum = game.setupNum
+		preset = Array(game.orderedMoves().first(game.presetCount))
 		solved = game.mode.solve ? game.state.myWin : false
 		hints = game.mode.solve ? solved : true
 		
@@ -44,7 +44,7 @@ class ReviewGame: Game {
 		let op = User(b: board, n: myTurn^1, name: opData.name)
 		op.color = opData.color
 		player = myTurn == 0 ? [me, op] : [op, me]
-		for p in preset { loadMove(p) }
+		for p in game.orderedMoves() { loadMove(p) }
 		GameLayout.main.refreshHints()
 	}
 	
@@ -61,7 +61,9 @@ class ReviewGame: Game {
 	}
 }
 
-// TODO the arrows don't work? - done?
 // TODO why doesn't analyis appear - done?
-// TODO games with invalid game.orderedMoves crash when review is clicked
+// TODO games with invalid game.orderedMoves crash when review is clicked — some of the old solve boards on iphone 13
 // TODO change solve game text for review games—"you can’t analyze solve boards until they are solved" stuff
+// TODO if you change the bottom filter while the extended view is up it doesn't refresh
+// TODO remove rematch buttons for now
+// TODO fade out when you click menu to leave
