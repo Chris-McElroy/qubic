@@ -154,7 +154,7 @@ struct PastGamesView: View {
 				if length > 0 {
 					Text(getLenString(from: length))
 				}
-				Text("\(game.myMoves.count + game.opMoves.count - 2) moves")
+				Text("\(game.orderedMoves().count) moves")
 				Text(game.myTurn == 0 ? "first" : "second")
 				Spacer()
 				Button("share") {}
@@ -167,10 +167,10 @@ struct PastGamesView: View {
 			.buttonStyle(Standard())
 			.frame(minWidth: 140, maxWidth: 160)
 			BoardView(boardScene.view)
+				.padding(.vertical, 15)
 				.onAppear {
 					boardScene.reset(baseRotation: SCNVector4(x: 0, y: -1, z: 0, w: .pi/2))
 					let moves = game.orderedMoves()
-					print(game.opMoves, game.myMoves, game.orderedMoves())
 					let board = Board()
 					for (i, p) in moves.enumerated() {
 						board.addMove(p)
@@ -212,6 +212,10 @@ struct PastGamesView: View {
 	}
 	
 	func getCurrentGames() {
+		withAnimation {
+			expanded = nil
+		}
+		
 		let requiredTime: Double? = [1: -1, 2: 60, 3: 300, 4: 600][time]
 		
 		gameList = fb.pastGamesDict[mode].values

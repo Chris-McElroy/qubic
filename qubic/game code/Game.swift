@@ -799,7 +799,7 @@ class Game: ObservableObject {
         if !mode.solve || end.myWin { hints = true }
 		withAnimation { GameLayout.main.undoOpacity = .clear }
 		
-		FB.main.finishedGame(with: gameState)
+		FB.main.finishedGame(with: gameState, newHints: solved || hints) // newHints records whether review games should show analysis
         
         if end == .myTimeout || end == .opTimeout { BoardScene.main.spinBoard() }
         

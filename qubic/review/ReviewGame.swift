@@ -10,6 +10,7 @@ import Foundation
 
 class ReviewGame: Game {
 	func load(from game: FB.GameData, opData: FB.PlayerData) {
+		print("starting load")
 		Game.main = self
 		gameState = game.state
 		mode = game.mode
@@ -37,8 +38,8 @@ class ReviewGame: Game {
 		lastDC = Storage.int(.lastDC)
 		setupNum = game.setupNum
 		preset = Array(game.orderedMoves().first(game.presetCount))
-		solved = game.mode.solve ? game.state.myWin : false
-		hints = game.mode.solve ? solved : true
+		solved = game.mode.solve ? game.hints : false
+		hints = game.mode.solve ? game.hints : true
 		
 		let me = User(b: board, n: myTurn)
 		let op = User(b: board, n: myTurn^1, name: opData.name)
@@ -60,10 +61,3 @@ class ReviewGame: Game {
 		GameLayout.main.startGameOpacities()
 	}
 }
-
-// TODO why doesn't analyis appear - done?
-// TODO games with invalid game.orderedMoves crash when review is clicked — some of the old solve boards on iphone 13
-// TODO change solve game text for review games—"you can’t analyze solve boards until they are solved" stuff
-// TODO if you change the bottom filter while the extended view is up it doesn't refresh
-// TODO remove rematch buttons for now
-// TODO fade out when you click menu to leave

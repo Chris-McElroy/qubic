@@ -88,12 +88,14 @@ class BoardScene {
     
 	func reset(baseRotation: SCNVector4 = SCNVector4(x: 0, y: 0, z: 0, w: 0)) {
 		base.removeAllActions()
+		self.base.rotation = baseRotation
 		Timer.after(0.1, run: {
 			self.base.rotation = baseRotation
 		})
         
         for move in moves {
             move.removeAllActions()
+			move.rotation = SCNVector4(x: 0, y: 0, z: 0, w: 0)
 			Timer.after(0.1, run: {
 				move.rotation = SCNVector4(x: 0, y: 0, z: 0, w: 0)
 			})
@@ -102,6 +104,7 @@ class BoardScene {
         }
         for space in spaces {
             space.removeAllActions()
+			space.rotation = SCNVector4(x: 0, y: 0, z: 0, w: 0)
 			Timer.after(0.1, run: {
 				space.rotation = SCNVector4(x: 0, y: 0, z: 0, w: 0)
 			})

@@ -410,24 +410,27 @@ class GameLayout: ObservableObject {
 					return ["\(Storage.int(.streak)) day streak!", "qubic tracks how many days in a row you have completed all 4 daily puzzles. you currently have a \(Storage.int(.streak)) day streak, nice job!"]
 				}
 				
+				if game.moves.isEmpty || game.moves.count < game.preset.count { return ["", ""] } // avoids crashes when game data is invalid
+				
 				var checksOnly = true
+				let presetCount = max(1, game.preset.count) // avoids crashes when preset is somehow 0
 				var i = game.preset.count
 				while i < game.moves.count - 1 {
 					if game.moves[i].hints[myTurn].noneOf(.c1, .cm1) { checksOnly = false }
 					i += 2
 				}
 				if checksOnly {
-					if game.moves[game.preset.count - 1].hints[myTurn] == .w1 && game.moves.count == game.preset.count + 1 {
+					if game.moves[presetCount - 1].hints[myTurn] == .w1 && game.moves.count == presetCount + 1 {
 						return ["you found the fastest win!", "you had an open 3 in a row, and you found it! can’t get any faster than that!"]
-					} else if game.moves[game.preset.count - 1].hints[myTurn] == .cm1 && game.moves.count == game.preset.count + 3 {
+					} else if game.moves[presetCount - 1].hints[myTurn] == .cm1 && game.moves.count == presetCount + 3 {
 						return ["you found the fastest win!", "you had a checkmate available, and you found it! that was the fastest win available, since there were no 3 in a rows."]
-					} else if game.moves.count == game.preset.count + 2*game.moves[game.preset.count - 1].winLen - 1 {
-						return ["you found the fastest second order win!", "second order wins are wins that use first order checks and checkmates to force a first order win (4 in a row). you just found a \(game.moves[game.preset.count - 1].winLen) move second order win, and there was no faster second order win available!"]
+					} else if game.moves.count == presetCount + 2*game.moves[presetCount - 1].winLen - 1 {
+						return ["you found the fastest second order win!", "second order wins are wins that use first order checks and checkmates to force a first order win (4 in a row). you just found a \(game.moves[presetCount - 1].winLen) move second order win, and there was no faster second order win available!"]
 					} else {
-						return ["though there is a faster win!", "second order wins are wins that use first order checks and checkmates to force a first order win (4 in a row). you just found a \(game.moves[game.preset.count - 1].winLen) move second order win. there’s at least one second order win available that uses fewer total moves."]
+						return ["though there is a faster win!", "second order wins are wins that use first order checks and checkmates to force a first order win (4 in a row). you just found a \(game.moves[presetCount - 1].winLen) move second order win. there’s at least one second order win available that uses fewer total moves."]
 					}
 				} else {
-					if game.moves.count < game.preset.count + 2*game.moves[game.preset.count - 1].winLen - 1 {
+					if game.moves.count < presetCount + 2*game.moves[presetCount - 1].winLen - 1 {
 						return ["faster than the fastest second order win!", "second order wins are wins that use first order checks and checkmates to force a first order win (4 in a row). solve boards always have a first or second order win as a solution. you found an alternate solution that’s faster than the intended one! well done!"]
 					} else {
 						return ["nice creative solution!", "second order wins are wins that use first order checks and checkmates to force a first order win (4 in a row). solve boards always have a first or second order win as a solution. you found an alternate solution that allowed your opponent more freedom, but still led to a win!"]

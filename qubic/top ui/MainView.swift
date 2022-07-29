@@ -37,11 +37,14 @@ struct MainView: View {
 						.zIndex(10)
 				}
 				TipView()
+				// TODO put these all in their own var like mainStack
 				if layout.current == .review {
 					ReviewView()
+					// TODO make all these modifiers part of one thing
 						.frame(height: layout.safeHeight)
-						.background(Fill()) // TODO is the color off?
+						.background(Fill()) // TODO is the color off? // TODO wtf does that mean
 						.frame(height: layout.fullHeight)
+						.zIndex(100)
 				} // else if layout.current == .active {
 //					ActiveView()
 //				}

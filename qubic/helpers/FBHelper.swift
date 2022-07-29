@@ -373,12 +373,13 @@ class FB: ObservableObject {
 		myGameRef.setValue(myData.toDict())
 	}
     
-    func finishedGame(with state: GameState) {
+	func finishedGame(with state: GameState, newHints: Bool = false) {
         guard var myData = myGameData else { return }
         let myGameRef = ref.child("games/\(myID)/\(myData.gameID)")
         let opGameRef = ref.child("games/\(myData.opID)/\(myData.opGameID)")
         myData.state = state
 		myData.endTime = Date.ms
+		myData.hints = myData.hints || newHints
         op = nil
         myGameData = nil
         opGameData = nil
@@ -399,7 +400,7 @@ class FB: ObservableObject {
         let myTurn: Int         // 0 for moves first
         let opID: String        // op id
         let opGameID: Int       // op gameID
-        let hints: Bool         // true for sandbox mode
+        var hints: Bool         // true for sandbox mode
         var state: GameState    // current state of the game
 		var setupNum: Int    	// the setup number for the game
 		var presetCount: Int  	// the number of preset moves in the game
@@ -536,8 +537,6 @@ class FB: ObservableObject {
 			var firstMoves = myTurn == 0 ? myMoves.dropFirst() : opMoves.dropFirst()
 			var secondMoves = myTurn == 1 ? myMoves.dropFirst() : opMoves.dropFirst()
 			let diff = firstMoves.count - secondMoves.count
-			
-			print(firstMoves, secondMoves, diff)
 			
 			guard diff == 0 || diff == 1 else { return [] }
 			

@@ -324,19 +324,19 @@ class GameViewComponents {
 			
 			VStack(spacing: 0) {
 				Spacer()
-				if game.reviewingGame {
-					Button("show win") {
-						// TODO figure out how to or if i want to pause input
-						// also pause changing the analysis turn and best/all
-//						let winTurn = gameLayout.analysisTurn == 1 ? 1 : 0 // TODO use currentPriority here
-//						while gameLayout.winAvailable[gameLayout.analysisTurn] {
-//							let moveSet = game.moves.last?.hints[gameLayout.]
-//							game.processGhostMove()
-//						}
-					}
-					.opacity(gameLayout.winAvailable[gameLayout.analysisTurn] ? Opacity.full.rawValue : Opacity.half.rawValue)
-					.buttonStyle(Standard())
-				}
+//				if game.reviewingGame {
+//					Button("show win") {
+//						// TODO figure out how to or if i want to pause input
+//						// also pause changing the analysis turn and best/all
+////						let winTurn = gameLayout.analysisTurn == 1 ? 1 : 0 // TODO use currentPriority here
+////						while gameLayout.winAvailable[gameLayout.analysisTurn] {
+////							let moveSet = game.moves.last?.hints[gameLayout.]
+////							game.processGhostMove()
+////						}
+//					}
+//					.opacity(gameLayout.winAvailable[gameLayout.analysisTurn] ? Opacity.full.rawValue : Opacity.half.rawValue)
+//					.buttonStyle(Standard())
+//				}
 				if solveButtonsEnabled { solveButtons }
 				Text("show moves").bold()
 				HPicker(width: 70, height: 35, selection: .constant(gameLayout.analysisMode), labels: ["all", "best", "off"], onSelection: gameLayout.onAnalysisModeSelection)
