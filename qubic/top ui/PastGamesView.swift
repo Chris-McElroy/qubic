@@ -46,10 +46,17 @@ struct PastGamesView: View {
 						}
 					}
 				} else {
-					VStack {
-						   Text("hello")
-						   Text("goodbye")
-					   }
+					ScrollView {
+						VStack(spacing: 10) {
+							Fill(1)
+							if gameList.count > 0 {
+								ForEach(0..<(gameList.count), id: \.self) { i in
+									gameEntry(gameList.count - 1 - i) { expand(to: gameList.count - 1 - i) }
+								}
+							}
+						}
+					}
+					.frame(maxWidth: 500)
 				}
 				Blank(10)
 				HPicker(width: 84, height: 40, selection: $result, labels: ["wins", "all", "losses"], onSelection: {_ in getCurrentGames() })
@@ -69,6 +76,16 @@ struct PastGamesView: View {
 			if expanded == nil {
 				expanded = i
 				proxy.scrollTo(i)
+			} else {
+				expanded = nil
+			}
+		}
+	}
+	
+	func expand(to i: Int) {
+		withAnimation {
+			if expanded == nil {
+				expanded = i
 			} else {
 				expanded = nil
 			}
@@ -157,7 +174,7 @@ struct PastGamesView: View {
 				Text("\(game.orderedMoves().count) moves")
 				Text(game.myTurn == 0 ? "first" : "second")
 				Spacer()
-				Button("share") {}
+//				Button("share") {}
 				Button("review") {
 					ReviewGame().load(from: game, opData: getOp(for: game))
 					layout.change(to: .review)
@@ -228,8 +245,6 @@ struct PastGamesView: View {
 					(currentProxy as? ScrollViewProxy)?.scrollTo(gameList.count - 1)
 				}
 			}
-		} else {
-			// Fallback on earlier versions
 		}
 	}
 	

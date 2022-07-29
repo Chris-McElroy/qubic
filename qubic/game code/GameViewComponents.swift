@@ -145,7 +145,9 @@ class GameViewComponents {
 					Button("analysis") { gameLayout.setPopups(to: .analysis) }
 				}
 //				Text("game insights")
-				if game.reviewingGame {
+				if game as? ReviewGame != nil { // TODO add these buttons back in to review games
+					Button("menu") { layout.goBack() }
+				} else if game.reviewingGame {
 					if !(game.mode == .local || (game.mode == .daily && game.setupNum == 3) || game.mode == .cubist) {
 						newGameButton
 					}

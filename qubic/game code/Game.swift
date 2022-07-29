@@ -753,8 +753,6 @@ class Game: ObservableObject {
     func endGame(with end: GameState) {
         guard gameState == .active else { turnOff(); return }
 		
-		print("ending game", end)
-		
 		gameState = end
 		premoves = []
 		BoardScene.main.spinMoves()

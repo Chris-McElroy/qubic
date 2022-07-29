@@ -9,7 +9,7 @@
 import SwiftUI
 
 let buildNumber = 30302
-let versionType: VersionType = .xCode
+let versionType: VersionType = .testFlight
 let solveButtonsEnabled = false
 
 struct MainView: View {
@@ -147,20 +147,29 @@ struct MainView: View {
                 Button(action: { action(views[0], views[1]) }, label: {
 					if #available(iOS 14, *) {
 						Text(text)
-							.onChange(of: Layout.main.current, perform: { new in
-								if new == views[0] {
-									text = "start"
+							.onChange(of: Layout.main.current, perform: { _ in setText() })
+							.onChange(of: Layout.main.searchingOnline, perform: { searching in
+								if searching && text == "start" {
+									text = ""
 								} else {
-									text = [.train: "train", .solve: "solve"][views[1]] ?? "play"
+									setText()
 								}
 							})
 					} else {
-						Text(Layout.main.current != views[0] ? text : "  start  ")
+						Text(Layout.main.current != views[0] ? text : (Layout.main.searchingOnline ? "\u{2009}            " : "  start  "))
 					}
 				})
                     .buttonStyle(MainStyle(color: views.contains(Layout.main.current) ? .primary() : color))
             }
         }
+		
+		func setText() {
+			if Layout.main.current == views[0] {
+				text = "start"
+			} else {
+				text = [.train: "train", .solve: "solve"][views[1]] ?? "play"
+			}
+		}
     }
     
     private var moreStack: some View {

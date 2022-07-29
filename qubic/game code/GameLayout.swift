@@ -49,7 +49,7 @@ class GameLayout: ObservableObject {
 	@Published var arrowSide = Storage.int(.arrowSide)
 	
 	let nameSpace: CGFloat = 65
-	let gameControlSpace: CGFloat = Layout.main.hasBottomGap ? 45 : 60
+	var gameControlSpace: CGFloat { Layout.main.hasBottomGap ? 45 : 60 }
 	let gameControlHeight: CGFloat = 40
 	
 	var currentHintMoves: Set<Int>? {
