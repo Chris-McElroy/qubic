@@ -311,7 +311,10 @@ class Game: ObservableObject {
 				Layout.main.solveSelection[0] += 1
 			}
 		} else if newMode == .bot {
-			newSetupNum = .random(in: 0..<Bot.bots.count)
+			repeat {
+				newSetupNum = .random(in: 0..<Bot.bots.count)
+				print("bots", newSetupNum, Bot.bots[newSetupNum].care, Storage.int(.myBotSkill))
+			} while abs(Bot.bots[newSetupNum].care*10 - Double(Storage.int(.myBotSkill))) > 2
 		}
 		
 		// online is based on the turn that was selected during the online matchmaking process
@@ -334,10 +337,11 @@ class Game: ObservableObject {
     
 	func getCurrentTime(num: Int) {
         if gameState == .active && num == gameNum {
-            let newTime = max(0, Int(((times[realTurn].last ?? 0) + lastStart[realTurn] - Date.now).rounded()))
+            let newTime = max(0, Int(((times[realTurn].last ?? 0) + lastStart[realTurn] - Date.now)))//.rounded()))
             if newTime < currentTimes[realTurn] {
                 currentTimes[realTurn] = newTime
                 if newTime == 0 && player[realTurn].local {
+					times[realTurn].append(0)
                     endGame(with: realTurn == myTurn ? .myTimeout : .opTimeout)
                 }
             }
@@ -553,7 +557,8 @@ class Game: ObservableObject {
             if let total = totalTime {
                 let timeLeft = time ?? ((times[turn^1].last ?? 0) + lastStart[turn^1] - Date.now)
                 times[turn^1].append(min(total, max(0, timeLeft)))
-                currentTimes[turn^1] = Int(min(total, max(timeLeft, 0)))
+                currentTimes[turn^1] = Int(min(total, max(timeLeft, 0))) // todo i think this should either be rounded or the others shouldn't be
+				// then check to see whether there are still any noticeable bugs
                 lastStart[turn] = Date.now + 0.2
             }
             if b.hasW0(turn^1) { endGame(with: turn^1 == myTurn ? .myWin : .opWin) }
@@ -707,7 +712,8 @@ class Game: ObservableObject {
         currentMove = i > 0 ? moves[i-1] : nil
         if gameState != .active {
             if totalTime != nil && ghostMoveCount == 0 {
-                currentTimes[turn] = max(0, Int((times[turn][board.move[turn].count]).rounded()))
+				print(currentTimes, turn, board.move[turn].count, times)
+                currentTimes[turn] = max(0, Int((times[turn][board.move[turn].count])))//.rounded())) // Todo why is this rounded
             }
         }
         BoardScene.main.undoMove(moves[i].p)
@@ -740,7 +746,10 @@ class Game: ObservableObject {
         movesBack -= 1
         currentMove = moves[i]
         if gameState != .active && totalTime != nil && ghostMoveCount == 0 {
-            currentTimes[turn^1] = max(0, Int((times[turn^1][board.move[turn^1].count]).rounded()))
+			print(currentTimes, turn^1, board.move[turn^1].count, times)
+            currentTimes[turn^1] = max(0, Int((times[turn^1][board.move[turn^1].count])))//.rounded()))
+			// todo this might also need to be rounded or not
+			// todo also make sure when someone runs out of time that that's actually included
         }
 		GameLayout.main.refreshHints()
 		BoardScene.main.showMove(moves[i].p, wins: board.getWinLines(for: moves[i].p), opacity: ghostMoveCount != 0 ? .ghost : (moves.count - movesBack <= preset.count ? .preset : .full))
@@ -792,6 +801,11 @@ class Game: ObservableObject {
 				}
 				recordSolve(type: .train, index: index)
 			}
+		}
+		
+		if mode == .bot {
+			let newValue = Storage.int(.myBotSkill) + (end.myWin ? 1 : 0) - (end.opWin ? 1 : 0)
+			Storage.set(bound(0, newValue, 10), for: .myBotSkill)
 		}
 		
         if !mode.solve || end.myWin { hints = true }

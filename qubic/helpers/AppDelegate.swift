@@ -39,7 +39,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             Key.uuid.rawValue: "00000000000000000000000000000000",
 			Key.playedTutorial.rawValue: 0,
 			Key.tipsShown.rawValue: [0, 0, 0, 0, 0, 0],
-			Key.tipsOn.rawValue: 1
+			Key.tipsOn.rawValue: 1,
+			Key.myBotSkill.rawValue: 5
         ])
         
         FirebaseApp.configure()

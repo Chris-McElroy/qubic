@@ -8,8 +8,8 @@
 
 import SwiftUI
 
-let buildNumber = 30302
-let versionType: VersionType = .testFlight
+let buildNumber = 30303
+let versionType: VersionType = .xCode
 let solveButtonsEnabled = false
 
 struct MainView: View {
@@ -50,7 +50,7 @@ struct MainView: View {
 //				}
 			}
 			.onAppear { layout.load(for: screen); screen.window?.backgroundColor = .clear }
-			.onAppear { TipStatus.main.updateTip(for: .main) }
+			.onAppear { TipStatus.main.updateTip(for: .main); print("playsel", layout.playSelection) } // TODO remove second half print
 			.onReceive(screen.objectWillChange) { layout.load(for: screen) }
 			.frame(height: layout.total)
 			.background(Fill())
@@ -149,7 +149,10 @@ struct MainView: View {
 						Text(text)
 							.onChange(of: Layout.main.current, perform: { _ in setText() })
 							.onChange(of: Layout.main.searchingOnline, perform: { searching in
-								if searching && text == "start" {
+								if views.contains(.playMenu) {
+									print("searching", searching, text == "start", text)
+								}
+								if searching && text.oneOf("start","") {
 									text = ""
 								} else {
 									setText()

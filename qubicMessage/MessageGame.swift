@@ -89,6 +89,7 @@ class Game: ObservableObject {
     var moved: Bool = false
     
 	var gameNum: Int = 0
+	var totalTime: Double? = nil
     var turn: Int { board.getTurn() }
     var realTurn: Int { gameState == .active ? moves.count % 2 : (gameState.myWin ? myTurn : (gameState.opWin ? myTurn^1 : 2)) }
     var myTurn: Int = 0

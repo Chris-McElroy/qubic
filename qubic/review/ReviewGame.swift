@@ -23,7 +23,12 @@ class ReviewGame: Game {
 		lastCheck = 0
 		currentMove = nil
 		moves = []
-		totalTime = nil
+		totalTime = game.totalTime
+		if let total = totalTime {
+			times = game.getTimes()
+			currentTimes = [Int(times[0].last ?? 0), Int(times[1].last ?? 0)]
+//			lastStart = [0,0]
+		}
 		movesBack = 0
 		ghostMoveStart = 0
 		ghostMoveCount = 0

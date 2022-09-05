@@ -19,7 +19,7 @@ struct PlayView: View {
     var body: some View {
         if layout.current == .play {
             GameView()
-				.onAppear { game.load(mode: mode, setupNum: .random(in: 0..<Bot.bots.count), turn: turn, hints: hints, time: time) }
+				.onAppear { game.load(mode: mode, setupNum: setupNum, turn: turn, hints: hints, time: time) }
 		} else {
 			VStack {
 				Spacer()
@@ -30,19 +30,21 @@ struct PlayView: View {
 						tipArea
 						Spacer()
 						
-						HPicker(width: 90, height: 42, selection: $layout.playSelection[3], labels: .constant(["sandbox", "challenge"]), onSelection: updateLastPlayMenu)
+						HPicker(width: 90, height: 42, selection: $layout.playSelection[3], labels: .constant(["sandbox", "challenge"]), onSelection: { _ in updateLastPlayMenu() })
 							.modifier(EnableHPicker(on: mode == .local))
-						HPicker(width: 90, height: 42, selection: $layout.playSelection[2], labels: .constant(["untimed", "1 min", "5 min", "10 min"]), onSelection: {
+						HPicker(width: 90, height: 42, selection: $layout.playSelection[2], labels: .constant(["untimed", "1 min", "5 min", "10 min"]), onSelection: { _ in
 							FB.main.cancelOnlineSearch?()
-							updateLastPlayMenu($0)
+							updateLastPlayMenu()
 						})
 						.modifier(EnableHPicker(on: mode != .invite))
 						HPicker(width: 90, height: 42, selection: $layout.playSelection[1], labels: $turnText, onSelection: { _ in
 							FB.main.cancelOnlineSearch?()
+							updateLastPlayMenu()
 						})
 						.modifier(EnableHPicker(on: mode != .invite))
 						HPicker(width: 90, height: 42, selection: $layout.playSelection[0], labels: .constant(["local", "online", "invite"]), onSelection: { _ in
 							FB.main.cancelOnlineSearch?()
+							updateLastPlayMenu()
 							turnText = (mode == .online || mode == .bot) ? PlayView.onlineTurnText : PlayView.normalTurnText
 						})
 					}.onAppear {
@@ -81,6 +83,15 @@ struct PlayView: View {
         }
     }
     
+	var setupNum: Int {
+		var n = 0
+		repeat {
+			n = .random(in: 0..<Bot.bots.count)
+			print("bots", n, Bot.bots[n].care, Storage.int(.myBotSkill))
+		} while abs(Bot.bots[n].care*10 - Double(Storage.int(.myBotSkill))) > 2
+		return n
+	}
+	
     var time: Double? {
         switch layout.playSelection[2] {
         case 0: return nil
@@ -91,7 +102,7 @@ struct PlayView: View {
     }
     
     var turn: Int? {
-        if mode == .online { return FB.main.myGameData?.myTurn }
+		if mode == .online || mode == .bot { return FB.main.myGameData?.myTurn }
         
         switch layout.playSelection[1] {
         case 0: return 0
@@ -104,11 +115,9 @@ struct PlayView: View {
 		layout.playSelection[3] == 0 && mode != .online && mode != .bot
     }
     
-	func updateLastPlayMenu(_: Int) {
-        var newPlayMenu = layout.playSelection
-        newPlayMenu[0] = 1
-        newPlayMenu[1] = 1
-        Storage.set(newPlayMenu, for: .lastPlayMenu)
+	func updateLastPlayMenu() {
+        Storage.set(layout.playSelection, for: .lastPlayMenu)
+		print("playsel", layout.playSelection) // TODO remove
     }
     
     static let tips: [String] = [

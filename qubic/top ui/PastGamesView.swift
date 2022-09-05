@@ -13,6 +13,7 @@ struct PastGamesView: View {
 	@ObservedObject var layout = Layout.main
 	@ObservedObject var fb = FB.main
 	@State var result = 1
+	@State var turn = 1
 	@State var time = 0
 	@State var mode = 2
 	@State var expanded: Int? = nil
@@ -60,6 +61,7 @@ struct PastGamesView: View {
 				}
 				Blank(10)
 				HPicker(width: 84, height: 40, selection: $result, labels: ["wins", "all", "losses"], onSelection: {_ in getCurrentGames() })
+				HPicker(width: 84, height: 40, selection: $turn, labels: ["first", "either", "second"], onSelection: {_ in getCurrentGames() })
 				HPicker(width: 84, height: 40, selection: $time, labels: ["all", "untimed", "1 min", "5 min", "10 min"], onSelection: {_ in getCurrentGames() })
 					.modifier(EnableHPicker(on: mode.noneOf(3, 4)))
 				HPicker(width: 84, height: 40, selection: $mode, labels: ["local", "bots", "online", "train", "solve"], onSelection: {_ in getCurrentGames() })
@@ -137,6 +139,9 @@ struct PastGamesView: View {
 					Text([60: "1 min", 300: "5 min", 600: "10 min"][game.myTimes[0]] ?? "untimed")
 						.frame(width: 65)
 					Spacer()
+					Text(game.myTurn == 0 ? "1st" : "2nd")
+						.frame(width: 30)
+					Spacer()
 					Text(game.state.myWin ? "win" : (game.state.opWin ? "loss" : "draw"))
 						.frame(width: 40)
 				}
@@ -172,7 +177,8 @@ struct PastGamesView: View {
 					Text(getLenString(from: length))
 				}
 				Text("\(game.orderedMoves().count) moves")
-				Text(game.myTurn == 0 ? "first" : "second")
+				Spacer()
+				Spacer()
 				Spacer()
 //				Button("share") {}
 				Button("review") {
@@ -237,6 +243,7 @@ struct PastGamesView: View {
 		
 		gameList = fb.pastGamesDict[mode].values
 			.filter { result == 1 ? true : (result == 0 ? $0.state.myWin : $0.state.opWin) }
+			.filter { turn == 1 ? true : (turn == 0 ? $0.myTurn == 0 : $0.myTurn == 1) }
 			.filter { time == 0 || mode.oneOf(3, 4) ? true : (requiredTime == $0.myTimes.first ?? -1)  }
 		
 		if #available(iOS 14.0, *) {
