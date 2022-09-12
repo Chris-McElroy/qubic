@@ -190,10 +190,10 @@ class Game: ObservableObject {
         if board.hasW0(turn^1) { gameState = turn^1 == myTurn ? .myWin : .opWin }
         if animated {
             Timer.after(0.8, run: {
-                BoardScene.main.showMove(move, wins: self.board.getWinLines(for: move))
+				BoardScene.main.showMove(move, color: self.player[self.turn].color, wins: self.board.getWinLines(for: move))
             })
         } else {
-            BoardScene.main.addCube(move: move, color: .of(n: player[turn^1].color))
+            BoardScene.main.addCube(move: move, color: player[turn^1].color)
         }
     }
     
@@ -208,7 +208,7 @@ class Game: ObservableObject {
         board.addMove(p, for: turn)
         moves.append(move)
 		moveImpactGenerator.impactOccurred()
-        BoardScene.main.showMove(p, wins: board.getWinLines(for: p))
+        BoardScene.main.showMove(p, color: player[turn].color, wins: board.getWinLines(for: p))
         if board.hasW0(turn^1) {
             gameState = turn^1 == myTurn ? .myWin : .opWin
         } else {

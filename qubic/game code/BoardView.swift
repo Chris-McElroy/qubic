@@ -208,48 +208,6 @@ class BoardScene {
 		}
     }
     
-	func showMove(_ move: Int, wins: [Int]?, opacity: Opacity = .full) {
-//        let delay = moveCube(move: move, color: game.colors[turn]) + 0.1
-        spinMoves()
-        let turn = game.turn^1
-        let color = UIColor.of(n: game.player[turn].color)
-        placeCube(move: move, color: color, opacity: opacity)
-        
-        if let lines = wins {
-			showWins(lines, color: color, opacity: opacity)
-        } else if opacity == .full && game.gameState != .active && game.movesBack == 0 {
-            spinBoard()
-        }
-        
-//        if Storage.int(.dot) == 0 {
-//        } else {
-//            addCube(move: move, color: color, opacity: ghost ? 0.7 : 1)
-//            moves.last?.runAction(SceneHelper.getHalfRotate())
-//        }
-    }
-    
-	func showWins(_ lines: [Int], color: UIColor, opacity: Opacity = .full, spin: Bool = true) {
-        game.timers.append(Timer.after(0.2, run: {
-            for line in lines {
-                self.winLines[line].setColor(color)
-				self.winLines[line].opacity = opacity == .full ? 1 : 0.3
-                self.base.addChildNode(self.winLines[line])
-            }
-			if opacity == .full && spin { self.spinBoard() }
-        }))
-    }
-    
-    func spinBoard() {
-        base.runAction(SceneHelper.getFullRotate(1.45))
-    }
-    
-    private func hideWins(_ lines: [Int]) {
-        for line in lines {
-            winLines[line].opacity = 0
-            winLines[line].removeFromParentNode()
-        }
-    }
-    
     func rotate(right: Bool) {
         let rotateAction = SCNAction.rotate(by: right ? .pi/2 : -.pi/2, around: SCNVector3(0,1,0), duration: 0.4)
         rotateAction.timingMode = .easeInEaseOut
@@ -324,25 +282,65 @@ class BoardScene {
 //        spaces[move].runAction(fade)
 //        return time
 //    }
+	
+	func showMove(_ move: Int, color: Int, wins: [Int]?, ghost: Bool = false, preset: Bool = false) {
+//        let delay = moveCube(move: move, color: game.colors[turn]) + 0.1
+		spinMoves()
+		placeCube(move: move, color: color, ghost: ghost, preset: preset)
+		
+		if let lines = wins {
+			showWins(lines, color: color, ghost: ghost)
+		} else if !ghost && game.gameState != .active && game.movesBack == 0 {
+			spinBoard()
+		}
+		
+//        if Storage.int(.dot) == 0 {
+//        } else {
+//            addCube(move: move, color: color, opacity: ghost ? 0.7 : 1)
+//            moves.last?.runAction(SceneHelper.getHalfRotate())
+//        }
+	}
+	
+	func showWins(_ lines: [Int], color: Int, ghost: Bool = false, spin: Bool = true) {
+		game.timers.append(Timer.after(0.2, run: {
+			for line in lines {
+				self.winLines[line].setColor(UIColor.of(n: color))
+				self.winLines[line].opacity = ghost ? 0.3 : 1
+				self.base.addChildNode(self.winLines[line])
+			}
+			if !ghost && spin { self.spinBoard() }
+		}))
+	}
+	
+	func spinBoard() {
+		base.runAction(SceneHelper.getFullRotate(1.45))
+	}
+	
+	private func hideWins(_ lines: [Int]) {
+		for line in lines {
+			winLines[line].opacity = 0
+			winLines[line].removeFromParentNode()
+		}
+	}
     
-	func addCube(move: Int, color: UIColor, opacity: Opacity = .full) {
+	func addCube(move: Int, color: Int, ghost: Bool = false, preset: Bool = false) {
         let cube = moves[move]
-        cube.setColor(color)
+		cube.setColor(preset ? UIColor.presetOf(n: color) : UIColor.of(n: color))
         spaces[move].addChildNode(cube)
         cube.position = SCNVector3(0,0,0)
         cube.rotation = SCNVector4(x: 0, y: 0, z: 0, w: 0)
-		cube.opacity = opacity.rawValue
+		cube.opacity = ghost ? Opacity.ghost.rawValue : 1
     }
     
-	func placeCube(move: Int, color: UIColor, opacity: Opacity = .full) {
+	func placeCube(move: Int, color: Int, ghost: Bool = false, preset: Bool = false) {
         let cube = moves[move]
-        cube.setColor(color)
+        cube.setColor(preset ? UIColor.presetOf(n: color) : UIColor.of(n: color))
         cube.opacity = 0.3
         cube.position = SCNVector3(0,0.4,0)
         cube.rotation = SCNVector4(.random(in: -1...1), 0, .random(in: -1...1), .random(in: 0.20...0.4))
         let translate = SCNAction.move(to: SCNVector3(0,0,0), duration: 0.16)
         let rotate = SCNAction.rotate(toAxisAngle: SCNVector4(x: 0, y: 0, z: 0, w: 0), duration: 0.16)
-		let fade = SCNAction.fadeOpacity(to: opacity.rawValue, duration: 0.15)
+		let fade = SCNAction.fadeOpacity(to: ghost ? Opacity.ghost.rawValue : 1, duration: 0.15)
         rotate.timingMode = .easeIn
         translate.timingMode = .easeIn
         let placeAction = SCNAction.group([translate, rotate, fade])

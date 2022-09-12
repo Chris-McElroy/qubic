@@ -70,7 +70,7 @@ class TutorialGame: Game {
 		processingMove = true
 		board.addMove(p)
 		moveImpactGenerator.impactOccurred()
-		BoardScene.main.showMove(p, wins: board.getWinLines(for: move.p))
+		BoardScene.main.showMove(p, color: player[turn].color, wins: board.getWinLines(for: move.p))
 		
 		if board.hasW2(myTurn^1, depth: 6, time: 1.0, valid: { true }) == false {
 			confirmMove()

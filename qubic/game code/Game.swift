@@ -356,7 +356,7 @@ class Game: ObservableObject {
         moves.append(move)
         currentMove = move
         getHints(for: moves, loading: true)
-		BoardScene.main.addCube(move: move.p, color: .of(n: player[turn^1].color), opacity: moves.count > preset.count ? .full : .preset)
+		BoardScene.main.addCube(move: move.p, color: player[turn^1].color, preset: moves.count <= preset.count)
     }
     
     func processMove(_ p: Int, for turn: Int, setup: [Int], time: Double? = nil) {
@@ -382,7 +382,7 @@ class Game: ObservableObject {
         board.addMove(p)
         currentMove = move
 		GameLayout.main.refreshHints()
-        BoardScene.main.showMove(p, wins: board.getWinLines(for: p))
+		BoardScene.main.showMove(p, color: player[turn].color, wins: board.getWinLines(for: p))
 		GameLayout.main.newMoveOpacities()
 		processingMove = false
     }
@@ -408,7 +408,7 @@ class Game: ObservableObject {
 		GameLayout.main.refreshHints()
         ghostMoveCount += 1
         getHints(for: moves.dropLast(movesBack))
-		BoardScene.main.showMove(move.p, wins: board.getWinLines(for: move.p), opacity: .ghost)
+		BoardScene.main.showMove(move.p, color: player[turn].color, wins: board.getWinLines(for: move.p), ghost: true)
 		GameLayout.main.newGhostMoveOpacities()
 		processingMove = false
     }
@@ -429,7 +429,7 @@ class Game: ObservableObject {
 		let lastBoard = Board(board)
 		board.addMove(p)
 		moveImpactGenerator.impactOccurred()
-		BoardScene.main.showMove(p, wins: board.getWinLines(for: move.p))
+		BoardScene.main.showMove(p, color: player[turn].color, wins: board.getWinLines(for: move.p))
 		
 		if Storage.int(.moveChecker) == 2 || !hints || lastCheck >= board.numMoves() {
 			confirmMove()
@@ -752,7 +752,7 @@ class Game: ObservableObject {
 			// todo also make sure when someone runs out of time that that's actually included
         }
 		GameLayout.main.refreshHints()
-		BoardScene.main.showMove(moves[i].p, wins: board.getWinLines(for: moves[i].p), opacity: ghostMoveCount != 0 ? .ghost : (moves.count - movesBack <= preset.count ? .preset : .full))
+		BoardScene.main.showMove(moves[i].p, color: player[turn].color, wins: board.getWinLines(for: moves[i].p), ghost: ghostMoveCount != 0, preset: moves.count - movesBack <= preset.count)
 		GameLayout.main.nextMoveOpacities()
         if gameState == .active && movesBack == 0 {
             player[turn].move()

@@ -19,7 +19,7 @@ class TutorialBoardScene: BoardScene {
 	var pannedOut = false
 	var line: [Int]? = nil
 	var answer: Int? = nil
-	var currentColor: UIColor? = nil
+	var currentColor: Int? = nil
 	
 	override init() {
 		super.init()
@@ -69,7 +69,7 @@ class TutorialBoardScene: BoardScene {
 			if answer == p {
 				answer = nil
 				
-				placeCube(move: p, color: currentColor ?? .primary())
+				placeCube(move: p, color: currentColor ?? Storage.int(.color))
 				
 				for (i, move) in (line ?? []).enumerated() {
 					Timer.after(0.16*Double(i) + 0) { self.spinMove(move, space: self.spaces[move], spin: true) }

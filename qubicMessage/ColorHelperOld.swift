@@ -15,6 +15,10 @@ extension UIColor {
         let nums = Color.playerColors[n]
         return UIColor(hue: CGFloat(nums.h), saturation: CGFloat(nums.s), brightness: CGFloat(nums.b), alpha: 1)
     }
+	
+	static func presetOf(n: Int) -> UIColor {
+		of(n: n)
+	}
     
     static func primary() -> UIColor {
         let nums = Color.playerColors[4]

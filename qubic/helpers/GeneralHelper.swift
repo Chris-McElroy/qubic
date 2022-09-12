@@ -30,7 +30,7 @@ enum Opacity: Double {
 	case clear = 0
 	case half = 0.3
 	case ghost = 0.7
-	case preset = 0.94
+//	case preset = 0.94
 	case full = 1
 }
 

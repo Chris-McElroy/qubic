@@ -56,7 +56,7 @@ class ReviewGame: Game {
 	override func loadMove(_ p: Int) {
 		super.loadMove(p)
 		if let wins = board.getWinLines(for: p) {
-			BoardScene.main.showWins(wins, color: .of(n: player[turn^1].color), spin: false)
+			BoardScene.main.showWins(wins, color: player[turn^1].color, spin: false)
 		}
 	}
 	

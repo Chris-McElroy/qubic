@@ -46,21 +46,21 @@ struct TicTacToeView: View {
 			Timer.after(1.5) {
 				if step == .find {
 					withAnimation { step = .line1 }
-					practiceLine([15, 14, 13, 12], answer: 3, color: .of(n: 3), for: .line1)
+					practiceLine([15, 14, 13, 12], answer: 3, color: 3, for: .line1)
 				}
 			}
 		case .find:
 			step = .line1
-			practiceLine([15, 14, 13, 12], answer: 3, color: .of(n: 4), for: .line1)
+			practiceLine([15, 14, 13, 12], answer: 3, color: 4, for: .line1)
 		case .line1:
 			step = .line2
-			practiceLine([0, 16, 32, 48], answer: 1, color: .of(n: 8), for: .line2)
+			practiceLine([0, 16, 32, 48], answer: 1, color: 8, for: .line2)
 		case .line2:
 			step = .line3
-			practiceLine([14, 26, 38, 50], answer: 2, color: .of(n: 5), for: .line3)
+			practiceLine([14, 26, 38, 50], answer: 2, color: 5, for: .line3)
 		case .line3:
 			step = .line4
-			practiceLine([51, 38, 25, 12], answer: 0, color: .of(n: 2), for: .line4)
+			practiceLine([51, 38, 25, 12], answer: 0, color: 2, for: .line4)
 		case .line4:
 			if TutorialBoardScene.tutorialMain.answer == nil {
 				Timer.after(0.2) {
@@ -150,7 +150,7 @@ struct TicTacToeView: View {
 		}
 	}
 	
-	func practiceLine(_ moves: [Int], answer: Int, color: UIColor, for currentStep: Step) {
+	func practiceLine(_ moves: [Int], answer: Int, color: Int, for currentStep: Step) {
 //		layout.resetTTTLinesTimers()
 		TutorialBoardScene.tutorialMain.clearMoves()
 		
@@ -180,7 +180,7 @@ struct TicTacToeView: View {
 		layout.readyToContinue = true
 	}
 	
-	func placeAndRemove(_ moves: [Int], color: UIColor) {
+	func placeAndRemove(_ moves: [Int], color: Int) {
 		for (i, move) in moves.enumerated() {
 			guard step == .threes else { break }
 			layout.tttLinesTimers.append(Timer.after(0.3*Double(i)) {
@@ -215,9 +215,9 @@ struct TicTacToeView: View {
 			}
 		})
 		
-		layout.tttLinesTimers.append(Timer.after(3) { placeAndRemove([1, 5, 9], color: .of(n: 1)) })
-		layout.tttLinesTimers.append(Timer.after(5) { placeAndRemove([4, 5, 6], color: .of(n: 3)) })
-		layout.tttLinesTimers.append(Timer.after(7) { placeAndRemove([8, 5, 2], color: .of(n: 4)) })
+		layout.tttLinesTimers.append(Timer.after(3) { placeAndRemove([1, 5, 9], color: 1) })
+		layout.tttLinesTimers.append(Timer.after(5) { placeAndRemove([4, 5, 6], color: 3) })
+		layout.tttLinesTimers.append(Timer.after(7) { placeAndRemove([8, 5, 2], color: 4) })
 		
 		layout.tttLinesTimers.append(Timer.after(9) { readyToContinue(from: .threes) })
 	}

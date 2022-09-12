@@ -198,13 +198,13 @@ struct PastGamesView: View {
 					for (i, p) in moves.enumerated() {
 						board.addMove(p)
 						if i % 2 == game.myTurn {
-							boardScene.addCube(move: p, color: .primary())
+							boardScene.addCube(move: p, color: Storage.int(.color))
 						} else {
-							boardScene.addCube(move: p, color: .of(n: op.color))
+							boardScene.addCube(move: p, color: op.color)
 						}
 					}
 					if let wins = board.getWinLines(for: moves.last ?? 0) {
-						boardScene.showWins(wins, color: (moves.count % 2)^1 == game.myTurn ? .primary() : .of(n: op.color), spin: false)
+						boardScene.showWins(wins, color: (moves.count % 2)^1 == game.myTurn ? Storage.int(.color) : op.color, spin: false)
 					}
 				}
 			Spacer()
