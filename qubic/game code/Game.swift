@@ -408,7 +408,7 @@ class Game: ObservableObject {
 		GameLayout.main.refreshHints()
         ghostMoveCount += 1
         getHints(for: moves.dropLast(movesBack))
-		BoardScene.main.showMove(move.p, color: player[turn].color, wins: board.getWinLines(for: move.p), ghost: true)
+		BoardScene.main.showMove(move.p, color: player[turn^1].color, wins: board.getWinLines(for: move.p), ghost: true)
 		GameLayout.main.newGhostMoveOpacities()
 		processingMove = false
     }
@@ -752,7 +752,7 @@ class Game: ObservableObject {
 			// todo also make sure when someone runs out of time that that's actually included
         }
 		GameLayout.main.refreshHints()
-		BoardScene.main.showMove(moves[i].p, color: player[turn].color, wins: board.getWinLines(for: moves[i].p), ghost: ghostMoveCount != 0, preset: moves.count - movesBack <= preset.count)
+		BoardScene.main.showMove(moves[i].p, color: player[turn^1].color, wins: board.getWinLines(for: moves[i].p), ghost: ghostMoveCount != 0, preset: moves.count - movesBack <= preset.count)
 		GameLayout.main.nextMoveOpacities()
         if gameState == .active && movesBack == 0 {
             player[turn].move()

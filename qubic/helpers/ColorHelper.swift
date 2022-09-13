@@ -65,15 +65,15 @@ extension Color {
     ]
 	
 	static let presetColors: [(h: Double, s: Double, b: Double)] = [
-		(h: 0.075,  s: 0.9, 	b: 1),   // orange
-		(h: 0,      s: 0.9,  	b: 1),   // red
-		(h: 0.842,  s: 0.9,  	b: 1),   // pink
-		(h: 0.749,  s: 0.9,  	b: 1),   // purple
-		(h: 0.598,  s: 0.85, 	b: 1),   // blue
-		(h: 0.56,   s: 0.63,	b: 1),   // cyan
-		(h: 0.33,   s: 0.57,  	b: 1), 		// lime
-		(h: 0.376,  s: 0.6, 	b: 0.65),	// green
-		(h: 0.136,  s: 0.9, 	b: 1),   // gold
+		(h: 0.06,  	s: 0.71, 	b: 1),   	// orange
+		(h: 0.99,  	s: 0.73,  	b: 1),   	// red
+		(h: 0.842,  s: 0.7,  	b: 1),   	// pink
+		(h: 0.749,  s: 0.73,  	b: 1),   	// purple
+		(h: 0.598,  s: 0.78, 	b: 1),   	// blue
+		(h: 0.56,   s: 0.5,		b: 1),   	// cyan
+		(h: 0.33,   s: 0.5,  	b: 1), 		// lime
+		(h: 0.376,  s: 0.63, 	b: 0.65),	// green
+		(h: 0.12,  	s: 0.48, 	b: 1),   	// gold
 	]
     
     static func of(n: Int) -> Color {

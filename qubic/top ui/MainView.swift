@@ -9,7 +9,7 @@
 import SwiftUI
 
 let buildNumber = 30303
-let versionType: VersionType = .xCode
+let versionType: VersionType = .testFlight
 let solveButtonsEnabled = false
 
 struct MainView: View {
