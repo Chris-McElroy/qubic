@@ -329,15 +329,15 @@ class Game: ObservableObject {
         if totalTime != nil {
 			let num = gameNum
             lastStart[turn] = Date.now+2
-			timers.append(Timer.every(0.1, run: { self.getCurrentTime(num: num) }))
+			timers.append(Timer.every(0.1, run: { self.updateCurrentTime(num: num) }))
         }
 		gameState = .active
         player[turn].move()
     }
     
-	func getCurrentTime(num: Int) {
+	func updateCurrentTime(num: Int) {
         if gameState == .active && num == gameNum {
-            let newTime = max(0, Int(((times[realTurn].last ?? 0) + lastStart[realTurn] - Date.now)))//.rounded()))
+            let newTime = max(0, Int((times[realTurn].last ?? 0) + lastStart[realTurn] - Date.now))
             if newTime < currentTimes[realTurn] {
                 currentTimes[realTurn] = newTime
                 if newTime == 0 && player[realTurn].local {
@@ -347,6 +347,10 @@ class Game: ObservableObject {
             }
         }
     }
+	
+	func getTime(for turn: Int) -> Int {
+		max(0, Int(times[turn][board.move[turn].count]))
+	}
     
     func loadMove(_ p: Int) {
         // Assumes no wins!
@@ -557,8 +561,7 @@ class Game: ObservableObject {
             if let total = totalTime {
                 let timeLeft = time ?? ((times[turn^1].last ?? 0) + lastStart[turn^1] - Date.now)
                 times[turn^1].append(min(total, max(0, timeLeft)))
-                currentTimes[turn^1] = Int(min(total, max(timeLeft, 0))) // todo i think this should either be rounded or the others shouldn't be
-				// then check to see whether there are still any noticeable bugs
+                currentTimes[turn^1] = Int(min(total, max(timeLeft, 0)))
                 lastStart[turn] = Date.now + 0.2
             }
             if b.hasW0(turn^1) { endGame(with: turn^1 == myTurn ? .myWin : .opWin) }
@@ -687,8 +690,8 @@ class Game: ObservableObject {
 		GameLayout.main.refreshHints()
         if totalTime != nil {
             times[turn].removeLast()
-            currentTimes[turn] = max(0, Int((times[turn].last ?? 0).rounded()))
-            currentTimes[turn^1] = max(0, Int((times[turn^1].last ?? 0).rounded()))
+            currentTimes[turn] = max(0, Int((times[turn].last ?? 0)))
+            currentTimes[turn^1] = max(0, Int((times[turn^1].last ?? 0)))
             lastStart[turn] = Date.now + 0.5
         }
         BoardScene.main.undoMove(move.p)
@@ -712,8 +715,10 @@ class Game: ObservableObject {
         currentMove = i > 0 ? moves[i-1] : nil
         if gameState != .active {
             if totalTime != nil && ghostMoveCount == 0 {
-				print(currentTimes, turn, board.move[turn].count, times)
-                currentTimes[turn] = max(0, Int((times[turn][board.move[turn].count])))//.rounded())) // Todo why is this rounded
+                currentTimes[turn] = getTime(for: turn)
+				if currentTimes[turn^1] == 0 {
+					currentTimes[turn^1] = getTime(for: turn^1)
+				}
             }
         }
         BoardScene.main.undoMove(moves[i].p)
@@ -746,10 +751,7 @@ class Game: ObservableObject {
         movesBack -= 1
         currentMove = moves[i]
         if gameState != .active && totalTime != nil && ghostMoveCount == 0 {
-			print(currentTimes, turn^1, board.move[turn^1].count, times)
-            currentTimes[turn^1] = max(0, Int((times[turn^1][board.move[turn^1].count])))//.rounded()))
-			// todo this might also need to be rounded or not
-			// todo also make sure when someone runs out of time that that's actually included
+            currentTimes[turn^1] = getTime(for: turn^1)
         }
 		GameLayout.main.refreshHints()
 		BoardScene.main.showMove(moves[i].p, color: player[turn^1].color, wins: board.getWinLines(for: moves[i].p), ghost: ghostMoveCount != 0, preset: moves.count - movesBack <= preset.count)
