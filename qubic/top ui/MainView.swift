@@ -8,8 +8,8 @@
 
 import SwiftUI
 
-let buildNumber = 30304
-let versionType: VersionType = .testFlight
+let buildNumber = 30305
+let versionType: VersionType = .xCode
 let solveButtonsEnabled = false
 
 struct MainView: View {
@@ -20,42 +20,38 @@ struct MainView: View {
     let messageComposeDelegate = MessageDelegate()
     
     var body: some View {
-		if layout.current == .tutorial {
-			TutorialView()
-				.onAppear { layout.load(for: screen) }
-				.onReceive(screen.objectWillChange) { layout.load(for: screen) }
-		} else {
-			ZStack {
-				VStack(alignment: .center, spacing: 0) {
-					Spacer().modifier(LayoutModifier(for: .topSpacer))
-					top.zIndex(9)
-					mainStack.zIndex(1)
-					moreStack.zIndex(0)
-					Spacer()
-					backButton.modifier(LayoutModifier(for: .backButton))
-						.offset(y: layout.backButtonOffset)
-						.zIndex(10)
-				}
-				TipView()
-				// TODO put these all in their own var like mainStack
-				if layout.current == .review {
-					ReviewView()
-					// TODO make all these modifiers part of one thing
-						.frame(height: layout.safeHeight)
-						.background(Fill()) // TODO is the color off? // TODO wtf does that mean
-						.frame(height: layout.fullHeight)
-						.zIndex(100)
-				} // else if layout.current == .active {
-//					ActiveView()
-//				}
+		ZStack {
+			VStack(alignment: .center, spacing: 0) {
+				Spacer().modifier(LayoutModifier(for: .topSpacer))
+				top.zIndex(9)
+				mainStack.zIndex(1)
+				moreStack.zIndex(0)
+				Spacer()
+				backButton.modifier(LayoutModifier(for: .backButton))
+					.offset(y: layout.backButtonOffset)
+					.zIndex(10)
 			}
-			.onAppear { layout.load(for: screen); screen.window?.backgroundColor = .clear }
-			.onAppear { TipStatus.main.updateTip(for: .main) }
-			.onReceive(screen.objectWillChange) { layout.load(for: screen) }
-			.frame(height: layout.total)
-			.background(Fill())
-			.gesture(scrollGestures)
+			switch layout.currentGame {
+			case .active:
+				GameView().modifier(GameViewLayout()).zIndex(100).onAppear {
+					print("hello")
+				}
+			case .review:
+				ReviewView().modifier(GameViewLayout()).zIndex(100)
+			case .none:
+				Spacer()
+			}
+			TipView()
+			if layout.current == .tutorial {
+				TutorialView().modifier(GameViewLayout())
+			}
 		}
+		.onAppear { layout.load(for: screen); screen.window?.backgroundColor = .clear }
+		.onAppear { TipStatus.main.updateTip(for: .main) }
+		.onReceive(screen.objectWillChange) { layout.load(for: screen) }
+		.frame(height: layout.total)
+		.background(Fill())
+		.gesture(scrollGestures)
     }
     
     let cube = CubeView()
@@ -149,9 +145,6 @@ struct MainView: View {
 						Text(text)
 							.onChange(of: Layout.main.current, perform: { _ in setText() })
 							.onChange(of: Layout.main.searchingOnline, perform: { searching in
-								if views.contains(.playMenu) {
-									print("searching", searching, text == "start", text)
-								}
 								if searching && text.oneOf("start","") {
 									text = ""
 								} else {

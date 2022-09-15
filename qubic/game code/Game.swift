@@ -313,7 +313,7 @@ class Game: ObservableObject {
 		} else if newMode == .bot {
 			repeat {
 				newSetupNum = .random(in: 0..<Bot.bots.count)
-				print("bots", newSetupNum, Bot.bots[newSetupNum].care, Storage.int(.myBotSkill))
+//				print("bots", newSetupNum, Bot.bots[newSetupNum].care, Storage.int(.myBotSkill))
 			} while abs(Bot.bots[newSetupNum].care*10 - Double(Storage.int(.myBotSkill))) > 2
 		}
 		

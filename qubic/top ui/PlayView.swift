@@ -18,8 +18,11 @@ struct PlayView: View {
     
     var body: some View {
         if layout.current == .play {
-            GameView()
-				.onAppear { game.load(mode: mode, setupNum: setupNum, turn: turn, hints: hints, time: time) }
+            Spacer()
+				.onAppear {
+					Game.main = Game() // resets from tutorial
+					game.load(mode: mode, setupNum: mode == .bot ? setupNum : 0, turn: turn, hints: hints, time: time)
+				}
 		} else {
 			VStack {
 				Spacer()
@@ -87,7 +90,7 @@ struct PlayView: View {
 		var n = 0
 		repeat {
 			n = .random(in: 0..<Bot.bots.count)
-			print("bots", n, Bot.bots[n].care, Storage.int(.myBotSkill))
+//			print("bots", n, Bot.bots[n].care, Storage.int(.myBotSkill))
 		} while abs(Bot.bots[n].care*10 - Double(Storage.int(.myBotSkill))) > 2
 		return n
 	}

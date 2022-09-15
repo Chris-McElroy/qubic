@@ -51,6 +51,16 @@ struct EnableHPicker: ViewModifier {
 	}
 }
 
+struct GameViewLayout: ViewModifier {
+	func body(content: Content) -> some View {
+		content
+			.frame(height: Layout.main.safeHeight)
+			.background(Fill()) // TODO is the color off? // TODO wtf does that mean
+			.frame(height: Layout.main.fullHeight)
+			.zIndex(100)
+	}
+}
+
 let mainButtonHeight: CGFloat = 92
 let moreButtonHeight: CGFloat = 50
 let nameButtonWidth: CGFloat = 180

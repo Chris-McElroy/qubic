@@ -25,7 +25,7 @@ enum ViewState: CaseIterable {
 	case tutorial
 	case review
     
-	var gameView: Bool { self == .play || self == .solve || self == .train } // TODO consider if review should be here
+	var gameView: Bool { self == .play || self == .solve || self == .train || self == .review }
     var menuView: Bool { self == .playMenu || self == .solveMenu || self == .trainMenu }
 	var trainGame: Bool { self == .train || self == .trainMenu }
 	var solveGame: Bool { self == .solve || self == .solveMenu }
@@ -78,6 +78,10 @@ enum ViewState: CaseIterable {
 		.review: (top: .pastGames, focus: .pastGames, bottom: .pastGames),
 		.tutorial: (top: .tutorial, focus: .tutorial, bottom: .tutorial)
     ]
+}
+
+enum GameViewState: CaseIterable {
+	case active, review, none
 }
 
 enum LayoutView: Int, Comparable {
@@ -143,6 +147,7 @@ class Layout: ObservableObject {
     private var topSpacerHeight: [ViewState: CGFloat] = [:]
     
 	@Published var current: ViewState = Storage.int(.playedTutorial) > 0 ? .main : .tutorial
+	@Published var currentGame: GameViewState = .none
     @Published var leftArrows: Bool = Storage.int(.arrowSide) == 0
     @Published var newDaily = Storage.int(.lastDC) != Date.int
 	@Published var updateAvailable: Bool = false
@@ -211,6 +216,7 @@ class Layout: ObservableObject {
 		FB.main.cancelOnlineSearch?()
 		withAnimation(.easeInOut(duration: 0.4)) { //0.4
 			current = current.back
+			currentGame = .none
 		}
 	}
     
@@ -324,8 +330,14 @@ class Layout: ObservableObject {
 	func change(to newLayout: ViewState, or otherLayout: ViewState? = nil) {
 		withAnimation(.easeIn(duration: 0.5)) { TipStatus.main.displayed = false }
 		if let nextView = (current != newLayout) ? newLayout : otherLayout {
-			if nextView.gameView { Game.main = Game() } // resets from tutorial
 			withAnimation(.easeInOut(duration: 0.4)) { //0.4
+				switch nextView {
+				case .play, .solve, .train:
+					currentGame = .active
+				case .review:
+					currentGame = .review
+				default: currentGame = .none
+				}
 				current = nextView
 			}
 		}

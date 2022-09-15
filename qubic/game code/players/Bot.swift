@@ -29,13 +29,13 @@ class Bot: Player {
 				   bucketP: 1-bot.randomness*bot.randomness
 		)
 		
-		print("bot", "off:", Int(self.bot.offAtt*1000), "/", Int((lineP[3]!)*1000), "def:", Int(self.bot.defAtt*1000), "/", Int((lineP[-3])!*1000), "care", Int(self.bot.care*1000))
-		for l in [0, 32, 48, 56, 72] {
-			let to = Int((lineP[3]!)*dirStats[l]*1000)
-			let td = Int((lineP[-3]!)*dirStats[l]*1000)
-			let dub = Int((lineP[2]!)*dirStats[l]*1000)
-			print(l, "dir:", Int(self.dirStats[l]*1000), "\ttotal off:", to >= 1000 ? "max" : to, "\ttotal def:", td >= 1000 ? "max" : td, "\tdub", dub >= 1000 ? "max" : dub)
-		}
+//		print("bot", "off:", Int(self.bot.offAtt*1000), "/", Int((lineP[3]!)*1000), "def:", Int(self.bot.defAtt*1000), "/", Int((lineP[-3])!*1000), "care", Int(self.bot.care*1000))
+//		for l in [0, 32, 48, 56, 72] {
+//			let to = Int((lineP[3]!)*dirStats[l]*1000)
+//			let td = Int((lineP[-3]!)*dirStats[l]*1000)
+//			let dub = Int((lineP[2]!)*dirStats[l]*1000)
+//			print(l, "dir:", Int(self.dirStats[l]*1000), "\ttotal off:", to >= 1000 ? "max" : to, "\ttotal def:", td >= 1000 ? "max" : td, "\tdub", dub >= 1000 ? "max" : dub)
+//		}
 	}
 	
 	override func move() {

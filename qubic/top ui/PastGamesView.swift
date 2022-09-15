@@ -60,6 +60,7 @@ struct PastGamesView: View {
 					.frame(maxWidth: 500)
 				}
 				Blank(10)
+				Spacer().frame(height: layout.current == .review ? layout.fullHeight : 0)
 				HPicker(width: 84, height: 40, selection: $result, labels: ["wins", "all", "losses"], onSelection: {_ in getCurrentGames() })
 				HPicker(width: 84, height: 40, selection: $turn, labels: ["first", "either", "second"], onSelection: {_ in getCurrentGames() })
 				HPicker(width: 84, height: 40, selection: $time, labels: ["all", "untimed", "1 min", "5 min", "10 min"], onSelection: {_ in getCurrentGames() })

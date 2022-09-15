@@ -17,8 +17,11 @@ struct SolveView: View {
     var body: some View {
         VStack(spacing: 0) {
             if layout.current == .solve {
-                GameView()
-					.onAppear { game.load(mode: mode, setupNum: setupNum) }
+                Spacer()
+					.onAppear {
+						Game.main = Game() // resets from tutorial
+						game.load(mode: mode, setupNum: setupNum)
+					}
             } else if layout.current == .solveMenu {
 				HPicker(width: 100, height: 40, selection: $layout.solveSelection[1], labels: $typeLabels, onSelection: onTypeSelection)
 				HPicker(width: 100, height: 40, selection: $layout.solveSelection[0], labels: .constant(SolveView.getBoardLabels()), underlines: $solvedBoards, onSelection: onBoardSelection)
