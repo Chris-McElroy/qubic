@@ -13,7 +13,7 @@ struct PlayView: View {
     @ObservedObject var layout = Layout.main
     static let onlineTurnText = ["bots", "auto", "humans"]
     static let normalTurnText = ["first", "random", "second"]
-    @State var turnText: [Any] = PlayView.onlineTurnText
+	@State var turnText: [Any] = Layout.main.playSelection[0] == 1 ? PlayView.onlineTurnText : PlayView.normalTurnText
     @State var tip = tips.randomElement() ?? ""
     
     var body: some View {
@@ -117,7 +117,6 @@ struct PlayView: View {
     
 	func updateLastPlayMenu() {
         Storage.set(layout.playSelection, for: .lastPlayMenu)
-		print("playsel", layout.playSelection) // TODO remove
     }
     
     static let tips: [String] = [

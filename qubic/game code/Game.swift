@@ -337,10 +337,10 @@ class Game: ObservableObject {
     
 	func updateCurrentTime(num: Int) {
         if gameState == .active && num == gameNum {
-            let newTime = max(0, Int((times[realTurn].last ?? 0) + lastStart[realTurn] - Date.now))
+            let newTime = Int((times[realTurn].last ?? 0) + lastStart[realTurn] - Date.now + 10) - 10
             if newTime < currentTimes[realTurn] {
-                currentTimes[realTurn] = newTime
-                if newTime == 0 && player[realTurn].local {
+                currentTimes[realTurn] = max(0, newTime)
+                if newTime < 0 && player[realTurn].local {
 					times[realTurn].append(0)
                     endGame(with: realTurn == myTurn ? .myTimeout : .opTimeout)
                 }
@@ -378,9 +378,6 @@ class Game: ObservableObject {
         moves.append(move)
         if movesBack != 0 { movesBack += 1 }
         moveImpactGenerator.impactOccurred()
-		if turn != myTurn && mode != .online {
-			FB.main.sendOpMove(p: p, time: times[turn].last ?? -1)
-		}
         getHints(for: moves, time: time)
 		guard movesBack == 0 else { processingMove = false; return }
         board.addMove(p)
@@ -492,11 +489,6 @@ class Game: ObservableObject {
 		
 		func confirmMove() {
 			moves.append(move)
-			if turn == myTurn {
-				FB.main.sendMyMove(p: move.p, time: times[turn].last ?? -1)
-			} else {
-				FB.main.sendOpMove(p: move.p, time: times[turn].last ?? -1)
-			}
 			getHints(for: moves, time: time)
 			currentMove = move
 			GameLayout.main.refreshHints()
@@ -564,6 +556,13 @@ class Game: ObservableObject {
                 currentTimes[turn^1] = Int(min(total, max(timeLeft, 0)))
                 lastStart[turn] = Date.now + 0.2
             }
+			
+			if turn^1 == myTurn {
+				FB.main.sendMyMove(p: moves.last?.p ?? -1, time: times[turn^1].last ?? -1)
+			} else if mode != .online {
+				FB.main.sendOpMove(p: moves.last?.p ?? -1, time: times[turn^1].last ?? -1)
+			}
+			
             if b.hasW0(turn^1) { endGame(with: turn^1 == myTurn ? .myWin : .opWin) }
             else if b.numMoves() == 64 { endGame(with: .draw) }
             else if !loading {

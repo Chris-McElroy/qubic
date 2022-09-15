@@ -9,7 +9,7 @@
 import SwiftUI
 
 let buildNumber = 30304
-let versionType: VersionType = .xCode
+let versionType: VersionType = .testFlight
 let solveButtonsEnabled = false
 
 struct MainView: View {
@@ -50,7 +50,7 @@ struct MainView: View {
 //				}
 			}
 			.onAppear { layout.load(for: screen); screen.window?.backgroundColor = .clear }
-			.onAppear { TipStatus.main.updateTip(for: .main); print("playsel", layout.playSelection) } // TODO remove second half print
+			.onAppear { TipStatus.main.updateTip(for: .main) }
 			.onReceive(screen.objectWillChange) { layout.load(for: screen) }
 			.frame(height: layout.total)
 			.background(Fill())

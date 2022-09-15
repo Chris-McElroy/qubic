@@ -51,6 +51,7 @@ class GameLayout: ObservableObject {
 	let nameSpace: CGFloat = 65
 	var gameControlSpace: CGFloat { Layout.main.hasBottomGap ? 45 : 60 }
 	let gameControlHeight: CGFloat = 40
+	var gameEndText: [String] = [""]
 	
 	var currentHintMoves: Set<Int>? {
 		guard let winsFor = showWinsFor else { return nil }
@@ -68,6 +69,7 @@ class GameLayout: ObservableObject {
 		showWinsFor = nil
 		analysisMode = 2
 		analysisTurn = 1
+		gameEndText = [""]
 		updateSettings()
 		
 //        BoardScene.main.rotate(right: true) // this created a race condition
@@ -120,6 +122,8 @@ class GameLayout: ObservableObject {
 			game.turnOff()
 			if rematch { game.loadRematch() }
 			else { game.loadNextGame() }
+			
+			self.gameEndText = [""]
 			
 			// inside this one so they don't get cancled when the game turns off
 			game.timers.append(Timer.after(0.2) {
@@ -401,16 +405,20 @@ class GameLayout: ObservableObject {
 	}
 	
 	func getGameEndText() -> [String] {
+		guard gameEndText == [""] else { return gameEndText }
+		
 		let myTurn = game.myTurn
 		let opTurn = game.myTurn^1
 		switch game.gameState {
 		case .myWin:
 			if game.mode.solve {
 				if game.mode == .daily && Storage.int(.lastDC) > game.lastDC {
-					return ["\(Storage.int(.streak)) day streak!", "qubic tracks how many days in a row you have completed all 4 daily puzzles. you currently have a \(Storage.int(.streak)) day streak, nice job!"]
+					gameEndText = ["\(Storage.int(.streak)) day streak!", "qubic tracks how many days in a row you have completed all 4 daily puzzles. you currently have a \(Storage.int(.streak)) day streak, nice job!"]
+					return gameEndText
 				}
 				
-				if game.moves.isEmpty || game.moves.count < game.preset.count { return ["", ""] } // avoids crashes when game data is invalid
+				// avoids crashes when game data is invalid
+				if game.moves.isEmpty || game.moves.count < game.preset.count { return [""] }
 				
 				var checksOnly = true
 				let presetCount = max(1, game.preset.count) // avoids crashes when preset is somehow 0
@@ -421,28 +429,36 @@ class GameLayout: ObservableObject {
 				}
 				if checksOnly {
 					if game.moves[presetCount - 1].hints[myTurn] == .w1 && game.moves.count == presetCount + 1 {
-						return ["you found the fastest win!", "you had an open 3 in a row, and you found it! can’t get any faster than that!"]
+						gameEndText = ["you found the fastest win!", "you had an open 3 in a row, and you found it! can’t get any faster than that!"]
+						return gameEndText
 					} else if game.moves[presetCount - 1].hints[myTurn] == .cm1 && game.moves.count == presetCount + 3 {
-						return ["you found the fastest win!", "you had a checkmate available, and you found it! that was the fastest win available, since there were no 3 in a rows."]
+						gameEndText = ["you found the fastest win!", "you had a checkmate available, and you found it! that was the fastest win available, since there were no 3 in a rows."]
+						return gameEndText
 					} else if game.moves.count == presetCount + 2*game.moves[presetCount - 1].winLen - 1 {
-						return ["you found the fastest second order win!", "second order wins are wins that use first order checks and checkmates to force a first order win (4 in a row). you just found a \(game.moves[presetCount - 1].winLen) move second order win, and there was no faster second order win available!"]
+						gameEndText = ["you found the fastest second order win!", "second order wins are wins that use first order checks and checkmates to force a first order win (4 in a row). you just found a \(game.moves[presetCount - 1].winLen) move second order win, and there was no faster second order win available!"]
+						return gameEndText
 					} else {
-						return ["though there is a faster win!", "second order wins are wins that use first order checks and checkmates to force a first order win (4 in a row). you just found a \(game.moves[presetCount - 1].winLen) move second order win. there’s at least one second order win available that uses fewer total moves."]
+						gameEndText = ["though there is a faster win!", "second order wins are wins that use first order checks and checkmates to force a first order win (4 in a row). you just found a \(game.moves[presetCount - 1].winLen) move second order win. there’s at least one second order win available that uses fewer total moves."]
+						return gameEndText
 					}
 				} else {
 					if game.moves.count < presetCount + 2*game.moves[presetCount - 1].winLen - 1 {
-						return ["faster than the fastest second order win!", "second order wins are wins that use first order checks and checkmates to force a first order win (4 in a row). solve boards always have a first or second order win as a solution. you found an alternate solution that’s faster than the intended one! well done!"]
+						gameEndText = ["faster than the fastest second order win!", "second order wins are wins that use first order checks and checkmates to force a first order win (4 in a row). solve boards always have a first or second order win as a solution. you found an alternate solution that’s faster than the intended one! well done!"]
+						return gameEndText
 					} else {
-						return ["nice creative solution!", "second order wins are wins that use first order checks and checkmates to force a first order win (4 in a row). solve boards always have a first or second order win as a solution. you found an alternate solution that allowed your opponent more freedom, but still led to a win!"]
+						gameEndText = ["nice creative solution!", "second order wins are wins that use first order checks and checkmates to force a first order win (4 in a row). solve boards always have a first or second order win as a solution. you found an alternate solution that allowed your opponent more freedom, but still led to a win!"]
+						return gameEndText
 					}
 				}
 			} else {
 				guard game.moves.count >= 7 else {
 					print("error")
-					return ["great job pulling that off!", "you managed to get 4 in a row in less than 4 moves... how’d you do that?"]
+					gameEndText = ["great job pulling that off!", "you managed to get 4 in a row in less than 4 moves... how’d you do that?"]
+					return gameEndText
 				}
 				if game.moves[game.moves.count - 3].hints[myTurn] == .c1 {
-					return ["they didn’t see that coming!", "you had a check that they didn’t see, well done!"]
+					gameEndText = ["they didn’t see that coming!", "you had a check that they didn’t see, well done!"]
+					return gameEndText
 				}
 				
 				var hadW2 = false
@@ -491,7 +507,8 @@ class GameLayout: ObservableObject {
 				}
 				
 				if unbeatable {
-					return ["your moves were unbeatable!", "your opening moves were all in line with Patashnik’s dictionary of unbeatable moves, and you took all available opportunities to win afterwards! your opponent might have been able to win some other way, but all of your moves were in line with proven unbeatable play."]
+					gameEndText = ["your moves were unbeatable!", "your opening moves were all in line with Patashnik’s dictionary of unbeatable moves, and you took all available opportunities to win afterwards! your opponent might have been able to win some other way, but all of your moves were in line with proven unbeatable play."]
+					return gameEndText
 				}
 				
 				var comments: [[String]] = []
@@ -517,24 +534,29 @@ class GameLayout: ObservableObject {
 				}
 				
 				if let comment = comments.randomElement() {
-					return comment
+					gameEndText = comment
+					return gameEndText
 				}
 				
-				return [["great job!", "keep it up!", "they didn’t see that coming!"].randomElement() ?? ""]
+				gameEndText = [["great job!", "keep it up!", "they didn’t see that coming!"].randomElement() ?? ""]
+				return gameEndText
 				// TODO once I have stats, add "your first win!", "your longest second order win!", and "4 wins in a row—meta!"
 				// TODO once I can see 3rd order wins, add those in as well
 			}
 		case .opTimeout:
-			return [["nice time managment!", "they ran out of time!", "you must have stumped them!"].randomElement() ?? ""]
+			gameEndText = [["nice time managment!", "they ran out of time!", "you must have stumped them!"].randomElement() ?? ""]
+			return gameEndText
 		case .opResign:
-			return ["your opponent resigned!"] // got to keep this clear so they know what happened
-			
+			gameEndText = ["your opponent resigned!"] // got to keep this clear so they know what happened
+			return gameEndText
 		case .opWin:
 			if game.moves.count > 4 && game.moves[game.moves.count - 3].hints[opTurn] == .c1 && game.moves[game.moves.count - 3].hints[myTurn] != .w1 && game.moves[game.moves.count - 4].hints[myTurn] == .c1 {
 				if game.mode.solve {
-					return [["their block created a check!", "watch out for that one!"].randomElement() ?? "", "your check forced a checkback, where the block of your check puts you in check. if you want to use this check in a second order win, you’ll either need to make it the checkmate move, or have your block of their checkback create yet another check."]
+					gameEndText = [["their block created a check!", "watch out for that one!"].randomElement() ?? "", "your check forced a checkback, where the block of your check puts you in check. if you want to use this check in a second order win, you’ll either need to make it the checkmate move, or have your block of their checkback create yet another check."]
+					return gameEndText
 				}
-				return ["their block created a check!", "you put your opponent in check. when they blocked your check, their move created a check on a different line. these checkbacks are easy to miss, but essential to watch out for."]
+				gameEndText = ["their block created a check!", "you put your opponent in check. when they blocked your check, their move created a check on a different line. these checkbacks are easy to miss, but essential to watch out for."]
+				return gameEndText
 			}
 			if game.mode.solve {
 				var checksOnly = true
@@ -545,9 +567,11 @@ class GameLayout: ObservableObject {
 				}
 				if checksOnly {
 					// this should only trigger on daily 1's or if i put some nasty ass daily's that start with a required check but i don't think there are any
-					return ["watch out for that one!"]
+					gameEndText = ["watch out for that one!"]
+					return gameEndText
 				} else {
-					return [["you can win with only checks!", "you’ll get it soon!", "you’re nearly there!"].randomElement() ?? "", "you can always win solve boards with a first or second order win. first order wins are 4 in a rows. second order wins are wins that use first order checks and checkmates to force a first order win. this means that you can win every solve board by only making checks and winning moves, though you can often win in other ways, too."]
+					gameEndText = [["you can win with only checks!", "you’ll get it soon!", "you’re nearly there!"].randomElement() ?? "", "you can always win solve boards with a first or second order win. first order wins are 4 in a rows. second order wins are wins that use first order checks and checkmates to force a first order win. this means that you can win every solve board by only making checks and winning moves, though you can often win in other ways, too."]
+					return gameEndText
 				}
 			} else {
 				var W2len = 0
@@ -595,7 +619,8 @@ class GameLayout: ObservableObject {
 				}
 				
 				if unbeatable {
-					return ["their moves were unbeatable!"]
+					gameEndText = ["their moves were unbeatable!"]
+					return gameEndText
 				}
 				
 				var comments: [[String]] = []
@@ -625,38 +650,46 @@ class GameLayout: ObservableObject {
 				}
 				
 				if let comment = comments.randomElement() {
-					return comment
+					gameEndText = comment
+					return gameEndText
 				}
 				
-				return [["watch out for that one!", "they won this round!", "better luck next time!"].randomElement() ?? ""]
+				gameEndText = [["watch out for that one!", "they won this round!", "better luck next time!"].randomElement() ?? ""]
+				return gameEndText
 				// TODO once I have stats, add "your first loss!"
 				// TODO once I can see 3rd order wins, add those in as well
 			}
 		case .myTimeout:
-			return [["don’t let the clock run out!", "keep your eye on the clock!", "make sure to watch your time!"].randomElement() ?? "", "the timer under your name displays how much time you have left for the entire game. anytime it’s your turn, it will continue counting down. make sure to use your time judiciously!"]
+			gameEndText = [["don’t let the clock run out!", "keep your eye on the clock!", "make sure to watch your time!"].randomElement() ?? "", "the timer under your name displays how much time you have left for the entire game. anytime it’s your turn, it will continue counting down. make sure to use your time judiciously!"]
+			return gameEndText
 		case .myResign:
 			if let last = game.moves.last {
 				if last.hints[opTurn] == .w1 {
-					return ["you couldn’t let them win?", "you resigned when your opponent was about to win, why not let them win?"]
+					gameEndText = ["you couldn’t let them win?", "you resigned when your opponent was about to win, why not let them win?"]
+					return gameEndText
 				}
 				if last.hints[myTurn]?.oneOf(.w2, .w1, .w2d1, .cm1) == true {
-					return ["but you had a win!", "you had a win available when you resigned! you can review the game and use the analysis to learn more!"]
+					gameEndText = ["but you had a win!", "you had a win available when you resigned! you can review the game and use the analysis to learn more!"]
+					return gameEndText
 				}
 				if last.hints[myTurn] == .c1 {
 					if game.moves.count > 2 {
 						let prevHint = game.moves[game.moves.count - 2].hints[myTurn]
 						if prevHint == .w2 || prevHint == .w2d1 || prevHint == .w1 {
-							return ["but you had a win!", "you had a win available when you resigned! you can review the game and use the analysis to learn more!"]
+							gameEndText = ["but you had a win!", "you had a win available when you resigned! you can review the game and use the analysis to learn more!"]
+							return gameEndText
 						}
 					}
 				}
 				if last.hints[opTurn]?.oneOf(.w2, .w2d1, .cm1) == true {
-					return ["they did have a win!", "your opponent had a win available when you resigned. you can review the game and use the analysis to see it."]
+					gameEndText = ["they did have a win!", "your opponent had a win available when you resigned. you can review the game and use the analysis to see it."]
+					return gameEndText
 				}
 				if last.hints[opTurn] == .c1 {
 					if game.moves.count > 2 {
 						if game.moves[game.moves.count - 2].hints[opTurn]?.oneOf(.w2, .w2d1, .w1) == true {
-							return ["they did have a win!", "your opponent had a win available when you resigned. you can review the game and use the analysis to see it."]
+							gameEndText = ["they did have a win!", "your opponent had a win available when you resigned. you can review the game and use the analysis to see it."]
+							return gameEndText
 						}
 					}
 				}
@@ -664,12 +697,19 @@ class GameLayout: ObservableObject {
 			return ["better luck next time!"]
 		case .draw:
 			// TODO add "your first draw!" when i have stats
-			return ["that’s hard to do!", "you and your opponent filled the entire board without either of you getting 4 in a row! that's very rare!"]
+			gameEndText = ["that’s hard to do!", "you and your opponent filled the entire board without either of you getting 4 in a row! that's very rare!"]
+			return gameEndText
 		case .ended:
 			switch game.moves.count {
-			case 0...12: return ["a short one!"]
-			case 24...64: return ["a long one!"]
-			default: return ["come back soon!"]
+			case 0...12:
+				gameEndText = ["a short one!"]
+				return gameEndText
+			case 24...64:
+				gameEndText = ["a long one!"]
+				return gameEndText
+			default:
+				gameEndText = ["come back soon!"]
+				return gameEndText
 			}
 			
 		default: return [""]

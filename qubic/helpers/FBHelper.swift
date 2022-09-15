@@ -551,8 +551,6 @@ class FB: ObservableObject {
 		}
 		
 		func getTimes() -> [[Double]] {
-			print("times:", myTimes, opTimes)
-			// TODO the first times are getting doubled for some reason, and the last OP move isn't getting recorded, at least on the local 1 min game i played on my phone on 6V5X-725
 			return myTurn == 0 ? [myTimes, opTimes] : [opTimes, myTimes]
 		}
     }
