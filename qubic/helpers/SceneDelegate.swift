@@ -32,11 +32,16 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             screen.window = UIWindow(windowScene: windowScene)
             // Create the SwiftUI view that provides the window contents.
 			let mainView = MainView(screen: screen)
-            screen.window?.rootViewController = UIHostingController(rootView: mainView)
-            screen.window?.makeKeyAndVisible()
+			screen.window?.rootViewController = UIHostingController(rootView: mainView)
+			screen.window?.makeKeyAndVisible()
         }
+		
+		// if it ever doesn't catch, continue putting a delay in here (perhaps dispatchqueue asyncafter instead of timer)
+		if let url = connectionOptions.userActivities.first?.webpageURL {
+			Layout.main.deeplink(to: url)
+		}
     }
-    
+	
     func windowScene(_ windowScene: UIWindowScene, didUpdate previousCoordinateSpace: UICoordinateSpace, interfaceOrientation previousInterfaceOrientation: UIInterfaceOrientation, traitCollection previousTraitCollection: UITraitCollection) {
         screen.changed.toggle()
     }
@@ -57,6 +62,12 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // Called when the scene will move from an active state to an inactive state.
         // This may occur due to temporary interruptions (ex. an incoming phone call).
     }
+	
+	func scene(_ scene: UIScene, continue userActivity: NSUserActivity) {
+		if let url = userActivity.webpageURL {
+			Layout.main.deeplink(to: url)
+		}
+	}
 
     func sceneWillEnterForeground(_ scene: UIScene) {
         // Called as the scene transitions from the background to the foreground.

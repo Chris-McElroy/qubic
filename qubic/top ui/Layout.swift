@@ -208,17 +208,6 @@ class Layout: ObservableObject {
         setFocusHeights()
         setTopSpacerHeights()
     }
-	
-	func goBack() {
-		withAnimation(.easeIn(duration: 0.5)) { TipStatus.main.displayed = false }
-		TipStatus.main.updateTip(for: current.back)
-		Game.main.turnOff()
-		FB.main.cancelOnlineSearch?()
-		withAnimation(.easeInOut(duration: 0.4)) { //0.4
-			current = current.back
-			currentGame = .none
-		}
-	}
     
     private func setFocusHeights() {
         // set default height of main spacer (this is fucking ONLY necessary for solveMenu)
@@ -340,6 +329,31 @@ class Layout: ObservableObject {
 				}
 				current = nextView
 			}
+		}
+	}
+	
+	func goBack() {
+		withAnimation(.easeIn(duration: 0.5)) { TipStatus.main.displayed = false }
+		TipStatus.main.updateTip(for: current.back)
+		Game.main.turnOff()
+		FB.main.cancelOnlineSearch?()
+		withAnimation(.easeInOut(duration: 0.4)) { //0.4
+			current = current.back
+			currentGame = .none
+		}
+	}
+	
+	func deeplink(to url: URL) {
+		let queries: String
+		if #available(iOS 16.0, *) {
+			queries = url.query() ?? ""
+		} else {
+			queries = url.query ?? ""
+		}
+		if queries.contains("eeee") {
+			current = .pastGames
+		} else {
+			current = .settings
 		}
 	}
 }
