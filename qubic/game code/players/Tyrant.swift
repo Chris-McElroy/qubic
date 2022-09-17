@@ -10,7 +10,7 @@ import Foundation
 
 class Tyrant: Player {
     override init(b: Board, n: Int) {
-        super.init(b: b, n: n, name: "tyrant", color: 3,
+		super.init(b: b, n: n, id: "tyrant", name: "tyrant", color: 3,
                    lineP: [3: 1.96, -3: 2.2, 2: 1.0],
                    dirStats: Player.setStats(hs: 1.0, vs: 1.0, hd: 1.0, vd: 0.98, md: 1.0),
                    depth: 7,

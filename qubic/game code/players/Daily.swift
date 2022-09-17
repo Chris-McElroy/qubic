@@ -10,7 +10,7 @@ import Foundation
 
 class Daily: Player {
     init(b: Board, n: Int, num: Int) {
-        super.init(b: b, n: n, name: "daily \(num+1)", color: 4,
+		super.init(b: b, n: n, id: "daily \(num+1)", name: "daily \(num+1)", color: 4,
                    lineP: [3: 1.0, -3: 1.0, 2: 1.0],
                    dirStats: Array(repeating: 1.0, count: 76),
                    depth: 6,

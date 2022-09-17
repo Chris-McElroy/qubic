@@ -93,7 +93,7 @@ struct MainView: View {
 		
 		func playAction(view1: ViewState, view2: ViewState) {
 			if layout.shouldStartOnlineGame() {
-				FB.main.getOnlineMatch(onMatch: { layout.current = .play })
+				FB.main.getOnlineMatch(onMatch: { layout.change(to: .play) })
 			} else if layout.shouldSendInvite() {
 				presentMessageCompose()
 			} else { layout.change(to: view1, or: view2) }

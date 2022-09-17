@@ -322,6 +322,7 @@ class Layout: ObservableObject {
 			withAnimation(.easeInOut(duration: 0.4)) { //0.4
 				switch nextView {
 				case .play, .solve, .train:
+					print("playing")
 					currentGame = .active
 				case .review:
 					currentGame = .review
@@ -344,17 +345,26 @@ class Layout: ObservableObject {
 	}
 	
 	func deeplink(to url: URL) {
-		let queries: String
-		if #available(iOS 16.0, *) {
-			queries = url.query() ?? ""
-		} else {
-			queries = url.query ?? ""
+		guard let queryItems = URLComponents(url: url, resolvingAgainstBaseURL: true)?.queryItems else { return }
+		guard url.lastPathComponent == "share" else { return }
+		guard queryItems.count >= 2 else { return }
+		guard queryItems[0].name == "u" else { return }
+		guard queryItems[1].name == "g" else { return }
+		
+		let userID = queryItems[0].value ?? ""
+		let gameID = Int(queryItems[1].value ?? "") ?? 0
+		var movesIn = 0
+		
+		if queryItems.count == 3 && queryItems[2].name == "m" {
+			movesIn = Int(queryItems[2].value ?? "") ?? 0
 		}
-		if queries.contains("eeee") {
-			current = .pastGames
-		} else {
-			current = .settings
-		}
+		
+		print(userID, gameID, movesIn)
+		
+		// todo add a function in FBHelper that grabs gamedata from the user and game ID
+		// todo also i should add a new type of gameview/game that's a shared game
+		// todo and then add that into layout and main view
+		// todo why can't i just call game.main = self from the load for the game?
 	}
 }
 

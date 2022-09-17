@@ -69,7 +69,7 @@ class FB: ObservableObject {
 		playerRef.observe(DataEventType.value, with: { snapshot in
             if let dict = snapshot.value as? [String: [String: Any]] {
                 for entry in dict {
-                    self.playerDict[entry.key] = PlayerData(from: entry.value)
+					self.playerDict[entry.key] = PlayerData(from: entry.value, id: entry.key)
                 }
             }
         })
@@ -481,11 +481,7 @@ class FB: ObservableObject {
 			mode = game.mode
 			myTurn = game.myTurn
 			let op = game.player[game.myTurn^1]
-			if let bot = op as? Bot {
-				opID = String(bot.id)
-			} else {
-				opID = op.name
-			}
+			opID = op.id
 			opGameID = 0
 			hints = game.hints
 			state = game.gameState
@@ -556,15 +552,18 @@ class FB: ObservableObject {
     }
     
     struct PlayerData {
+		let id: String
         let name: String
         var color: Int
 		
-		init(name: String, color: Int) {
+		init(id: String, name: String, color: Int) {
+			self.id = id
 			self.name = name
 			self.color = color
 		}
         
-        init(from dict: [String: Any]) {
+		init(from dict: [String: Any], id: String) {
+			self.id = id
             name = dict[Key.name.rawValue] as? String ?? "no name"
             color = dict[Key.color.rawValue] as? Int ?? 0
         }

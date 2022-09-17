@@ -10,7 +10,7 @@ import Foundation
 
 class Oracle: Player {
     override init(b: Board, n: Int) {
-        super.init(b: b, n: n, name: "oracle", color: 2,
+		super.init(b: b, n: n, id: "oracle", name: "oracle", color: 2,
 				   lineP: [3: 1.0, -3: 1.0, 2: 1.5],
                    dirStats: Player.setStats(hs: 1.0, vs: 1.0, hd: 1.0, vd: 0.995, md: 1.0),
                    depth: 16,

@@ -44,6 +44,7 @@ class TutorialGame: Game {
 
 		player = [me, op]
 		for p in preset { loadFutureMove(p) }
+		preset = [] // for having them not appear faded
 		GameLayout.main.refreshHints()
 	}
 	

@@ -81,8 +81,8 @@ class Cubist: Player {
 		return difference == 3 || difference == 12 || difference == 48 || difference == 1 || difference == 4 || difference == 16
 	}
 	
-	init(b: Board, n: Int, name: String = "cubist", color: Int = 8) {
-        super.init(b: b, n: n, name: name, color: color)
+	init(b: Board, n: Int, id: String = "cubist", name: String = "cubist", color: Int = 8) {
+		super.init(b: b, n: n, id: id, name: name, color: color)
     }
 	
 	override func move() {

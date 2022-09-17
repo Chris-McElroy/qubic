@@ -89,6 +89,7 @@ class Game: ObservableObject {
     @Published var currentTimes: [Int] = [0,0]
     
 	var gameNum: Int = 0
+	var gameID: Int = 0
     var turn: Int { board.getTurn() }
     var realTurn: Int { gameState == .active ? moves.count % 2 : (gameState.myWin ? myTurn : (gameState.opWin ? myTurn^1 : 2)) }
     var myTurn: Int = 0
@@ -203,6 +204,7 @@ class Game: ObservableObject {
 		if mode != .online {
 			FB.main.uploadGame(self)
 		}
+		gameID = FB.main.myGameData?.gameID ?? 0
 		
         for p in preset { loadMove(p) }
 		GameLayout.main.refreshHints()
@@ -268,7 +270,7 @@ class Game: ObservableObject {
             case .common:   op = Common(b: board, n: myTurn^1, num: setupNum)
             case .tricky:   op = Tricky(b: board, n: myTurn^1, num: setupNum)
             case .local:    op = User(b: board, n: myTurn^1, name: "friend")
-			case .bot:		op = Bot(b: board, n: myTurn^1, id: setupNum)
+			case .bot:		op = Bot(b: board, n: myTurn^1, botNum: setupNum)
 			case .online:   op = Online(b: board, n: myTurn^1)
 //			case .picture1: op = Online(b: board, n: myTurn^1)
 //			case .picture2: op = Tricky(b: board, n: myTurn^1, num: 22)

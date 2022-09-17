@@ -10,7 +10,8 @@ import Foundation
 
 class Tricky: Cubist {
     init(b: Board, n: Int, num: Int) {
-		super.init(b: b, n: n, name: num == solveBoards[.tricky]?.count ?? 0 ? "tricky ?" : "tricky \(num+1)", color: 1)
+		let localName = num == solveBoards[.tricky]?.count ?? 0 ? "tricky ?" : "tricky \(num+1)"
+		super.init(b: b, n: n, id: localName, name: localName, color: 1)
     }
     
     override func getPause() -> Double {

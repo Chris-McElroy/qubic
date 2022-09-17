@@ -10,16 +10,16 @@ import Foundation
 
 class Bot: Player {
 	let bot: BotData
-	let id: Int
+	let botNum: Int
 	
-	init(b: Board, n: Int, id: Int) {
-		self.id = id
-		bot = Bot.bots[id]
+	init(b: Board, n: Int, botNum: Int) {
+		self.botNum = botNum
+		bot = Bot.bots[botNum]
 		
 //   	let skill = bot.skill ?? 0
 //  	let squaredSkill = (2-skill)*skill
 		
-		super.init(b: b, n: n, name: bot.name, color: bot.color, rounded: false,
+		super.init(b: b, n: n, id: "bot\(botNum)", name: bot.name, color: bot.color, rounded: false,
 				   lineP: [3: bot.offAtt*4.5, -3: bot.defAtt*3.5, 2: bot.offAtt],
 				   dirStats: Player.setStats(hs: min(1, bot.care*6), vs: min(1, bot.care*2.4), hd: min(1, bot.care*2), vd: min(1, bot.care*1.5), md: min(1, bot.care*1.7)),
 				   depth: bot.depth,

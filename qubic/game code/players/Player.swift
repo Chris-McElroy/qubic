@@ -12,11 +12,11 @@ class Player {
     let b: Board
     let n: Int
     let o: Int
+	let id: String
     let name: String
     var color: Int
     let rounded: Bool
     let local: Bool
-//	let ID: String // TODO handle this
     
     let lineP: [Int: Double]
     let dirStats: [Double]
@@ -32,11 +32,12 @@ class Player {
     init(b: Board, n: Int) {
         self.b = b
         self.n = n
-        self.o = n^1
-        self.name = ""
-        self.color = 0
-        self.rounded = false
-        self.local = true
+        o = n^1
+		id = ""
+        name = ""
+        color = 0
+        rounded = false
+        local = true
         
         lineP = [:]
         dirStats = []
@@ -47,10 +48,11 @@ class Player {
 		gameNum = 0
     }
     
-    init(b: Board, n: Int, name: String = "", color: Int = 0, rounded: Bool = false, local: Bool = true) {
+	init(b: Board, n: Int, id: String, name: String = "", color: Int = 0, rounded: Bool = false, local: Bool = true) {
         self.b = b
         self.n = n
         self.o = n^1
+		self.id = id
         self.name = name
         self.color = color
         self.rounded = rounded
@@ -65,10 +67,11 @@ class Player {
 		gameNum = Game.main.gameNum
     }
     
-    init(b: Board, n: Int, name: String, color: Int, rounded: Bool = false, local: Bool = true, lineP: [Int: Double], dirStats: [Double], depth: Int, w2BlockP: Double, lineScore: [Double], bucketP: Double) {
+	init(b: Board, n: Int, id: String, name: String, color: Int, rounded: Bool = false, local: Bool = true, lineP: [Int: Double], dirStats: [Double], depth: Int, w2BlockP: Double, lineScore: [Double], bucketP: Double) {
         self.b = b
         self.n = n
         self.o = n^1
+		self.id = id
         self.name = name
         self.color = color
         self.rounded = rounded

@@ -10,8 +10,8 @@ import Foundation
 
 class Online: Player {
     override init(b: Board, n: Int) {
-		let data = FB.main.op ?? FB.PlayerData(name: "error", color: 1)
-		super.init(b: b, n: n, name: data.name, color: data.color, rounded: true, local: false)
+		let data = FB.main.op ?? FB.PlayerData(id: "error", name: "error", color: 1)
+		super.init(b: b, n: n, id: data.id, name: data.name, color: data.color, rounded: true, local: false)
     }
     
     override func move() {

@@ -9,12 +9,8 @@
 import SwiftUI
 
 class User: Player {
-    init(b: Board, n: Int, name: String? = nil) {
-        var username = Storage.string(.name) ?? "you"
-        if let name = name {
-            username = name
-        }
-        super.init(b: b, n: n, name: username, color: Storage.int(.color), rounded: true)
+	init(b: Board, n: Int, id: String? = nil, name: String? = nil) {
+		super.init(b: b, n: n, id: id ?? myID, name: name ?? (Storage.string(.name) ?? "you"), color: Storage.int(.color), rounded: true)
     }
     
     override func move() {

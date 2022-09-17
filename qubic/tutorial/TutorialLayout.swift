@@ -45,9 +45,7 @@ class TutorialLayout: ObservableObject {
 			advance(to: .setName, while: current)
 			return
 		}
-		withAnimation {
-			Layout.main.current = Storage.int(.playedTutorial) > 1 ? .tutorialMenu : .main
-		}
+		Layout.main.change(to: Storage.int(.playedTutorial) > 1 ? .tutorialMenu : .main)
 	}
 	
 	func resetTTTLinesTimers() {

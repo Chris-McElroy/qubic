@@ -11,7 +11,7 @@ import Foundation
 class Novice: Player {
     
     override init(b: Board, n: Int) {
-        super.init(b: b, n: n, name: "novice", color: 6,
+		super.init(b: b, n: n, id: "novice", name: "novice", color: 6,
                    lineP: [3: 1.0, -3: 0.9, 2: 0.20],
                    dirStats: Player.setStats(hs: 0.98, vs: 0.65, hd: 0.95, vd: 0.20, md: 0.25),
                    depth: 1,

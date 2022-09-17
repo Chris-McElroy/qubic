@@ -10,7 +10,7 @@ import Foundation
 
 class TutorialPlayer: Player {
 	init(b: Board, n: Int, name: String, color: Int) {
-		super.init(b: b, n: n, name: name, color: color)
+		super.init(b: b, n: n, id: name, name: name, color: color)
 	}
 	
 	override func move() {}

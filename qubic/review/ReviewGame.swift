@@ -14,6 +14,7 @@ class ReviewGame: Game {
 		gameState = game.state
 		mode = game.mode
 		myTurn = game.myTurn
+		gameID = game.gameID
 		board = Board()
 		BoardScene.main.reset()
 		gameNum += 1

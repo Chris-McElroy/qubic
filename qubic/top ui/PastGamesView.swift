@@ -216,18 +216,18 @@ struct PastGamesView: View {
 	func getOp(for game: FB.GameData) -> FB.PlayerData {
 		var op: FB.PlayerData
 		if game.mode == .online {
-			op = FB.main.playerDict[game.opID] ?? FB.PlayerData(name: "n/a", color: 4)
+			op = FB.main.playerDict[game.opID] ?? FB.PlayerData(id: game.opID, name: "n/a", color: 4)
 		} else if game.mode == .bot {
-			let bot = Bot.bots[Int(game.opID) ?? 0]
-			op = FB.PlayerData(name: bot.name, color: bot.color)
+			let bot = Bot.bots[Int(game.opID.dropFirst(3)) ?? 0]
+			op = FB.PlayerData(id: game.opID, name: bot.name, color: bot.color)
 		} else if game.mode.solve {
 			let color = [.simple: 7, .common: 8, .tricky: 1][game.mode] ?? 4
-			op = FB.PlayerData(name: game.opID, color: color)
+			op = FB.PlayerData(id: game.opID, name: game.opID, color: color)
 		} else if game.mode.train {
 			let color = [.novice: 6, .defender: 5, .warrior: 0, .tyrant: 3, .oracle: 2][game.mode] ?? 8
-			op = FB.PlayerData(name: game.opID, color: color)
+			op = FB.PlayerData(id: game.opID, name: game.opID, color: color)
 		} else {
-			op = FB.PlayerData(name: "friend", color: Storage.int(.color))
+			op = FB.PlayerData(id: game.opID, name: "friend", color: Storage.int(.color))
 		}
 		if op.color == Storage.int(.color) {
 			op.color = [4, 4, 4, 8, 6, 7, 4, 5, 3][Storage.int(.color)]
