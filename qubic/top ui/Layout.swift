@@ -24,8 +24,9 @@ enum ViewState: CaseIterable {
 	case pastGames
 	case tutorial
 	case review
+	case share
     
-	var gameView: Bool { self == .play || self == .solve || self == .train || self == .review }
+	var gameView: Bool { self.oneOf(.play, .solve, .train, .review, .share) }
     var menuView: Bool { self == .playMenu || self == .solveMenu || self == .trainMenu }
 	var trainGame: Bool { self == .train || self == .trainMenu }
 	var solveGame: Bool { self == .solve || self == .solveMenu }
@@ -76,12 +77,13 @@ enum ViewState: CaseIterable {
         .settings: (top: .settings, focus: .settings, bottom: .settings),
 		.pastGames: (top: .pastGames, focus: .pastGames, bottom: .pastGames),
 		.review: (top: .pastGames, focus: .pastGames, bottom: .pastGames),
+		.share: (top: .title, focus: .mainSpacer, bottom: .playButton),
 		.tutorial: (top: .tutorial, focus: .tutorial, bottom: .tutorial)
     ]
 }
 
 enum GameViewState: CaseIterable {
-	case active, review, none
+	case active, review, share, none
 }
 
 enum LayoutView: Int, Comparable {
@@ -322,10 +324,11 @@ class Layout: ObservableObject {
 			withAnimation(.easeInOut(duration: 0.4)) { //0.4
 				switch nextView {
 				case .play, .solve, .train:
-					print("playing")
 					currentGame = .active
 				case .review:
 					currentGame = .review
+				case .share:
+					currentGame = .share
 				default: currentGame = .none
 				}
 				current = nextView
@@ -342,29 +345,6 @@ class Layout: ObservableObject {
 			current = current.back
 			currentGame = .none
 		}
-	}
-	
-	func deeplink(to url: URL) {
-		guard let queryItems = URLComponents(url: url, resolvingAgainstBaseURL: true)?.queryItems else { return }
-		guard url.lastPathComponent == "share" else { return }
-		guard queryItems.count >= 2 else { return }
-		guard queryItems[0].name == "u" else { return }
-		guard queryItems[1].name == "g" else { return }
-		
-		let userID = queryItems[0].value ?? ""
-		let gameID = Int(queryItems[1].value ?? "") ?? 0
-		var movesIn = 0
-		
-		if queryItems.count == 3 && queryItems[2].name == "m" {
-			movesIn = Int(queryItems[2].value ?? "") ?? 0
-		}
-		
-		print(userID, gameID, movesIn)
-		
-		// todo add a function in FBHelper that grabs gamedata from the user and game ID
-		// todo also i should add a new type of gameview/game that's a shared game
-		// todo and then add that into layout and main view
-		// todo why can't i just call game.main = self from the load for the game?
 	}
 }
 

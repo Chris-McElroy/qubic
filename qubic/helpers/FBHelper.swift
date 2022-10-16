@@ -97,6 +97,21 @@ class FB: ObservableObject {
 		})
 	}
 	
+	func getPastGame(userID: String, gameID: Int, completion: @escaping (GameData) -> Void) {
+		if let gameData = pastGamesDict.first(where: { $0.keys.contains(gameID) })?[gameID], userID == myID {
+			completion(gameData)
+			return
+		}
+		let gameRef = ref.child("games/\(userID)/\(gameID)")
+		gameRef.observeSingleEvent(of: DataEventType.value, with: { snapshot in
+			if let data = snapshot.value as? [String: Any] {
+				let gameData = GameData(from: data, gameID: gameID)
+				guard gameData.state.ended else { return }
+				completion(gameData)
+			}
+		})
+	}
+	
     func updateMyData() {
         let myPlayerRef = ref.child("players/\(myID)")
         let name = Storage.string(.name) ?? ""
@@ -160,7 +175,7 @@ class FB: ObservableObject {
         myGameData = nil
         opGameData = nil
 		
-		let timeLimit: Double = [-1, 60, 300, 600][Layout.main.playSelection[2]]
+		let timeLimit: Double = [-1, 10, 20, 30, 40, 60, 120, 180, 300, 600][Layout.main.playSelection[2]]
 		let humansOnly = Layout.main.playSelection[1] == 2
         var possOp: Set<String> = []
         var myInvite = OnlineInviteData(timeLimit: timeLimit)

@@ -38,7 +38,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 		
 		// if it ever doesn't catch, continue putting a delay in here (perhaps dispatchqueue asyncafter instead of timer)
 		if let url = connectionOptions.userActivities.first?.webpageURL {
-			Layout.main.deeplink(to: url)
+			deeplink(to: url)
 		}
     }
 	
@@ -65,7 +65,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 	
 	func scene(_ scene: UIScene, continue userActivity: NSUserActivity) {
 		if let url = userActivity.webpageURL {
-			Layout.main.deeplink(to: url)
+			deeplink(to: url)
 		}
 	}
 

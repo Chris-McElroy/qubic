@@ -30,8 +30,6 @@ struct ReviewView: View {
 		}
 		.opacity(gameLayout.hideAll ? 0 : 1)
 		.gesture(components.swipe)
-		.alert(isPresented: $gameLayout.showDCAlert, content: { components.enableBadgesAlert })
-		.alert(isPresented: $gameLayout.showCubistAlert, content: { components.cubistAlert })
 		.onAppear {
 			gameLayout.animateIntro()
 		}

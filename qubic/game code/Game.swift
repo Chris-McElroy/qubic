@@ -109,6 +109,7 @@ class Game: ObservableObject {
     var leaving: Bool = false
 	var board = Board()
 	let hintQueue = OperationQueue()
+	let presetHintQueue = OperationQueue()
     var movesBack: Int = 0
     var ghostMoveStart: Int = 0
     var ghostMoveCount: Int = 0
@@ -123,6 +124,7 @@ class Game: ObservableObject {
     
     init() {
         hintQueue.qualityOfService = .userInitiated
+		presetHintQueue.qualityOfService = .utility
     }
 	
 	func load(mode: GameMode, setupNum: Int = 0, turn: Int? = nil, hints: Bool = false, time: Double? = nil) {
@@ -361,7 +363,7 @@ class Game: ObservableObject {
         board.addMove(move.p)
         moves.append(move)
         currentMove = move
-        getHints(for: moves, loading: true)
+		getHints(for: moves, loading: true, preset: moves.count <= preset.count)
 		BoardScene.main.addCube(move: move.p, color: player[turn^1].color, preset: moves.count <= preset.count)
     }
     
@@ -545,7 +547,7 @@ class Game: ObservableObject {
 		}
 	}
     
-    func getHints(for moves: [Move], loading: Bool = false, time: Double? = nil) {
+	func getHints(for moves: [Move], loading: Bool = false, preset: Bool = false, time: Double? = nil) {
         let b = Board()
         for move in moves { b.addMove(move.p) }
         let turn = b.getTurn()
@@ -572,7 +574,7 @@ class Game: ObservableObject {
             }
         }
         
-		hintQueue.addOperation {
+		(preset ? presetHintQueue : hintQueue).addOperation {
             var nHint: HintValue = .noW
 			if b.inDict() { nHint = (turn == 0 ? .dw : .dl); moves.last?.winLen = b.cachedDictMoves?.0 ?? 0 }
 			else if b.hasW0(turn) { nHint = .w0 }

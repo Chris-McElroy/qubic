@@ -34,7 +34,7 @@ class TutorialGame: Game {
 		dayInt = Date.int
 		lastDC = Storage.int(.lastDC)
 		setupNum = 0
-		preset = [42, 63, 51, 12, 22, 62, 25]
+		preset = []
 		solved = false
 		myTurn = 0
 		hints = true
@@ -43,8 +43,8 @@ class TutorialGame: Game {
 		let op = TutorialPlayer(b: board, n: 1, name: "opponent", color: 6)
 
 		player = [me, op]
-		for p in preset { loadFutureMove(p) }
-		preset = [] // for having them not appear faded
+		let futureMoves = [42, 63, 51, 12, 22, 62, 25]
+		for p in futureMoves { loadFutureMove(p) }
 		GameLayout.main.refreshHints()
 	}
 	
@@ -53,7 +53,7 @@ class TutorialGame: Game {
 		let move = Move(p)
 		guard !moves.contains(move) && (0..<64).contains(move.p) else { return }
 		moves.append(move)
-		currentMove = move
+		currentMove = move // TODO i think i can get rid of this??
 		getHints(for: moves, loading: true)
 		
 		movesBack += 1

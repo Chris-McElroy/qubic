@@ -16,8 +16,7 @@ struct TrainView: View {
 		if layout.current == .train {
 			Spacer()
 				.onAppear {
-					Game.main = Game() // resets from tutorial
-					game.load(mode: mode, turn: turn, hints: hints)
+					Game().load(mode: mode, turn: turn, hints: hints)
 				}
 		} else if layout.current == .trainMenu {
 			VStack(spacing: 0) {

@@ -137,7 +137,7 @@ struct PastGamesView: View {
 						.allowsHitTesting(false)
 						.frame(height: 40)
 					Spacer()
-					Text([60: "1 min", 300: "5 min", 600: "10 min"][game.myTimes[0]] ?? "untimed")
+					Text([60: "1 min", 300: "5 min", 600: "10 min"][game.myTimes[0]] ?? "untimed") // TODO update this with the new times I pick
 						.frame(width: 65)
 					Spacer()
 					Text(game.myTurn == 0 ? "1st" : "2nd")
@@ -240,7 +240,7 @@ struct PastGamesView: View {
 			expanded = nil
 		}
 		
-		let requiredTime: Double? = [1: -1, 2: 60, 3: 300, 4: 600][time]
+		let requiredTime: Double? = [1: -1, 2: 60, 3: 300, 4: 600][time] // TODO update this with the new times
 		
 		gameList = fb.pastGamesDict[mode].values
 			.filter { result == 1 ? true : (result == 0 ? $0.state.myWin : $0.state.opWin) }

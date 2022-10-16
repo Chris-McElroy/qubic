@@ -19,8 +19,7 @@ struct SolveView: View {
             if layout.current == .solve {
                 Spacer()
 					.onAppear {
-						Game.main = Game() // resets from tutorial
-						game.load(mode: mode, setupNum: setupNum)
+						Game().load(mode: mode, setupNum: setupNum)
 					}
             } else if layout.current == .solveMenu {
 				HPicker(width: 100, height: 40, selection: $layout.solveSelection[1], labels: $typeLabels, onSelection: onTypeSelection)

@@ -33,11 +33,11 @@ struct MainView: View {
 			}
 			switch layout.currentGame {
 			case .active:
-				GameView().modifier(GameViewLayout()).zIndex(100).onAppear {
-					print("hello")
-				}
+				GameView().modifier(GameViewLayout())
 			case .review:
-				ReviewView().modifier(GameViewLayout()).zIndex(100)
+				ReviewView().modifier(GameViewLayout())
+			case .share:
+				ShareView().modifier(GameViewLayout())
 			case .none:
 				Spacer()
 			}
