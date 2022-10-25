@@ -10,6 +10,7 @@ import Foundation
 
 class ShareGame: Game {
 	func load(from game: FB.GameData, opData: FB.PlayerData, movesIn: Int?) {
+		print("loading", game, opData.name, movesIn)
 		Game.main = self
 		gameState = game.state
 		mode = game.mode

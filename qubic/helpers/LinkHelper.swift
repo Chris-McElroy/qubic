@@ -36,6 +36,7 @@ struct ShareButton: View {
 }
 
 func deeplink(to url: URL) {
+	print("got deeplink")
 	guard let queryItems = URLComponents(url: url, resolvingAgainstBaseURL: true)?.queryItems else { return }
 	guard url.lastPathComponent == "share" else { return }
 	guard queryItems.count >= 2 else { return }
@@ -50,15 +51,16 @@ func deeplink(to url: URL) {
 		movesIn = Int(queryItems[2].value ?? "")
 	}
 	
-	// TODO catch whether they're in a game currently, and if they are, offer to open the shared game or keep the current one
-	// this should appear as a little thing that comes up from the bottom in-game, not an alert, with little yes or no buttons
-	
-	// TODO this should be working, fucking try it out
-	
-	// TODO double check that moves in (including as nil) is working as expected
-	
 	FB.main.getPastGame(userID: userID, gameID: gameID, completion: { gameData in
-		let opData = FB.main.playerDict[userID] ?? FB.PlayerData(id: "error", name: "unknown", color: 4)
+		// TODO catch whether they're in a game currently, and if they are, offer to open the shared game or keep the current one
+		// this should appear as a little thing that comes up from the bottom in-game, not an alert, with little yes or no buttons
+		
+		// TODO double check that moves in (including as nil) is working as expected
+		
+		print("userID", userID, FB.main.playerDict[userID])
+		let opData = FB.main.playerDict[gameData.opID] ?? FB.PlayerData(id: "error", name: "unknown", color: 4)
+		print("present game")
+		Layout.main.currentGame = .share
 		ShareGame().load(from: gameData, opData: opData, movesIn: movesIn)
 	})
 }

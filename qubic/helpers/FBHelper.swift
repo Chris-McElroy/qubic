@@ -98,12 +98,16 @@ class FB: ObservableObject {
 	}
 	
 	func getPastGame(userID: String, gameID: Int, completion: @escaping (GameData) -> Void) {
+		print("trying to get game data")
 		if let gameData = pastGamesDict.first(where: { $0.keys.contains(gameID) })?[gameID], userID == myID {
+			print("got it")
 			completion(gameData)
 			return
 		}
+		print("did not get it")
 		let gameRef = ref.child("games/\(userID)/\(gameID)")
 		gameRef.observeSingleEvent(of: DataEventType.value, with: { snapshot in
+			print("observing")
 			if let data = snapshot.value as? [String: Any] {
 				let gameData = GameData(from: data, gameID: gameID)
 				guard gameData.state.ended else { return }

@@ -230,6 +230,11 @@ private func updateDailyBoards() {
 //		print("updating daily boards:", today, i, m, size, aNum, bNum, newDailyBoards.last ?? "")
 	}
 	solveBoards[.daily] = newDailyBoards
+	
+	// update solveMenu if it's on dailys
+	if Layout.main.solveSelection[1] == 0 {
+		Layout.main.solveSelection[0] = 0
+	}
 }
 
 //let solveBoardDates: [Key: [Int]] = [
