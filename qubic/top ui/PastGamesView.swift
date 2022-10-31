@@ -181,11 +181,11 @@ struct PastGamesView: View {
 				Spacer()
 				Spacer()
 				Spacer()
-//				Button("share") {}
 				Button("review") {
 					ReviewGame().load(from: game, opData: getOp(for: game))
 					layout.change(to: .review)
 				}
+				ShareButton(playerID: myID, gameID: String(game.gameID))
 				Spacer()
 			}
 			.buttonStyle(Standard())
