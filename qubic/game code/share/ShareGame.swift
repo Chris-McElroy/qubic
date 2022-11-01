@@ -10,7 +10,8 @@ import Foundation
 
 class ShareGame: Game {
 	func load(from game: FB.GameData, myData: FB.PlayerData, opData: FB.PlayerData, movesIn: Int?) {
-		print("loading", game, opData.name, movesIn)
+		let allMoves = game.orderedMoves()
+		let movesIn = (movesIn ?? allMoves.count) <= allMoves.count ? movesIn ?? allMoves.count : allMoves.count
 		Game.main = self
 		gameState = game.state
 		mode = game.mode
@@ -26,10 +27,9 @@ class ShareGame: Game {
 		currentMove = nil
 		moves = []
 		totalTime = game.totalTime
-		if let total = totalTime {
+		if totalTime != nil {
 			times = game.getTimes()
-			currentTimes = [Int(times[0].last ?? 0), Int(times[1].last ?? 0)]
-//			lastStart = [0,0]
+			currentTimes = [Int(times[0][(movesIn + 1)/2]), Int(times[1][movesIn/2])]
 		}
 		movesBack = 0
 		ghostMoveStart = 0
@@ -43,7 +43,7 @@ class ShareGame: Game {
 		dayInt = Date.int
 		lastDC = Storage.int(.lastDC)
 		setupNum = game.setupNum
-		preset = Array(game.orderedMoves().first(game.presetCount))
+		preset = Array(allMoves.first(game.presetCount))
 		solved = game.mode.solve ? game.hints : false
 		hints = game.mode.solve ? game.hints : true
 		
@@ -52,10 +52,10 @@ class ShareGame: Game {
 		let op = User(b: board, n: myTurn^1, name: opData.name)
 		op.color = opData.color
 		player = myTurn == 0 ? [me, op] : [op, me]
-		let allMoves = game.orderedMoves()
-		for p in allMoves.first(movesIn ?? allMoves.count) { loadMove(p) }
-		for p in allMoves.dropFirst(movesIn ?? allMoves.count) { loadFutureMove(p) }
+		for p in allMoves.first(movesIn) { loadMove(p) }
+		for p in allMoves.dropFirst(movesIn) { loadFutureMove(p) }
 		GameLayout.main.refreshHints()
+		GameLayout.main.animateIntro()
 	}
 	
 	override func loadMove(_ p: Int) {

@@ -9,7 +9,7 @@
 import SwiftUI
 
 enum GamePopup {
-	case none, analysis, options, gameEnd, gameEndPending, settings
+	case none, analysis, options, gameEnd, gameEndPending, settings, deepLink
 	
 	var up: Bool {
 		!(self == .none || self == .gameEndPending)
@@ -52,6 +52,7 @@ class GameLayout: ObservableObject {
 	var gameControlSpace: CGFloat { Layout.main.hasBottomGap ? 45 : 60 }
 	let gameControlHeight: CGFloat = 40
 	var gameEndText: [String] = [""]
+	var deepLinkAction: () -> Void = {}
 	
 	var currentHintMoves: Set<Int>? {
 		guard let winsFor = showWinsFor else { return nil }
@@ -151,8 +152,8 @@ class GameLayout: ObservableObject {
 		withAnimation {
 			if game.reviewingGame {
 				undoOpacity = .clear
-				prevOpacity = game.moves.count > 0 ? .full : .half
-				nextOpacity = .half
+				prevOpacity = (game.moves.count - game.movesBack) > 0 ? .full : .half
+				nextOpacity = game.movesBack > 0 ? .full : .half
 			} else {
 				undoOpacity = game.hints || game.mode.solve ? .half : .clear
 				prevOpacity = game.moves.count - game.movesBack > 0 ? .full : .half

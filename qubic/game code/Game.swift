@@ -210,6 +210,7 @@ class Game: ObservableObject {
 		
         for p in preset { loadMove(p) }
 		GameLayout.main.refreshHints()
+		GameLayout.main.animateIntro()
         
         func setPreset(for mode: GameMode) {
 //			if mode == .picture1 {

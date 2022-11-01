@@ -37,7 +37,6 @@ struct PracticeGameView: View {
 			tutorialLayout.readyToAdvance = false
 			tutorialLayout.readyToContinue = true
 			TutorialGame().load()
-			gameLayout.animateIntro()
 			game.timers.append(Timer.after(1.2) {
 				gameLayout.setPopups(to: .settings)
 			})

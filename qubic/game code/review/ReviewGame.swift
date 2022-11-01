@@ -25,7 +25,7 @@ class ReviewGame: Game {
 		currentMove = nil
 		moves = []
 		totalTime = game.totalTime
-		if let total = totalTime {
+		if totalTime != nil {
 			times = game.getTimes()
 			currentTimes = [Int(times[0].last ?? 0), Int(times[1].last ?? 0)]
 //			lastStart = [0,0]
@@ -52,6 +52,7 @@ class ReviewGame: Game {
 		player = myTurn == 0 ? [me, op] : [op, me]
 		for p in game.orderedMoves() { loadMove(p) }
 		GameLayout.main.refreshHints()
+		GameLayout.main.animateIntro()
 	}
 	
 	override func loadMove(_ p: Int) {

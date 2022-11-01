@@ -24,6 +24,7 @@ struct GameView: View {
 			components.gameEndPopup
 			components.analysisPopup
 			components.settingsPopup
+			components.deepLinkPopup
 			components.popupMasks
 			components.names
 			components.gameControls
@@ -32,9 +33,6 @@ struct GameView: View {
 		.gesture(components.swipe)
 		.alert(isPresented: $gameLayout.showDCAlert, content: { components.enableBadgesAlert })
 		.alert(isPresented: $gameLayout.showCubistAlert, content: { components.cubistAlert })
-        .onAppear {
-			gameLayout.animateIntro()
-        }
 		.modifier(BoundSize(min: .large, max: .extraExtraExtraLarge))
     }
 }

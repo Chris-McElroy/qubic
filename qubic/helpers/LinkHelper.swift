@@ -46,7 +46,6 @@ struct ShareButton: View {
 }
 
 func deeplink(to url: URL) {
-	print("got deeplink")
 	guard let queryItems = URLComponents(url: url, resolvingAgainstBaseURL: true)?.queryItems else { return }
 	guard url.lastPathComponent == "share" else { return }
 	guard queryItems.count >= 2 else { return }
@@ -62,20 +61,21 @@ func deeplink(to url: URL) {
 	}
 	
 	FB.main.getPastGame(userID: userID, gameID: gameID, completion: { gameData in
-		// TODO catch whether they're in a game currently, and if they are, offer to open the shared game or keep the current one
-		// this should appear as a little thing that comes up from the bottom in-game, not an alert, with little yes or no buttons
-		
-		// TODO double check that moves in (including as nil) is working as expected
-		
-		// TODO failing to load this link: https://xno.store/share?u=vcyKrv0JLnOvidn6YA6BtoVvOYE2&g=688242872388
-		// (currently the main link in calendar)
-		// should load a game between my iPhone (2—user name chris) and HyperX, that took place on 6V5X-X1V, where I went second
-		
 		let myData = FB.main.getPlayerData(for: userID)
 		let opData = FB.main.getPlayerData(for: gameData.opID)
-		print("player data:", opData.name, gameData.opID, FB.main.playerDict[userID]?.name ?? "DIDN'T FIND ONE??")
-		Layout.main.currentGame = .share
-		ShareGame().load(from: gameData, myData: myData, opData: opData, movesIn: movesIn)
+		
+		// TODO if it's in the tutorial, don't let them leave
+		
+		if Layout.main.currentGame != .none {
+			GameLayout.main.deepLinkAction = {
+				Layout.main.currentGame = .share
+				ShareGame().load(from: gameData, myData: myData, opData: opData, movesIn: movesIn)
+			}
+			GameLayout.main.setPopups(to: .deepLink)
+		} else {
+			Layout.main.currentGame = .share
+			ShareGame().load(from: gameData, myData: myData, opData: opData, movesIn: movesIn)
+		}
 	})
 }
 

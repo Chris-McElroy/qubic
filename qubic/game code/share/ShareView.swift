@@ -26,15 +26,13 @@ struct ShareView: View {
 			components.gameEndPopup
 			components.analysisPopup
 			components.settingsPopup
+			components.deepLinkPopup
 			components.popupMasks
 			components.names
 			components.gameControls
 		}
 		.opacity(gameLayout.hideAll ? 0 : 1)
 		.gesture(components.swipe)
-		.onAppear {
-			gameLayout.animateIntro()
-		}
 		.modifier(BoundSize(min: .large, max: .extraExtraExtraLarge))
 	}
 }

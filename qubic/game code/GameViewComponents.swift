@@ -460,4 +460,23 @@ class GameViewComponents {
 			}
 		}
 	}
+	
+	static var deepLinkPopup: some View {
+		VStack(spacing: 0) {
+			Spacer()
+			VStack(spacing: 20) {
+				Text("you opened a shared game—do you want to leave this game to see it now, or finish this game first? you can always click the link again to see the shared game")
+				Button("open shared game") { gameLayout.deepLinkAction() }
+				Button("dismiss") { gameLayout.hidePopups() }
+			}
+			.multilineTextAlignment(.center)
+			.padding(.horizontal, 25)
+			.buttonStyle(Standard())
+			.padding(.top, 20)
+			.padding(.bottom, gameLayout.gameControlSpace)
+			.frame(width: layout.width)
+			.modifier(PopupModifier())
+			.offset(y: gameLayout.popup == .deepLink ? 0 : 400)
+		}
+	}
 }
