@@ -9,7 +9,7 @@
 import Foundation
 
 class ShareGame: Game {
-	func load(from game: FB.GameData, opData: FB.PlayerData, movesIn: Int?) {
+	func load(from game: FB.GameData, myData: FB.PlayerData, opData: FB.PlayerData, movesIn: Int?) {
 		print("loading", game, opData.name, movesIn)
 		Game.main = self
 		gameState = game.state
@@ -47,7 +47,8 @@ class ShareGame: Game {
 		solved = game.mode.solve ? game.hints : false
 		hints = game.mode.solve ? game.hints : true
 		
-		let me = User(b: board, n: myTurn)
+		let me = User(b: board, n: myTurn, name: myData.name)
+		me.color = myData.color
 		let op = User(b: board, n: myTurn^1, name: opData.name)
 		op.color = opData.color
 		player = myTurn == 0 ? [me, op] : [op, me]

@@ -71,11 +71,11 @@ func deeplink(to url: URL) {
 		// (currently the main link in calendar)
 		// should load a game between my iPhone (2—user name chris) and HyperX, that took place on 6V5X-X1V, where I went second
 		
-		print("userID", userID, FB.main.playerDict[userID])
-		let opData = FB.main.playerDict[gameData.opID] ?? FB.PlayerData(id: "error", name: "unknown", color: 4)
-		print("present game")
+		let myData = FB.main.getPlayerData(for: userID)
+		let opData = FB.main.getPlayerData(for: gameData.opID)
+		print("player data:", opData.name, gameData.opID, FB.main.playerDict[userID]?.name ?? "DIDN'T FIND ONE??")
 		Layout.main.currentGame = .share
-		ShareGame().load(from: gameData, opData: opData, movesIn: movesIn)
+		ShareGame().load(from: gameData, myData: myData, opData: opData, movesIn: movesIn)
 	})
 }
 

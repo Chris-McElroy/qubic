@@ -116,6 +116,47 @@ class FB: ObservableObject {
 		})
 	}
 	
+	func getPlayerData(for userID: String) -> PlayerData {
+		if let data = FB.main.playerDict[userID] {
+			return data
+		}
+			
+		if userID.count < 10 {
+			if userID.hasPrefix("bot") {
+				let i = Int(userID.dropFirst(3)) ?? 0
+				let bot = Bot.bots[i]
+				return PlayerData(id: userID, name: bot.name, color: bot.color)
+			} else {
+				var color: Int = 4
+				if userID == "novice" {
+					color = 6
+				} else if userID == "defender" {
+					color = 5
+				} else if userID == "warrior" {
+					color = 0
+				} else if userID == "tyrant" {
+					color = 3
+				} else if userID == "oracle" {
+					color = 2
+				} else if userID == "cubist" {
+					color = 8
+				} else if userID.hasPrefix("daily") {
+					color = 4
+				} else if userID.hasPrefix("simple") {
+					color = 7
+				} else if userID.hasPrefix("common") {
+					color = 8
+				} else if userID.hasPrefix("tricky") {
+					color = 1
+				}
+				
+				return PlayerData(id: userID, name: userID, color: color)
+			}
+		}
+			
+		return PlayerData(id: "error", name: "unknown", color: 4)
+	}
+	
     func updateMyData() {
         let myPlayerRef = ref.child("players/\(myID)")
         let name = Storage.string(.name) ?? ""
