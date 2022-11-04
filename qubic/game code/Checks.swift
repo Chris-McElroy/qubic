@@ -240,7 +240,7 @@ extension Board {
 //		var force1 = 0
 //
 //		while force1 < forces.count {
-//			if findWins() { return true } // TODO try switching to happen immediately when the force is found
+//			if findWins() { return true } // laterDO try switching to happen immediately when the force is found
 //			findForces()
 //			forceBoard[forces[force1].g].append(force1)
 //			force1 += 1
@@ -257,7 +257,7 @@ extension Board {
 //				fillChecks(force: force2)
 //
 //				let checkBoard = Board(self)
-//				let path: [Int] = [] // TODO change to var when i'm writing this again
+//				let path: [Int] = [] // laterDO change to var when i'm writing this again
 //
 //				while path.count < checks.count {
 //					let opWins = checkBoard.getW1(for: o)
@@ -405,8 +405,8 @@ extension Board {
 //        let wins = getO1WinsFor(n)
 //        if wins.count != 1 { return false }
 //        addMove(wins.first!) // only works if the next player is o
-//        // TODO make this callable no matter who's move it is
-//        // TODO check for o getting check with their move
+//        // laterDO make this callable no matter who's move it is
+//        // laterDO check for o getting check with their move
 //        if get2ndOrderWinFor(n) != nil {
 //            undoMove()
 //            return true
@@ -419,7 +419,7 @@ extension Board {
 //        // if possible, returns a point that will give player n a 1st order check,
 //        // and will eventually allow them to get a 2nd order win
 //
-//        // TODO check the state of the board?
+//        // laterDO check the state of the board?
 //        // or state clearly what I'm assuming about the board
 //        let o = n^1
 //        dTable = []
@@ -453,7 +453,7 @@ extension Board {
 //                            checkStatus[o][l] += 1
 //                        }
 //                    }
-//                    // TODO make sure that if the check has a check on the way, that it also finds that
+//                    // laterDO make sure that if the check has a check on the way, that it also finds that
 //                    // if no checks, you're good!
 //                    guard let forcedPoint = checkPoint else {
 //                        // yay we found one! (checkPoint was nil)
@@ -625,7 +625,7 @@ extension Board {
 //    }
 }
 
-//    // TODO consider removing
+//    // laterDO consider removing
 //    func getMyLines(_ n: Int) -> [Int] {
 //        return set[n].map({ s in s.count })
 //

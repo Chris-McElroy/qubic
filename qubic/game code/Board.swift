@@ -32,7 +32,7 @@ class Board {
         board = [0,0]
         open = Array(repeating: Dictionary(minimumCapacity: 76), count: 9)
         status = Array(repeating: 4, count: 76)
-        Board.pointsInLine.enumerated().forEach { (i,points) in open[4][i] = points } // TODO add to static Board helper
+        Board.pointsInLine.enumerated().forEach { (i,points) in open[4][i] = points } // laterDO add to static Board helper
     }
     
     init(_ other: Board) {

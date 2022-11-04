@@ -15,6 +15,7 @@ class ShareGame: Game {
 		Game.main = self
 		gameState = game.state
 		mode = game.mode
+		// TODO add mostrecentgame shit in here
 		myTurn = game.myTurn
 		gameID = game.gameID
 		board = Board()

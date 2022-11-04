@@ -36,7 +36,7 @@ struct Blank: View {
     }
 }
 
-// TODO integrate with hpicker itself
+// laterDO integrate with hpicker itself
 struct EnableHPicker: ViewModifier {
 	let on: Bool
 	let height: CGFloat = 42
@@ -55,7 +55,7 @@ struct GameViewLayout: ViewModifier {
 	func body(content: Content) -> some View {
 		content
 			.frame(height: Layout.main.safeHeight)
-			.background(Fill()) // TODO is the color off? // TODO wtf does that mean
+			.background(Fill()) // laterDO is the color off? // laterDO wtf does that mean
 			.frame(height: Layout.main.fullHeight)
 			.zIndex(100)
 	}

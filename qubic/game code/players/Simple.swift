@@ -8,7 +8,7 @@
 
 import Foundation
 
-// TODO make this better/harder
+// laterDO make this better/harder
 class Simple: Player {
     init(b: Board, n: Int, num: Int) {
 		let localName = num == solveBoards[.simple]?.count ?? 0 ? "simple ?" : "simple \(num+1)"

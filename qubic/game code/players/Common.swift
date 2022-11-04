@@ -8,7 +8,7 @@
 
 import Foundation
 
-// TODO make this harder (but realistic)
+// laterDO make this harder (but realistic)
 class Common: Player {
     init(b: Board, n: Int, num: Int) {
 		let localName = num == solveBoards[.common]?.count ?? 0 ? "common ?" : "common \(num+1)"

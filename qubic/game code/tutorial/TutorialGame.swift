@@ -54,7 +54,7 @@ class TutorialGame: Game {
 		let move = Move(p)
 		guard !moves.contains(move) && (0..<64).contains(move.p) else { return }
 		moves.append(move)
-		currentMove = move // TODO i think i can get rid of this??
+		currentMove = move // laterDO i think i can get rid of this??
 		getHints(for: moves, loading: true)
 		
 		movesBack += 1

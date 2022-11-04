@@ -10,7 +10,7 @@ import SwiftUI
 import SceneKit
 
 struct ReviewView: View {
-	@ObservedObject var game: Game = ReviewGame.main
+	@ObservedObject var game: Game = Game.main
 	@ObservedObject var gameLayout: GameLayout = GameLayout.main
 	@ObservedObject var layout: Layout = Layout.main
 	

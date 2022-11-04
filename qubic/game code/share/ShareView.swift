@@ -10,13 +10,11 @@ import SwiftUI
 import SceneKit
 
 struct ShareView: View {
-	@ObservedObject var game: Game = ReviewGame.main
+	@ObservedObject var game: Game = Game.main
 	@ObservedObject var gameLayout: GameLayout = GameLayout.main
 	@ObservedObject var layout: Layout = Layout.main
 	
 	let components = GameViewComponents.self
-	
-	// TODO change this to be like actually specific in any way
 	
 	var body: some View {
 		ZStack {

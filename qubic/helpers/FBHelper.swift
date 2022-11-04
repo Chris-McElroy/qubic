@@ -230,7 +230,7 @@ class FB: ObservableObject {
         // set end time
         var botTimer: Timer? = nil
         if !humansOnly {
-			// TODO fold this into a timer list
+			// laterDO fold this into a timer list
             botTimer = Timer.scheduledTimer(withTimeInterval: 4, repeats: false, block: { _ in
                 if self.onlineInviteState == .invited || self.onlineInviteState == .offered {
                     self.finishedGame(with: .error)
@@ -286,7 +286,7 @@ class FB: ObservableObject {
                     if opInvite.valid && opInvite.timeLimit == timeLimit &&
                         opInvite.opID == myID && (myInvite.opID == opInvite.ID || myInvite.opID == "") &&
                         possOp.contains(opInvite.ID) {
-                        // TODO do i need to check for newer here? think out 4 person example
+                        // laterDO do i need to check for newer here? think out 4 person example
                         self.onlineInviteState = .matched
                         myInvite.opID = opInvite.ID
                         onlineRef.child(myID).setValue(myInvite.toDict())
@@ -474,7 +474,7 @@ class FB: ObservableObject {
 		}
         
 		init(from dict: [String: Any], gameID: Int) {
-			// TODO handle better if their dict is invalid (esp if they have an old version)
+			// laterDO handle better if their dict is invalid (esp if they have an old version)
             valid = (
 //				dict[Key.mode.rawValue] as? Int != nil &&
 				dict[Key.myTurn.rawValue] as? Int != nil &&

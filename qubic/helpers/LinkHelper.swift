@@ -64,9 +64,9 @@ func deeplink(to url: URL) {
 		let myData = FB.main.getPlayerData(for: userID)
 		let opData = FB.main.getPlayerData(for: gameData.opID)
 		
-		// TODO if it's in the tutorial, don't let them leave
-		
-		if Layout.main.currentGame != .none {
+		if Layout.main.current == .tutorial {
+			return
+		} else if Layout.main.currentGame != .none {
 			GameLayout.main.deepLinkAction = {
 				Layout.main.currentGame = .share
 				ShareGame().load(from: gameData, myData: myData, opData: opData, movesIn: movesIn)

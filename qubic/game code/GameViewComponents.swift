@@ -147,11 +147,11 @@ class GameViewComponents {
 //				Text("game insights")
 				if game.reviewingGame {
 					ShareButton()
-					if !(game.mode == .local || (game.mode == .daily && game.setupNum == 3) || game.mode == .cubist) {
+					if shouldShowNewGameButton() {
 						newGameButton
 					}
-					if game.mode != .online {
-						// TODO support online rematch requests
+					if game.mode != .online && game.player[game.myTurn].id == myID {
+						// laterDO support online rematch requests
 						rematchButton
 					}
 					Button("menu") { layout.goBack() }
@@ -205,10 +205,10 @@ class GameViewComponents {
 //				Text("share board")
 				Button("review game") { gameLayout.hidePopups() }
 //				Text("game insights")
-				if !(game.mode == .local || (game.mode == .daily && game.setupNum == 3) || game.mode == .cubist) { // || game.mode == .picture4) {
+				if shouldShowNewGameButton() {
 					newGameButton
 				}
-				if game.mode != .online {
+				if game.mode != .online && game.player[game.myTurn].id == myID {
 					rematchButton
 				}
 				Button("menu") { layout.goBack() }
@@ -327,13 +327,13 @@ class GameViewComponents {
 				Spacer()
 //				if game.reviewingGame {
 //					Button("show win") {
-//						// TODO figure out how to or if i want to pause input
+//						// laterDO figure out how to or if i want to pause input
 //						// also pause changing the analysis turn and best/all
-////						let winTurn = gameLayout.analysisTurn == 1 ? 1 : 0 // TODO use currentPriority here
-////						while gameLayout.winAvailable[gameLayout.analysisTurn] {
-////							let moveSet = game.moves.last?.hints[gameLayout.]
-////							game.processGhostMove()
-////						}
+//						let winTurn = gameLayout.analysisTurn == 1 ? 1 : 0 // laterDO use currentPriority here
+//						while gameLayout.winAvailable[gameLayout.analysisTurn] {
+//							let moveSet = game.moves.last?.hints[gameLayout.]
+//							game.processGhostMove()
+//						}
 //					}
 //					.opacity(gameLayout.winAvailable[gameLayout.analysisTurn] ? Opacity.full.rawValue : Opacity.half.rawValue)
 //					.buttonStyle(Standard())
@@ -478,5 +478,21 @@ class GameViewComponents {
 			.modifier(PopupModifier())
 			.offset(y: gameLayout.popup == .deepLink ? 0 : 400)
 		}
+	}
+	
+	static private func shouldShowNewGameButton() -> Bool {
+		if game.mode.oneOf(.local, .cubist) {
+			return false
+		} else if game.mode == .daily && game.setupNum == 3 {
+			return false
+		} else if game.player[game.myTurn].id != myID {
+			return false
+		}
+		
+		// else if game.mode == .picture4 {
+		//		return false
+		// }
+		
+		return true
 	}
 }

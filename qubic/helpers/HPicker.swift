@@ -87,8 +87,8 @@ struct HPicker: View {
 			.allowsHitTesting(false)
 		}
 		.frame(width: Layout.main.width, height: height)
-		.onReceive(Just(focus), perform: tickIfNew) // TODO change to onChange when on iOS 14+ (and consider losing lastFocus)
-		.onReceive(Just(selection), perform: changeSelection) // TODO change to onChange when on iOS 14+ (and consider losing lastSelection)
+		.onReceive(Just(focus), perform: tickIfNew) // laterDO change to onChange when on iOS 14+ (and consider losing lastFocus)
+		.onReceive(Just(selection), perform: changeSelection) // laterDO change to onChange when on iOS 14+ (and consider losing lastSelection)
 		.onAppear { focus = CGFloat(selection) }
 		.gesture(swipe)
 	}

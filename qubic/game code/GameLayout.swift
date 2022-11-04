@@ -541,8 +541,8 @@ class GameLayout: ObservableObject {
 				
 				gameEndText = [["great job!", "keep it up!", "they didn’t see that coming!"].randomElement() ?? ""]
 				return gameEndText
-				// TODO once I have stats, add "your first win!", "your longest second order win!", and "4 wins in a row—meta!"
-				// TODO once I can see 3rd order wins, add those in as well
+				// laterDO once I have stats, add "your first win!", "your longest second order win!", and "4 wins in a row—meta!"
+				// laterDO once I can see 3rd order wins, add those in as well
 			}
 		case .opTimeout:
 			gameEndText = [["nice time managment!", "they ran out of time!", "you must have stumped them!"].randomElement() ?? ""]
@@ -657,8 +657,8 @@ class GameLayout: ObservableObject {
 				
 				gameEndText = [["watch out for that one!", "they won this round!", "better luck next time!"].randomElement() ?? ""]
 				return gameEndText
-				// TODO once I have stats, add "your first loss!"
-				// TODO once I can see 3rd order wins, add those in as well
+				// laterDO once I have stats, add "your first loss!"
+				// laterDO once I can see 3rd order wins, add those in as well
 			}
 		case .myTimeout:
 			gameEndText = [["don’t let the clock run out!", "keep your eye on the clock!", "make sure to watch your time!"].randomElement() ?? "", "the timer under your name displays how much time you have left for the entire game. anytime it’s your turn, it will continue counting down. make sure to use your time judiciously!"]
@@ -697,7 +697,7 @@ class GameLayout: ObservableObject {
 			}
 			return ["better luck next time!"]
 		case .draw:
-			// TODO add "your first draw!" when i have stats
+			// laterDO add "your first draw!" when i have stats
 			gameEndText = ["that’s hard to do!", "you and your opponent filled the entire board without either of you getting 4 in a row! that's very rare!"]
 			return gameEndText
 		case .ended:
