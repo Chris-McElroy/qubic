@@ -2,7 +2,7 @@
 //  GameView.swift
 //  qubic
 //
-//  Created by 4 on 8/15/20.
+//  Created by Chris McElroy on 8/15/20.
 //  Copyright © 2020 XNO LLC. All rights reserved.
 //
 
@@ -34,12 +34,5 @@ struct GameView: View {
 		.alert(isPresented: $gameLayout.showDCAlert, content: { components.enableBadgesAlert })
 		.alert(isPresented: $gameLayout.showCubistAlert, content: { components.cubistAlert })
 		.modifier(BoundSize(min: .large, max: .extraExtraExtraLarge))
-    }
-}
-
-struct GameView_Previews: PreviewProvider {
-    static var previews: some View {
-        GameView()
-            .previewDevice(PreviewDevice(rawValue: "iPhone SE (1st generation)"))
     }
 }

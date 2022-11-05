@@ -15,7 +15,8 @@ class ShareGame: Game {
 		Game.main = self
 		gameState = game.state
 		mode = game.mode
-		// TODO add mostrecentgame shit in here
+		mostRecentGame = (mode, game.setupNum, nil, game.hints, game.totalTime) // recording turn as nil so it's not always the same
+		
 		myTurn = game.myTurn
 		gameID = game.gameID
 		board = Board()
@@ -48,9 +49,9 @@ class ShareGame: Game {
 		solved = game.mode.solve ? game.hints : false
 		hints = game.mode.solve ? game.hints : true
 		
-		let me = User(b: board, n: myTurn, name: myData.name)
+		let me = User(b: board, n: myTurn, id: myData.id, name: myData.name)
 		me.color = myData.color
-		let op = User(b: board, n: myTurn^1, name: opData.name)
+		let op = User(b: board, n: myTurn^1, id: opData.id, name: opData.name)
 		op.color = opData.color
 		player = myTurn == 0 ? [me, op] : [op, me]
 		for p in allMoves.first(movesIn) { loadMove(p) }
