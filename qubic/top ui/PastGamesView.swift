@@ -183,6 +183,7 @@ struct PastGamesView: View {
 				Spacer()
 				Button("review") {
 					ReviewGame().load(from: game, opData: getOp(for: game))
+					GameLayout.main.animateIntro()
 					layout.change(to: .review)
 				}
 				ShareButton(playerID: myID, gameID: String(game.gameID))

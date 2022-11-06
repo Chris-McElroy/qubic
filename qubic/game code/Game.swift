@@ -210,7 +210,6 @@ class Game: ObservableObject {
 		
         for p in preset { loadMove(p) }
 		GameLayout.main.refreshHints()
-		GameLayout.main.animateIntro() // TODO this is the problem, i moved this in here; where was it before?? i think i can just put an if statement around it though? or something. maybe not, i'm not sure how i could tell from in here
         
         func setPreset(for mode: GameMode) {
 //			if mode == .picture1 {

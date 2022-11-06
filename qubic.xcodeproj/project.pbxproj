@@ -43,7 +43,6 @@
 		1E68179C24CC973D001713E7 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1E68179B24CC973D001713E7 /* Preview Assets.xcassets */; };
 		1E68179F24CC973D001713E7 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1E68179D24CC973D001713E7 /* LaunchScreen.storyboard */; };
 		1E6817A724CC977B001713E7 /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E6817A624CC977B001713E7 /* MainView.swift */; };
-		1E68D48228D667B700AD4218 /* ShareView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E68D48128D667B700AD4218 /* ShareView.swift */; };
 		1E68D48428D667BE00AD4218 /* ShareGame.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E68D48328D667BE00AD4218 /* ShareGame.swift */; };
 		1E69288027B5E079000FF0D6 /* SetNameView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E69287F27B5E079000FF0D6 /* SetNameView.swift */; };
 		1E6C429024FCE1F20065BDF5 /* BoardHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E6C428F24FCE1F20065BDF5 /* BoardHelper.swift */; };
@@ -197,7 +196,6 @@
 		1EC2788D2585ACC600F6A5EB /* Player.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EC2788C2585ACC600F6A5EB /* Player.swift */; };
 		1EC2B8852536A86C001B0A1F /* Checks.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EC2B8842536A86C001B0A1F /* Checks.swift */; };
 		1EC86B1325AABDE000DA434A /* MessageOldHPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EC86B1225AABDE000DA434A /* MessageOldHPicker.swift */; };
-		1ED21697286E7AD800C9F4E7 /* ReviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1ED21696286E7AD800C9F4E7 /* ReviewView.swift */; };
 		1ED2169A286E805000C9F4E7 /* ReviewGame.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1ED21699286E805000C9F4E7 /* ReviewGame.swift */; };
 		1EDAE0DF260814EC006173B4 /* MessageHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EDAE0DE260814EC006173B4 /* MessageHelper.swift */; };
 		1EDDE19024FAC70800B7742C /* Board.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EDDE18F24FAC70800B7742C /* Board.swift */; };
@@ -280,7 +278,6 @@
 		1E68179E24CC973D001713E7 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		1E6817A024CC973D001713E7 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		1E6817A624CC977B001713E7 /* MainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainView.swift; sourceTree = "<group>"; };
-		1E68D48128D667B700AD4218 /* ShareView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareView.swift; sourceTree = "<group>"; };
 		1E68D48328D667BE00AD4218 /* ShareGame.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareGame.swift; sourceTree = "<group>"; };
 		1E69287F27B5E079000FF0D6 /* SetNameView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetNameView.swift; sourceTree = "<group>"; };
 		1E6C428F24FCE1F20065BDF5 /* BoardHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardHelper.swift; sourceTree = "<group>"; };
@@ -425,7 +422,6 @@
 		1EC2788C2585ACC600F6A5EB /* Player.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Player.swift; sourceTree = "<group>"; };
 		1EC2B8842536A86C001B0A1F /* Checks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Checks.swift; sourceTree = "<group>"; };
 		1EC86B1225AABDE000DA434A /* MessageOldHPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageOldHPicker.swift; sourceTree = "<group>"; };
-		1ED21696286E7AD800C9F4E7 /* ReviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewView.swift; sourceTree = "<group>"; };
 		1ED21699286E805000C9F4E7 /* ReviewGame.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewGame.swift; sourceTree = "<group>"; };
 		1EDAE0DE260814EC006173B4 /* MessageHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageHelper.swift; sourceTree = "<group>"; };
 		1EDDE18F24FAC70800B7742C /* Board.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Board.swift; sourceTree = "<group>"; };
@@ -667,11 +663,11 @@
 				1EFAFB16271D170500F377E7 /* GameLayout.swift */,
 				1EE4AADD28204065005C8C20 /* GameViewComponents.swift */,
 				1E8C554625365E3400C9A556 /* Game.swift */,
+				1ED21699286E805000C9F4E7 /* ReviewGame.swift */,
+				1E68D48328D667BE00AD4218 /* ShareGame.swift */,
 				1EDDE18F24FAC70800B7742C /* Board.swift */,
 				1EC2B8842536A86C001B0A1F /* Checks.swift */,
 				1E3335DF25342D1100966EA6 /* players */,
-				1E68D48028D6679300AD4218 /* share */,
-				1ED21698286E7AE000C9F4E7 /* review */,
 				1E776158271E373800D83000 /* tutorial */,
 			);
 			path = "game code";
@@ -791,15 +787,6 @@
 			path = "Preview Content";
 			sourceTree = "<group>";
 		};
-		1E68D48028D6679300AD4218 /* share */ = {
-			isa = PBXGroup;
-			children = (
-				1E68D48128D667B700AD4218 /* ShareView.swift */,
-				1E68D48328D667BE00AD4218 /* ShareGame.swift */,
-			);
-			path = share;
-			sourceTree = "<group>";
-		};
 		1E776158271E373800D83000 /* tutorial */ = {
 			isa = PBXGroup;
 			children = (
@@ -836,15 +823,6 @@
 				1EB5266B27068D8E00B1344A /* 83purple@2x.png */,
 			);
 			path = purple;
-			sourceTree = "<group>";
-		};
-		1ED21698286E7AE000C9F4E7 /* review */ = {
-			isa = PBXGroup;
-			children = (
-				1ED21696286E7AD800C9F4E7 /* ReviewView.swift */,
-				1ED21699286E805000C9F4E7 /* ReviewGame.swift */,
-			);
-			path = review;
 			sourceTree = "<group>";
 		};
 		912820B05808BCCA15D5C4B0 /* Pods */ = {
@@ -1181,7 +1159,6 @@
 				1E9A545A26112F90001FC204 /* FBHelper.swift in Sources */,
 				1E02D59B24CE5696001BF62B /* AboutView.swift in Sources */,
 				1EFAFB17271D170500F377E7 /* GameLayout.swift in Sources */,
-				1E68D48228D667B700AD4218 /* ShareView.swift in Sources */,
 				1E8169D827E8272C00C9E2D7 /* LessonsView.swift in Sources */,
 				1E6C429024FCE1F20065BDF5 /* BoardHelper.swift in Sources */,
 				1E57AAA728591A1A00B941B4 /* Bot.swift in Sources */,
@@ -1233,7 +1210,6 @@
 				1EAE5F6A263121D6000C8270 /* FeedbackView.swift in Sources */,
 				1E636FBB258A8687005B8D4F /* Daily.swift in Sources */,
 				1E636FC0258A882B005B8D4F /* Tricky.swift in Sources */,
-				1ED21697286E7AD800C9F4E7 /* ReviewView.swift in Sources */,
 				1E31208C273D9C1E005BA437 /* TicTacToeView.swift in Sources */,
 				1E017B9E24CDB70D00CF979A /* SolveView.swift in Sources */,
 				1E31208A273D9BF6005BA437 /* WelcomeView.swift in Sources */,

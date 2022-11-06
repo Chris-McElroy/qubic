@@ -66,15 +66,16 @@ func deeplink(to url: URL) {
 		
 		if Layout.main.current == .tutorial {
 			return
-		} else if Layout.main.currentGame != .none {
+		} else if Layout.main.showGame {
 			GameLayout.main.deepLinkAction = {
-				Layout.main.currentGame = .share
+				Layout.main.change(to: .share)
 				ShareGame().load(from: gameData, myData: myData, opData: opData, movesIn: movesIn)
 			}
 			GameLayout.main.setPopups(to: .deepLink)
 		} else {
-			Layout.main.currentGame = .share
+			Layout.main.change(to: .share)
 			ShareGame().load(from: gameData, myData: myData, opData: opData, movesIn: movesIn)
+			GameLayout.main.animateIntro()
 		}
 	})
 }

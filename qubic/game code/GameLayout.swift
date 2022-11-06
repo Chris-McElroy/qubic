@@ -111,26 +111,19 @@ class GameLayout: ObservableObject {
 			optionsOpacity = .clear
 		}
 		
-		print("a", centerNames)
-		
-		// TODO it's doing animateIntro as part of loading and that's bad
-		// TODO reinstitute sharegame stuff and figure out how to have it do that transition seamlessly if possiible. i think i should consider having it fade out and i should consider making shareView and reviewView just be gameView bc they seem like they're all exactly the same
-		// yeah i don't really have cause to make them different i don't think
-		// still glad i separated out the components for future proofing but here it doesn't seem necessary and is actively getting in the way
-		
-//		if game as? ShareGame != nil || game as? ReviewGame != nil {
-//			let nextGame = Game()
-//			nextGame.mostRecentGame = game.mostRecentGame
-//			Game.main = nextGame
-//			Layout.main.currentGame = .active
-//		}
+		if game as? ShareGame != nil || game as? ReviewGame != nil {
+			let nextGame = Game()
+			nextGame.mostRecentGame = game.mostRecentGame
+			nextGame.player = game.player
+			nextGame.gameState = game.gameState
+			Game.main = nextGame
+		}
 		
 		game.timers.append(Timer.after(0.3) {
 			withAnimation {
 				self.hideBoard = true
 			}
 			BoardScene.main.rotate(right: false)
-			print("b", self.centerNames)
 		})
 		
 		game.timers.append(Timer.after(0.6) {
@@ -140,7 +133,6 @@ class GameLayout: ObservableObject {
 			else { game.loadNextGame() }
 			
 			self.gameEndText = [""]
-			print("c", self.centerNames)
 			
 			// inside this one so they don't get cancled when the game turns off
 			game.timers.append(Timer.after(0.2) {
@@ -148,12 +140,10 @@ class GameLayout: ObservableObject {
 					self.hideBoard = false
 				}
 				BoardScene.main.rotate(right: false)
-				print("d", self.centerNames)
 			})
 			
 			game.timers.append(Timer.after(0.6) {
 				game.startGame()
-				print("e", self.centerNames)
 			})
 		})
 	}

@@ -57,7 +57,6 @@ class ShareGame: Game {
 		for p in allMoves.first(movesIn) { loadMove(p) }
 		for p in allMoves.dropFirst(movesIn) { loadFutureMove(p) }
 		GameLayout.main.refreshHints()
-		GameLayout.main.animateIntro()
 	}
 	
 	override func loadMove(_ p: Int) {

@@ -54,7 +54,6 @@ class ReviewGame: Game {
 		player = myTurn == 0 ? [me, op] : [op, me]
 		for p in game.orderedMoves() { loadMove(p) }
 		GameLayout.main.refreshHints()
-		GameLayout.main.animateIntro()
 	}
 	
 	override func loadMove(_ p: Int) {

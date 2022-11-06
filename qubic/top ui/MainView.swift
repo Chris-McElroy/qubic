@@ -31,15 +31,8 @@ struct MainView: View {
 					.offset(y: layout.backButtonOffset)
 					.zIndex(10)
 			}
-			switch layout.currentGame {
-			case .active:
+			if layout.showGame {
 				GameView().modifier(GameViewLayout())
-			case .review:
-				ReviewView().modifier(GameViewLayout())
-			case .share:
-				ShareView().modifier(GameViewLayout())
-			case .none:
-				Spacer()
 			}
 			TipView()
 			if layout.current == .tutorial {

@@ -202,9 +202,9 @@ class GameViewComponents {
 			Spacer()
 			
 			VStack(spacing: 15) {
-//				Text("share board")
 				Button("review game") { gameLayout.hidePopups() }
 //				Text("game insights")
+				ShareButton()
 				if shouldShowNewGameButton() {
 					newGameButton
 				}

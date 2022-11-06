@@ -82,10 +82,6 @@ enum ViewState: CaseIterable {
     ]
 }
 
-enum GameViewState: CaseIterable {
-	case active, review, share, none
-}
-
 enum LayoutView: Int, Comparable {
     case topSpacer
     case title, cube, mainSpacer
@@ -149,7 +145,7 @@ class Layout: ObservableObject {
     private var topSpacerHeight: [ViewState: CGFloat] = [:]
     
 	@Published var current: ViewState = Storage.int(.playedTutorial) > 0 ? .main : .tutorial
-	@Published var currentGame: GameViewState = .none
+	@Published var showGame: Bool = false
     @Published var leftArrows: Bool = Storage.int(.arrowSide) == 0
     @Published var newDaily = Storage.int(.lastDC) != Date.int
 	@Published var updateAvailable: Bool = false
@@ -322,15 +318,7 @@ class Layout: ObservableObject {
 		withAnimation(.easeIn(duration: 0.5)) { TipStatus.main.displayed = false }
 		if let nextView = (current != newLayout) ? newLayout : otherLayout {
 			withAnimation(.easeInOut(duration: 0.4)) { //0.4
-				switch nextView {
-				case .play, .solve, .train:
-					currentGame = .active
-				case .review:
-					currentGame = .review
-				case .share:
-					currentGame = .share
-				default: currentGame = .none
-				}
+				showGame = nextView.oneOf(.play, .solve, .train, .review, .share)
 				current = nextView
 			}
 		}
@@ -343,7 +331,7 @@ class Layout: ObservableObject {
 		FB.main.cancelOnlineSearch?()
 		withAnimation(.easeInOut(duration: 0.4)) { //0.4
 			current = current.back
-			currentGame = .none
+			showGame = false
 		}
 	}
 }

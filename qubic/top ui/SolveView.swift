@@ -20,6 +20,7 @@ struct SolveView: View {
                 Spacer()
 					.onAppear {
 						Game().load(mode: mode, setupNum: setupNum)
+						GameLayout.main.animateIntro()
 					}
             } else if layout.current == .solveMenu {
 				HPicker(width: 100, height: 40, selection: $layout.solveSelection[1], labels: $typeLabels, onSelection: onTypeSelection)
