@@ -67,14 +67,15 @@ class FB: ObservableObject {
 		let playerRef = ref.child("players")
 		playerRef.removeAllObservers()
 		playerRef.observe(DataEventType.value, with: { snapshot in
-            if let dict = snapshot.value as? [String: [String: Any]] {
-                for entry in dict {
+			if let dict = snapshot.value as? [String: [String: Any]] {
+				for entry in dict {
 					self.playerDict[entry.key] = PlayerData(from: entry.value, id: entry.key)
-                }
+				}
             }
         })
     }
     
+	// laterDO consider having this just on a timer when you're in the pastgames boio, maybe see how intense the calls are first
 	func observePastGames() {
 		let gameRef = ref.child("games/\(myID)")
 		gameRef.removeAllObservers()

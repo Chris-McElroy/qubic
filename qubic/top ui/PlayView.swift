@@ -35,7 +35,7 @@ struct PlayView: View {
 						
 						HPicker(width: 90, height: 42, selection: $layout.playSelection[3], labels: .constant(["sandbox", "challenge"]), onSelection: { _ in updateLastPlayMenu() })
 							.modifier(EnableHPicker(on: mode == .local))
-						HPicker(width: 90, height: 42, selection: $layout.playSelection[2], labels: .constant(["untimed", "10 sec", "20 sec", "30 sec", "40 sec", "1 min", "2 min", "3 min", "5 min", "10 min"]), onSelection: { _ in
+						HPicker(width: 90, height: 42, selection: $layout.playSelection[2], labels: .constant(["untimed", "10 sec", "15 sec", "20 sec", "30 sec", "40 sec", "1 min", "2 min", "3 min", "5 min", "10 min"]), onSelection: { _ in
 							FB.main.cancelOnlineSearch?()
 							updateLastPlayMenu()
 						})
@@ -99,13 +99,14 @@ struct PlayView: View {
         switch layout.playSelection[2] {
         case 0: return nil
 		case 1: return 10
-		case 2: return 20
-		case 3: return 30
-		case 4: return 40
-        case 5: return 60
-		case 6: return 120
-        case 7: return 180
-		case 8: return 300
+		case 2: return 15
+		case 3: return 20
+		case 4: return 30
+		case 5: return 40
+        case 6: return 60
+		case 7: return 120
+        case 8: return 180
+		case 9: return 300
         default: return 600
         }
     }

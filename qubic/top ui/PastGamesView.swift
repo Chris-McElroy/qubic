@@ -63,7 +63,7 @@ struct PastGamesView: View {
 				Spacer().frame(height: layout.current == .review ? layout.fullHeight : 0)
 				HPicker(width: 84, height: 40, selection: $result, labels: ["wins", "all", "losses"], onSelection: {_ in getCurrentGames() })
 				HPicker(width: 84, height: 40, selection: $turn, labels: ["first", "either", "second"], onSelection: {_ in getCurrentGames() })
-				HPicker(width: 84, height: 40, selection: $time, labels: ["all", "untimed", "1 min", "5 min", "10 min"], onSelection: {_ in getCurrentGames() })
+				HPicker(width: 84, height: 40, selection: $time, labels: ["all", "untimed", "<1 min", "1-3 min", "5-10 min"], onSelection: {_ in getCurrentGames() })
 					.modifier(EnableHPicker(on: mode.noneOf(3, 4)))
 				HPicker(width: 84, height: 40, selection: $mode, labels: ["local", "bots", "online", "train", "solve"], onSelection: {_ in getCurrentGames() })
 			} else {
@@ -137,7 +137,7 @@ struct PastGamesView: View {
 						.allowsHitTesting(false)
 						.frame(height: 40)
 					Spacer()
-					Text([60: "1 min", 300: "5 min", 600: "10 min"][game.myTimes[0]] ?? "untimed") // TODO update this with the new times I pick
+					Text(timeLabel(for: game.myTimes[0]))
 						.frame(width: 65)
 					Spacer()
 					Text(game.myTurn == 0 ? "1st" : "2nd")
@@ -219,7 +219,7 @@ struct PastGamesView: View {
 		if game.mode == .online {
 			op = FB.main.playerDict[game.opID] ?? FB.PlayerData(id: game.opID, name: "n/a", color: 4)
 		} else if game.mode == .bot {
-			let bot = Bot.bots[Int(game.opID.dropFirst(3)) ?? 0]
+			let bot = Bot.bots[Int(game.opID.dropFirst(3)) ?? Int(game.opID) ?? 0]
 			op = FB.PlayerData(id: game.opID, name: bot.name, color: bot.color)
 		} else if game.mode.solve {
 			let color = [.simple: 7, .common: 8, .tricky: 1][game.mode] ?? 4
@@ -241,12 +241,12 @@ struct PastGamesView: View {
 			expanded = nil
 		}
 		
-		let requiredTime: Double? = [1: -1, 2: 60, 3: 300, 4: 600][time] // TODO update this with the new times
+		let requiredTime: ClosedRange<Double>? = [1: (-1)...(-1), 2: 1...59, 3: 60...180, 4: 300...600][time]
 		
 		gameList = fb.pastGamesDict[mode].values
 			.filter { result == 1 ? true : (result == 0 ? $0.state.myWin : $0.state.opWin) }
 			.filter { turn == 1 ? true : (turn == 0 ? $0.myTurn == 0 : $0.myTurn == 1) }
-			.filter { time == 0 || mode.oneOf(3, 4) ? true : (requiredTime == $0.myTimes.first ?? -1)  }
+			.filter { time == 0 || mode.oneOf(3, 4) ? true : ((requiredTime ?? (-1)...(-1)).contains($0.myTimes.first ?? -1))  }
 		
 		if #available(iOS 14.0, *) {
 			Timer.after(0.03) {

@@ -36,6 +36,12 @@ struct Blank: View {
     }
 }
 
+func timeLabel(for time: Double?) -> String {
+	guard let time else { return "untimed" }
+	if time == -1 { return "untimed" }
+	return time < 60 ? "\(Int(time)) sec" : "\(Int(time)/60) min"
+}
+
 // laterDO integrate with hpicker itself
 struct EnableHPicker: ViewModifier {
 	let on: Bool
