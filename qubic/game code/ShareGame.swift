@@ -53,6 +53,9 @@ class ShareGame: Game {
 		me.color = myData.color
 		let op = User(b: board, n: myTurn^1, id: opData.id, name: opData.name)
 		op.color = opData.color
+		if me.color == op.color {
+			op.color = [4, 4, 4, 8, 6, 7, 4, 5, 3][me.color]
+		}
 		player = myTurn == 0 ? [me, op] : [op, me]
 		for p in allMoves.first(movesIn) { loadMove(p) }
 		for p in allMoves.dropFirst(movesIn) { loadFutureMove(p) }
