@@ -68,5 +68,6 @@ enum Key: String {
 	case tipsShown = "tipsShown"
 	case tipsOn = "tipsOn"
 	case myBotSkill = "myBotSkill"
+	case myGames = "myGames"
 }
 

@@ -16,7 +16,8 @@ class FB: ObservableObject {
     
     var ref = Database.database().reference()
     var playerDict: [String: PlayerData] = [:]
-	@Published var pastGamesDict: [OrderedDictionary<Int, GameData>] = Array(repeating: [:], count: 5)
+	@Published var pastGamesDict: [OrderedDictionary<Int, GameData>] = Array(repeating: [:], count: 5) // TODO have this not store all the game info and instead store just the highlights, and have it be based off myGames and not the online thing
+	var myGames: [Int: Any] = Storage.dictionary(.myGames) as? [Int: Any] ?? [:]
     var myGameData: GameData? = nil
     var opGameData: GameData? = nil
     var op: PlayerData? = nil
@@ -204,10 +205,16 @@ class FB: ObservableObject {
 		ref.child("misses/\(myID)/\(key)/\(Date.ms)").setValue(string)
 	}
 	
+	func setGameValue(to dict: [String: Any], gameID: Int) { // TODO keep searching for uses of gameRef and replace it with calls to this function
+		ref.child("games/\(myID)/\(gameID)").setValue(dict)
+		myGames[gameID] = dict
+		Storage.set(myGames, for: .myGames)
+	}
+	
 	func uploadGame(_ game: Game) {
 		let startTime = Date.ms
 		let gameData = GameData(from: game, gameID: startTime)
-		ref.child("games/\(myID)/\(startTime)").setValue(gameData.toDict())
+		setGameValue(to: gameData.toDict(), gameID: startTime)
 		myGameData = gameData
 	}
     
@@ -323,17 +330,18 @@ class FB: ObservableObject {
         
         func playGame(opInvite: OnlineInviteData) {
             // post game
-            let myData = GameData(myInvite: myInvite, opInvite: opInvite)
+            var myData = GameData(myInvite: myInvite, opInvite: opInvite)
             let myGameRef = ref.child("games/\(myID)/\(myData.gameID)")
             myGameData = myData
-            myGameRef.setValue(myData.toDict())
+			setGameValue(to: myData.toDict(), gameID: myData.gameID)
             
             // search for their post
             let opGameRef = ref.child("games/\(myData.opID)/\(myData.opGameID)")
             opGameRef.removeAllObservers()
             opGameRef.observe(DataEventType.value, with: { snapshot in
                 guard var myData = self.myGameData else {
-                    myGameRef.child(Key.state.rawValue).setValue(GameState.error.rawValue)
+					myData.state = .error
+					self.setGameValue(to: myData.toDict(), gameID: myData.gameID)
                     self.myGameData = nil
                     self.opGameData = nil
                     opGameRef.removeAllObservers()
