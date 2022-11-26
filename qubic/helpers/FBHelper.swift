@@ -100,6 +100,7 @@ class FB: ObservableObject {
 	}
 	
 	func getPastGame(userID: String, gameID: Int, completion: @escaping (GameData) -> Void) {
+		// TODO change pastgamesdict reference here
 		if let gameData = pastGamesDict.first(where: { $0.keys.contains(gameID) })?[gameID], userID == myID {
 			completion(gameData)
 			return
@@ -205,7 +206,7 @@ class FB: ObservableObject {
 		ref.child("misses/\(myID)/\(key)/\(Date.ms)").setValue(string)
 	}
 	
-	func setGameValue(to dict: [String: Any], gameID: Int) { // TODO keep searching for uses of gameRef and replace it with calls to this function
+	func setGameValue(to dict: [String: Any], gameID: Int) {
 		ref.child("games/\(myID)/\(gameID)").setValue(dict)
 		myGames[gameID] = dict
 		Storage.set(myGames, for: .myGames)
@@ -331,7 +332,6 @@ class FB: ObservableObject {
         func playGame(opInvite: OnlineInviteData) {
             // post game
             var myData = GameData(myInvite: myInvite, opInvite: opInvite)
-            let myGameRef = ref.child("games/\(myID)/\(myData.gameID)")
             myGameData = myData
 			setGameValue(to: myData.toDict(), gameID: myData.gameID)
             
@@ -362,7 +362,7 @@ class FB: ObservableObject {
                         self.myGameData = myData
                         self.opGameData = opData
                         self.op = op
-                        myGameRef.setValue(myData.toDict())
+						self.setGameValue(to: myData.toDict(), gameID: myData.gameID)
                         botTimer?.invalidate()
 						Layout.main.searchingOnline = false
 						onMatch()
@@ -380,7 +380,7 @@ class FB: ObservableObject {
                             myData.opMoves.append(newMove)
                             myData.opTimes.append(newTime)
                             self.myGameData = myData
-                            myGameRef.setValue(myData.toDict())
+							self.setGameValue(to: myData.toDict(), gameID: myData.gameID)
                             
                             self.gotOnlineMove?(newMove, newTime, myData.myMoves.count + myData.opMoves.count - 3)
                         }
@@ -392,27 +392,24 @@ class FB: ObservableObject {
     
 	func sendMyMove(p: Int, time: Double) {
         guard var myData = myGameData else { return }
-        let myGameRef = ref.child("games/\(myID)/\(myData.gameID)")
         myData.myMoves.append(p)
         myData.myTimes.append(time)
 		myData.myMoveTimes.append(Date.ms)
         self.myGameData = myData
-        myGameRef.setValue(myData.toDict())
+		setGameValue(to: myData.toDict(), gameID: myData.gameID)
     }
 	
 	func sendOpMove(p: Int, time: Double) {
 		guard var myData = myGameData else { return }
-		let myGameRef = ref.child("games/\(myID)/\(myData.gameID)")
 		myData.opMoves.append(p)
 		myData.opTimes.append(time)
 		myData.opMoveTimes.append(Date.ms)
 		self.myGameData = myData
-		myGameRef.setValue(myData.toDict())
+		setGameValue(to: myData.toDict(), gameID: myData.gameID)
 	}
 	
 	func undoMyMove(p: Int) {
 		guard var myData = myGameData else { return }
-		let myGameRef = ref.child("games/\(myID)/\(myData.gameID)")
 		guard myData.myMoves.last == p else {
 			print("FB undo move error", p, myData.myMoves.last ?? -2, myData.myMoves, myData)
 			return
@@ -421,12 +418,11 @@ class FB: ObservableObject {
 		myData.myTimes = myData.myTimes.dropLast()
 		myData.myMoveTimes = myData.myMoveTimes.dropLast()
 		self.myGameData = myData
-		myGameRef.setValue(myData.toDict())
+		setGameValue(to: myData.toDict(), gameID: myData.gameID)
 	}
 	
 	func undoOpMove(p: Int) {
 		guard var myData = myGameData else { return }
-		let myGameRef = ref.child("games/\(myID)/\(myData.gameID)")
 		guard myData.opMoves.last == p else {
 			print("FB undo move error", p, myData.opMoves.last ?? -2, myData.opMoves, myData)
 			return
@@ -435,12 +431,11 @@ class FB: ObservableObject {
 		myData.opTimes = myData.opTimes.dropLast()
 		myData.opMoveTimes = myData.opMoveTimes.dropLast()
 		self.myGameData = myData
-		myGameRef.setValue(myData.toDict())
+		setGameValue(to: myData.toDict(), gameID: myData.gameID)
 	}
     
 	func finishedGame(with state: GameState, newHints: Bool = false) {
         guard var myData = myGameData else { return }
-        let myGameRef = ref.child("games/\(myID)/\(myData.gameID)")
         let opGameRef = ref.child("games/\(myData.opID)/\(myData.opGameID)")
         myData.state = state
 		myData.endTime = Date.ms
@@ -449,7 +444,7 @@ class FB: ObservableObject {
         myGameData = nil
         opGameData = nil
         opGameRef.removeAllObservers()
-        myGameRef.setValue(myData.toDict())
+		setGameValue(to: myData.toDict(), gameID: myData.gameID)
 		observePastGames()
     }
 	
@@ -615,6 +610,43 @@ class FB: ObservableObject {
 			return myTurn == 0 ? [myTimes, opTimes] : [opTimes, myTimes]
 		}
     }
+	
+	struct GameSummary {
+		let gameID: Int         // my gameID
+		let mode: GameMode		// the game mode
+		let myTurn: Int         // 0 for moves first
+		var op: PlayerData		// op data
+		var state: GameState    // current state of the game
+		var timeLimit: Double	// time limit of the game
+		
+		init(from dict: [String: Any], id: Int) {
+			gameID = id
+			mode = GameMode(rawValue: dict[Key.mode.rawValue] as? Int ?? 12) ?? .online
+			myTurn = dict[Key.myTurn.rawValue] as? Int ?? 0
+			state = GameState(rawValue: dict[Key.state.rawValue] as? Int ?? 0) ?? .error
+			timeLimit = (dict[Key.myTimes.rawValue] as? [Double] ?? [-1]).first ?? -1
+			let opID = dict[Key.opID.rawValue] as? String ?? ""
+			
+			if mode == .online {
+				// TODO this call to playerdict should happen after playerdict gets initialized, redo all the summaries after playerdict is created
+				op = FB.main.playerDict[opID] ?? PlayerData(id: opID, name: "n/a", color: 4)
+			} else if mode == .bot {
+				let bot = Bot.bots[Int(opID.dropFirst(3)) ?? Int(opID) ?? 0]
+				op = FB.PlayerData(id: opID, name: bot.name, color: bot.color)
+			} else if mode.solve {
+				let color = [.simple: 7, .common: 8, .tricky: 1][mode] ?? 4
+				op = FB.PlayerData(id: opID, name: opID, color: color)
+			} else if mode.train {
+				let color = [.novice: 6, .defender: 5, .warrior: 0, .tyrant: 3, .oracle: 2][mode] ?? 8
+				op = FB.PlayerData(id: opID, name: opID, color: color)
+			} else {
+				op = FB.PlayerData(id: opID, name: "friend", color: Storage.int(.color))
+			}
+			if op.color == Storage.int(.color) {
+				op.color = [4, 4, 4, 8, 6, 7, 4, 5, 3][Storage.int(.color)]
+			}
+		}
+	}
     
     struct PlayerData {
 		let id: String
