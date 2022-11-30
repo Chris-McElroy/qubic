@@ -15,15 +15,27 @@ class FB: ObservableObject {
     static let main = FB()
     
     var ref = Database.database().reference()
-    var playerDict: [String: PlayerData] = [:]
-	@Published var pastGamesDict: [OrderedDictionary<Int, GameData>] = Array(repeating: [:], count: 5) // TODO have this not store all the game info and instead store just the highlights, and have it be based off myGames and not the online thing
-	var myGames: [Int: Any] = Storage.dictionary(.myGames) as? [Int: Any] ?? [:]
+    var playerDict: [String: PlayerData]
+	@Published var pastGamesDict: [OrderedDictionary<Int, GameSummary>] // TODO i think i can get rid of the publishing here
+	var myGames: [Int: [String: Any]] = Storage.dictionary(.myGames) as? [Int: [String: Any]] ?? [:]
     var myGameData: GameData? = nil
     var opGameData: GameData? = nil
     var op: PlayerData? = nil
     var onlineInviteState: MatchingState = .stopped
     var gotOnlineMove: ((Int, Double, Int) -> Void)? = nil
     var cancelOnlineSearch: (() -> Void)? = nil
+	
+	init() {
+		let storedPlayers = Storage.dictionary(.playerDict) as? [String: [String: Any]] ?? [:]
+		for (id, dict) in storedPlayers {
+			playerDict[id] = PlayerData(from: dict, id: id)
+		}
+		for (id, game) in myGames {
+			let summary = GameSummary(from: game, id: id)
+			let i = FB.getPastGameCategory(for: summary.mode)
+			pastGamesDict[i][id] = summary
+		}
+	}
     
     func start() {
         Auth.auth().addStateDidChangeListener { (auth, user) in
@@ -73,36 +85,41 @@ class FB: ObservableObject {
 					self.playerDict[entry.key] = PlayerData(from: entry.value, id: entry.key)
 				}
             }
+			// TODO update all the summaries based on the new names
         })
     }
     
 	// laterDO consider having this just on a timer when you're in the pastgames boio, maybe see how intense the calls are first
+	// none of this should be changing when you're in pastgames
 	func observePastGames() {
 		let gameRef = ref.child("games/\(myID)")
 		gameRef.removeAllObservers()
 		gameRef.observeSingleEvent(of: DataEventType.value, with: { snapshot in
 			if let dict = snapshot.value as? [String: [String: Any]] {
 				for entry in dict.sorted(by: { $0.key < $1.key }) {
+					// TODO this should be game summary
 					let data = GameData(from: entry.value, gameID: Int(entry.key) ?? 0)
 					guard data.state.ended else { continue }
 					// order is preserved even when entries are updated
-					let i: Int
-					if data.mode == .local { i = 0 }
-					else if data.mode == .bot { i = 1 }
-					else if data.mode == .online { i = 2 }
-					else if data.mode.train { i = 3 }
-					else if data.mode.solve { i = 4 }
-					else { print("error", data.mode); i = 2 }
+					let i = FB.getPastGameCategory(for: data.mode)
 					self.pastGamesDict[i][data.gameID] = data
 				}
 			}
 		})
 	}
 	
+	static func getPastGameCategory(for mode: GameMode) -> Int {
+		if mode == .local { return 0 }
+		else if mode == .bot { return 1 }
+		else if mode == .online { return 2 }
+		else if mode.train { return 3 }
+		else if mode.solve { return 4 }
+		else { print("game category error", mode); return 2 }
+	}
+	
 	func getPastGame(userID: String, gameID: Int, completion: @escaping (GameData) -> Void) {
-		// TODO change pastgamesdict reference here
-		if let gameData = pastGamesDict.first(where: { $0.keys.contains(gameID) })?[gameID], userID == myID {
-			completion(gameData)
+		if let rawGameData = myGames[gameID], userID == myID {
+			completion(GameData(from: rawGameData, gameID: gameID))
 			return
 		}
 		let gameRef = ref.child("games/\(userID)/\(gameID)")
@@ -116,7 +133,7 @@ class FB: ObservableObject {
 	}
 	
 	func getPlayerData(for userID: String) -> PlayerData {
-		if let data = FB.main.playerDict[userID] {
+		if let data = playerDict[userID] {
 			return data
 		}
 			
@@ -210,6 +227,7 @@ class FB: ObservableObject {
 		ref.child("games/\(myID)/\(gameID)").setValue(dict)
 		myGames[gameID] = dict
 		Storage.set(myGames, for: .myGames)
+		// TODO update past games summary?? maybe just do this when the past games view loads, and when a game ends/is left
 	}
 	
 	func uploadGame(_ game: Game) {
@@ -628,7 +646,6 @@ class FB: ObservableObject {
 			let opID = dict[Key.opID.rawValue] as? String ?? ""
 			
 			if mode == .online {
-				// TODO this call to playerdict should happen after playerdict gets initialized, redo all the summaries after playerdict is created
 				op = FB.main.playerDict[opID] ?? PlayerData(id: opID, name: "n/a", color: 4)
 			} else if mode == .bot {
 				let bot = Bot.bots[Int(opID.dropFirst(3)) ?? Int(opID) ?? 0]
