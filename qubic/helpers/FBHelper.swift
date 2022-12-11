@@ -46,9 +46,9 @@ class FB: ObservableObject {
                 self.updateMyData()
 				self.updateMyStats()
 				self.observePlayers()
-				self.observePastGames()
+				self.loadPastGames()
 				self.startActiveTimer()
-				// removed finished online game
+				self.checkOnlineGames()
             } else {
                 // should only happen once, when they first use the app
                 Auth.auth().signInAnonymously() { (authResult, error) in
@@ -85,26 +85,43 @@ class FB: ObservableObject {
 					self.playerDict[entry.key] = PlayerData(from: entry.value, id: entry.key)
 				}
             }
-			// TODO update all the summaries based on the new names
+			self.loadPastGames()
         })
     }
     
-	// laterDO consider having this just on a timer when you're in the pastgames boio, maybe see how intense the calls are first
-	// none of this should be changing when you're in pastgames
-	func observePastGames() {
+	func loadPastGames() {
+		// TODO this should load past games from the local games list
+		for entry in dict.sorted(by: { $0.key < $1.key }) {
+			
+			// TODO this should be game summary
+			let data = GameData(from: entry.value, gameID: Int(entry.key) ?? 0)
+			guard data.state.ended else { continue }
+			// order is preserved even when entries are updated
+			let i = FB.getPastGameCategory(for: data.mode)
+			self.pastGamesDict[i][data.gameID] = data
+		}
+	}
+		
+	func checkOnlineGames() {
 		let gameRef = ref.child("games/\(myID)")
-		gameRef.removeAllObservers()
 		gameRef.observeSingleEvent(of: DataEventType.value, with: { snapshot in
-			if let dict = snapshot.value as? [String: [String: Any]] {
-				for entry in dict.sorted(by: { $0.key < $1.key }) {
-					// TODO this should be game summary
-					let data = GameData(from: entry.value, gameID: Int(entry.key) ?? 0)
-					guard data.state.ended else { continue }
-					// order is preserved even when entries are updated
-					let i = FB.getPastGameCategory(for: data.mode)
-					self.pastGamesDict[i][data.gameID] = data
+			guard let dict = snapshot.value as? [Int: [String: Any]] else { return }
+			self.myGames.merge(dict, uniquingKeysWith: {
+				// TODO i don't have access to the keys here and that kinda sucks
+				let localData = GameData(from: $0, gameID: 0)
+				let onlineData = GameData(from: $1, gameID: 0)
+				if localData == onlineData {
+					return $0
 				}
-			}
+				// TODO if they're not equal i should post the updated version to the cloud, but i can't because i don't have the fucking keys
+				// consider just setting the value of the full dict to what the local one is
+				// oof even if that's okay data wise i don't like rewriting that much willy nilly
+				// maybe i won't even do this at all? i dunno
+				print("got overlapping games")
+				print("local game:", localData)
+				print("oneline game:", onlineData)
+				return $0 // $0 is current local value
+			})
 		})
 	}
 	
@@ -227,7 +244,6 @@ class FB: ObservableObject {
 		ref.child("games/\(myID)/\(gameID)").setValue(dict)
 		myGames[gameID] = dict
 		Storage.set(myGames, for: .myGames)
-		// TODO update past games summary?? maybe just do this when the past games view loads, and when a game ends/is left
 	}
 	
 	func uploadGame(_ game: Game) {
@@ -463,7 +479,7 @@ class FB: ObservableObject {
         opGameData = nil
         opGameRef.removeAllObservers()
 		setGameValue(to: myData.toDict(), gameID: myData.gameID)
-		observePastGames()
+		loadPastGames()
     }
 	
 	func uploadBots() {
@@ -472,7 +488,7 @@ class FB: ObservableObject {
 		}
 	}
 
-    struct GameData {
+	struct GameData: Equatable {
         let gameID: Int         // my gameID
 		let mode: GameMode		// the game mode
         let myTurn: Int         // 0 for moves first
