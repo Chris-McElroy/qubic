@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-let buildNumber = 30307
+let buildNumber = 30309
 let versionType: VersionType = .xCode
 let solveButtonsEnabled = false
 

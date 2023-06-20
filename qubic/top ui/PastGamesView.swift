@@ -17,7 +17,9 @@ struct PastGamesView: View {
 	@State var time = 0
 	@State var mode = 2
 	@State var expanded: Int? = nil
-	@State var gameList: [FB.GameData] = []
+	@State var gameList: [FB.GameSummary] = [] // TODO this was gamedata before, i just switched it to game summary, i think that breaks everything
+	// TODO consider this being a direct copy of the dict instead of a state variable?
+	// TODO yeah this currently isn't updating at all, unless i restart the game
 	@State var currentProxy: Any? = nil
     
     var body: some View {
@@ -63,7 +65,7 @@ struct PastGamesView: View {
 				Spacer().frame(height: layout.current == .review ? layout.fullHeight : 0)
 				HPicker(width: 84, height: 40, selection: $result, labels: ["wins", "all", "losses"], onSelection: {_ in getCurrentGames() })
 				HPicker(width: 84, height: 40, selection: $turn, labels: ["first", "either", "second"], onSelection: {_ in getCurrentGames() })
-				HPicker(width: 84, height: 40, selection: $time, labels: ["all", "untimed", "<1 min", "1-3 min", "5-10 min"], onSelection: {_ in getCurrentGames() })
+				HPicker(width: 84, height: 40, selection: $time, labels: ["all", "<30 sec", "<1 min", "1+ min", "untimed"], onSelection: {_ in getCurrentGames() })
 					.modifier(EnableHPicker(on: mode.noneOf(3, 4)))
 				HPicker(width: 84, height: 40, selection: $mode, labels: ["local", "bots", "online", "train", "solve"], onSelection: {_ in getCurrentGames() })
 			} else {
@@ -97,7 +99,7 @@ struct PastGamesView: View {
 
 	func gameEntry(_ i: Int, action: @escaping () -> Void) -> some View {
 		let game = gameList[i]
-		let op = getOp(for: game)
+		let op = game.op
 		let time = Date(timeIntervalSinceReferenceDate: Double(game.gameID)/1000)
 		let newDay: Bool
 		if #available(iOS 14, *) {
@@ -122,7 +124,7 @@ struct PastGamesView: View {
 		let format = DateFormatter()
 		format.dateStyle = .long
 		format.timeStyle = .short
-		
+
 		return VStack(spacing: 10) {
 			if newDay {
 				if #available(iOS 15, *) {
@@ -137,7 +139,7 @@ struct PastGamesView: View {
 						.allowsHitTesting(false)
 						.frame(height: 40)
 					Spacer()
-					Text(timeLabel(for: game.myTimes[0]))
+					Text(timeLabel(for: game.timeLimit))
 						.frame(width: 65)
 					Spacer()
 					Text(game.myTurn == 0 ? "1st" : "2nd")
@@ -155,22 +157,23 @@ struct PastGamesView: View {
 			.onTapGesture { action() }
 		}
 	}
-	
+
 	func expandedGameView(_ i: Int) -> some View {
-		let game = gameList[i]
-		let op = getOp(for: game)
+		let summary = gameList[i]
+		let game = FB.GameData(from: FB.main.myGames[String(summary.gameID)] ?? [:], gameID: summary.gameID) // TODO is there a better way to get the data out
+		let op = summary.op
 		let time = Date(timeIntervalSinceReferenceDate: Double(game.gameID)/1000)
 		let length = game.endTime - game.gameID
 		let format = DateFormatter()
 		let boardScene = BoardScene()
 		format.dateStyle = .none
 		format.timeStyle = .short
-		
+
 		return HStack(spacing: 0) {
 			VStack(spacing: 20) {
 				Spacer()
 				if #available(iOS 15, *) {
-					Text(time.formatted(date: .omitted, time: .shortened))
+					Text(time.formatted(date: Date.FormatStyle.DateStyle.omitted, time: Date.FormatStyle.TimeStyle.shortened))
 				} else {
 					Text(format.string(from: time))
 				}
@@ -182,7 +185,7 @@ struct PastGamesView: View {
 				Spacer()
 				Spacer()
 				Button("review") {
-					ReviewGame().load(from: game, opData: getOp(for: game))
+					ReviewGame().load(from: game, opData: summary.op)
 					GameLayout.main.animateIntro()
 					layout.change(to: .review)
 				}
@@ -214,18 +217,44 @@ struct PastGamesView: View {
 		.multilineTextAlignment(.center)
 	}
 	
+	// TODO i deleted this and i have no record or idea of why
+	// maybe it was because i was creating a new dictionary for saved games that rendered it no longer necessary
+	// if so, change the calls above to whatever the new thing should be
+	// yes that was why, it's in the new game summary
+//	func getOp(for game: FB.GameData) -> FB.PlayerData {
+//		var op: FB.PlayerData
+//		if game.mode == .online {
+//			op = FB.main.playerDict[game.opID] ?? FB.PlayerData(id: game.opID, name: "n/a", color: 4)
+//		} else if game.mode == .bot {
+//			let bot = Bot.bots[Int(game.opID.dropFirst(3)) ?? Int(game.opID) ?? 0]
+//			op = FB.PlayerData(id: game.opID, name: bot.name, color: bot.color)
+//		} else if game.mode.solve {
+//			let color = [.simple: 7, .common: 8, .tricky: 1][game.mode] ?? 4
+//			op = FB.PlayerData(id: game.opID, name: game.opID, color: color)
+//		} else if game.mode.train {
+//			let color = [.novice: 6, .defender: 5, .warrior: 0, .tyrant: 3, .oracle: 2][game.mode] ?? 8
+//			op = FB.PlayerData(id: game.opID, name: game.opID, color: color)
+//		} else {
+//			op = FB.PlayerData(id: game.opID, name: "friend", color: Storage.int(.color))
+//		}
+//		if op.color == Storage.int(.color) {
+//			op.color = [4, 4, 4, 8, 6, 7, 4, 5, 3][Storage.int(.color)]
+//		}
+//		return op
+//	}
+
 	func getCurrentGames() {
 		withAnimation {
 			expanded = nil
 		}
-		
-		let requiredTime: ClosedRange<Double>? = [1: (-1)...(-1), 2: 1...59, 3: 60...180, 4: 300...600][time]
-		
-		gameList = fb.pastGamesDict[mode].values
+
+		let requiredTime: ClosedRange<Double>? = [1: 1...29, 2: 30...59, 3: 60...(.infinity), 4: (-1)...(-1)][time]
+
+		gameList = fb.pastGamesDict[mode].values.elements // TODO i'm sus of the elemets call here, this is apparently making it read only
 			.filter { result == 1 ? true : (result == 0 ? $0.state.myWin : $0.state.opWin) }
 			.filter { turn == 1 ? true : (turn == 0 ? $0.myTurn == 0 : $0.myTurn == 1) }
-			.filter { time == 0 || mode.oneOf(3, 4) ? true : ((requiredTime ?? (-1)...(-1)).contains($0.myTimes.first ?? -1))  }
-		
+			.filter { time == 0 || mode.oneOf(3, 4) ? true : ((requiredTime ?? (-1)...(-1)).contains($0.timeLimit))  }
+
 		if #available(iOS 14.0, *) {
 			Timer.after(0.03) {
 				withAnimation(.easeOut(duration: 0.08)) {

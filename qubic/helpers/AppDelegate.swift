@@ -19,7 +19,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         UserDefaults.standard.register(defaults: [
 			Key.train.rawValue: [0,0,0,0,0,0],
 			Key.lastTrainMenu.rawValue: [0,1,0],
-			Key.lastPlayMenu.rawValue: [1,1,0,0],
+			Key.lastPlayMenu.rawValue: [1,1,2,0],
             Key.streak.rawValue: 0,
             Key.lastDC.rawValue: 0,
 			Key.currentDaily.rawValue: 0,

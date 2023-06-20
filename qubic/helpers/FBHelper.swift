@@ -15,9 +15,9 @@ class FB: ObservableObject {
     static let main = FB()
     
     var ref = Database.database().reference()
-    var playerDict: [String: PlayerData]
-	@Published var pastGamesDict: [OrderedDictionary<Int, GameSummary>] // TODO i think i can get rid of the publishing here
-	var myGames: [Int: [String: Any]] = Storage.dictionary(.myGames) as? [Int: [String: Any]] ?? [:]
+	var playerDict: [String: PlayerData] = [:]
+	@Published var pastGamesDict: [OrderedDictionary<Int, GameSummary>] = [[:], [:], [:], [:], [:]] // TODO i think i can get rid of the publishing here
+	var myGames: [String: [String: Any]] = Storage.dictionary(.myGames) as? [String: [String: Any]] ?? [:] // TODO switch this dict to use Ints as well
     var myGameData: GameData? = nil
     var opGameData: GameData? = nil
     var op: PlayerData? = nil
@@ -28,12 +28,14 @@ class FB: ObservableObject {
 	init() {
 		let storedPlayers = Storage.dictionary(.playerDict) as? [String: [String: Any]] ?? [:]
 		for (id, dict) in storedPlayers {
+			// TODO this was commented out?
 			playerDict[id] = PlayerData(from: dict, id: id)
 		}
 		for (id, game) in myGames {
-			let summary = GameSummary(from: game, id: id)
+			let summary = GameSummary(from: game, id: Int(id) ?? 0)
 			let i = FB.getPastGameCategory(for: summary.mode)
-			pastGamesDict[i][id] = summary
+			// TODO this was commented out?
+			pastGamesDict[i][summary.gameID] = summary
 		}
 	}
     
@@ -91,21 +93,21 @@ class FB: ObservableObject {
     
 	func loadPastGames() {
 		// TODO this should load past games from the local games list
-		for entry in dict.sorted(by: { $0.key < $1.key }) {
-			
-			// TODO this should be game summary
-			let data = GameData(from: entry.value, gameID: Int(entry.key) ?? 0)
-			guard data.state.ended else { continue }
-			// order is preserved even when entries are updated
-			let i = FB.getPastGameCategory(for: data.mode)
-			self.pastGamesDict[i][data.gameID] = data
-		}
+//		for entry in dict.sorted(by: { $0.key < $1.key }) {
+//			
+//			// TODO this should be game summary
+//			let data = GameData(from: entry.value, gameID: Int(entry.key) ?? 0)
+//			guard data.state.ended else { continue }
+//			// order is preserved even when entries are updated
+//			let i = FB.getPastGameCategory(for: data.mode)
+//			self.pastGamesDict[i][data.gameID] = data
+//		}
 	}
 		
 	func checkOnlineGames() {
 		let gameRef = ref.child("games/\(myID)")
 		gameRef.observeSingleEvent(of: DataEventType.value, with: { snapshot in
-			guard let dict = snapshot.value as? [Int: [String: Any]] else { return }
+			guard let dict = snapshot.value as? [String: [String: Any]] else { return }
 			self.myGames.merge(dict, uniquingKeysWith: {
 				// TODO i don't have access to the keys here and that kinda sucks
 				let localData = GameData(from: $0, gameID: 0)
@@ -135,7 +137,7 @@ class FB: ObservableObject {
 	}
 	
 	func getPastGame(userID: String, gameID: Int, completion: @escaping (GameData) -> Void) {
-		if let rawGameData = myGames[gameID], userID == myID {
+		if let rawGameData = myGames[String(gameID)], userID == myID {
 			completion(GameData(from: rawGameData, gameID: gameID))
 			return
 		}
@@ -242,7 +244,7 @@ class FB: ObservableObject {
 	
 	func setGameValue(to dict: [String: Any], gameID: Int) {
 		ref.child("games/\(myID)/\(gameID)").setValue(dict)
-		myGames[gameID] = dict
+		myGames[String(gameID)] = dict
 		Storage.set(myGames, for: .myGames)
 	}
 	
@@ -259,7 +261,7 @@ class FB: ObservableObject {
         myGameData = nil
         opGameData = nil
 		
-		let timeLimit: Double = [-1, 10, 20, 30, 40, 60, 120, 180, 300, 600][Layout.main.playSelection[2]]
+		let timeLimit: Double = [15, 30, 180, -1][Layout.main.playSelection[2]]
 		let humansOnly = Layout.main.playSelection[1] == 2
         var possOp: Set<String> = []
         var myInvite = OnlineInviteData(timeLimit: timeLimit)

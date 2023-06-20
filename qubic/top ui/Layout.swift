@@ -151,7 +151,7 @@ class Layout: ObservableObject {
 	@Published var updateAvailable: Bool = false
 	@Published var trainSelection: [Int] = Storage.array(.lastTrainMenu) as? [Int] ?? [0,1,0]
 	@Published var solveSelection: [Int] = [Storage.array(.daily)?.enumerated().first(where: { !($0.element as? Bool ?? false) })?.offset ?? 0, 0]
-	@Published var playSelection: [Int] = Storage.array(.lastPlayMenu) as? [Int] ?? [1,1,0,0]
+	@Published var playSelection: [Int] = Storage.array(.lastPlayMenu) as? [Int] ?? [1,1,2,0]
 	@Published var searchingOnline: Bool = false
 //	@Published var hue: CGFloat = 0.59
 //	@Published var sat: CGFloat = 1.0

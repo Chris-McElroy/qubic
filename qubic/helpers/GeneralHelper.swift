@@ -62,8 +62,7 @@ extension Date {
 	}
 	
 	static var int: Int {
-		let midnight = Calendar.current.startOfDay(for: Date())
-		return Calendar.current.ordinality(of: .day, in: .era, for: midnight) ?? 0
+		return Calendar.current.ordinality(of: .day, in: .era, for: Date()) ?? 0
 	}
 	
 	static var now: TimeInterval {
