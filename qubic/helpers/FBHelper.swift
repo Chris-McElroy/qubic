@@ -17,7 +17,7 @@ class FB: ObservableObject {
     var ref = Database.database().reference()
 	var playerDict: [String: PlayerData] = [:]
 	@Published var pastGamesDict: [OrderedDictionary<Int, GameSummary>] = [[:], [:], [:], [:], [:]] // TODO i think i can get rid of the publishing here
-	var myGames: [String: [String: Any]] = Storage.dictionary(.myGames) as? [String: [String: Any]] ?? [:] // TODO switch this dict to use Ints as well
+	var myGames: [String: [String: Any]] = Storage.dictionary(.myGames) as? [String: [String: Any]] ?? [:] // game IDs as Strings to comply with PList formatting
     var myGameData: GameData? = nil
     var opGameData: GameData? = nil
     var op: PlayerData? = nil
@@ -34,7 +34,6 @@ class FB: ObservableObject {
 		for (id, game) in myGames {
 			let summary = GameSummary(from: game, id: Int(id) ?? 0)
 			let i = FB.getPastGameCategory(for: summary.mode)
-			// TODO this was commented out?
 			pastGamesDict[i][summary.gameID] = summary
 		}
 	}
@@ -664,6 +663,7 @@ class FB: ObservableObject {
 			let opID = dict[Key.opID.rawValue] as? String ?? ""
 			
 			if mode == .online {
+				// TODO save playerDict offline as well, and re-update it with the online thing when i'm connected
 				op = FB.main.playerDict[opID] ?? PlayerData(id: opID, name: "n/a", color: 4)
 			} else if mode == .bot {
 				let bot = Bot.bots[Int(opID.dropFirst(3)) ?? Int(opID) ?? 0]

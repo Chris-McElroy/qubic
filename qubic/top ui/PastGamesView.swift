@@ -17,9 +17,9 @@ struct PastGamesView: View {
 	@State var time = 0
 	@State var mode = 2
 	@State var expanded: Int? = nil
-	@State var gameList: [FB.GameSummary] = [] // TODO this was gamedata before, i just switched it to game summary, i think that breaks everything
-	// TODO consider this being a direct copy of the dict instead of a state variable?
-	// TODO yeah this currently isn't updating at all, unless i restart the game
+	@State var gameList: [FB.GameSummary] = []
+	// TODO consider this being a direct copy of the FB summaries instead of a state variable?
+	// TODO this currently isn't updating at all, unless i restart the game
 	@State var currentProxy: Any? = nil
     
     var body: some View {
