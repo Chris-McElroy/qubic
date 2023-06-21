@@ -11,32 +11,16 @@ import FirebaseDatabase
 import FirebaseAuth
 import OrderedCollections
 
-class FB: ObservableObject {
+class FB {
     static let main = FB()
-    
+	
     var ref = Database.database().reference()
-	var playerDict: [String: PlayerData] = [:]
-	@Published var pastGamesDict: [OrderedDictionary<Int, GameSummary>] = [[:], [:], [:], [:], [:]] // TODO i think i can get rid of the publishing here
-	var myGames: [String: [String: Any]] = Storage.dictionary(.myGames) as? [String: [String: Any]] ?? [:] // game IDs as Strings to comply with PList formatting
     var myGameData: GameData? = nil
     var opGameData: GameData? = nil
     var op: PlayerData? = nil
     var onlineInviteState: MatchingState = .stopped
     var gotOnlineMove: ((Int, Double, Int) -> Void)? = nil
     var cancelOnlineSearch: (() -> Void)? = nil
-	
-	init() {
-		let storedPlayers = Storage.dictionary(.playerDict) as? [String: [String: Any]] ?? [:]
-		for (id, dict) in storedPlayers {
-			// TODO this was commented out?
-			playerDict[id] = PlayerData(from: dict, id: id)
-		}
-		for (id, game) in myGames {
-			let summary = GameSummary(from: game, id: Int(id) ?? 0)
-			let i = FB.getPastGameCategory(for: summary.mode)
-			pastGamesDict[i][summary.gameID] = summary
-		}
-	}
     
     func start() {
         Auth.auth().addStateDidChangeListener { (auth, user) in
@@ -83,14 +67,16 @@ class FB: ObservableObject {
 		playerRef.observe(DataEventType.value, with: { snapshot in
 			if let dict = snapshot.value as? [String: [String: Any]] {
 				for entry in dict {
-					self.playerDict[entry.key] = PlayerData(from: entry.value, id: entry.key)
+					PlayerData.all[entry.key] = PlayerData(from: entry.value, id: entry.key)
 				}
             }
-			self.loadPastGames()
+			Storage.set(PlayerData.all.mapValues { $0.toDict() }, for: .players)
+			GameSummary.updatePastGames()
         })
     }
     
 	func loadPastGames() {
+		// TODO when was/is this being called? when do i want it to be called
 		// TODO this should load past games from the local games list
 //		for entry in dict.sorted(by: { $0.key < $1.key }) {
 //			
@@ -107,7 +93,7 @@ class FB: ObservableObject {
 		let gameRef = ref.child("games/\(myID)")
 		gameRef.observeSingleEvent(of: DataEventType.value, with: { snapshot in
 			guard let dict = snapshot.value as? [String: [String: Any]] else { return }
-			self.myGames.merge(dict, uniquingKeysWith: {
+			GameData.all.merge(dict, uniquingKeysWith: {
 				// TODO i don't have access to the keys here and that kinda sucks
 				let localData = GameData(from: $0, gameID: 0)
 				let onlineData = GameData(from: $1, gameID: 0)
@@ -126,17 +112,8 @@ class FB: ObservableObject {
 		})
 	}
 	
-	static func getPastGameCategory(for mode: GameMode) -> Int {
-		if mode == .local { return 0 }
-		else if mode == .bot { return 1 }
-		else if mode == .online { return 2 }
-		else if mode.train { return 3 }
-		else if mode.solve { return 4 }
-		else { print("game category error", mode); return 2 }
-	}
-	
 	func getPastGame(userID: String, gameID: Int, completion: @escaping (GameData) -> Void) {
-		if let rawGameData = myGames[String(gameID)], userID == myID {
+		if let rawGameData = GameData.all[String(gameID)], userID == myID {
 			completion(GameData(from: rawGameData, gameID: gameID))
 			return
 		}
@@ -151,7 +128,7 @@ class FB: ObservableObject {
 	}
 	
 	func getPlayerData(for userID: String) -> PlayerData {
-		if let data = playerDict[userID] {
+		if let data = PlayerData.all[userID] {
 			return data
 		}
 			
@@ -195,7 +172,7 @@ class FB: ObservableObject {
         let myPlayerRef = ref.child("players/\(myID)")
         let name = Storage.string(.name) ?? ""
         let color = Storage.int(.color)
-        myPlayerRef.setValue([Key.name.rawValue: name, Key.color.rawValue: color])
+		myPlayerRef.setValue([Key.name.rawValue: name, Key.color.rawValue: color] as [String : Any])
     }
 	
 	func updateMyStats() {
@@ -225,7 +202,7 @@ class FB: ObservableObject {
 			Key.solvedBoards.rawValue: solves,
 			Key.solveBoardsVersion.rawValue: solveBoardVersion,
 			Key.playedTutorial.rawValue: tutorialPlays
-		])
+		] as [String : Any])
 	}
     
     func postFeedback(name: String, email: String, feedback: String) {
@@ -243,8 +220,8 @@ class FB: ObservableObject {
 	
 	func setGameValue(to dict: [String: Any], gameID: Int) {
 		ref.child("games/\(myID)/\(gameID)").setValue(dict)
-		myGames[String(gameID)] = dict
-		Storage.set(myGames, for: .myGames)
+		GameData.all[String(gameID)] = dict
+		Storage.set(GameData.all, for: .myGames)
 	}
 	
 	func uploadGame(_ game: Game) {
@@ -392,7 +369,7 @@ class FB: ObservableObject {
                         onlineRef.removeAllObservers()
                     }
                     if myData.state == .new {
-                        guard let op = self.playerDict[myData.opID] else { return }
+                        guard let op = PlayerData.all[myData.opID] else { return }
                         myData.state = .active
                         self.myGameData = myData
                         self.opGameData = opData
@@ -480,6 +457,11 @@ class FB: ObservableObject {
         opGameData = nil
         opGameRef.removeAllObservers()
 		setGameValue(to: myData.toDict(), gameID: myData.gameID)
+		
+		// updating game summary here, so it updates each time a game ends
+		let i = GameSummary.getPastGameCategory(for: myData.mode)
+		GameSummary.pastGames[i][myData.gameID] = GameSummary(gameID: myData.gameID, mode: myData.mode, myTurn: myData.myTurn, opID: myData.opID, state: state, timeLimit: myData.totalTime ?? -1)
+		
 		loadPastGames()
     }
 	
@@ -488,283 +470,69 @@ class FB: ObservableObject {
 			ref.child("bots/\(i)").setValue(bot.toDict())
 		}
 	}
-
-	struct GameData: Equatable {
-        let gameID: Int         // my gameID
-		let mode: GameMode		// the game mode
-        let myTurn: Int         // 0 for moves first
-        let opID: String        // op id
-        let opGameID: Int       // op gameID
-        var hints: Bool         // true for sandbox mode
-        var state: GameState    // current state of the game
-		var setupNum: Int    	// the setup number for the game
-		var presetCount: Int  	// the number of preset moves in the game
-		var myMoves: [Int]      // my moves
-		var opMoves: [Int]      // op moves
-        var myTimes: [Double] 	// times remaining on my clock after each of my moves
-        var opTimes: [Double]  	// times remaining on op clock after each of their moves
-		var myMoveTimes: [Int]	// time each move is made
-		var opMoveTimes: [Int]	// time each move is made
-		var endTime: Int	// time the game ended
-        let valid: Bool         // whether the given dict was valid
-		
-		var totalTime: Double? {
-			myTimes.first == -1 ? nil : myTimes.first
-		}
-        
-		init(from dict: [String: Any], gameID: Int) {
-			// laterDO handle better if their dict is invalid (esp if they have an old version)
-            valid = (
-//				dict[Key.mode.rawValue] as? Int != nil &&
-				dict[Key.myTurn.rawValue] as? Int != nil &&
-				dict[Key.opID.rawValue] as? String != nil &&
-				dict[Key.opGameID.rawValue] as? Int != nil &&
-				dict[Key.hints.rawValue] as? Int != nil &&
-				dict[Key.state.rawValue] as? Int != nil &&
-				dict[Key.myTimes.rawValue] as? [Double] != nil &&
-				dict[Key.opTimes.rawValue] as? [Double] != nil &&
-				dict[Key.myMoves.rawValue] as? [Int] != nil &&
-				dict[Key.opMoves.rawValue] as? [Int] != nil // &&
-//				dict[Key.myMoveTimes.rawValue] as? [Int] != nil &&
-//				dict[Key.opMoveTimes.rawValue] as? [Int] != nil &&
-//				dict[Key.endTime.rawValue] as? Int != nil &&
-//				dict[Key.presetCount.rawValue] as? Int != nil &&
-//				dict[Key.setupNum.rawValue] as? Int != nil
-            )
-            
-            self.gameID = gameID
-			mode = GameMode(rawValue: dict[Key.mode.rawValue] as? Int ?? 12) ?? .online
-            myTurn = dict[Key.myTurn.rawValue] as? Int ?? 0
-            opID = dict[Key.opID.rawValue] as? String ?? ""
-            opGameID = dict[Key.opGameID.rawValue] as? Int ?? 0
-            hints = 1 == dict[Key.hints.rawValue] as? Int ?? 0
-            state = GameState(rawValue: dict[Key.state.rawValue] as? Int ?? 0) ?? .error
-			presetCount = dict[Key.presetCount.rawValue] as? Int ?? 0
-			setupNum = dict[Key.setupNum.rawValue] as? Int ?? 0
-            myTimes = dict[Key.myTimes.rawValue] as? [Double] ?? []
-            opTimes = dict[Key.opTimes.rawValue] as? [Double] ?? []
-            myMoves = dict[Key.myMoves.rawValue] as? [Int] ?? []
-            opMoves = dict[Key.opMoves.rawValue] as? [Int] ?? []
-			myMoveTimes = dict[Key.myMoveTimes.rawValue] as? [Int] ?? []
-			opMoveTimes = dict[Key.opMoveTimes.rawValue] as? [Int] ?? []
-			endTime = dict[Key.endTime.rawValue] as? Int ?? -1
-        }
-        
-        init(myInvite: OnlineInviteData, opInvite: OnlineInviteData) {
-            gameID = myInvite.gameID
-			mode = .online
-            myTurn = myInvite > opInvite ? myInvite.gameID % 2 : (opInvite.gameID % 2)^1
-            opID = myInvite.opID
-            opGameID = opInvite.gameID
-            hints = false
-            state = .new
-			presetCount = 0
-			setupNum = 0
-            myTimes = [myInvite.timeLimit]
-            opTimes = [myInvite.timeLimit]
-            myMoves = [-1]
-            opMoves = [-1]
-			myMoveTimes = [gameID]
-			opMoveTimes = [gameID]
-			endTime = -1
-            valid = true
-        }
-		
-		init(from game: Game, gameID: Int) {
-			valid = true
-			self.gameID = gameID
-			mode = game.mode
-			myTurn = game.myTurn
-			let op = game.player[game.myTurn^1]
-			opID = op.id
-			opGameID = 0
-			hints = game.hints
-			state = game.gameState
-			presetCount = game.preset.count
-			setupNum = game.setupNum
-			myTimes = [game.totalTime ?? -1]
-			opTimes = [game.totalTime ?? -1]
-			myMoves = [-1]
-			opMoves = [-1]
-			myMoveTimes = [gameID]
-			opMoveTimes = [gameID]
-			for (i, p) in game.preset.enumerated() {
-				if i % 2 == game.myTurn {
-					myTimes.append(game.totalTime ?? -1)
-					myMoves.append(p)
-					myMoveTimes.append(gameID)
-				} else {
-					opTimes.append(game.totalTime ?? -1)
-					opMoves.append(p)
-					opMoveTimes.append(gameID)
-				}
-			}
-			endTime = -1
-		}
-        
-        func toDict() -> [String: Any] {
-            [
-				Key.mode.rawValue: mode.rawValue,
-                Key.myTurn.rawValue: myTurn,
-                Key.opID.rawValue: opID,
-                Key.opGameID.rawValue: opGameID,
-                Key.hints.rawValue: hints ? 1 : 0,
-                Key.state.rawValue: state.rawValue,
-				Key.presetCount.rawValue: presetCount,
-				Key.setupNum.rawValue: setupNum,
-                Key.myTimes.rawValue: myTimes,
-                Key.opTimes.rawValue: opTimes,
-                Key.myMoves.rawValue: myMoves,
-				Key.opMoves.rawValue: opMoves,
-				Key.myMoveTimes.rawValue: myMoveTimes,
-				Key.opMoveTimes.rawValue: opMoveTimes,
-				Key.endTime.rawValue: endTime
-            ]
-        }
-		
-		func orderedMoves() -> [Int] {
-			if myMoves.isEmpty || opMoves.isEmpty { return [] }
-			
-			var firstMoves = myTurn == 0 ? myMoves.dropFirst() : opMoves.dropFirst()
-			var secondMoves = myTurn == 1 ? myMoves.dropFirst() : opMoves.dropFirst()
-			let diff = firstMoves.count - secondMoves.count
-			
-			guard diff == 0 || diff == 1 else { return [] }
-			
-			var list: [Int] = []
-			while !firstMoves.isEmpty {
-				list.append(firstMoves.removeFirst())
-				if !secondMoves.isEmpty {
-					list.append(secondMoves.removeFirst())
-				}
-			}
-			return list
-		}
-		
-		func getTimes() -> [[Double]] {
-			return myTurn == 0 ? [myTimes, opTimes] : [opTimes, myTimes]
-		}
-    }
-	
-	struct GameSummary {
-		let gameID: Int         // my gameID
-		let mode: GameMode		// the game mode
-		let myTurn: Int         // 0 for moves first
-		var op: PlayerData		// op data
-		var state: GameState    // current state of the game
-		var timeLimit: Double	// time limit of the game
-		
-		init(from dict: [String: Any], id: Int) {
-			gameID = id
-			mode = GameMode(rawValue: dict[Key.mode.rawValue] as? Int ?? 12) ?? .online
-			myTurn = dict[Key.myTurn.rawValue] as? Int ?? 0
-			state = GameState(rawValue: dict[Key.state.rawValue] as? Int ?? 0) ?? .error
-			timeLimit = (dict[Key.myTimes.rawValue] as? [Double] ?? [-1]).first ?? -1
-			let opID = dict[Key.opID.rawValue] as? String ?? ""
-			
-			if mode == .online {
-				// TODO save playerDict offline as well, and re-update it with the online thing when i'm connected
-				op = FB.main.playerDict[opID] ?? PlayerData(id: opID, name: "n/a", color: 4)
-			} else if mode == .bot {
-				let bot = Bot.bots[Int(opID.dropFirst(3)) ?? Int(opID) ?? 0]
-				op = FB.PlayerData(id: opID, name: bot.name, color: bot.color)
-			} else if mode.solve {
-				let color = [.simple: 7, .common: 8, .tricky: 1][mode] ?? 4
-				op = FB.PlayerData(id: opID, name: opID, color: color)
-			} else if mode.train {
-				let color = [.novice: 6, .defender: 5, .warrior: 0, .tyrant: 3, .oracle: 2][mode] ?? 8
-				op = FB.PlayerData(id: opID, name: opID, color: color)
-			} else {
-				op = FB.PlayerData(id: opID, name: "friend", color: Storage.int(.color))
-			}
-			if op.color == Storage.int(.color) {
-				op.color = [4, 4, 4, 8, 6, 7, 4, 5, 3][Storage.int(.color)]
-			}
-		}
-	}
-    
-    struct PlayerData {
-		let id: String
-        let name: String
-        var color: Int
-		
-		init(id: String, name: String, color: Int) {
-			self.id = id
-			self.name = name
-			self.color = color
-		}
-        
-		init(from dict: [String: Any], id: String) {
-			self.id = id
-            name = dict[Key.name.rawValue] as? String ?? "no name"
-            color = dict[Key.color.rawValue] as? Int ?? 0
-        }
-    }
-    
-    struct OnlineInviteData: Comparable {
-        let ID: String
-        let gameID: Int
-        let timeLimit: Double
-        var opID: String
-        let valid: Bool
-        
-        init(from entry: Dictionary<String, [String: Any]>.Element) {
-            self.init(from: entry.value, ID: entry.key)
-        }
-        
-        init(from dict: [String: Any], ID: String) {
-            valid = (
-                dict[Key.gameID.rawValue] as? Int != nil &&
-                    dict[Key.timeLimit.rawValue] as? Double != nil &&
-                    dict[Key.opID.rawValue] as? String != nil
-            )
-            
-            self.ID = ID
-            gameID = dict[Key.gameID.rawValue] as? Int ?? 0
-            timeLimit = dict[Key.timeLimit.rawValue] as? Double ?? 0
-            opID = dict[Key.opID.rawValue] as? String ?? ""
-        }
-        
-        init(timeLimit: Double) {
-            ID = myID
-            gameID = Date.ms
-            self.timeLimit = timeLimit
-            opID = ""
-            valid = true
-        }
-        
-        func toDict() -> [String: Any] {
-            [
-                Key.gameID.rawValue: gameID,
-                Key.timeLimit.rawValue: timeLimit,
-                Key.opID.rawValue: opID
-            ]
-        }
-        
-        static func <(lhs: Self, rhs: Self) -> Bool {
-            if lhs.gameID == rhs.gameID {
-                return lhs.ID < rhs.ID
-            } else {
-                return lhs.gameID < rhs.gameID
-            }
-        }
-        
-        static func >(lhs: Self, rhs: Self) -> Bool {
-            if lhs.gameID == rhs.gameID {
-                return lhs.ID > rhs.ID
-            } else {
-                return lhs.gameID > rhs.gameID
-            }
-        }
-        
-        static func ==(lhs: Self, rhs: Self) -> Bool {
-            return lhs.gameID == rhs.gameID && lhs.ID == rhs.ID
-        }
-    }
     
     enum MatchingState {
         case invited, offered, matched, stopped
     }
 }
 
+struct OnlineInviteData: Comparable {
+	let ID: String
+	let gameID: Int
+	let timeLimit: Double
+	var opID: String
+	let valid: Bool
 
+	init(from entry: Dictionary<String, [String: Any]>.Element) {
+		self.init(from: entry.value, ID: entry.key)
+	}
+
+	init(from dict: [String: Any], ID: String) {
+		valid = (
+			dict[Key.gameID.rawValue] as? Int != nil &&
+			dict[Key.timeLimit.rawValue] as? Double != nil &&
+			dict[Key.opID.rawValue] as? String != nil
+		)
+
+		self.ID = ID
+		gameID = dict[Key.gameID.rawValue] as? Int ?? 0
+		timeLimit = dict[Key.timeLimit.rawValue] as? Double ?? 0
+		opID = dict[Key.opID.rawValue] as? String ?? ""
+	}
+
+	init(timeLimit: Double) {
+		ID = myID
+		gameID = Date.ms
+		self.timeLimit = timeLimit
+		opID = ""
+		valid = true
+	}
+
+	func toDict() -> [String: Any] {
+		[
+			Key.gameID.rawValue: gameID,
+			Key.timeLimit.rawValue: timeLimit,
+			Key.opID.rawValue: opID
+		]
+	}
+
+	static func <(lhs: Self, rhs: Self) -> Bool {
+		if lhs.gameID == rhs.gameID {
+			return lhs.ID < rhs.ID
+		} else {
+			return lhs.gameID < rhs.gameID
+		}
+	}
+
+	static func >(lhs: Self, rhs: Self) -> Bool {
+		if lhs.gameID == rhs.gameID {
+			return lhs.ID > rhs.ID
+		} else {
+			return lhs.gameID > rhs.gameID
+		}
+	}
+
+	static func ==(lhs: Self, rhs: Self) -> Bool {
+		return lhs.gameID == rhs.gameID && lhs.ID == rhs.ID
+	}
+}

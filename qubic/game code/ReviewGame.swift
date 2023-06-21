@@ -9,7 +9,7 @@
 import Foundation
 
 class ReviewGame: Game {
-	func load(from game: FB.GameData, opData: FB.PlayerData) {
+	func load(from game: GameData, opData: PlayerData) {
 		Game.main = self
 		gameState = game.state
 		mode = game.mode

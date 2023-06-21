@@ -9,6 +9,16 @@
 import Foundation
 import UIKit
 
+// for compatibility with storage:
+class Bot: Player {
+	static let bots: [BotData] = []
+}
+
+struct BotData {
+	let name: String
+	let color: Int
+}
+
 enum GameMode: Int {
     case novice, defender, warrior, tyrant, oracle, cubist
     case daily, simple, common, tricky
@@ -96,6 +106,8 @@ class Game: ObservableObject {
     var player: [Player] = [Player(b: Board(), n: 0), Player(b: Board(), n: 0)]
     var preset: [Int] = []
     var mode: GameMode = .local
+	var hints: Bool = false // for compatibility
+	var setupNum: Int = 0 // for compatibility
     var reviewingGame: Bool = false
     var gameState: GameState = .new
     private var board = Board()

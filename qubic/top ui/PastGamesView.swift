@@ -11,15 +11,12 @@ import SceneKit
 
 struct PastGamesView: View {
 	@ObservedObject var layout = Layout.main
-	@ObservedObject var fb = FB.main
 	@State var result = 1
 	@State var turn = 1
 	@State var time = 0
 	@State var mode = 2
 	@State var expanded: Int? = nil
-	@State var gameList: [FB.GameSummary] = []
-	// TODO consider this being a direct copy of the FB summaries instead of a state variable?
-	// TODO this currently isn't updating at all, unless i restart the game
+	@State var gameList: [GameSummary] = [] // this is what live updates the displayed games
 	@State var currentProxy: Any? = nil
     
     var body: some View {
@@ -27,6 +24,11 @@ struct PastGamesView: View {
 			Button("past games") { layout.change(to: .pastGames) }
 				.buttonStyle(MoreStyle())
 				.zIndex(10)
+				.onAppear {
+					DispatchQueue(label: "past game loader", qos: .userInteractive).async {
+						GameSummary.updatePastGames()
+					}
+				}
 			if layout.current == .pastGames || layout.current == .review {
 				Fill(5)
 					.onAppear {
@@ -160,7 +162,7 @@ struct PastGamesView: View {
 
 	func expandedGameView(_ i: Int) -> some View {
 		let summary = gameList[i]
-		let game = FB.GameData(from: FB.main.myGames[String(summary.gameID)] ?? [:], gameID: summary.gameID) // TODO is there a better way to get the data out
+		let game = GameData(from: GameData.all[String(summary.gameID)] ?? [:], gameID: summary.gameID)
 		let op = summary.op
 		let time = Date(timeIntervalSinceReferenceDate: Double(game.gameID)/1000)
 		let length = game.endTime - game.gameID
@@ -216,32 +218,6 @@ struct PastGamesView: View {
 		}
 		.multilineTextAlignment(.center)
 	}
-	
-	// TODO i deleted this and i have no record or idea of why
-	// maybe it was because i was creating a new dictionary for saved games that rendered it no longer necessary
-	// if so, change the calls above to whatever the new thing should be
-	// yes that was why, it's in the new game summary
-//	func getOp(for game: FB.GameData) -> FB.PlayerData {
-//		var op: FB.PlayerData
-//		if game.mode == .online {
-//			op = FB.main.playerDict[game.opID] ?? FB.PlayerData(id: game.opID, name: "n/a", color: 4)
-//		} else if game.mode == .bot {
-//			let bot = Bot.bots[Int(game.opID.dropFirst(3)) ?? Int(game.opID) ?? 0]
-//			op = FB.PlayerData(id: game.opID, name: bot.name, color: bot.color)
-//		} else if game.mode.solve {
-//			let color = [.simple: 7, .common: 8, .tricky: 1][game.mode] ?? 4
-//			op = FB.PlayerData(id: game.opID, name: game.opID, color: color)
-//		} else if game.mode.train {
-//			let color = [.novice: 6, .defender: 5, .warrior: 0, .tyrant: 3, .oracle: 2][game.mode] ?? 8
-//			op = FB.PlayerData(id: game.opID, name: game.opID, color: color)
-//		} else {
-//			op = FB.PlayerData(id: game.opID, name: "friend", color: Storage.int(.color))
-//		}
-//		if op.color == Storage.int(.color) {
-//			op.color = [4, 4, 4, 8, 6, 7, 4, 5, 3][Storage.int(.color)]
-//		}
-//		return op
-//	}
 
 	func getCurrentGames() {
 		withAnimation {
@@ -250,7 +226,8 @@ struct PastGamesView: View {
 
 		let requiredTime: ClosedRange<Double>? = [1: 1...29, 2: 30...59, 3: 60...(.infinity), 4: (-1)...(-1)][time]
 
-		gameList = fb.pastGamesDict[mode].values.elements // TODO i'm sus of the elemets call here, this is apparently making it read only
+		// elements call makes this read only but i think that's totally fine
+		gameList = GameSummary.pastGames[mode].values.elements
 			.filter { result == 1 ? true : (result == 0 ? $0.state.myWin : $0.state.opWin) }
 			.filter { turn == 1 ? true : (turn == 0 ? $0.myTurn == 0 : $0.myTurn == 1) }
 			.filter { time == 0 || mode.oneOf(3, 4) ? true : ((requiredTime ?? (-1)...(-1)).contains($0.timeLimit))  }

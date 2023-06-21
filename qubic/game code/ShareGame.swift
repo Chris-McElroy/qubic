@@ -9,7 +9,7 @@
 import Foundation
 
 class ShareGame: Game {
-	func load(from game: FB.GameData, myData: FB.PlayerData, opData: FB.PlayerData, movesIn: Int?) {
+	func load(from game: GameData, myData: PlayerData, opData: PlayerData, movesIn: Int?) {
 		let allMoves = game.orderedMoves()
 		let movesIn = (movesIn ?? allMoves.count) <= allMoves.count ? movesIn ?? allMoves.count : allMoves.count
 		Game.main = self
