@@ -31,7 +31,6 @@ class FB {
                 self.updateMyData()
 				self.updateMyStats()
 				self.observePlayers()
-				self.loadPastGames()
 				self.startActiveTimer()
 				self.checkOnlineGames()
             } else {
@@ -74,41 +73,35 @@ class FB {
 			GameSummary.updatePastGames()
         })
     }
-    
-	func loadPastGames() {
-		// TODO when was/is this being called? when do i want it to be called
-		// TODO this should load past games from the local games list
-//		for entry in dict.sorted(by: { $0.key < $1.key }) {
-//			
-//			// TODO this should be game summary
-//			let data = GameData(from: entry.value, gameID: Int(entry.key) ?? 0)
-//			guard data.state.ended else { continue }
-//			// order is preserved even when entries are updated
-//			let i = FB.getPastGameCategory(for: data.mode)
-//			self.pastGamesDict[i][data.gameID] = data
-//		}
-	}
 		
 	func checkOnlineGames() {
 		let gameRef = ref.child("games/\(myID)")
 		gameRef.observeSingleEvent(of: DataEventType.value, with: { snapshot in
 			guard let dict = snapshot.value as? [String: [String: Any]] else { return }
-			GameData.all.merge(dict, uniquingKeysWith: {
-				// TODO i don't have access to the keys here and that kinda sucks
-				let localData = GameData(from: $0, gameID: 0)
-				let onlineData = GameData(from: $1, gameID: 0)
-				if localData == onlineData {
-					return $0
+			for (id, onlineGame) in dict {
+				guard let localGame = GameData.all[id] else {
+					GameData.all[id] = onlineGame
+					continue
 				}
-				// TODO if they're not equal i should post the updated version to the cloud, but i can't because i don't have the fucking keys
-				// consider just setting the value of the full dict to what the local one is
-				// oof even if that's okay data wise i don't like rewriting that much willy nilly
-				// maybe i won't even do this at all? i dunno
-				print("got overlapping games")
-				print("local game:", localData)
-				print("oneline game:", onlineData)
-				return $0 // $0 is current local value
-			})
+				let localData = GameData(from: localGame, gameID: 0)
+				let onlineData = GameData(from: onlineGame, gameID: 0)
+				if localData != onlineData {
+					print("WARNING - OVERWRITING GAME DATA")
+					print("online data for \(id)")
+					print(onlineData)
+					print()
+					print("stored data for \(id)")
+					print(localData)
+					print()
+					print("end of game data")
+					
+					// laterDO WARNING use extreme care before using this on 2 or other apps with online data!!!
+					// this is overwriting all online data to match stored data (though only if the stored data seems to exist)
+//					self.setGameValue(to: localGame, gameID: Int(id) ?? 0)
+				}
+			}
+			GameSummary.updatePastGames()
+			// laterDo also update active games here
 		})
 	}
 	
@@ -221,7 +214,7 @@ class FB {
 	func setGameValue(to dict: [String: Any], gameID: Int) {
 		ref.child("games/\(myID)/\(gameID)").setValue(dict)
 		GameData.all[String(gameID)] = dict
-		Storage.set(GameData.all, for: .myGames)
+		Storage.set(GameData.all, for: .myGames) // laterDO consider having this update in background if it doesn't already
 	}
 	
 	func uploadGame(_ game: Game) {
@@ -461,8 +454,6 @@ class FB {
 		// updating game summary here, so it updates each time a game ends
 		let i = GameSummary.getPastGameCategory(for: myData.mode)
 		GameSummary.pastGames[i][myData.gameID] = GameSummary(gameID: myData.gameID, mode: myData.mode, myTurn: myData.myTurn, opID: myData.opID, state: state, timeLimit: myData.totalTime ?? -1)
-		
-		loadPastGames()
     }
 	
 	func uploadBots() {

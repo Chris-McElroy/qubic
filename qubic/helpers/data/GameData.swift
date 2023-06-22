@@ -172,12 +172,11 @@ struct GameData: Equatable {
 
 struct GameSummary {
 	// updated when the app is loaded or a game is ended
-	// updated when app is loaded in PastGamesView, on appear of button
+	// 		(updated when app is loaded in PastGamesView, on appear of button)
+	// i could either have this be one big dict or 5 separate variables but i see no reason to unless performance becomes an issue
 	static var pastGames: [OrderedDictionary<Int, GameSummary>] = [[:], [:], [:], [:], [:]]
-	// TODO decide how i want to update this when games end
-	// TODO have this push/pull to/from the cloud
 	
-	// updated when the app is loaded or a game is ended (should be exited)
+	// updated when the app is loaded or a game is exited // laterDO do this
 //	static var myActiveGames: [OrderedDictionary<Int, GameSummary>] = [[:], [:], [:], [:], [:]]
 	
 	let gameID: Int         // my gameID
