@@ -89,7 +89,7 @@ class Game: ObservableObject {
     @Published var currentTimes: [Int] = [0,0]
     
 	var gameNum: Int = 0
-	var gameID: Int = 0
+	var gameID: Int = 0 // not even sure this is needed? now updating this in startgame
     var turn: Int { board.getTurn() }
     var realTurn: Int { gameState == .active ? moves.count % 2 : (gameState.myWin ? myTurn : (gameState.opWin ? myTurn^1 : 2)) }
     var myTurn: Int = 0
@@ -202,11 +202,6 @@ class Game: ObservableObject {
 			player = [User(b: board, n: 0, name: "player 1"), User(b: board, n: 1, name: "player 2")]
 			player[1].color = [4, 4, 4, 8, 6, 7, 4, 5, 3][player[0].color]
 		}
-		
-		if mode != .online {
-			FB.main.uploadGame(self)
-		}
-		gameID = FB.main.myGameData?.gameID ?? 0
 		
         for p in preset { loadMove(p) }
 		GameLayout.main.refreshHints()
@@ -336,6 +331,12 @@ class Game: ObservableObject {
 			timers.append(Timer.every(0.1, run: { self.updateCurrentTime(num: num) }))
         }
 		gameState = .active
+		
+		if mode != .online {
+			FB.main.uploadGame(self) // uploading here so it's set when active
+		}
+		gameID = FB.main.myGameData?.gameID ?? 0 // FB should have set gameID either in uploadGame above or while offering
+		
         player[turn].move()
     }
     

@@ -30,7 +30,7 @@ struct GameData: Equatable {
 	var myMoveTimes: [Int]	// time each move is made
 	var opMoveTimes: [Int]	// time each move is made
 	var endTime: Int	// time the game ended
-	let valid: Bool         // whether the given dict was valid
+	var valid: Bool         // whether the given dict was valid
 	
 	var totalTime: Double? {
 		myTimes.first == -1 ? nil : myTimes.first
@@ -38,7 +38,7 @@ struct GameData: Equatable {
 	
 	init(from dict: [String: Any], gameID: Int) {
 		// laterDO handle better if their dict is invalid (esp if they have an old version)
-		valid = (
+		var valid = (
 //				dict[Key.mode.rawValue] as? Int != nil &&
 			dict[Key.myTurn.rawValue] as? Int != nil &&
 			dict[Key.opID.rawValue] as? String != nil &&
@@ -67,8 +67,12 @@ struct GameData: Equatable {
 		setupNum = dict[Key.setupNum.rawValue] as? Int ?? 0
 		myTimes = dict[Key.myTimes.rawValue] as? [Double] ?? []
 		opTimes = dict[Key.opTimes.rawValue] as? [Double] ?? []
-		myMoves = dict[Key.myMoves.rawValue] as? [Int] ?? []
-		opMoves = dict[Key.opMoves.rawValue] as? [Int] ?? []
+		let myMoves = dict[Key.myMoves.rawValue] as? [Int] ?? []
+		let opMoves = dict[Key.opMoves.rawValue] as? [Int] ?? []
+		self.myMoves = myMoves
+		self.opMoves = opMoves
+		if myMoves.contains(where: { $0 != -1 && opMoves.contains($0) }) { print("caught one!", valid, GameState(rawValue: dict[Key.state.rawValue] as? Int ?? 0) ?? .error, myMoves.count + opMoves.count - 2); valid = false }
+		self.valid = valid
 		myMoveTimes = dict[Key.myMoveTimes.rawValue] as? [Int] ?? []
 		opMoveTimes = dict[Key.opMoveTimes.rawValue] as? [Int] ?? []
 		endTime = dict[Key.endTime.rawValue] as? Int ?? -1

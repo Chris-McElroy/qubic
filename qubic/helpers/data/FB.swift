@@ -75,6 +75,66 @@ class FB {
     }
 		
 	func checkOnlineGames() {
+		let allGamesRef = ref.child("games")
+		allGamesRef.observeSingleEvent(of: DataEventType.value, with: { snapshot in
+			guard let allDicts = snapshot.value as? [String: [String: [String: Any]]] else {
+				print("first one failed")
+				return
+			}
+			var newPlayerCount: [String: Int] = [:]
+			var errorPlayerCount: [String: Int] = [:]
+			var otherPlayerCount: [String: Int] = [:]
+			var skipCount = 0
+			var goodCount = 0
+			var lastPlayerID = ""
+			for (playerID, playerGames) in allDicts {
+				for (gameID, gameData) in playerGames {
+					let game = GameData(from: gameData, gameID: Int(gameID) ?? 0)
+					guard game.state.ended else {
+//						if Date.init(timeIntervalSinceReferenceDate: Double(gameID)!/1000) < Date.init(timeIntervalSinceNow: -100*24*3600) { skipCount += 1; continue }
+						if #available(iOS 15, *), game.state == .error && !game.orderedMoves().isEmpty {
+							if lastPlayerID	!= playerID {
+								print()
+								print(playerID)
+								lastPlayerID = playerID
+							}
+							print(Date.init(timeIntervalSinceReferenceDate: Double(gameID)!/1000).formatted(date: .abbreviated, time: .shortened), "\t", PlayerData.all[playerID]!.name, "\t", game.state, "\t", game.mode, "\t", game.orderedMoves().count)
+						}
+//						if game.state == .new && !game.orderedMoves().isEmpty {
+////							if #available(iOS 15, *) {
+////
+////								let timeSt = Date(timeIntervalSinceReferenceDate: Double(gameID)!/1000).formatted(date: .abbreviated, time: .omitted)
+////								print("got new", timeSt, game.mode)
+////							}
+//							newPlayerCount[PlayerData.all[playerID]!.name, default: 0] += 1
+//						} else if game.state == .error {
+//							errorPlayerCount[PlayerData.all[playerID]!.name, default: 0] += 1
+//						} else {
+//							otherPlayerCount[PlayerData.all[playerID]!.name, default: 0] += 1
+//						}
+						// TODO see how many of these are recent and try looking at specific games
+						// also consider filtering out any players that are on testflight/xcode
+						continue
+					}
+					goodCount += 1
+				}
+			}
+//			print("new:")
+//			for (k, v) in newPlayerCount.sorted(by: { $0.value < $1.value }) {
+//				print("\(k): \(v)")
+//			}
+//			print("error:")
+//			for (k, v) in errorPlayerCount.sorted(by: { $0.value < $1.value }) {
+//				print("\(k): \(v)")
+//			}
+//			print("other:")
+//			for (k, v) in otherPlayerCount.sorted(by: { $0.value < $1.value }) {
+//				print("\(k): \(v)")
+//			}
+			print("skipcount:", skipCount)
+			print("goodcount:", goodCount)
+		})
+		
 		let gameRef = ref.child("games/\(myID)")
 		gameRef.observeSingleEvent(of: DataEventType.value, with: { snapshot in
 			guard let dict = snapshot.value as? [String: [String: Any]] else { return }
@@ -247,7 +307,7 @@ class FB {
 			// laterDO fold this into a timer list
             botTimer = Timer.scheduledTimer(withTimeInterval: 4, repeats: false, block: { _ in
                 if self.onlineInviteState == .invited || self.onlineInviteState == .offered {
-                    self.finishedGame(with: .error)
+                    self.finishedGame(with: .error) // laterDO change this to something other than error so its clear where real errors are coming from
                     self.onlineInviteState = .stopped
                     onlineRef.child(myID).removeValue()
                     onlineRef.removeAllObservers()
