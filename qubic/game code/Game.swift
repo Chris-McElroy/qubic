@@ -821,6 +821,7 @@ class Game: ObservableObject {
         
         if end == .myTimeout || end == .opTimeout { BoardScene.main.spinBoard() }
         
+		GameLayout.main.setGameEndText()
 		timers.append(Timer.after(end == .myResign || end == .ended ? 0 : 1) {
 			withAnimation { GameLayout.main.popup = .gameEnd }
 			self.notificationGenerator.notificationOccurred(end.myWin ? .error : .warning)

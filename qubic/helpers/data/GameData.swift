@@ -214,7 +214,8 @@ struct GameSummary {
 	}
 	
 	static func updatePastGames() {
-		for (id, game) in GameData.all {
+		pastGames = [[:], [:], [:], [:], [:]] // resetting so order is correct
+		for (id, game) in GameData.all.sorted(by: { $0.key < $1.key }) {
 			let summary = GameSummary(from: game, id: Int(id) ?? 0)
 			let i = getPastGameCategory(for: summary.mode)
 			pastGames[i][summary.gameID] = summary

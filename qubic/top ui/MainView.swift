@@ -9,7 +9,7 @@
 import SwiftUI
 
 let buildNumber = 30310
-let versionType: VersionType = .xCode
+let versionType: VersionType = .testFlight
 let solveButtonsEnabled = false
 
 struct MainView: View {
@@ -34,7 +34,7 @@ struct MainView: View {
 			if layout.showGame {
 				GameView().modifier(GameViewLayout())
 			}
-			TipView()
+			TipView().zIndex(100) // for some reason requires a really high zIndex to work in games
 			if layout.current == .tutorial {
 				TutorialView().modifier(GameViewLayout())
 			}

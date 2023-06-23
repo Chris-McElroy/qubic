@@ -483,6 +483,7 @@ class FB {
 		// updating game summary here, so it updates each time a game ends
 		let i = GameSummary.getPastGameCategory(for: myData.mode)
 		GameSummary.pastGames[i][myData.gameID] = GameSummary(gameID: myData.gameID, mode: myData.mode, myTurn: myData.myTurn, opID: myData.opID, state: state, timeLimit: myData.totalTime ?? -1)
+		GameSummary.pastGames[i].sort(by: { $0.key < $1.key })
     }
 	
 	func uploadBots() {

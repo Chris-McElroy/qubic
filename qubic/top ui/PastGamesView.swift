@@ -147,7 +147,7 @@ struct PastGamesView: View {
 					Text(game.myTurn == 0 ? "1st" : "2nd")
 						.frame(width: 30)
 					Spacer()
-					Text(game.state.myWin ? "win" : (game.state.opWin ? "loss" : (game.state == .draw ? "draw" : "")))
+					Text(game.state.myWin ? "win" : (game.state.opWin ? "loss" : (game.state == .draw ? "draw" : "—")))
 						.frame(width: 40)
 				}
 				if expanded == i {
@@ -226,8 +226,7 @@ struct PastGamesView: View {
 
 		let requiredTime: ClosedRange<Double>? = [1: 1...29, 2: 30...59, 3: 60...(.infinity), 4: (-1)...(-1)][time]
 
-		// elements call makes this read only but i think that's totally fine
-		gameList = GameSummary.pastGames[mode].values.elements
+		gameList = GameSummary.pastGames[mode].values
 			.filter { result == 1 ? true : (result == 0 ? $0.state.myWin : $0.state.opWin) }
 			.filter { turn == 1 ? true : (turn == 0 ? $0.myTurn == 0 : $0.myTurn == 1) }
 			.filter { time == 0 || mode.oneOf(3, 4) ? true : ((requiredTime ?? (-1)...(-1)).contains($0.timeLimit))  }

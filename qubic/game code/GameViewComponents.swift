@@ -180,7 +180,7 @@ class GameViewComponents {
 		if game.mode.solve { titleText = game.gameState.myWin ? "solved" : "failed" }
 		if game.gameState == .draw { titleText = "draw" }
 //		if game.mode == .picture4 { titleText = "8 day streak!" }
-		let gameEndText = gameLayout.getGameEndText()
+		let gameEndText = gameLayout.gameEndText
 		
 		return VStack(spacing: 0) {
 			VStack(spacing: 15) {
