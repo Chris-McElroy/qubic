@@ -75,93 +75,62 @@ class FB {
     }
 		
 	func checkOnlineGames() {
-		let allGamesRef = ref.child("games")
-		allGamesRef.observeSingleEvent(of: DataEventType.value, with: { snapshot in
-			guard let allDicts = snapshot.value as? [String: [String: [String: Any]]] else {
-				print("first one failed")
-				return
-			}
-			var newPlayerCount: [String: Int] = [:]
-			var errorPlayerCount: [String: Int] = [:]
-			var otherPlayerCount: [String: Int] = [:]
-			var skipCount = 0
-			var goodCount = 0
-			var lastPlayerID = ""
-			for (playerID, playerGames) in allDicts {
-				for (gameID, gameData) in playerGames {
-					let game = GameData(from: gameData, gameID: Int(gameID) ?? 0)
-					guard game.state.ended else {
-//						if Date.init(timeIntervalSinceReferenceDate: Double(gameID)!/1000) < Date.init(timeIntervalSinceNow: -100*24*3600) { skipCount += 1; continue }
-						if #available(iOS 15, *), game.state == .error && !game.orderedMoves().isEmpty {
-							if lastPlayerID	!= playerID {
-								print()
-								print(playerID)
-								lastPlayerID = playerID
-							}
-							print(Date.init(timeIntervalSinceReferenceDate: Double(gameID)!/1000).formatted(date: .abbreviated, time: .shortened), "\t", PlayerData.all[playerID]!.name, "\t", game.state, "\t", game.mode, "\t", game.orderedMoves().count)
-						}
-//						if game.state == .new && !game.orderedMoves().isEmpty {
-////							if #available(iOS 15, *) {
-////
-////								let timeSt = Date(timeIntervalSinceReferenceDate: Double(gameID)!/1000).formatted(date: .abbreviated, time: .omitted)
-////								print("got new", timeSt, game.mode)
-////							}
-//							newPlayerCount[PlayerData.all[playerID]!.name, default: 0] += 1
-//						} else if game.state == .error {
-//							errorPlayerCount[PlayerData.all[playerID]!.name, default: 0] += 1
-//						} else {
-//							otherPlayerCount[PlayerData.all[playerID]!.name, default: 0] += 1
-//						}
-						// TODO see how many of these are recent and try looking at specific games
-						// also consider filtering out any players that are on testflight/xcode
-						continue
-					}
-					goodCount += 1
-				}
-			}
-//			print("new:")
-//			for (k, v) in newPlayerCount.sorted(by: { $0.value < $1.value }) {
-//				print("\(k): \(v)")
-//			}
-//			print("error:")
-//			for (k, v) in errorPlayerCount.sorted(by: { $0.value < $1.value }) {
-//				print("\(k): \(v)")
-//			}
-//			print("other:")
-//			for (k, v) in otherPlayerCount.sorted(by: { $0.value < $1.value }) {
-//				print("\(k): \(v)")
-//			}
-			print("skipcount:", skipCount)
-			print("goodcount:", goodCount)
-		})
-		
 		let gameRef = ref.child("games/\(myID)")
 		gameRef.observeSingleEvent(of: DataEventType.value, with: { snapshot in
 			guard let dict = snapshot.value as? [String: [String: Any]] else { return }
-			for (id, onlineGame) in dict {
+			for var (id, onlineGame) in dict {
+				var onlineData = GameData(from: onlineGame, gameID: Int(id) ?? 0)
+				if !onlineData.valid || (onlineData.state == .error && onlineData.orderedMoves().isEmpty) {
+					// not including these because it just doesn't seem necessary
+					// if i ever want to start pulling them in or even fixing them up, feel free
+					// just make sure to not leave them in pastGames if they're still invalid
+					continue
+				}
+
+				// laterDO consider checking opponent's version of events for .online games
+
+				// this is the case where the game is not stored locally
+				// in which case i want to update it before storing it
 				guard let localGame = GameData.all[id] else {
+					// checking myGameData to make sure it's not the game currently being played
+					// laterDO remove .ended check once active games are allowed
+					// laterDO remove updated check once everything is updated
+					if !onlineData.updated || (!onlineData.state.ended && (self.myGameData?.gameID == nil || self.myGameData?.gameID != Int(id))) {
+						if !onlineData.state.ended {
+							if onlineData.state == .new {
+								// i believe this is mostly local games from previous testflights that were left unfinished
+								// versions after 30310 should store those as .active
+								onlineData.state = .ended
+							} else if onlineData.state == .active {
+								// i don't believe there are any in this state pre-30310
+								// these should be local or online games where the app was closed/quit/disconnected without stopping the game
+								onlineData.state = .ended
+							} else if onlineData.state == .error {
+								// i believe these are mostly online games, not sure what happened to them, could go over them more later
+								onlineData.state = .ended
+							} // not including .off because i have no idea how that would happen
+						}
+						onlineGame = onlineData.toDict()
+						self.ref.child("games/\(myID)/\(id)").setValue(onlineGame) // not using setGameValue because that would double copy to local data
+					}
+
 					GameData.all[id] = onlineGame
 					continue
 				}
-				let localData = GameData(from: localGame, gameID: 0)
-				let onlineData = GameData(from: onlineGame, gameID: 0)
+				
+				// laterDO remove check when i remove updated
+				if !onlineData.updated { print("error — i thought i was updating these as they were added") }
+				
+				let localData = GameData(from: localGame, gameID: Int(id) ?? 0)
 				if localData != onlineData {
-					print("WARNING - OVERWRITING GAME DATA")
-					print("online data for \(id)")
-					print(onlineData)
-					print()
-					print("stored data for \(id)")
-					print(localData)
-					print()
-					print("end of game data")
-					
-					// laterDO WARNING use extreme care before using this on 2 or other apps with online data!!!
 					// this is overwriting all online data to match stored data (though only if the stored data seems to exist)
-//					self.setGameValue(to: localGame, gameID: Int(id) ?? 0)
+					self.setGameValue(to: localGame, gameID: Int(id) ?? 0)
 				}
 			}
+			
 			GameSummary.updatePastGames()
 			// laterDo also update active games here
+			Storage.set(GameData.all, for: .myGames)
 		})
 	}
 	
@@ -274,7 +243,7 @@ class FB {
 	func setGameValue(to dict: [String: Any], gameID: Int) {
 		ref.child("games/\(myID)/\(gameID)").setValue(dict)
 		GameData.all[String(gameID)] = dict
-		Storage.set(GameData.all, for: .myGames) // laterDO consider having this update in background if it doesn't already
+		Storage.set(GameData.all, for: .myGames) // laterDO consider having this update in background queue if it doesn't already
 	}
 	
 	func uploadGame(_ game: Game) {

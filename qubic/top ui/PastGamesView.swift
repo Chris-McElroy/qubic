@@ -147,7 +147,7 @@ struct PastGamesView: View {
 					Text(game.myTurn == 0 ? "1st" : "2nd")
 						.frame(width: 30)
 					Spacer()
-					Text(game.state.myWin ? "win" : (game.state.opWin ? "loss" : "draw"))
+					Text(game.state.myWin ? "win" : (game.state.opWin ? "loss" : (game.state == .draw ? "draw" : "")))
 						.frame(width: 40)
 				}
 				if expanded == i {
