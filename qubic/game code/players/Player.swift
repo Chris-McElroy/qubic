@@ -157,7 +157,7 @@ class Player {
             var score: Double = 0
             for l in Board.linesThruPoint[p] {
                 if let s = b.status[l] {
-                    score += lineScore[s]*dirStats[l]
+                    score += lineScore[s]*dirStats[l] // TODO fatal crash here in tutorial
                 }
             }
             scores[Int(score), default: []].insert(p)

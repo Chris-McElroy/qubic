@@ -8,8 +8,8 @@
 
 import SwiftUI
 
-let buildNumber = 30310
-let versionType: VersionType = .testFlight
+let buildNumber = 30311
+let versionType: VersionType = .xCode
 let solveButtonsEnabled = false
 
 struct MainView: View {

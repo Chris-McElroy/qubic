@@ -194,8 +194,13 @@ class Layout: ObservableObject {
     func load(for screen: ScreenObserver) {
         fullHeight = screen.height
         width = screen.width
-        topGap = screen.window?.safeAreaInsets.top ?? 0
+		topGap = screen.window?.safeAreaInsets.top ?? 0
         bottomGap = screen.window?.safeAreaInsets.bottom ?? 0
+		#if targetEnvironment(macCatalyst)
+		// using this to fix spacing on mac catalyst version, i don't really know why these values work but they seem to
+		topGap = 50
+		bottomGap = 0
+		#endif
 		backButtonSpace = backButtonHeight - bottomGap/3
         safeHeight = fullHeight - topGap - bottomGap
         menuHeight = min(800, safeHeight)

@@ -34,7 +34,15 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 			let mainView = MainView(screen: screen)
 			screen.window?.rootViewController = UIHostingController(rootView: mainView)
 			screen.window?.makeKeyAndVisible()
+			
+			#if targetEnvironment(macCatalyst)
+			if let titlebar = windowScene.titlebar {
+				titlebar.titleVisibility = .hidden
+				titlebar.toolbar = nil
+			}
+			#endif
         }
+		
 		
 		// if it ever doesn't catch, continue putting a delay in here (perhaps dispatchqueue asyncafter instead of timer)
 		if let url = connectionOptions.userActivities.first?.webpageURL {
