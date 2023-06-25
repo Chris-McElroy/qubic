@@ -65,7 +65,6 @@ class TutorialLayout: ObservableObject {
 	}
 	
 	func reset() {
-		Game.main = TutorialGame()
 		GameLayout.main.showWinsFor = nil
 		PracticeGameController.main.step = .left
 		TutorialBoardScene.tutorialMain.reset()

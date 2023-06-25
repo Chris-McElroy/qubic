@@ -38,26 +38,28 @@ struct PlayerData {
 	}
 	
 	static func getData(for id: String, mode: GameMode) -> PlayerData {
-		var opData: PlayerData
-		
+		if let storedData = all[id] { return storedData } // covers self and other online players
+			
+		var data: PlayerData
+				
 		if mode == .online {
-			opData = all[id] ?? PlayerData(id: id, name: "n/a", color: 4)
+			data = all[id] ?? PlayerData(id: id, name: "n/a", color: 4)
 		} else if mode == .bot {
 			let bot = Bot.bots[Int(id.dropFirst(3)) ?? Int(id) ?? 0]
-			opData = PlayerData(id: id, name: bot.name, color: bot.color)
+			data = PlayerData(id: id, name: bot.name, color: bot.color)
 		} else if mode.solve {
 			let color = [.simple: 7, .common: 8, .tricky: 1][mode] ?? 4
-			opData = PlayerData(id: id, name: id, color: color)
+			data = PlayerData(id: id, name: id, color: color)
 		} else if mode.train {
 			let color = [.novice: 6, .defender: 5, .warrior: 0, .tyrant: 3, .oracle: 2][mode] ?? 8
-			opData = PlayerData(id: id, name: id, color: color)
+			data = PlayerData(id: id, name: id, color: color)
 		} else {
-			opData = PlayerData(id: id, name: "friend", color: Storage.int(.color))
+			data = PlayerData(id: id, name: "friend", color: Storage.int(.color))
 		}
-		if opData.color == Storage.int(.color) {
-			opData.color = [4, 4, 4, 8, 6, 7, 4, 5, 3][Storage.int(.color)]
+		if data.color == Storage.int(.color) {
+			data.color = [4, 4, 4, 8, 6, 7, 4, 5, 3][Storage.int(.color)]
 		}
 		
-		return opData
+		return data
 	}
 }

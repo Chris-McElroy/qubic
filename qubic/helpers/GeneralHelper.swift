@@ -91,6 +91,10 @@ extension Equatable {
 		self == o1 || self == o2 || self == o3 || self == o4 || self == o5
 	}
 	
+	func oneOf(_ o1: Self, _ o2: Self, _ o3: Self, _ o4: Self, _ o5: Self, _ o6: Self) -> Bool {
+		self == o1 || self == o2 || self == o3 || self == o4 || self == o5 || self == o6
+	}
+	
 	func noneOf(_ o1: Self, _ o2: Self) -> Bool {
 		self != o1 && self != o2
 	}

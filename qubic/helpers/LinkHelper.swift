@@ -61,8 +61,8 @@ func deeplink(to url: URL) {
 	}
 	
 	FB.main.getPastGame(userID: userID, gameID: gameID, completion: { gameData in
-		let myData = FB.main.getPlayerData(for: userID)
-		let opData = FB.main.getPlayerData(for: gameData.opID)
+		let myData = PlayerData.getData(for: userID, mode: gameData.mode)
+		let opData = PlayerData.getData(for: gameData.opID, mode: gameData.mode)
 		
 		if Layout.main.current == .tutorial {
 			return
@@ -70,6 +70,7 @@ func deeplink(to url: URL) {
 			GameLayout.main.deepLinkAction = {
 				Layout.main.change(to: .share)
 				ShareGame().load(from: gameData, myData: myData, opData: opData, movesIn: movesIn)
+				GameLayout.main.animateIntro()
 			}
 			GameLayout.main.setPopups(to: .deepLink)
 		} else {

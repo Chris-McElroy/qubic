@@ -9,14 +9,22 @@
 import Foundation
 
 class ReviewGame: Game {
-	func load(from game: GameData, opData: PlayerData) {
+	var gameData: GameData
+	var opData: PlayerData
+	
+	init(gameData: GameData, opData: PlayerData) {
+		self.gameData = gameData
+		self.opData = opData
+	}
+	
+	func load() {
 		Game.main = self
-		gameState = game.state
-		mode = game.mode
-		mostRecentGame = (mode, game.setupNum, nil, game.hints, game.totalTime) // recording turn as nil so it's not always the same
+		gameState = gameData.state
+		mode = gameData.mode
+		mostRecentGame = (mode, gameData.setupNum, nil, gameData.hints, gameData.totalTime) // recording turn as nil so it's not always the same
 		
-		myTurn = game.myTurn
-		gameID = game.gameID
+		myTurn = gameData.myTurn
+		gameID = gameData.gameID
 		board = Board()
 		BoardScene.main.reset()
 		gameNum += 1
@@ -26,9 +34,9 @@ class ReviewGame: Game {
 		lastCheck = 0
 		currentMove = nil
 		moves = []
-		totalTime = game.totalTime
+		totalTime = gameData.totalTime
 		if totalTime != nil {
-			times = game.getTimes()
+			times = gameData.getTimes()
 			currentTimes = [Int(times[0].last ?? 0), Int(times[1].last ?? 0)]
 //			lastStart = [0,0]
 		}
@@ -43,16 +51,16 @@ class ReviewGame: Game {
 		GameLayout.main.popup = .none
 		dayInt = Date.int
 		lastDC = Storage.int(.lastDC)
-		setupNum = game.setupNum
-		preset = Array(game.orderedMoves().first(game.presetCount))
-		solved = game.mode.solve ? game.hints : false
-		hints = game.mode.solve ? game.hints : true
+		setupNum = gameData.setupNum
+		preset = Array(gameData.orderedMoves().first(gameData.presetCount))
+		solved = gameData.mode.solve ? gameData.hints : false
+		hints = gameData.mode.solve ? gameData.hints : true
 		
 		let me = User(b: board, n: myTurn)
 		let op = User(b: board, n: myTurn^1, id: opData.id, name: opData.name)
 		op.color = opData.color
 		player = myTurn == 0 ? [me, op] : [op, me]
-		for p in game.orderedMoves() { loadMove(p) }
+		for p in gameData.orderedMoves() { loadMove(p) }
 		GameLayout.main.refreshHints()
 	}
 	

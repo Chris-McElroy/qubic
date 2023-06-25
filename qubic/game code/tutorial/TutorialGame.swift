@@ -10,6 +10,7 @@ import Foundation
 
 class TutorialGame: Game {	
 	func load() {
+		Game.main = self
 		gameState = .new
 		self.mode = mode
 		board = Board()

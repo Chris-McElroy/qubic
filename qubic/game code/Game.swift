@@ -12,7 +12,7 @@ enum GameMode: Int {
     case novice, defender, warrior, tyrant, oracle, cubist
     case daily, simple, common, tricky
     case local, bot, online, invite
-	case dictLesson
+//	case dictLesson
 //	case picture1, picture2, picture3, picture4
     
     var train: Bool { [.novice, .defender, .warrior, .tyrant, .oracle, .cubist].contains(self) }
@@ -128,10 +128,11 @@ class Game: ObservableObject {
     }
 	
 	func load(mode: GameMode, setupNum: Int = 0, turn: Int? = nil, hints: Bool = false, time: Double? = nil) {
+		// todo should i call Game.main.turnoff here?
 		Game.main = self
 		gameState = .new
 		self.mode = mode
-		mostRecentGame = (mode, setupNum, turn, hints, time)
+		mostRecentGame = (mode, setupNum, turn, hints, time) // this is to save it for future games
 		
         board = Board()
 		BoardScene.main.reset()
@@ -198,10 +199,10 @@ class Game: ObservableObject {
 //			me.color = 0
 //		}
 		player = myTurn == 0 ? [me, op] : [op, me]
-		if mode == .dictLesson {
-			player = [User(b: board, n: 0, name: "player 1"), User(b: board, n: 1, name: "player 2")]
-			player[1].color = [4, 4, 4, 8, 6, 7, 4, 5, 3][player[0].color]
-		}
+//		if mode == .dictLesson { // laterDO uncomment this
+//			player = [User(b: board, n: 0, name: "player 1"), User(b: board, n: 1, name: "player 2")]
+//			player[1].color = [4, 4, 4, 8, 6, 7, 4, 5, 3][player[0].color]
+//		}
 		
         for p in preset { loadMove(p) }
 		GameLayout.main.refreshHints()
@@ -266,7 +267,7 @@ class Game: ObservableObject {
             case .simple:   op = Simple(b: board, n: myTurn^1, num: setupNum)
             case .common:   op = Common(b: board, n: myTurn^1, num: setupNum)
             case .tricky:   op = Tricky(b: board, n: myTurn^1, num: setupNum)
-            case .local:    op = User(b: board, n: myTurn^1, name: "friend")
+			case .local:    op = User(b: board, n: myTurn^1, id: "friend", name: "friend")
 			case .bot:		op = Bot(b: board, n: myTurn^1, botNum: setupNum)
 			case .online:   op = Online(b: board, n: myTurn^1)
 //			case .picture1: op = Online(b: board, n: myTurn^1)
@@ -332,7 +333,8 @@ class Game: ObservableObject {
         }
 		gameState = .active
 		
-		if mode != .online {
+		if mode != .online && type(of: self) == Game.self { // checking type to avoid uploading tutorial/share/review games
+			print("uploading", player[myTurn^1], player[myTurn], player[myTurn^1].id, PlayerData.getData(for: player[myTurn^1].id, mode: .local))
 			FB.main.uploadGame(self) // uploading here so it's set when active
 		}
 		gameID = FB.main.myGameData?.gameID ?? 0 // FB should have set gameID either in uploadGame above or while offering

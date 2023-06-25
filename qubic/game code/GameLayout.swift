@@ -73,6 +73,8 @@ class GameLayout: ObservableObject {
 		gameEndText = [""]
 		updateSettings()
 		
+		print("game starting", game.mode, game.setupNum)
+		
 //        BoardScene.main.rotate(right: true) // this created a race condition
 		game.timers.append(Timer.after(0.1) {
 			withAnimation {
@@ -111,8 +113,9 @@ class GameLayout: ObservableObject {
 			optionsOpacity = .clear
 		}
 		
-		if game as? ShareGame != nil || game as? ReviewGame != nil {
-			let nextGame = Game()
+		// TODO why is the tutorial practice game just blank??????
+		if type(of: game) == Game.self { // TODO make this work for share and review games (not tutorial i guess?)
+			let nextGame = Game() // laterDo why are we making a new game? // actually this is brilliant for working with share games etc
 			nextGame.mostRecentGame = game.mostRecentGame
 			nextGame.player = game.player
 			nextGame.gameState = game.gameState
@@ -123,14 +126,16 @@ class GameLayout: ObservableObject {
 			withAnimation {
 				self.hideBoard = true
 			}
-			BoardScene.main.rotate(right: false)
+			BoardScene.main.rotate(right: false) // TODO somehow this doesn't fuck up board saves?? very confused by how though and i would like to understand this. rn if i do two games in a row, they both show up rotated correctly in past games. but howwww
 		})
 		
 		game.timers.append(Timer.after(0.6) {
 			withAnimation { self.showWinsFor = nil }
-			game.turnOff()
-			if rematch { game.loadRematch() }
-			else { game.loadNextGame() }
+			if type(of: game) == Game.self {
+				game.turnOff() // laterDO i don't think this actually gets called, bc Game.main was just changed
+				if rematch { game.loadRematch() }
+				else { game.loadNextGame() }
+			}
 			
 			self.gameEndText = [""]
 			

@@ -22,11 +22,12 @@ enum ViewState: CaseIterable {
 	case tutorialMenu
     case settings
 	case pastGames
+	case rematch
 	case tutorial
 	case review
 	case share
     
-	var gameView: Bool { self.oneOf(.play, .solve, .train, .review, .share) }
+	var gameView: Bool { self.oneOf(.play, .solve, .train, .review, .share, .rematch) }
     var menuView: Bool { self == .playMenu || self == .solveMenu || self == .trainMenu }
 	var trainGame: Bool { self == .train || self == .trainMenu }
 	var solveGame: Bool { self == .solve || self == .solveMenu }
@@ -43,6 +44,7 @@ enum ViewState: CaseIterable {
 		case .tutorialMenu: return .more
         case .settings: return .more
 		case .pastGames: return .more
+		case .rematch: return .pastGames
 		case .review: return .pastGames
         default: return .main
         }
@@ -76,6 +78,7 @@ enum ViewState: CaseIterable {
 //		.dictLesson: (top: .lessons, focus: .lessons, bottom: .lessons),
         .settings: (top: .settings, focus: .settings, bottom: .settings),
 		.pastGames: (top: .pastGames, focus: .pastGames, bottom: .pastGames),
+		.rematch: (top: .pastGames, focus: .pastGames, bottom: .pastGames),
 		.review: (top: .pastGames, focus: .pastGames, bottom: .pastGames),
 		.share: (top: .title, focus: .mainSpacer, bottom: .playButton),
 		.tutorial: (top: .tutorial, focus: .tutorial, bottom: .tutorial)
@@ -156,10 +159,10 @@ class Layout: ObservableObject {
 //	@Published var hue: CGFloat = 0.59
 //	@Published var sat: CGFloat = 1.0
     var total: CGFloat = 2400
-    var fullHeight: CGFloat = 800
-    var safeHeight: CGFloat = 800
+    @Published var fullHeight: CGFloat = 800
+    @Published var safeHeight: CGFloat = 800
     var menuHeight: CGFloat = 800
-	var width: CGFloat = 0
+	@Published var width: CGFloat = 0
     private var topGap: CGFloat = 80
 	private var bottomGap: CGFloat = 80
     var backButtonOffset: CGFloat {
@@ -323,7 +326,7 @@ class Layout: ObservableObject {
 		withAnimation(.easeIn(duration: 0.5)) { TipStatus.main.displayed = false }
 		if let nextView = (current != newLayout) ? newLayout : otherLayout {
 			withAnimation(.easeInOut(duration: 0.4)) { //0.4
-				showGame = nextView.oneOf(.play, .solve, .train, .review, .share)
+				showGame = nextView.oneOf(.play, .solve, .train, .review, .share, .rematch)
 				current = nextView
 			}
 		}

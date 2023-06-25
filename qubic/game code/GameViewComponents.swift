@@ -224,7 +224,15 @@ class GameViewComponents {
 	}
 	
 	static var rematchButton: some View {
-		Button(game.mode.solve ? "try again" : "rematch") { gameLayout.animateGameChange(rematch: true) } // game.mode == .picture4 ||
+		Button(game.mode.solve ? "try again" : "rematch") { // game.mode == .picture4 ||
+			guard type(of: game) == Game.self else {
+				if let reviewGame = game as? ReviewGame {
+					PastGamesView.startRematch(game: reviewGame.gameData)
+				}
+				return
+			}
+			gameLayout.animateGameChange(rematch: true)
+		}
 	}
 	
 	static var newGameButton: some View {

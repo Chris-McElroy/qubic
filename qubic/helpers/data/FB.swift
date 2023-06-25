@@ -149,48 +149,8 @@ class FB {
 		})
 	}
 	
-	func getPlayerData(for userID: String) -> PlayerData {
-		if let data = PlayerData.all[userID] {
-			return data
-		}
-			
-		if userID.count < 10 {
-			if userID.hasPrefix("bot") {
-				let i = Int(userID.dropFirst(3)) ?? 0
-				let bot = Bot.bots[i]
-				return PlayerData(id: userID, name: bot.name, color: bot.color)
-			} else {
-				var color: Int = 4
-				if userID == "novice" {
-					color = 6
-				} else if userID == "defender" {
-					color = 5
-				} else if userID == "warrior" {
-					color = 0
-				} else if userID == "tyrant" {
-					color = 3
-				} else if userID == "oracle" {
-					color = 2
-				} else if userID == "cubist" {
-					color = 8
-				} else if userID.hasPrefix("daily") {
-					color = 4
-				} else if userID.hasPrefix("simple") {
-					color = 7
-				} else if userID.hasPrefix("common") {
-					color = 8
-				} else if userID.hasPrefix("tricky") {
-					color = 1
-				}
-				
-				return PlayerData(id: userID, name: userID, color: color)
-			}
-		}
-			
-		return PlayerData(id: "error", name: "unknown", color: 4)
-	}
-	
     func updateMyData() {
+		PlayerData.all[myID] = PlayerData(id: myID, name: Storage.string(.name) ?? "", color: Storage.int(.color))
         let myPlayerRef = ref.child("players/\(myID)")
         let name = Storage.string(.name) ?? ""
         let color = Storage.int(.color)
@@ -425,7 +385,8 @@ class FB {
     }
     
 	func sendMyMove(p: Int, time: Double) {
-        guard var myData = myGameData else { return }
+		// checking for game type here and elsewhere to avoid updates from tutorial/share/replay games
+		guard var myData = myGameData, type(of: Game.main) == Game.self else { return }
         myData.myMoves.append(p)
         myData.myTimes.append(time)
 		myData.myMoveTimes.append(Date.ms)
@@ -434,7 +395,7 @@ class FB {
     }
 	
 	func sendOpMove(p: Int, time: Double) {
-		guard var myData = myGameData else { return }
+		guard var myData = myGameData, type(of: Game.main) == Game.self else { return }
 		myData.opMoves.append(p)
 		myData.opTimes.append(time)
 		myData.opMoveTimes.append(Date.ms)
@@ -443,7 +404,7 @@ class FB {
 	}
 	
 	func undoMyMove(p: Int) {
-		guard var myData = myGameData else { return }
+		guard var myData = myGameData, type(of: Game.main) == Game.self else { return }
 		guard myData.myMoves.last == p else {
 			print("FB undo move error", p, myData.myMoves.last ?? -2, myData.myMoves, myData)
 			return
@@ -456,7 +417,7 @@ class FB {
 	}
 	
 	func undoOpMove(p: Int) {
-		guard var myData = myGameData else { return }
+		guard var myData = myGameData, type(of: Game.main) == Game.self else { return }
 		guard myData.opMoves.last == p else {
 			print("FB undo move error", p, myData.opMoves.last ?? -2, myData.opMoves, myData)
 			return
@@ -469,7 +430,7 @@ class FB {
 	}
     
 	func finishedGame(with state: GameState, newHints: Bool = false) {
-        guard var myData = myGameData else { return }
+        guard var myData = myGameData, type(of: Game.main) == Game.self else { return }
         let opGameRef = ref.child("games/\(myData.opID)/\(myData.opGameID)")
         myData.state = state
 		myData.endTime = Date.ms
@@ -486,11 +447,11 @@ class FB {
 		GameSummary.pastGames[i].sort(by: { $0.key < $1.key })
     }
 	
-	func uploadBots() {
-		for (i, bot) in Bot.bots.enumerated() {
-			ref.child("bots/\(i)").setValue(bot.toDict())
-		}
-	}
+//	func uploadBots() {
+//		for (i, bot) in Bot.bots.enumerated() {
+//			ref.child("bots/\(i)").setValue(bot.toDict())
+//		}
+//	}
     
     enum MatchingState {
         case invited, offered, matched, stopped

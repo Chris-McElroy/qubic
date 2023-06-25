@@ -58,11 +58,13 @@ struct EnableHPicker: ViewModifier {
 }
 
 struct GameViewLayout: ViewModifier {
+	@ObservedObject var layout = Layout.main // observing to fix Tutorial sizing on alternate size devices
+	
 	func body(content: Content) -> some View {
 		content
-			.frame(height: Layout.main.safeHeight)
-			.background(Fill()) // laterDO is the color off? // laterDO wtf does that mean
-			.frame(height: Layout.main.fullHeight)
+			.frame(height: layout.safeHeight)
+			.background(Fill()) // at some point the top bar was gray on iPhone SE 3 during the tutorial, i thought it was the color of this that was off but now it doesn't seem to be, and it's mysteriously fixed itself as well
+			.frame(height: layout.fullHeight)
 			.zIndex(100)
 	}
 }

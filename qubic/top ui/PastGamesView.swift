@@ -67,7 +67,7 @@ struct PastGamesView: View {
 				Spacer().frame(height: layout.current == .review ? layout.fullHeight : 0)
 				HPicker(width: 84, height: 40, selection: $result, labels: ["wins", "all", "losses"], onSelection: {_ in getCurrentGames() })
 				HPicker(width: 84, height: 40, selection: $turn, labels: ["first", "either", "second"], onSelection: {_ in getCurrentGames() })
-				HPicker(width: 84, height: 40, selection: $time, labels: ["all", "<30 sec", "<1 min", "1+ min", "untimed"], onSelection: {_ in getCurrentGames() })
+				HPicker(width: 84, height: 40, selection: $time, labels: ["all", "~15 sec", "~30 sec", "1+ min", "untimed"], onSelection: {_ in getCurrentGames() })
 					.modifier(EnableHPicker(on: mode.noneOf(3, 4)))
 				HPicker(width: 84, height: 40, selection: $mode, labels: ["local", "bots", "online", "train", "solve"], onSelection: {_ in getCurrentGames() })
 			} else {
@@ -186,12 +186,19 @@ struct PastGamesView: View {
 				Spacer()
 				Spacer()
 				Spacer()
-				Button("review") {
-					ReviewGame().load(from: game, opData: summary.op)
-					GameLayout.main.animateIntro()
-					layout.change(to: .review)
+				VStack(spacing: 20) {
+					Button("review") {
+						ReviewGame(gameData: game, opData: summary.op).load()
+						GameLayout.main.animateIntro()
+						layout.change(to: .review)
+					}
+					if game.mode != .online { // laterDo implement online rematches
+						Button("rematch") {
+							PastGamesView.startRematch(game: game)
+						}
+					}
+					ShareButton(playerID: myID, gameID: String(game.gameID))
 				}
-				ShareButton(playerID: myID, gameID: String(game.gameID))
 				Spacer()
 			}
 			.buttonStyle(Standard())
@@ -224,7 +231,7 @@ struct PastGamesView: View {
 			expanded = nil
 		}
 
-		let requiredTime: ClosedRange<Double>? = [1: 1...29, 2: 30...59, 3: 60...(.infinity), 4: (-1)...(-1)][time]
+		let requiredTime: ClosedRange<Double>? = [1: 0...22, 2: 23...59, 3: 60...(.infinity), 4: (-1)...(-1)][time]
 
 		gameList = GameSummary.pastGames[mode].values
 			.filter { result == 1 ? true : (result == 0 ? $0.state.myWin : $0.state.opWin) }
@@ -269,6 +276,37 @@ struct PastGamesView: View {
 			lenString += secondString
 		}
 		return lenString
+	}
+	
+	static func startRematch(game: GameData) {
+		var setupNum = 0
+		var turn: Int? = nil
+		var hints = game.hints
+		var timeLimit: Double? = game.totalTime
+		let newGame = Game()
+		
+		if game.mode.train {
+			// nothing to do
+		} else if game.mode.solve {
+			// turn stays nil just like normal solves
+			hints = false
+			newGame.preset = Array(game.orderedMoves().first(game.presetCount)) // TODO check that this works at alllll (it doesn't seem to at least for dailies?)
+			newGame.rematchRequested = true // TODO make sure this isn't fucking shit up
+		} else if game.mode == .bot {
+			hints = false
+			setupNum = game.setupNum // TODO is this actually saved?
+		} else if game.mode == .local {
+			// nothing to do
+		} else { return }
+		
+		print(game.mode, setupNum, turn, hints, timeLimit)
+		// TODO test that this works for every type of game
+		// TODO if you do a play game after a share game does it bork everything? i feel like it should
+		// i think the solution is to always call Game().load() and have it call Game.main.turnoff and Game.main = self
+		
+		newGame.load(mode: game.mode, setupNum: setupNum, turn: turn, hints: hints, time: timeLimit)
+		GameLayout.main.animateIntro()
+		Layout.main.change(to: .rematch)
 	}
 }
 

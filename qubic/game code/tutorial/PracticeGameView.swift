@@ -36,7 +36,7 @@ struct PracticeGameView: View {
 			controller.lastAnalysisMode = gameLayout.analysisMode
 			tutorialLayout.readyToAdvance = false
 			tutorialLayout.readyToContinue = true
-			TutorialGame().load()
+			(Game.main as? TutorialGame)?.load()
 			game.timers.append(Timer.after(1.2) {
 				gameLayout.setPopups(to: .settings)
 			})

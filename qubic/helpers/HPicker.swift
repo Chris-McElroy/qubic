@@ -145,7 +145,7 @@ struct HPicker: View {
 				if closest >= CGFloat(labels.count) { closest = CGFloat(labels.count - 1) }
 				if closest < 0 { closest = 0 }
 				let time = bound(0.1, Double(abs(closest - (start - drag.translation.width/width))/7), 0.4)
-				print(time, abs(closest - (start - drag.translation.width/width))/7)
+//				print("hpicker drag", time, abs(closest - (start - drag.translation.width/width))/7)
 				selection = Int(closest)
 				withAnimation(.easeIn(duration: time)) { focus = closest }
 				onSelection(selection)
