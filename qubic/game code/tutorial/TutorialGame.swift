@@ -47,7 +47,6 @@ class TutorialGame: Game {
 		let futureMoves = [42, 63, 51, 12, 22, 62, 25]
 		for p in futureMoves { loadFutureMove(p) }
 		GameLayout.main.refreshHints()
-		GameLayout.main.animateIntro()
 	}
 	
 	func loadFutureMove(_ p: Int) {

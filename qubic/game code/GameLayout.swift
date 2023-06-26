@@ -113,43 +113,58 @@ class GameLayout: ObservableObject {
 			optionsOpacity = .clear
 		}
 		
-		// TODO why is the tutorial practice game just blank??????
-		if type(of: game) == Game.self { // TODO make this work for share and review games (not tutorial i guess?)
-			let nextGame = Game() // laterDo why are we making a new game? // actually this is brilliant for working with share games etc
-			nextGame.mostRecentGame = game.mostRecentGame
-			nextGame.player = game.player
-			nextGame.gameState = game.gameState
-			Game.main = nextGame
-		}
+		// TODO test that animategamechange works for:
+		// train games
+		// cubist?
+		// dailies
+		// simple
+		// simple 24
+		// common
+		// common 24
+		// simple ?
+		// tricky 24
+		// tricky ?
+		// local??
+		// online??
+		// bot?
+		// rematch from share
+		// review game
+		// past game menu
+		// share from share
+		// rematch from share from share
+		// rematch from share from review
+		let nextGame = Game() // this allows for rematches from share/review games
+		nextGame.mostRecentGame = game.mostRecentGame // TODO add presets to mostRecentGame so i can override dailies
+		nextGame.player = game.player
+		nextGame.gameState = game.gameState
 		
-		game.timers.append(Timer.after(0.3) {
+		nextGame.timers.append(Timer.after(0.3) {
 			withAnimation {
 				self.hideBoard = true
 			}
 			BoardScene.main.rotate(right: false) // TODO somehow this doesn't fuck up board saves?? very confused by how though and i would like to understand this. rn if i do two games in a row, they both show up rotated correctly in past games. but howwww
 		})
 		
-		game.timers.append(Timer.after(0.6) {
+		nextGame.timers.append(Timer.after(0.6) {
 			withAnimation { self.showWinsFor = nil }
-			if type(of: game) == Game.self {
-				game.turnOff() // laterDO i don't think this actually gets called, bc Game.main was just changed
-				if rematch { game.loadRematch() }
-				else { game.loadNextGame() }
-			}
+			if rematch { nextGame.loadRematch() }
+			else { nextGame.loadNextGame() }
 			
 			self.gameEndText = [""]
 			
-			// inside this one so they don't get cancled when the game turns off
-			game.timers.append(Timer.after(0.2) {
-				withAnimation {
-					self.hideBoard = false
-				}
-				BoardScene.main.rotate(right: false)
-			})
 			
-			game.timers.append(Timer.after(0.6) {
-				game.startGame()
-			})
+		})
+		
+		// inside this one so they don't get cancled when the game turns off
+		nextGame.timers.append(Timer.after(0.8) {
+			withAnimation {
+				self.hideBoard = false
+			}
+			BoardScene.main.rotate(right: false)
+		})
+		
+		nextGame.timers.append(Timer.after(1.2) {
+			nextGame.startGame()
 		})
 	}
 	

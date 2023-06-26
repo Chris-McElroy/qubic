@@ -243,10 +243,6 @@ class Game: ObservableObject {
     }
 }
 
-class TutorialGame: Game {
-	static var tutorialMain = TutorialGame()
-}
-
 //class Game: ObservableObject {
 //    static let main = Game()
 //

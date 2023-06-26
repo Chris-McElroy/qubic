@@ -70,7 +70,7 @@ func deeplink(to url: URL) {
 			GameLayout.main.deepLinkAction = {
 				Layout.main.change(to: .share)
 				ShareGame().load(from: gameData, myData: myData, opData: opData, movesIn: movesIn)
-				GameLayout.main.animateIntro()
+				GameLayout.main.animateIntro() // TODO change this to game change
 			}
 			GameLayout.main.setPopups(to: .deepLink)
 		} else {

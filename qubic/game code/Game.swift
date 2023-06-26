@@ -128,7 +128,7 @@ class Game: ObservableObject {
     }
 	
 	func load(mode: GameMode, setupNum: Int = 0, turn: Int? = nil, hints: Bool = false, time: Double? = nil) {
-		// todo should i call Game.main.turnoff here?
+		Game.main.turnOff()
 		Game.main = self
 		gameState = .new
 		self.mode = mode
