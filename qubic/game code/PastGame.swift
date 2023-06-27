@@ -1,5 +1,5 @@
 //
-//  ReviewGame.swift
+//  PastGame.swift
 //  qubic
 //
 //  Created by Chris McElroy on 9/17/22.
@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct ReviewGameSetup {
+struct PastGameSetup {
 	let gameData: GameData
 	let myData: PlayerData
 	let opData: PlayerData
@@ -22,8 +22,8 @@ struct ReviewGameSetup {
 	}
 }
 
-class ReviewGame: Game {
-	func load(setup: ReviewGameSetup) {
+class PastGame: Game {
+	func load(setup: PastGameSetup) {
 		let allMoves = setup.gameData.orderedMoves()
 		let movesIn = (setup.movesIn ?? allMoves.count) <= allMoves.count ? setup.movesIn ?? allMoves.count : allMoves.count
 		Game.main.turnOff()

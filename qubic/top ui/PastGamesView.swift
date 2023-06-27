@@ -29,7 +29,7 @@ struct PastGamesView: View {
 						GameSummary.updatePastGames() // intended to run once, on startup
 					}
 				}
-			if layout.current == .pastGames || layout.current == .review {
+			if layout.current == .pastGames || layout.current == .pastGame {
 				// only pastgames so that it refreshes after rematches/reviews
 				if layout.current == .pastGames {
 					Fill(5)
@@ -66,11 +66,9 @@ struct PastGamesView: View {
 						}
 						.frame(maxWidth: 500)
 					}
-				} else {
-					Spacer()
 				}
 				Blank(10)
-				Spacer().frame(height: layout.current == .review ? layout.fullHeight : 0)
+				Spacer().frame(height: layout.current == .pastGame ? layout.fullHeight : 0)
 				HPicker(width: 84, height: 40, selection: $result, labels: ["wins", "all", "losses"], onSelection: {_ in getCurrentGames() })
 				HPicker(width: 84, height: 40, selection: $turn, labels: ["first", "either", "second"], onSelection: {_ in getCurrentGames() })
 				HPicker(width: 84, height: 40, selection: $time, labels: ["all", "~15 sec", "~30 sec", "1+ min", "untimed"], onSelection: {_ in getCurrentGames() })
@@ -195,9 +193,9 @@ struct PastGamesView: View {
 				VStack(spacing: 20) {
 					Button("review") {
 						let myData = PlayerData(id: myID, name: Storage.string(.name) ?? "new player", color: Storage.int(.color))
-						ReviewGame().load(setup: ReviewGameSetup(gameData: game, myData: myData, opData: op))
+						PastGame().load(setup: PastGameSetup(gameData: game, myData: myData, opData: op))
 						GameLayout.main.animateIntro()
-						layout.change(to: .review)
+						layout.change(to: .pastGame)
 					}
 					if game.mode != .online { // laterDo implement online rematches
 						Button("rematch") {
@@ -309,8 +307,7 @@ struct PastGamesView: View {
 		
 		Game().load(setup: newGameSetup)
 		GameLayout.main.animateIntro()
-		Layout.main.change(to: .rematch) // TODO change this to review
-		// TODO if i load a share game and leave, should that and does that go to the pastgameview
+		Layout.main.change(to: .pastGame)
 	}
 }
 

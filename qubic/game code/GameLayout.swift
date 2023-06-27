@@ -100,7 +100,7 @@ class GameLayout: ObservableObject {
 		})
 	}
 	
-	func animateGameChange(rematch: Bool, newGameSetup: GameSetup = game.gameSetup, reviewGameSetup: ReviewGameSetup? = nil) {
+	func animateGameChange(rematch: Bool, newGameSetup: GameSetup = game.gameSetup, pastGameSetup: PastGameSetup? = nil) {
 		hidePopups()
 		analysisMode = 2
 		analysisTurn = 1
@@ -134,7 +134,7 @@ class GameLayout: ObservableObject {
 		// rematch from share from share
 		// rematch from share from review
 		// this allows for rematches from share/review games
-		let nextGame = reviewGameSetup != nil ? ReviewGame() : Game()
+		let nextGame = pastGameSetup != nil ? PastGame() : Game()
 		// i used to copy state and player over, and don't anymore
 		
 		nextGame.timers.append(Timer.after(0.3) {
@@ -146,9 +146,9 @@ class GameLayout: ObservableObject {
 		
 		nextGame.timers.append(Timer.after(0.6) {
 			withAnimation { self.showWinsFor = nil }
-			if let reviewGameSetup {
+			if let pastGameSetup {
 				// allows share games to load when another game is already present
-				(nextGame as? ReviewGame)?.load(setup: reviewGameSetup)
+				(nextGame as? PastGame)?.load(setup: pastGameSetup)
 			} else if rematch { nextGame.loadRematch(setup: newGameSetup) }
 			else { nextGame.loadNextGame(setup: newGameSetup) }
 			
