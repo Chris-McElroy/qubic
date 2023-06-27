@@ -442,6 +442,7 @@ class FB {
 		setGameValue(to: myData.toDict(), gameID: myData.gameID)
 		
 		// updating game summary here, so it updates each time a game ends
+		print("updating summary")
 		let i = GameSummary.getPastGameCategory(for: myData.mode)
 		GameSummary.pastGames[i][myData.gameID] = GameSummary(gameID: myData.gameID, mode: myData.mode, myTurn: myData.myTurn, opID: myData.opID, state: state, timeLimit: myData.totalTime ?? -1)
 		GameSummary.pastGames[i].sort(by: { $0.key < $1.key })

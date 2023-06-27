@@ -26,42 +26,48 @@ struct PastGamesView: View {
 				.zIndex(10)
 				.onAppear {
 					DispatchQueue(label: "past game loader", qos: .userInteractive).async {
-						GameSummary.updatePastGames()
+						GameSummary.updatePastGames() // intended to run once, on startup
 					}
 				}
 			if layout.current == .pastGames || layout.current == .review {
-				Fill(5)
-					.onAppear {
-						getCurrentGames()
-						expanded = nil
-					}
-				if #available(iOS 14.0, *) {
-					ScrollViewReader { proxy in
+				// only pastgames so that it refreshes after rematches/reviews
+				if layout.current == .pastGames {
+					Fill(5)
+						.onAppear {
+							// refreshes list every time pastGames appears
+							getCurrentGames()
+							expanded = nil
+						}
+					if #available(iOS 14.0, *) {
+						ScrollViewReader { proxy in
+							ScrollView {
+								LazyVStack(spacing: 10) {
+									ForEach(0..<(gameList.count), id: \.self) { i in
+										gameEntry(i) { expand(to: i, with: proxy) }
+									}
+								}
+							}
+							.frame(maxWidth: 500)
+							.onAppear {
+								currentProxy = proxy
+								proxy.scrollTo(gameList.count - 1)
+							}
+						}
+					} else {
 						ScrollView {
-							LazyVStack(spacing: 10) {
-								ForEach(0..<(gameList.count), id: \.self) { i in
-									gameEntry(i) { expand(to: i, with: proxy) }
+							VStack(spacing: 10) {
+								Fill(1)
+								if gameList.count > 0 {
+									ForEach(0..<(gameList.count), id: \.self) { i in
+										gameEntry(gameList.count - 1 - i) { expand(to: gameList.count - 1 - i) }
+									}
 								}
 							}
 						}
 						.frame(maxWidth: 500)
-						.onAppear {
-							currentProxy = proxy
-							proxy.scrollTo(gameList.count - 1)
-						}
 					}
 				} else {
-					ScrollView {
-						VStack(spacing: 10) {
-							Fill(1)
-							if gameList.count > 0 {
-								ForEach(0..<(gameList.count), id: \.self) { i in
-									gameEntry(gameList.count - 1 - i) { expand(to: gameList.count - 1 - i) }
-								}
-							}
-						}
-					}
-					.frame(maxWidth: 500)
+					Spacer()
 				}
 				Blank(10)
 				Spacer().frame(height: layout.current == .review ? layout.fullHeight : 0)
@@ -303,7 +309,8 @@ struct PastGamesView: View {
 		
 		Game().load(setup: newGameSetup)
 		GameLayout.main.animateIntro()
-		Layout.main.change(to: .rematch)
+		Layout.main.change(to: .rematch) // TODO change this to review
+		// TODO if i load a share game and leave, should that and does that go to the pastgameview
 	}
 }
 
