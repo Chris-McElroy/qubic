@@ -69,13 +69,14 @@ func deeplink(to url: URL) {
 		} else if Layout.main.showGame {
 			GameLayout.main.deepLinkAction = {
 				Layout.main.change(to: .share)
-				ShareGame().load(from: gameData, myData: myData, opData: opData, movesIn: movesIn)
-				GameLayout.main.animateGameChange(rematch: true, newGameSetup: <#T##GameSetup#>) // TODO change this to game change
+				let setup = ReviewGameSetup(gameData: gameData, myData: myData, opData: opData, movesIn: movesIn)
+				GameLayout.main.animateGameChange(rematch: true, reviewGameSetup: setup)
 			}
 			GameLayout.main.setPopups(to: .deepLink)
 		} else {
 			Layout.main.change(to: .share)
-			ShareGame().load(from: gameData, myData: myData, opData: opData, movesIn: movesIn)
+			let setup = ReviewGameSetup(gameData: gameData, myData: myData, opData: opData, movesIn: movesIn)
+			ReviewGame().load(setup: setup)
 			GameLayout.main.animateIntro()
 		}
 	})

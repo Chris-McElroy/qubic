@@ -20,7 +20,7 @@ struct PlayView: View {
         if layout.current == .play {
             Spacer()
 				.onAppear {
-					Game().load(mode: mode, setupNum: mode == .bot ? setupNum : 0, turn: turn, hints: hints, time: time)
+					Game().load(setup: GameSetup(mode: mode, setupNum: mode == .bot ? setupNum : 0, turn: turn, hints: hints, time: time))
 					GameLayout.main.animateIntro()
 				}
 		} else {

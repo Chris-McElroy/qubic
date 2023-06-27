@@ -16,7 +16,7 @@ struct TrainView: View {
 		if layout.current == .train {
 			Spacer()
 				.onAppear {
-					Game().load(mode: mode, turn: turn, hints: hints)
+					Game().load(setup: GameSetup(mode: mode, turn: turn, hints: hints))
 					GameLayout.main.animateIntro()
 				}
 		} else if layout.current == .trainMenu {

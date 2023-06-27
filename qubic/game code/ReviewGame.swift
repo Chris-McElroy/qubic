@@ -2,29 +2,38 @@
 //  ReviewGame.swift
 //  qubic
 //
-//  Created by Chris McElroy on 6/30/22.
+//  Created by Chris McElroy on 9/17/22.
 //  Copyright © 2022 XNO LLC. All rights reserved.
 //
 
 import Foundation
 
-class ReviewGame: Game {
-	var gameData: GameData
-	var opData: PlayerData
+struct ReviewGameSetup {
+	let gameData: GameData
+	let myData: PlayerData
+	let opData: PlayerData
+	let movesIn: Int?
 	
-	init(gameData: GameData, opData: PlayerData) {
+	init(gameData: GameData, myData: PlayerData, opData: PlayerData, movesIn: Int? = nil) {
 		self.gameData = gameData
+		self.myData = myData
 		self.opData = opData
+		self.movesIn = movesIn
 	}
-	
-	func load() {
+}
+
+class ReviewGame: Game {
+	func load(setup: ReviewGameSetup) {
+		let allMoves = setup.gameData.orderedMoves()
+		let movesIn = (setup.movesIn ?? allMoves.count) <= allMoves.count ? setup.movesIn ?? allMoves.count : allMoves.count
+		Game.main.turnOff()
 		Game.main = self
-		gameState = gameData.state
-		mode = gameData.mode
-		mostRecentGame = (mode, gameData.setupNum, nil, gameData.hints, gameData.totalTime) // recording turn as nil so it's not always the same
+		gameState = setup.gameData.state
+		mode = setup.gameData.mode
+		gameSetup = GameSetup(mode: setup.gameData.mode, setupNum: setup.gameData.setupNum, turn: nil, hints: setup.gameData.hints, time: setup.gameData.totalTime, preset: nil) // recording turn as nil so it's not always the same in rematches
 		
-		myTurn = gameData.myTurn
-		gameID = gameData.gameID
+		myTurn = setup.gameData.myTurn
+		gameID = setup.gameData.gameID
 		board = Board()
 		BoardScene.main.reset()
 		gameNum += 1
@@ -34,11 +43,10 @@ class ReviewGame: Game {
 		lastCheck = 0
 		currentMove = nil
 		moves = []
-		totalTime = gameData.totalTime
+		totalTime = setup.gameData.totalTime
 		if totalTime != nil {
-			times = gameData.getTimes()
-			currentTimes = [Int(times[0].last ?? 0), Int(times[1].last ?? 0)]
-//			lastStart = [0,0]
+			times = setup.gameData.getTimes()
+			currentTimes = [Int(times[0][(movesIn + 1)/2]), Int(times[1][movesIn/2])]
 		}
 		movesBack = 0
 		ghostMoveStart = 0
@@ -51,16 +59,21 @@ class ReviewGame: Game {
 		GameLayout.main.popup = .none
 		dayInt = Date.int
 		lastDC = Storage.int(.lastDC)
-		setupNum = gameData.setupNum
-		preset = Array(gameData.orderedMoves().first(gameData.presetCount))
-		solved = gameData.mode.solve ? gameData.hints : false
-		hints = gameData.mode.solve ? gameData.hints : true
+		setupNum = setup.gameData.setupNum
+		preset = Array(allMoves.first(setup.gameData.presetCount))
+		solved = setup.gameData.mode.solve ? setup.gameData.hints : false
+		hints = setup.gameData.mode.solve ? setup.gameData.hints : true
 		
-		let me = User(b: board, n: myTurn)
-		let op = User(b: board, n: myTurn^1, id: opData.id, name: opData.name)
-		op.color = opData.color
+		let me = User(b: board, n: myTurn, id: setup.myData.id, name: setup.myData.name)
+		me.color = setup.myData.color
+		let op = User(b: board, n: myTurn^1, id: setup.opData.id, name: setup.opData.name)
+		op.color = setup.opData.color
+		if me.color == op.color {
+			op.color = [4, 4, 4, 8, 6, 7, 4, 5, 3][me.color]
+		}
 		player = myTurn == 0 ? [me, op] : [op, me]
-		for p in gameData.orderedMoves() { loadMove(p) }
+		for p in allMoves.first(movesIn) { loadMove(p) }
+		for p in allMoves.dropFirst(movesIn) { loadFutureMove(p) }
 		GameLayout.main.refreshHints()
 	}
 	
@@ -69,6 +82,14 @@ class ReviewGame: Game {
 		if let wins = board.getWinLines(for: p) {
 			BoardScene.main.showWins(wins, color: player[turn^1].color, spin: false)
 		}
+	}
+	
+	func loadFutureMove(_ p: Int) {
+		let move = Move(p)
+		guard !moves.contains(move) && (0..<64).contains(move.p) else { return }
+		moves.append(move)
+		getHints(for: moves, loading: true)
+		movesBack += 1
 	}
 	
 	override func startGame() {

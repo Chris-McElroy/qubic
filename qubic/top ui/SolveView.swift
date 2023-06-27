@@ -19,7 +19,7 @@ struct SolveView: View {
             if layout.current == .solve {
                 Spacer()
 					.onAppear {
-						Game().load(mode: mode, setupNum: setupNum)
+						Game().load(setup: GameSetup(mode: mode, setupNum: setupNum))
 						GameLayout.main.animateIntro()
 					}
             } else if layout.current == .solveMenu {

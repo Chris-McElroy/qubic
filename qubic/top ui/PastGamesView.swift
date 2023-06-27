@@ -188,7 +188,8 @@ struct PastGamesView: View {
 				Spacer()
 				VStack(spacing: 20) {
 					Button("review") {
-						ReviewGame(gameData: game, opData: summary.op).load()
+						let myData = PlayerData(id: myID, name: Storage.string(.name) ?? "new player", color: Storage.int(.color))
+						ReviewGame().load(setup: ReviewGameSetup(gameData: game, myData: myData, opData: op))
 						GameLayout.main.animateIntro()
 						layout.change(to: .review)
 					}
@@ -289,7 +290,7 @@ struct PastGamesView: View {
 			newGameSetup.preset = Array(game.orderedMoves().first(game.presetCount)) // TODO check that this works at alllll (it doesn't seem to at least for dailies?)
 		} else if game.mode == .bot {
 			newGameSetup.hints = false
-			newGameSetup.setupNum = game.setupNum // TODO is this actually saved?
+			newGameSetup.setupNum = game.setupNum // TODO is this actually saved? (as in, for bots, does it push setupnum to the cloud)
 		} else if game.mode == .local {
 			// nothing to do
 		} else { return }
@@ -298,6 +299,7 @@ struct PastGamesView: View {
 		// TODO test that this works for every type of game
 		// TODO if you do a play game after a share game does it bork everything? i feel like it should
 		// i think the solution is to always call Game().load() and have it call Game.main.turnoff and Game.main = self
+		// i think i did this, i should check though
 		
 		Game().load(setup: newGameSetup)
 		GameLayout.main.animateIntro()

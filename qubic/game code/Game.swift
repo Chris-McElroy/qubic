@@ -80,9 +80,9 @@ class Move: Equatable {
 
 struct GameSetup {
 	var mode: GameMode
-	var setupNum: Int
+	var setupNum: Int = 0
 	var turn: Int?
-	var hints: Bool
+	var hints: Bool = false
 	var time: Double?
 	var preset: [Int]?
 }
