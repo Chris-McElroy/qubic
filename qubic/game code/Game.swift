@@ -78,6 +78,15 @@ class Move: Equatable {
     }
 }
 
+struct GameSetup {
+	var mode: GameMode
+	var setupNum: Int
+	var turn: Int?
+	var hints: Bool
+	var time: Double?
+	var preset: [Int]?
+}
+
 var game: Game { Game.main }
 
 class Game: ObservableObject {
@@ -115,9 +124,8 @@ class Game: ObservableObject {
     var ghostMoveCount: Int = 0
     var timers: [Timer] = []
     var premoves: [Int] = []
-	var rematchRequested: Bool = false
 	var reviewingGame: Bool = false
-	var mostRecentGame: (GameMode, Int, Int?, Bool, Double?) = (.novice, 0, nil, false, nil)
+	var gameSetup: GameSetup = GameSetup(mode: .novice, setupNum: 0, hints: false)
 	let notificationGenerator = UINotificationFeedbackGenerator()
 	let moveImpactGenerator = UIImpactFeedbackGenerator(style: .medium)
 	let arrowImpactGenerator = UIImpactFeedbackGenerator(style: .light)
@@ -127,12 +135,12 @@ class Game: ObservableObject {
 		presetHintQueue.qualityOfService = .utility
     }
 	
-	func load(mode: GameMode, setupNum: Int = 0, turn: Int? = nil, hints: Bool = false, time: Double? = nil) {
+	func load(setup: GameSetup) {
 		Game.main.turnOff()
 		Game.main = self
+		gameSetup = setup // this is to save it for a rematch/next game
 		gameState = .new
-		self.mode = mode
-		mostRecentGame = (mode, setupNum, turn, hints, time) // this is to save it for future games
+		mode = setup.mode
 		
         board = Board()
 		BoardScene.main.reset()
@@ -143,8 +151,8 @@ class Game: ObservableObject {
 		lastCheck = 0
         currentMove = nil
         moves = []
-        totalTime = time
-        if let total = time {
+		totalTime = setup.time
+		if let total = setup.time {
             currentTimes = [Int(total),Int(total)]
             times = [[total],[total]]
             lastStart = [0,0]
@@ -167,10 +175,14 @@ class Game: ObservableObject {
 //        newStreak = nil
 		dayInt = Date.int
 		lastDC = Storage.int(.lastDC)
-		self.setupNum = setupNum
-        setPreset(for: mode)
+		setupNum = setup.setupNum
+		if let presetPreset = setup.preset {
+			preset = presetPreset
+		} else {
+			setPreset(for: setup.mode)
+		}
 		if !preset.isEmpty { myTurn = preset.count % 2 }
-		else if let givenTurn = turn { myTurn = givenTurn }
+		else if let givenTurn = setup.turn { myTurn = givenTurn }
 		else { myTurn = .random(in: 0...1) }
 //		if mode == .picture2 {
 //			myTurn ^= 1
@@ -179,7 +191,7 @@ class Game: ObservableObject {
 //			myTurn ^= 1
 //			Timer.after(0.2, run: { BoardScene.main.rotate(right: true); BoardScene.main.rotate(right: true) })
 //		}
-        self.hints = hints
+		hints = setup.hints
         let me = User(b: board, n: myTurn)
         let op = getOp(myColor: me.color)
 //		if mode == .picture1 {
@@ -225,7 +237,6 @@ class Game: ObservableObject {
 //				solved = false
 //				return
 //			}
-			let oldPreset = preset
 			
 			if mode == .daily { getInfo(key: .daily) }
             else if mode == .simple { getInfo(key: .simple) }
@@ -235,12 +246,6 @@ class Game: ObservableObject {
                 preset = []
                 solved = false
             }
-			
-			if rematchRequested {
-				rematchRequested = false
-				preset = oldPreset
-				return
-			}
             
             func getInfo(key: Key) {
 				let boards = solveBoards[key] ?? [""]
@@ -281,46 +286,46 @@ class Game: ObservableObject {
         }
     }
 	
-	func loadRematch() {
-		rematchRequested = true
-		load(mode: mostRecentGame.0, setupNum: mostRecentGame.1, turn: mostRecentGame.2, hints: mostRecentGame.3, time: mostRecentGame.4)
+	func loadRematch(setup: GameSetup) {
+		var setup = setup
+		setup.preset = preset
+		load(setup: setup)
 	}
 	
-	func loadNextGame() {
-		let newMode: GameMode
-		switch mostRecentGame.0 {
-		case .novice: newMode = .defender
-		case .defender: newMode = .warrior
-		case .warrior: newMode = .tyrant
-		case .tyrant: newMode = .oracle
-		case .oracle: newMode = .cubist
+	func loadNextGame(setup: GameSetup) {
+		var newSetup = setup
+		switch gameSetup.mode {
+		case .novice: newSetup.mode = .defender
+		case .defender:  newSetup.mode = .warrior
+		case .warrior:  newSetup.mode = .tyrant
+		case .tyrant:  newSetup.mode = .oracle
+		case .oracle:  newSetup.mode = .cubist
 //		case .picture1: newMode = .picture2
 //		case .picture2: newMode = .picture3
 //		case .picture3: newMode = .picture4
-		default: newMode = mostRecentGame.0
+		default: break
 		}
-		if newMode.train && mostRecentGame.0 != .cubist {
+		if  newSetup.mode.train && setup.mode != .cubist {
 			Layout.main.trainSelection[0] += 1
 		}
 		
-		var newSetupNum: Int = mostRecentGame.1
-		if newMode.solve {
-			let key: Key = [.simple: .simple, .common: .common, .tricky: .tricky][newMode, default: .daily]
-			if newSetupNum < solveBoardCount(key) {
-				newSetupNum += 1
+		if newSetup.mode.solve {
+			let key: Key = [.simple: .simple, .common: .common, .tricky: .tricky][newSetup.mode, default: .daily]
+			if newSetup.setupNum < solveBoardCount(key) {
+				newSetup.setupNum += 1
 				Layout.main.solveSelection[0] += 1
 			}
-		} else if newMode == .bot {
+		} else if newSetup.mode == .bot {
 			repeat {
-				newSetupNum = .random(in: 0..<Bot.bots.count)
+				newSetup.setupNum = .random(in: 0..<Bot.bots.count)
 //				print("bots", newSetupNum, Bot.bots[newSetupNum].care, Storage.int(.myBotSkill))
-			} while abs(Bot.bots[newSetupNum].care*10 - Double(Storage.int(.myBotSkill))) > 2
+			} while abs(Bot.bots[newSetup.setupNum].care*10 - Double(Storage.int(.myBotSkill))) > 2
 		}
 		
 		// online is based on the turn that was selected during the online matchmaking process
-		let newTurn = newMode == .online ? FB.main.myGameData?.myTurn : mostRecentGame.2
+		newSetup.turn = newSetup.mode == .online ? FB.main.myGameData?.myTurn : newSetup.turn
 		
-		load(mode: newMode, setupNum: newSetupNum, turn: newTurn, hints: mostRecentGame.3, time: mostRecentGame.4)
+		load(setup: newSetup)
 	}
     
     func startGame() {

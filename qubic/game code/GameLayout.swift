@@ -73,7 +73,7 @@ class GameLayout: ObservableObject {
 		gameEndText = [""]
 		updateSettings()
 		
-		print("game starting", game.mode, game.setupNum)
+		print("game starting", game.gameSetup)
 		
 //        BoardScene.main.rotate(right: true) // this created a race condition
 		game.timers.append(Timer.after(0.1) {
@@ -100,7 +100,7 @@ class GameLayout: ObservableObject {
 		})
 	}
 	
-	func animateGameChange(rematch: Bool) {
+	func animateGameChange(rematch: Bool, newGameSetup: GameSetup = game.gameSetup) {
 		hidePopups()
 		analysisMode = 2
 		analysisTurn = 1
@@ -113,7 +113,7 @@ class GameLayout: ObservableObject {
 			optionsOpacity = .clear
 		}
 		
-		// TODO test that animategamechange works for:
+		// TODO test that animategamechange works for: (both rematch and new game from:)
 		// train games
 		// cubist?
 		// dailies
@@ -134,9 +134,7 @@ class GameLayout: ObservableObject {
 		// rematch from share from share
 		// rematch from share from review
 		let nextGame = Game() // this allows for rematches from share/review games
-		nextGame.mostRecentGame = game.mostRecentGame // TODO add presets to mostRecentGame so i can override dailies
-		nextGame.player = game.player
-		nextGame.gameState = game.gameState
+		// used to copy state and player over, and don't anymore
 		
 		nextGame.timers.append(Timer.after(0.3) {
 			withAnimation {
@@ -147,15 +145,13 @@ class GameLayout: ObservableObject {
 		
 		nextGame.timers.append(Timer.after(0.6) {
 			withAnimation { self.showWinsFor = nil }
-			if rematch { nextGame.loadRematch() }
-			else { nextGame.loadNextGame() }
+			if rematch { nextGame.loadRematch(setup: newGameSetup) }
+			else { nextGame.loadNextGame(setup: newGameSetup) }
 			
 			self.gameEndText = [""]
 			
-			
 		})
 		
-		// inside this one so they don't get cancled when the game turns off
 		nextGame.timers.append(Timer.after(0.8) {
 			withAnimation {
 				self.hideBoard = false

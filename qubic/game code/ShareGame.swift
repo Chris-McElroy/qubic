@@ -12,9 +12,10 @@ class ShareGame: Game {
 	func load(from game: GameData, myData: PlayerData, opData: PlayerData, movesIn: Int?) {
 		let allMoves = game.orderedMoves()
 		let movesIn = (movesIn ?? allMoves.count) <= allMoves.count ? movesIn ?? allMoves.count : allMoves.count
+		Game.main.turnOff()
 		Game.main = self
 		gameState = game.state
-		mode = game.mode
+		mode = game.mode // TODO what do i want to do with this whole function
 		mostRecentGame = (mode, game.setupNum, nil, game.hints, game.totalTime) // recording turn as nil so it's not always the same
 		
 		myTurn = game.myTurn

@@ -194,7 +194,7 @@ struct PastGamesView: View {
 					}
 					if game.mode != .online { // laterDo implement online rematches
 						Button("rematch") {
-							PastGamesView.startRematch(game: game)
+							startRematch(game: game)
 						}
 					}
 					ShareButton(playerID: myID, gameID: String(game.gameID))
@@ -278,33 +278,28 @@ struct PastGamesView: View {
 		return lenString
 	}
 	
-	static func startRematch(game: GameData) {
-		var setupNum = 0
-		var turn: Int? = nil
-		var hints = game.hints
-		var timeLimit: Double? = game.totalTime
-		let newGame = Game()
+	func startRematch(game: GameData) {
+		var newGameSetup = GameSetup(mode: game.mode, setupNum: 0, turn: nil, hints: game.hints, time: game.totalTime)
 		
 		if game.mode.train {
 			// nothing to do
 		} else if game.mode.solve {
 			// turn stays nil just like normal solves
-			hints = false
-			newGame.preset = Array(game.orderedMoves().first(game.presetCount)) // TODO check that this works at alllll (it doesn't seem to at least for dailies?)
-			newGame.rematchRequested = true // TODO make sure this isn't fucking shit up
+			newGameSetup.hints = false
+			newGameSetup.preset = Array(game.orderedMoves().first(game.presetCount)) // TODO check that this works at alllll (it doesn't seem to at least for dailies?)
 		} else if game.mode == .bot {
-			hints = false
-			setupNum = game.setupNum // TODO is this actually saved?
+			newGameSetup.hints = false
+			newGameSetup.setupNum = game.setupNum // TODO is this actually saved?
 		} else if game.mode == .local {
 			// nothing to do
 		} else { return }
 		
-		print(game.mode, setupNum, turn, hints, timeLimit)
+		print(newGameSetup)
 		// TODO test that this works for every type of game
 		// TODO if you do a play game after a share game does it bork everything? i feel like it should
 		// i think the solution is to always call Game().load() and have it call Game.main.turnoff and Game.main = self
 		
-		newGame.load(mode: game.mode, setupNum: setupNum, turn: turn, hints: hints, time: timeLimit)
+		Game().load(setup: newGameSetup)
 		GameLayout.main.animateIntro()
 		Layout.main.change(to: .rematch)
 	}

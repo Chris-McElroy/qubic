@@ -23,7 +23,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             Key.streak.rawValue: 0,
             Key.lastDC.rawValue: 0,
 			Key.currentDaily.rawValue: 0,
-			Key.dailyHistory.rawValue: [], // TODO do it like https://stackoverflow.com/questions/39489211/empty-collection-literal-requires-an-explicit-type-error-on-swift3
+			Key.dailyHistory.rawValue: [], // laterDO do it like https://stackoverflow.com/questions/39489211/empty-collection-literal-requires-an-explicit-type-error-on-swift3
             Key.daily.rawValue: [],
             Key.simple.rawValue: [],
             Key.common.rawValue: [],
