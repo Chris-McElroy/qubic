@@ -134,7 +134,7 @@ struct PastGamesView: View {
 		return VStack(spacing: 10) {
 			if newDay {
 				if #available(iOS 15, *) {
-					Text(time.formatted(date: .abbreviated, time: .omitted))
+					Text(time.formatted(date: .long, time: .omitted))
 				} else {
 					Text(format.string(from: time))
 				}
@@ -290,20 +290,28 @@ struct PastGamesView: View {
 			// nothing to do
 		} else if game.mode.solve {
 			// turn stays nil just like normal solves
+			newGameSetup.setupNum = game.setupNum
 			newGameSetup.hints = false
-			newGameSetup.preset = Array(game.orderedMoves().first(game.presetCount)) // TODO check that this works at alllll (it doesn't seem to at least for dailies?)
+			newGameSetup.preset = Array(game.orderedMoves().first(game.presetCount))
 		} else if game.mode == .bot {
 			newGameSetup.hints = false
-			newGameSetup.setupNum = game.setupNum // TODO is this actually saved? (as in, for bots, does it push setupnum to the cloud)
+			newGameSetup.setupNum = game.setupNum
 		} else if game.mode == .local {
 			// nothing to do
 		} else { return }
 		
 		print(newGameSetup)
 		// TODO test that this works for every type of game
-		// TODO if you do a play game after a share game does it bork everything? i feel like it should
-		// i think the solution is to always call Game().load() and have it call Game.main.turnoff and Game.main = self
-		// i think i did this, i should check though
+		// train defender then to warrior
+		// cubist then rematch again
+		// dailies
+		// simple
+		// tricky 1
+		// common ? to tricky 1
+		// tricky 24
+		// tricky ?
+		// bot games (retry with a couple times?)
+		// local X
 		
 		Game().load(setup: newGameSetup)
 		GameLayout.main.animateIntro()
