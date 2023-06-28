@@ -198,7 +198,7 @@ struct PastGamesView: View {
 						layout.change(to: .pastGame)
 					}
 					if game.mode != .online { // laterDo implement online rematches
-						Button("rematch") {
+						Button(game.mode.solve ? "try again" : "rematch") {
 							startRematch(game: game)
 						}
 					}
@@ -302,14 +302,14 @@ struct PastGamesView: View {
 		
 		print(newGameSetup)
 		// TODO test that this works for every type of game
-		// train defender then to warrior
-		// cubist then rematch again
-		// dailies
-		// simple
-		// tricky 1
-		// common ? to tricky 1
-		// tricky 24
-		// tricky ?
+		// train defender then to warrior x
+		// cubist then rematch again x
+		// dailies x
+		// simple x
+		// tricky 1 x
+		// common ? to tricky 1 x
+		// tricky 24 x
+		// tricky ? x
 		// bot games (retry with a couple times?)
 		// local X
 		

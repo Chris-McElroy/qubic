@@ -157,7 +157,10 @@ class GameViewComponents {
 					Button("menu") { layout.goBack() }
 				} else {
 					if game.mode.solve || game.mode == .local || game.mode.train {
-						Button("restart") { gameLayout.animateGameChange(rematch: true) }
+						Button("restart") {
+							game.endGame(with: .restart) // otherwise it doesn't save the game
+							gameLayout.animateGameChange(rematch: true)
+						}
 						Button("end game") { game.endGame(with: .ended) }
 					} else {
 						Button("resign") { game.endGame(with: .myResign) }

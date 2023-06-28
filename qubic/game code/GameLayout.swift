@@ -149,7 +149,7 @@ class GameLayout: ObservableObject {
 			if let pastGameSetup {
 				// allows share games to load when another game is already present
 				(nextGame as? PastGame)?.load(setup: pastGameSetup)
-			} else if rematch { nextGame.loadRematch(setup: newGameSetup) }
+			} else if rematch { nextGame.load(setup: newGameSetup) }
 			else { nextGame.loadNextGame(setup: newGameSetup) }
 			
 			self.gameEndText = [""]

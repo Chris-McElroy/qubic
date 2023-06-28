@@ -312,6 +312,7 @@ class Layout: ObservableObject {
     }
     
 	func shouldStartOnlineGame() -> Bool {
+		// TODO this is no longer relevant all the time bc i can start new ones from past games
 		(current == .playMenu || current == .play) && playSelection[0] == 1 && playSelection[1] != 0
 	}
 	

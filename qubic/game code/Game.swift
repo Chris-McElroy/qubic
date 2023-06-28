@@ -23,8 +23,8 @@ enum GameMode: Int {
 }
 
 enum GameState: Int {
-    // each one is 1 more
-	case error = 0, new, active, myWin, opWin, myTimeout, opTimeout, myResign, opResign, draw, ended, off
+    // each one is 1 more — remember to add new ones to the end!!!
+	case error = 0, new, active, myWin, opWin, myTimeout, opTimeout, myResign, opResign, draw, ended, off, restart
     
     func mirror() -> GameState {
         switch self {
@@ -36,6 +36,7 @@ enum GameState: Int {
         case .opResign: return .myResign
         case .draw: return .draw
 		case .ended: return .ended
+		case .restart: return .restart
         default: return .error
         }
     }
@@ -176,11 +177,8 @@ class Game: ObservableObject {
 		dayInt = Date.int
 		lastDC = Storage.int(.lastDC)
 		setupNum = setup.setupNum
-		if let presetPreset = setup.preset {
-			preset = presetPreset
-		} else {
-			setPreset(for: setup.mode)
-		}
+		setPreset()
+		gameSetup.preset = preset
 		if !preset.isEmpty { myTurn = preset.count % 2 }
 		else if let givenTurn = setup.turn { myTurn = givenTurn }
 		else { myTurn = .random(in: 0...1) }
@@ -219,7 +217,11 @@ class Game: ObservableObject {
         for p in preset { loadMove(p) }
 		GameLayout.main.refreshHints()
         
-        func setPreset(for mode: GameMode) {
+        func setPreset() {
+			if let presetPreset = setup.preset {
+				preset = presetPreset
+				return
+			}
 //			if mode == .picture1 {
 //				preset = expandMoves("HRVDGqlJdhmiv9") // move anywhere
 //				solved = false
@@ -286,15 +288,9 @@ class Game: ObservableObject {
         }
     }
 	
-	func loadRematch(setup: GameSetup) {
-		var setup = setup
-		setup.preset = preset
-		load(setup: setup)
-	}
-	
 	func loadNextGame(setup: GameSetup) {
 		var newSetup = setup
-		switch gameSetup.mode {
+		switch newSetup.mode {
 		case .novice: newSetup.mode = .defender
 		case .defender:  newSetup.mode = .warrior
 		case .warrior:  newSetup.mode = .tyrant
@@ -324,6 +320,8 @@ class Game: ObservableObject {
 		
 		// online is based on the turn that was selected during the online matchmaking process
 		newSetup.turn = newSetup.mode == .online ? FB.main.myGameData?.myTurn : newSetup.turn
+		// preset should only be saved for rematches
+		newSetup.preset = nil
 		
 		load(setup: newSetup)
 	}
@@ -828,6 +826,7 @@ class Game: ObservableObject {
         
         if end == .myTimeout || end == .opTimeout { BoardScene.main.spinBoard() }
         
+		if end == .restart { return }
 		GameLayout.main.setGameEndText()
 		timers.append(Timer.after(end == .myResign || end == .ended ? 0 : 1) {
 			withAnimation { GameLayout.main.popup = .gameEnd }
