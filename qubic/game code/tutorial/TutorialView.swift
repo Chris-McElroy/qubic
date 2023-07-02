@@ -23,6 +23,7 @@ struct TutorialView: View {
 		}
 		.onAppear {
 			layout.reset()
+			Storage.set(Storage.int(.startedTutorial) + 1, for: .startedTutorial)
 		}
 		.onDisappear { // changing this to disappear so it only increments when they've finished the tutorial
 			Storage.set(Storage.int(.playedTutorial) + 1, for: .playedTutorial)

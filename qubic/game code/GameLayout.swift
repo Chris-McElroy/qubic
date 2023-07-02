@@ -113,26 +113,6 @@ class GameLayout: ObservableObject {
 			optionsOpacity = .clear
 		}
 		
-		// TODO test that animategamechange works for: (both rematch and new game from:)
-		// train games
-		// cubist?
-		// dailies
-		// simple
-		// simple 24
-		// common
-		// common 24
-		// simple ?
-		// tricky 24
-		// tricky ?
-		// local??
-		// online??
-		// bot?
-		// rematch from share
-		// review game
-		// past game menu
-		// share from share
-		// rematch from share from share
-		// rematch from share from review
 		// this allows for rematches from share/review games
 		let nextGame = pastGameSetup != nil ? PastGame() : Game()
 		// i used to copy state and player over, and don't anymore
@@ -141,7 +121,7 @@ class GameLayout: ObservableObject {
 			withAnimation {
 				self.hideBoard = true
 			}
-			BoardScene.main.rotate(right: false) // TODO somehow this doesn't fuck up board saves?? very confused by how though and i would like to understand this. rn if i do two games in a row, they both show up rotated correctly in past games. but howwww
+			BoardScene.main.rotate(right: false) // this is alright because boardview.reset() is called in game.load()
 		})
 		
 		nextGame.timers.append(Timer.after(0.6) {

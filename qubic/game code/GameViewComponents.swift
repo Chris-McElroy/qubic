@@ -250,13 +250,21 @@ class GameViewComponents {
 			} else {
 				newGameText = "try \(type) \(game.setupNum + 2)"
 			}
-		default: newGameText = "new online game"
+		case .bot:
+			if layout.shouldStartOnlineGame() {
+				newGameText = "new online game"
+			} else {
+				newGameText = "play new bot"
+			}
+		default: newGameText = "new game"
 		}
 		
 		return ZStack {
 			Button(newGameText) {
 				if layout.shouldStartOnlineGame() {
-					FB.main.getOnlineMatch(onMatch: { gameLayout.animateGameChange(rematch: false) })
+					FB.main.getOnlineMatch(onMatch: { gameLayout.animateGameChange(rematch: false) },
+										   timeLimit: game.totalTime ?? -1,
+										   humansOnly: layout.shouldWaitForHuman())
 				} else {
 					gameLayout.animateGameChange(rematch: false)
 				}
@@ -486,7 +494,9 @@ class GameViewComponents {
 	}
 	
 	static private func shouldShowNewGameButton() -> Bool {
-		if game.mode.oneOf(.local, .cubist) {
+		if type(of: game) == PastGame.self {
+			return false
+		} else if game.mode.oneOf(.local, .cubist) {
 			return false
 		} else if game.mode == .daily && game.setupNum == 3 {
 			return false

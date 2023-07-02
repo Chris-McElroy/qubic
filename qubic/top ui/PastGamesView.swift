@@ -300,19 +300,6 @@ struct PastGamesView: View {
 			// nothing to do
 		} else { return }
 		
-		print(newGameSetup)
-		// TODO test that this works for every type of game
-		// train defender then to warrior x
-		// cubist then rematch again x
-		// dailies x
-		// simple x
-		// tricky 1 x
-		// common ? to tricky 1 x
-		// tricky 24 x
-		// tricky ? x
-		// bot games (retry with a couple times?)
-		// local X
-		
 		Game().load(setup: newGameSetup)
 		GameLayout.main.animateIntro()
 		Layout.main.change(to: .pastGame)

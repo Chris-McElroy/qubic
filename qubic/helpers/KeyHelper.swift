@@ -65,6 +65,7 @@ enum Key: String {
 	case presetCount = "presetCount"
 	
 	case playedTutorial = "playedTutorial"
+	case startedTutorial = "startedTutorial"
 	case tipsShown = "tipsShown"
 	case tipsOn = "tipsOn"
 	case myBotSkill = "myBotSkill"

@@ -77,7 +77,7 @@ func deeplink(to url: URL) {
 			Layout.main.change(to: .share)
 			let setup = PastGameSetup(gameData: gameData, myData: myData, opData: opData, movesIn: movesIn)
 			PastGame().load(setup: setup)
-			GameLayout.main.animateIntro() // TODO check that share games always go back to main menu
+			GameLayout.main.animateIntro()
 		}
 	})
 }

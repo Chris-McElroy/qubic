@@ -9,7 +9,7 @@
 import SwiftUI
 
 let buildNumber = 30311
-let versionType: VersionType = .xCode
+let versionType: VersionType = .testFlight
 let solveButtonsEnabled = false
 
 struct MainView: View {
@@ -86,7 +86,9 @@ struct MainView: View {
 		
 		func playAction(view1: ViewState, view2: ViewState) {
 			if layout.shouldStartOnlineGame() {
-				FB.main.getOnlineMatch(onMatch: { layout.change(to: .play) })
+				FB.main.getOnlineMatch(onMatch: { layout.change(to: .play) },
+									   timeLimit: [15, 30, 180, -1][layout.playSelection[2]],
+									   humansOnly: layout.playSelection[1] == 2)
 			} else if layout.shouldSendInvite() {
 				presentMessageCompose()
 			} else { layout.change(to: view1, or: view2) }

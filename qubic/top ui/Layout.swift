@@ -312,8 +312,13 @@ class Layout: ObservableObject {
     }
     
 	func shouldStartOnlineGame() -> Bool {
-		// TODO this is no longer relevant all the time bc i can start new ones from past games
-		(current == .playMenu || current == .play) && playSelection[0] == 1 && playSelection[1] != 0
+		((current == .playMenu || current == .play) && playSelection[0] == 1 && playSelection[1] != 0) || // playing non-bot from play menu
+		(current.gameView && current != .play && game.mode == .online) // playing human from not play menu
+	}
+	
+	func shouldWaitForHuman() -> Bool {
+		((current == .playMenu || current == .play) && playSelection[0] == 1 && playSelection[1] == 2) || // playing human from play menu
+		(current.gameView && current != .play && game.mode == .online) // playing human not from play menu
 	}
 	
 	func shouldSendInvite() -> Bool {

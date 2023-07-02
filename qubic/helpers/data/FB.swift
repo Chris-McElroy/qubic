@@ -170,6 +170,7 @@ class FB {
 		let solves = Storage.array(.solvedBoards) as? [String] ?? []
 		let solveBoardVersion = Storage.int(.solveBoardsVersion)
 		let tutorialPlays = Storage.int(.playedTutorial)
+		let tutorialStarts = Storage.int(.startedTutorial)
 		myStatsRef.setValue([
 			Key.buildNumber.rawValue: buildNumber,
 			Key.versionType.rawValue: versionType.rawValue,
@@ -183,7 +184,8 @@ class FB {
 			Key.tricky.rawValue: tricky,
 			Key.solvedBoards.rawValue: solves,
 			Key.solveBoardsVersion.rawValue: solveBoardVersion,
-			Key.playedTutorial.rawValue: tutorialPlays
+			Key.playedTutorial.rawValue: tutorialPlays,
+			Key.startedTutorial.rawValue: tutorialStarts
 		] as [String : Any])
 	}
     
@@ -213,14 +215,12 @@ class FB {
 		myGameData = gameData
 	}
     
-	func getOnlineMatch(onMatch: @escaping () -> Void) {
+	func getOnlineMatch(onMatch: @escaping () -> Void, timeLimit: Double, humansOnly: Bool) {
 		Layout.main.searchingOnline = true
         onlineInviteState = .invited
         myGameData = nil
         opGameData = nil
 		
-		let timeLimit: Double = [15, 30, 180, -1][Layout.main.playSelection[2]]
-		let humansOnly = Layout.main.playSelection[1] == 2
         var possOp: Set<String> = []
         var myInvite = OnlineInviteData(timeLimit: timeLimit)
         
