@@ -31,6 +31,7 @@ class FB {
                 self.updateMyData()
 				self.updateMyStats()
 				self.observePlayers()
+				self.observeActive()
 				self.startActiveTimer()
 				self.checkOnlineGames()
             } else {
@@ -73,12 +74,29 @@ class FB {
 			GameSummary.updatePastGames()
         })
     }
+	
+	func observeActive() {
+		let activeRef = ref.child("active")
+		activeRef.removeAllObservers()
+		activeRef.observe(DataEventType.value, with: { snapshot in
+			if let dict = snapshot.value as? [String: Int] {
+				var anyActive = 0
+				for entry in dict {
+					// if they were active in the past min, show as active
+					if Date.ms - entry.value < 60000 {
+						anyActive += 1
+					}
+				}
+				Layout.main.peopleOnline = anyActive
+			}
+		})
+	}
 		
 	func checkOnlineGames() {
 		let gameRef = ref.child("games/\(myID)")
 		gameRef.observeSingleEvent(of: DataEventType.value, with: { snapshot in
 			guard let dict = snapshot.value as? [String: [String: Any]] else { return }
-			for var (id, onlineGame) in dict {
+			for var (id, onlineGame) in dict { // laterDO why was this var again? can i take it out
 				var onlineData = GameData(from: onlineGame, gameID: Int(id) ?? 0)
 				if !onlineData.valid || (onlineData.state == .error && onlineData.orderedMoves().isEmpty) {
 					// not including these because it just doesn't seem necessary

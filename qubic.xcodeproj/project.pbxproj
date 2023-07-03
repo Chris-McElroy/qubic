@@ -703,6 +703,7 @@
 		1E3335DA25342BFF00966EA6 /* top ui */ = {
 			isa = PBXGroup;
 			children = (
+				1E883EFA24EE3B14002686C8 /* Layout.swift */,
 				1E6817A624CC977B001713E7 /* MainView.swift */,
 				1E5A5AAD24CD077900F31124 /* TrainView.swift */,
 				1E017B9D24CDB70D00CF979A /* SolveView.swift */,
@@ -716,7 +717,6 @@
 				1EAEE3BA24D9DA1400490530 /* FriendsView.swift */,
 				1EAEE3BC24D9DCBA00490530 /* PastGamesView.swift */,
 				1E272E732800C37C0080216D /* TipView.swift */,
-				1E883EFA24EE3B14002686C8 /* Layout.swift */,
 			);
 			path = "top ui";
 			sourceTree = "<group>";
@@ -1271,7 +1271,7 @@
 				CODE_SIGN_ENTITLEMENTS = qubicMessage/qubicMessage.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 11;
+				CURRENT_PROJECT_VERSION = 12;
 				DEVELOPMENT_TEAM = A44UN86BN6;
 				INFOPLIST_FILE = qubicMessage/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
@@ -1298,7 +1298,7 @@
 				CODE_SIGN_ENTITLEMENTS = qubicMessage/qubicMessage.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 11;
+				CURRENT_PROJECT_VERSION = 12;
 				DEVELOPMENT_TEAM = A44UN86BN6;
 				INFOPLIST_FILE = qubicMessage/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
@@ -1447,7 +1447,7 @@
 				CODE_SIGN_ENTITLEMENTS = qubic/qubic.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 11;
+				CURRENT_PROJECT_VERSION = 12;
 				DEVELOPMENT_ASSET_PATHS = "\"qubic/Preview Content\"";
 				DEVELOPMENT_TEAM = A44UN86BN6;
 				ENABLE_PREVIEWS = YES;
@@ -1480,7 +1480,7 @@
 				CODE_SIGN_ENTITLEMENTS = qubic/qubic.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 11;
+				CURRENT_PROJECT_VERSION = 12;
 				DEVELOPMENT_ASSET_PATHS = "\"qubic/Preview Content\"";
 				DEVELOPMENT_TEAM = A44UN86BN6;
 				ENABLE_PREVIEWS = YES;

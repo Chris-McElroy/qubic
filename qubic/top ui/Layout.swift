@@ -147,7 +147,8 @@ class Layout: ObservableObject {
 	@Published var current: ViewState = Storage.int(.playedTutorial) > 0 ? .main : .tutorial
 	@Published var showGame: Bool = false
     @Published var leftArrows: Bool = Storage.int(.arrowSide) == 0
-    @Published var newDaily = Storage.int(.lastDC) != Date.int
+	@Published var newDaily: Bool = Storage.int(.lastDC) != Date.int
+	@Published var peopleOnline: Int = 0
 	@Published var updateAvailable: Bool = false
 	@Published var trainSelection: [Int] = Storage.array(.lastTrainMenu) as? [Int] ?? [0,1,0]
 	@Published var solveSelection: [Int] = [Storage.array(.daily)?.enumerated().first(where: { !($0.element as? Bool ?? false) })?.offset ?? 0, 0]

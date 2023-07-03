@@ -28,6 +28,9 @@ struct PlayView: View {
 				Spacer()
 				if layout.current == .playMenu {
 					VStack(spacing: 0) {
+						Text("\(layout.peopleOnline) online").bold()
+							.modifier(Oligopoly(size: 16))
+							.padding(.vertical, 40)
 						Spacer()
 						Spacer()
 						tipArea

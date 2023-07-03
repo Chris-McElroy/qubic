@@ -8,8 +8,8 @@
 
 import SwiftUI
 
-let buildNumber = 30311
-let versionType: VersionType = .testFlight
+let buildNumber = 30312
+let versionType: VersionType = .xCode
 let solveButtonsEnabled = false
 
 struct MainView: View {
@@ -105,7 +105,7 @@ struct MainView: View {
                 .zIndex(0)
             ZStack {
                 mainButton(views: [.solveMenu, .solve], text: solveText, color: .secondary(), action: layout.change)
-                Circle()
+                Circle() // laterDO only show this circle if solve is available
                     .frame(width: 24, height: 24)
                     .foregroundColor(layout.current == .solveMenu ? .secondary() : .primary())
                     .zIndex(2)
@@ -120,6 +120,12 @@ struct MainView: View {
 				ActivityIndicator(color: .white, size: .large)
                     .offset(x: 1, y: 1)
 					.opacity(layout.searchingOnline ? 1 : 0)
+				Circle()
+					.frame(width: 24, height: 24)
+					.foregroundColor(.secondary())
+					.zIndex(2)
+					.offset(x: 88, y: -25)
+					.opacity(layout.peopleOnline > 1 ? 1 : 0)
             }
             .modifier(LayoutModifier(for: .playButton))
         }
