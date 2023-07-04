@@ -293,6 +293,7 @@ struct PastGamesView: View {
 			newGameSetup.setupNum = game.setupNum
 			newGameSetup.hints = false
 			newGameSetup.preset = Array(game.orderedMoves().first(game.presetCount))
+			newGameSetup.solved = game.state.myWin
 		} else if game.mode == .bot {
 			newGameSetup.hints = false
 			newGameSetup.setupNum = game.setupNum

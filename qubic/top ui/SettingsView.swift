@@ -57,7 +57,6 @@ struct SettingsView: View {
 	}
 	
 	func setArrowSide(to v: Int) {
-		layout.leftArrows = v == 0
 		arrowSide = v
 		Storage.set(v, for: .arrowSide)
 	}

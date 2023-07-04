@@ -48,8 +48,8 @@ class GameViewComponents {
 			Spacer()
 			ZStack {
 				optionsButton
-				undoButton.offset(x: layout.leftArrows ? distance : -distance)
-				arrowButtons.offset(x: layout.leftArrows ? -distance : distance)
+				undoButton.offset(x: gameLayout.arrowSide == 0 ? distance : -distance)
+				arrowButtons.offset(x: gameLayout.arrowSide == 0 ? -distance : distance)
 			}
 			.frame(width: layout.width, height: gameLayout.gameControlHeight)
 			.background(Fill())
@@ -88,7 +88,7 @@ class GameViewComponents {
 					Text(" ")
 				}
 			}
-			.frame(width: 75, alignment: layout.leftArrows ? .trailing : .leading)
+			.frame(width: 75, alignment: gameLayout.arrowSide == 0 ? .trailing : .leading)
 			.padding(.horizontal, 10)
 			.opacity(gameLayout.undoOpacity.rawValue)
 		}
@@ -296,7 +296,7 @@ class GameViewComponents {
 	}
 	
 	static var analysisPopup: some View {
-		VStack(spacing: 0) {
+		return VStack(spacing: 0) {
 			VStack(spacing: 0) {
 				if game.hints {
 					Spacer()
@@ -314,11 +314,9 @@ class GameViewComponents {
 							Text("you previously solved this puzzle, do you want to enable analysis?")
 							Button("yes") { withAnimation {
 								game.hints = true
-								if game.gameState != .active && !game.moves.isEmpty {
-									gameLayout.prevOpacity = .full
-								}
+								GameLayout.main.updateGameView.toggle()
 							} }
-								.buttonStyle(Standard())
+							.buttonStyle(Standard())
 						}
 					} else {
 						Text("you can’t analyze solve boards until they are solved!")
@@ -436,7 +434,6 @@ class GameViewComponents {
 	
 	struct PlayerName: View {
 		let turn: Int
-		@ObservedObject var game: Game = Game.main
 		@ObservedObject var gameLayout: GameLayout = GameLayout.main
 		@Environment(\.colorScheme) var colorScheme
 		var color: Color { .of(n: game.player[turn].color) }

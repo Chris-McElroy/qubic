@@ -75,6 +75,7 @@ struct Notifications {
 //        Storage.set(streak, for: .streak)
         if Storage.int(.notification) == 0 {
 			let lastDC = Storage.int(.lastDC)
+			if lastDC > Date.int { return } // in case of weird time zone things
             UIApplication.shared.applicationIconBadgeNumber = lastDC == Date.int ? 0 : 1
             let content = UNMutableNotificationContent()
             content.badge = 1

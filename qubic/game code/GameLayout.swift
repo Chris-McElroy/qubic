@@ -47,6 +47,7 @@ class GameLayout: ObservableObject {
 	@Published var premoves = Storage.int(.premoves)
 	@Published var moveChecker = Storage.int(.moveChecker)
 	@Published var arrowSide = Storage.int(.arrowSide)
+	@Published var updateGameView = false
 	
 	let nameSpace: CGFloat = 65
 	var gameControlSpace: CGFloat { Layout.main.hasBottomGap ? 45 : 60 }
@@ -299,8 +300,7 @@ class GameLayout: ObservableObject {
 	}
 	
 	func setArrowSide(to v: Int) {
-		withAnimation { Layout.main.leftArrows = v == 0 }
-		arrowSide = v
+		withAnimation { arrowSide = v }
 		Storage.set(v, for: .arrowSide)
 	}
 	

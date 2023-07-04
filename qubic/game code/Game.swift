@@ -86,17 +86,18 @@ struct GameSetup {
 	var hints: Bool = false
 	var time: Double?
 	var preset: [Int]?
+	var solved: Bool = false
 }
 
 var game: Game { Game.main }
 
-class Game: ObservableObject {
+class Game {
     static var main = Game()
     
-    @Published var moves: [Move] = []
-	@Published var currentMove: Move? = nil
-    @Published var hints: Bool = false
-    @Published var currentTimes: [Int] = [0,0]
+    var moves: [Move] = []
+	var currentMove: Move? = nil
+    var hints: Bool = false
+    var currentTimes: [Int] = [0,0]
     
 	var gameNum: Int = 0
 	var gameID: Int = 0 // not even sure this is needed? now updating this in startgame
@@ -178,7 +179,6 @@ class Game: ObservableObject {
 		lastDC = Storage.int(.lastDC)
 		setupNum = setup.setupNum
 		setPreset()
-		gameSetup.preset = preset
 		if !preset.isEmpty { myTurn = preset.count % 2 }
 		else if let givenTurn = setup.turn { myTurn = givenTurn }
 		else { myTurn = .random(in: 0...1) }
@@ -220,6 +220,7 @@ class Game: ObservableObject {
         func setPreset() {
 			if let presetPreset = setup.preset {
 				preset = presetPreset
+				solved = setup.solved
 				return
 			}
 //			if mode == .picture1 {
@@ -248,6 +249,9 @@ class Game: ObservableObject {
                 preset = []
                 solved = false
             }
+			
+			gameSetup.preset = preset
+			gameSetup.solved = solved
             
             func getInfo(key: Key) {
 				let boards = solveBoards[key] ?? [""]
@@ -355,6 +359,7 @@ class Game: ObservableObject {
                     endGame(with: realTurn == myTurn ? .myTimeout : .opTimeout)
                 }
             }
+			GameLayout.main.updateGameView.toggle()
         }
     }
 	

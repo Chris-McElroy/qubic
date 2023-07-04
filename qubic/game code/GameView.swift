@@ -10,9 +10,9 @@ import SwiftUI
 import SceneKit
 
 struct GameView: View {
-	@ObservedObject var game: Game = Game.main
 	@ObservedObject var gameLayout: GameLayout = GameLayout.main
 	@ObservedObject var layout: Layout = Layout.main
+	@State var forcedUpdate: Bool = false
 	
 	let components = GameViewComponents.self
     

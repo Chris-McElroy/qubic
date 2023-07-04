@@ -10,7 +10,6 @@ import SwiftUI
 import Combine
 
 struct PracticeGameView: View {
-	@ObservedObject var game: Game = Game.main
 	@ObservedObject var gameLayout: GameLayout = GameLayout.main
 	@ObservedObject var layout: Layout = Layout.main
 	@ObservedObject var tutorialLayout: TutorialLayout = TutorialLayout.main

@@ -146,7 +146,6 @@ class Layout: ObservableObject {
     
 	@Published var current: ViewState = Storage.int(.playedTutorial) > 0 ? .main : .tutorial
 	@Published var showGame: Bool = false
-    @Published var leftArrows: Bool = Storage.int(.arrowSide) == 0
 	@Published var newDaily: Bool = Storage.int(.lastDC) != Date.int
 	@Published var peopleOnline: Int = 0
 	@Published var updateAvailable: Bool = false
