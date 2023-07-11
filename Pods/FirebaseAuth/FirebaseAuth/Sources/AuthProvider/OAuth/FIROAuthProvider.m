@@ -18,8 +18,9 @@
 #include <CommonCrypto/CommonCrypto.h>
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRFacebookAuthProvider.h"
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIROAuthCredential.h"
-#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
+#import "FirebaseAppCheck/Interop/FIRAppCheckTokenResultInterop.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuthGlobalWorkQueue.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuth_Internal.h"
 #import "FirebaseAuth/Sources/AuthProvider/OAuth/FIROAuthCredential_Internal.h"
@@ -88,6 +89,7 @@ static NSString *const kCustomUrlSchemePrefix = @"app-";
                                                rawNonce:nil
                                             accessToken:accessToken
                                                  secret:nil
+                                               fullName:nil
                                            pendingToken:nil];
 }
 
@@ -98,6 +100,7 @@ static NSString *const kCustomUrlSchemePrefix = @"app-";
                                                rawNonce:nil
                                             accessToken:accessToken
                                                  secret:nil
+                                               fullName:nil
                                            pendingToken:nil];
 }
 
@@ -110,6 +113,7 @@ static NSString *const kCustomUrlSchemePrefix = @"app-";
                                                rawNonce:rawNonce
                                             accessToken:accessToken
                                                  secret:nil
+                                               fullName:nil
                                            pendingToken:nil];
 }
 
@@ -121,6 +125,19 @@ static NSString *const kCustomUrlSchemePrefix = @"app-";
                                                rawNonce:rawNonce
                                             accessToken:nil
                                                  secret:nil
+                                               fullName:nil
+                                           pendingToken:nil];
+}
+
++ (FIROAuthCredential *)appleCredentialWithIDToken:(NSString *)IDToken
+                                          rawNonce:(nullable NSString *)rawNonce
+                                          fullName:(nullable NSPersonNameComponents *)fullName {
+  return [[FIROAuthCredential alloc] initWithProviderID:@"apple.com"
+                                                IDToken:IDToken
+                                               rawNonce:rawNonce
+                                            accessToken:nil
+                                                 secret:nil
+                                               fullName:fullName
                                            pendingToken:nil];
 }
 
@@ -308,6 +325,9 @@ static NSString *const kCustomUrlSchemePrefix = @"app-";
                                      NSString *appID = strongSelf->_auth.app.options.googleAppID;
                                      NSString *apiKey =
                                          strongSelf->_auth.requestConfiguration.APIKey;
+                                     NSString *tenantID = strongSelf->_auth.tenantID;
+                                     id<FIRAppCheckInterop> appCheck =
+                                         strongSelf->_auth.requestConfiguration.appCheck;
                                      NSMutableDictionary *urlArguments = [@{
                                        @"apiKey" : apiKey,
                                        @"authType" : kAuthTypeSignInWithRedirect,
@@ -321,6 +341,9 @@ static NSString *const kCustomUrlSchemePrefix = @"app-";
                                        urlArguments[@"clientId"] = clientID;
                                      } else {
                                        urlArguments[@"appId"] = appID;
+                                     }
+                                     if (tenantID) {
+                                       urlArguments[@"tid"] = tenantID;
                                      }
                                      if (strongSelf.scopes.count) {
                                        urlArguments[@"scopes"] =
@@ -341,6 +364,7 @@ static NSString *const kCustomUrlSchemePrefix = @"app-";
                                        urlArguments[@"hl"] =
                                            strongSelf->_auth.requestConfiguration.languageCode;
                                      }
+
                                      NSString *argumentsString = [strongSelf
                                          httpArgumentsStringForArgsDictionary:urlArguments];
                                      NSString *URLString;
@@ -354,16 +378,41 @@ static NSString *const kCustomUrlSchemePrefix = @"app-";
                                            [NSString stringWithFormat:kHeadfulLiteURLStringFormat,
                                                                       authDomain, argumentsString];
                                      }
-                                     if (completion) {
-                                       NSCharacterSet *set =
-                                           [NSCharacterSet URLFragmentAllowedCharacterSet];
-                                       completion(
-                                           [NSURL
-                                               URLWithString:
-                                                   [URLString
-                                                       stringByAddingPercentEncodingWithAllowedCharacters:
-                                                           set]],
-                                           nil);
+                                     NSCharacterSet *set =
+                                         [NSCharacterSet URLFragmentAllowedCharacterSet];
+                                     NSURLComponents *components = [[NSURLComponents alloc]
+                                         initWithString:
+                                             [URLString
+                                                 stringByAddingPercentEncodingWithAllowedCharacters:
+                                                     set]];
+                                     if (appCheck) {
+                                       [appCheck
+                                           getTokenForcingRefresh:false
+                                                       completion:^(
+                                                           id<FIRAppCheckTokenResultInterop> _Nonnull tokenResult) {
+                                                         if (tokenResult.error) {
+                                                           FIRLogWarning(
+                                                               kFIRLoggerAuth, @"I-AUT000018",
+                                                               @"Error getting App Check token; "
+                                                               @"using placeholder token "
+                                                               @"instead. Error: %@",
+                                                               tokenResult.error);
+                                                         }
+                                                         NSString *appCheckTokenFragment = [@"fac="
+                                                             stringByAppendingString:tokenResult
+                                                                                         .token];
+                                                         [components
+                                                             setFragment:appCheckTokenFragment];
+
+                                                         if (completion) {
+                                                           completion([components URL], nil);
+                                                         }
+                                                       }];
+
+                                     } else {
+                                       if (completion) {
+                                         completion([components URL], nil);
+                                       }
                                      }
                                    }];
 }

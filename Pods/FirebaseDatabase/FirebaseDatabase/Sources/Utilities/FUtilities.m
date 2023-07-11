@@ -15,7 +15,7 @@
  */
 
 #import "FirebaseDatabase/Sources/Utilities/FUtilities.h"
-#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 #import "FirebaseDatabase/Sources/Constants/FConstants.h"
 #import "FirebaseDatabase/Sources/Utilities/FAtomicNumber.h"
 #import "FirebaseDatabase/Sources/Utilities/FStringUtilities.h"
@@ -25,7 +25,7 @@
 #pragma mark -
 #pragma mark C functions
 
-FIRLoggerService kFIRLoggerDatabase = @"[Firebase/Database]";
+FIRLoggerService kFIRLoggerDatabase = @"[FirebaseDatabase]";
 static FLogLevel logLevel = FLogLevelInfo; // Default log level is info
 static NSMutableDictionary *options = nil;
 
@@ -295,10 +295,11 @@ void firebaseJobsTroll(void) {
 }
 
 + (NSNumber *)intForString:(NSString *)string {
-    static NSCharacterSet *notDigits = nil;
-    if (!notDigits) {
-        notDigits = [[NSCharacterSet decimalDigitCharacterSet] invertedSet];
-    }
+    static dispatch_once_t once;
+    static NSCharacterSet *notDigits;
+    dispatch_once(&once, ^{
+      notDigits = [[NSCharacterSet decimalDigitCharacterSet] invertedSet];
+    });
     if ([string rangeOfCharacterFromSet:notDigits].length == 0) {
         NSInteger num;
         NSScanner *scanner = [NSScanner scannerWithString:string];
