@@ -145,7 +145,7 @@ class Layout: ObservableObject {
     private var topSpacerHeight: [ViewState: CGFloat] = [:]
     
 	@Published var current: ViewState = Storage.int(.playedTutorial) > 0 ? .main : .tutorial
-	@Published var showGame: Bool = false
+    @Published var showGame: Bool = false
 	@Published var newDaily: Bool = Storage.int(.lastDC) != Date.int
 	@Published var peopleOnline: Int = 0
 	@Published var updateAvailable: Bool = false

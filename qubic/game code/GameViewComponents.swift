@@ -192,7 +192,7 @@ class GameViewComponents {
 					.multilineTextAlignment(.center)
 			}
 			.onTapGesture {
-				if gameEndText.count == 2 {
+				if gameEndText.count == 2 { // TODO excuse me wtf why is this so hidden???
 					TipStatus.main.showTip(gameEndText[1])
 				}
 			}

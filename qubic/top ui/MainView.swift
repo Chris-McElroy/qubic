@@ -31,6 +31,7 @@ struct MainView: View {
 					.offset(y: layout.backButtonOffset)
 					.zIndex(10)
 			}
+            .opacity(layout.showGame || layout.current == .tutorial ? 0 : 1)
 			if layout.showGame {
 				GameView().modifier(GameViewLayout())
 			}
